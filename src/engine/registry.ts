@@ -215,6 +215,10 @@ export class Registry extends EventEmitter {
   }
 
   async save(): Promise<void> {
+    if (this.saveTimer) {
+      clearTimeout(this.saveTimer);
+      this.saveTimer = null;
+    }
     await this.updateDesignSystem(this._designSystem);
   }
 

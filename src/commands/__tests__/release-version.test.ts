@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-describe("0.15.0 release metadata", () => {
+describe("0.16.1 release metadata", () => {
   it("aligns package, MCP, widget, and changelog versions", async () => {
     const root = process.cwd();
     const pkg = JSON.parse(await readFile(join(root, "package.json"), "utf-8"));
@@ -13,24 +13,39 @@ describe("0.15.0 release metadata", () => {
     const studioLock = JSON.parse(await readFile(join(root, "apps", "studio", "package-lock.json"), "utf-8"));
     const studioTauri = JSON.parse(await readFile(join(root, "apps", "studio", "src-tauri", "tauri.conf.json"), "utf-8"));
     const studioCargo = await readFile(join(root, "apps", "studio", "src-tauri", "Cargo.toml"), "utf-8");
+    const studioPackageInfo = await readFile(join(root, "src", "studio", "package-info.ts"), "utf-8");
+    const llms = await readFile(join(root, "llms.txt"), "utf-8");
+    const agentRecipes = await readFile(join(root, "docs", "AGENT_RECIPES.md"), "utf-8");
     const changelog = await readFile(join(root, "CHANGELOG.md"), "utf-8");
+    const npmPackageEntry = server.packages.find((entry: { registryType?: string }) => entry.registryType === "npm");
 
-    expect(pkg.version).toBe("0.15.0");
-    expect(lock.version).toBe("0.15.0");
-    expect(lock.packages[""].version).toBe("0.15.0");
-    expect(server.version).toBe("0.15.0");
-    expect(server.packages.find((entry: { registryType?: string }) => entry.registryType === "npm")?.version).toBe("0.15.0");
-    expect(widget.packageVersion).toBe("0.15.0");
-    expect(studioPkg.version).toBe("0.15.0");
-    expect(studioLock.version).toBe("0.15.0");
-    expect(studioLock.packages[""].version).toBe("0.15.0");
-    expect(studioTauri.version).toBe("0.15.0");
+    expect(pkg.version).toBe("0.16.1");
+    expect(lock.version).toBe("0.16.1");
+    expect(lock.packages[""].version).toBe("0.16.1");
+    expect(server.version).toBe("0.16.1");
+    expect(npmPackageEntry?.version).toBe("0.16.1");
+    expect(npmPackageEntry?.packageArguments.map((arg: { value: string }) => arg.value)).toEqual(["mcp", "start", "--no-figma"]);
+    expect(widget.packageVersion).toBe("0.16.1");
+    expect(studioPkg.version).toBe("0.16.1");
+    expect(studioLock.version).toBe("0.16.1");
+    expect(studioLock.packages[""].version).toBe("0.16.1");
+    expect(studioTauri.version).toBe("0.16.1");
     expect(studioTauri.bundle?.targets).toContain("dmg");
-    expect(studioCargo).toMatch(/^version = "0\.15\.0"$/m);
-    expect(changelog).toMatch(/^## v0\.15\.0\b/m);
-    expect(changelog).toContain("Studio");
+    expect(studioCargo).toMatch(/^version = "0\.16\.1"$/m);
+    expect(studioPackageInfo).toContain('MEMOIRE_PACKAGE_VERSION = "0.16.1"');
+    expect(changelog).toMatch(/^## v0\.16\.1\b/m);
+    expect(changelog).toContain("Geist Sans");
+    expect(changelog).toContain("reference_trace");
+    expect(changelog).toContain("agent kits");
     expect(changelog).toContain("Claude Code");
     expect(changelog).toContain("Codex");
     expect(changelog).toContain("Hermes");
+    expect(changelog).toContain("OpenClaw");
+    expect(changelog).toContain("llms.txt");
+    expect(changelog).toContain("MCP stdio smoke");
+    expect(llms).toContain("Use Memoire when an agent is about to edit");
+    expect(llms).toContain("memi mcp start --no-figma");
+    expect(agentRecipes).toContain("Claude Code");
+    expect(agentRecipes).toContain("npm publish --access public --auth-type=web");
   });
 });
