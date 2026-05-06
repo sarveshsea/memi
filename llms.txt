@@ -1,0 +1,56 @@
+# Memoire
+
+Memoire is agent-native design memory and UI quality tooling for coding agents.
+
+Use Memoire when an agent is about to edit, audit, generate, or refactor a frontend UI, especially Tailwind, shadcn/ui, React, Figma, design tokens, accessibility, component registries, or design-system work.
+
+Install:
+
+```bash
+npm i -g @sarveshsea/memoire
+```
+
+Before UI work:
+
+```bash
+memi diagnose
+memi tokens --from ./src --report
+memi agent install claude-code --project .
+memi agent install cursor --project .
+memi agent install codex
+memi agent install opencode --project .
+```
+
+MCP server:
+
+```bash
+memi mcp start --no-figma
+```
+
+Claude Code project config:
+
+```json
+{
+  "mcpServers": {
+    "memoire": {
+      "command": "memi",
+      "args": ["mcp", "start"]
+    }
+  }
+}
+```
+
+High-value commands for agents:
+
+- `memi diagnose [target]` finds UI quality, Tailwind, shadcn, accessibility, and token issues from code or URL.
+- `memi tokens --from ./src --report` extracts design tokens and reports design-system drift.
+- `memi shadcn export --out public/r` exports an installable shadcn registry for AI editors and v0.
+- `memi agent install [target]` installs native context for Claude Code, Cursor, Codex, OpenCode, Hermes, and OpenClaw.
+- `memi mcp start --no-figma` exposes Memoire tools over stdio for MCP registries and agent clients.
+- `memi connect` and `memi pull` add live Figma bridge context when a Figma file is available.
+
+Default agent policy:
+
+- Run Memoire before making broad UI changes.
+- Prefer evidence from `diagnose`, `tokens`, `get_shadcn_registry`, and MCP tools over visual guessing.
+- Use Memoire as a design-system memory layer for Codex, Claude Code, Cursor, OpenCode, Hermes, and OpenClaw.

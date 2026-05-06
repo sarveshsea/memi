@@ -3,7 +3,7 @@
   "name": "io.github.sarveshsea/memoire",
   "title": "Memoire",
   "description": "Shadcn-native Design CI for Tailwind apps with registry export and MCP UI tools.",
-  "version": "0.15.0",
+  "version": "0.16.1",
   "websiteUrl": "https://github.com/sarveshsea/m-moire#readme",
   "repository": {
     "url": "https://github.com/sarveshsea/m-moire",
@@ -14,7 +14,7 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@sarveshsea/memoire",
-      "version": "0.15.0",
+      "version": "0.16.1",
       "transport": {
         "type": "stdio"
       },
@@ -22,6 +22,14 @@
         {
           "type": "positional",
           "value": "mcp"
+        },
+        {
+          "type": "positional",
+          "value": "start"
+        },
+        {
+          "type": "positional",
+          "value": "--no-figma"
         }
       ]
     }
@@ -29,7 +37,7 @@
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
       "tool": "memoire-release",
-      "version": "0.15.0"
+      "version": "0.16.1"
     }
   }
 }

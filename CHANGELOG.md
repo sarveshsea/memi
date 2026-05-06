@@ -1,6 +1,6 @@
 # Mémoire Changelog
 
-Mémoire is a registry-first design system CLI and MCP server. Teams use it to publish design systems, install real components, and connect Figma-driven workflows to code.
+Mémoire is agent-native design memory, a registry-first design system CLI, and an MCP server. Teams and coding agents use it to audit UI quality, publish design systems, install real components, and connect Figma-driven workflows to code.
 
 This changelog tracks Mémoire itself: every version, commit, and architectural decision that shapes the tool.
 
@@ -28,6 +28,52 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 |------|---------|
 | `70c9ced6` | feat: add native markdown corpus sync |
 | `49bbded2` | feat: add native mermaid jam integration |
+
+## v0.16.1 — 2026-05-06
+
+### The upgrade
+This patch makes the packaged Studio feel cleaner and more accountable. The macOS/web shell now uses bundled Geist Sans, neutral editor-style surfaces, and a model-agnostic reference trace so every harness run can show which Memoire npm package, specs, knowledge, files, and Figma state were provided.
+
+### New
+- Added root `llms.txt` and `docs/AGENT_RECIPES.md` so Codex, Claude Code, Cursor, OpenCode, Hermes, and OpenClaw can discover when to use Memoire before frontend work.
+- Hardened publish readiness with npm-owner checks for `sarveshsea`, clearer E404 auth guidance, and a real MCP stdio smoke test that lists required tools from the built package.
+- Switched MCP Registry package startup metadata to `memi mcp start --no-figma` so Glama and MCP crawlers can inspect tools without a live Figma bridge.
+- Added bundled Geist Sans to the Studio web package for offline desktop rendering.
+- Switched Studio light and dark surfaces to neutral white/grey and charcoal/grey tokens while keeping sunset as the restrained active accent.
+- Added `reference_trace` Studio events and `/api/sessions/:id/trace` reference summaries for package, spec, knowledge, Figma, file, artifact, and model evidence.
+- Added a Details drawer reference trace panel so Claude Code, Codex, Hermes, Memoire Native, and other harnesses expose the same source chain.
+
+### Verification
+- Focused Studio CSS, workbench UI, trace, server trace, agent envelope, publish readiness, MCP stdio smoke, and release metadata tests passed locally.
+- `npm run typecheck`, `npm run test -- --run`, `npm run build`, `npm run studio:build`, `npm run check:release`, and `npm run pack:dry-run` are the release gates for this version.
+
+## v0.16.0 — 2026-05-06
+
+### The upgrade
+This release makes Memoire distributable as AI-native design tooling for other agents. The new agent kits now ship inside the npm package, install into Hermes, OpenClaw, Claude Code, Cursor, Codex, and OpenCode, and expose a mirror-ready skill repo shape for `sarveshsea/memoire-agent-skills`.
+
+### New
+- Added `memi agent install [target]` for `hermes`, `openclaw`, `claude-code`, `cursor`, `codex`, `opencode`, and `all`, with `--dry-run`, `--json`, `--force`, `--project`, and `--global`.
+- Added packaged `agent-kits/` assets with Hermes and OpenClaw `memoire-design-tooling` skills, Codex/OpenCode skill-style context packs, and MCP config templates for Claude Code and Cursor.
+- Added Studio web and macOS app agent-kit controls so users can dry-run, install, and force-refresh Memoire kits without leaving the desktop workbench.
+- Added a mirror-ready agent skills tree for `sarveshsea/memoire-agent-skills`.
+- Updated README and mirror docs with first-fold agent install commands, macOS Studio DMG positioning, native agent support paths, and ClawHub/Hermes discovery copy.
+- Made the Hermes Studio envelope prefer the `memoire-design-tooling` skill, `memi status`, `memi compose`, project memory, Figma bridge state, specs, tokens, and research context.
+- Updated npm metadata for agent skills, OpenClaw, ClawHub, Hermes skills, Skill.md, and AI design tooling discovery.
+
+### Verification
+- Focused agent install, packaged agent kit, Studio runtime API, macOS Tauri command, Hermes envelope, harness, and release metadata tests passed.
+- `npm run typecheck`, `npm run test`, `npm run build`, `npm run pack:dry-run`, and `npm run prepublishOnly` are the release gates for this version.
+
+### Commits
+| Hash | Message |
+|------|---------|
+| `pending` | feat(agent-kits): ship ai-native agent install kits |
+
+### External Release Gates
+- Publish `0.16.0` to npm after the local release gate passes.
+- Create or update `sarveshsea/memoire-agent-skills` from `agent-kits/mirror`.
+- Submit or refresh ClawHub/Hermes skill listings using the packaged `memoire-design-tooling` skills.
 
 ## v0.15.0 — 2026-05-06
 
