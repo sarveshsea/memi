@@ -34,6 +34,9 @@ const readmeTopFold = readme.slice(0, 3000);
 const requiredReadmeTerms = [
   "Shadcn-native Design CI for Tailwind apps",
   "npm i -g @sarveshsea/memoire",
+  "Install Mémoire into your AI agent",
+  "memi agent install claude-code --project .",
+  "memi agent install codex",
   "memi shadcn export",
   "memi registry install",
   "https://ui.shadcn.com/docs/registry/getting-started",
@@ -89,8 +92,12 @@ if (!npmPackageEntry) {
     fail("server.json npm package transport must be stdio");
   }
   const packageArgs = npmPackageEntry.packageArguments ?? [];
-  if (!packageArgs.some((arg) => arg.type === "positional" && arg.value === "mcp")) {
-    fail("server.json npm package must pass the memi mcp positional argument");
+  const positionalArgs = packageArgs
+    .filter((arg) => arg.type === "positional")
+    .map((arg) => arg.value);
+  const expectedArgs = ["mcp", "start", "--no-figma"];
+  if (JSON.stringify(positionalArgs) !== JSON.stringify(expectedArgs)) {
+    fail(`server.json npm package must use registry-safe MCP args ${expectedArgs.join(" ")}; got ${positionalArgs.join(" ")}`);
   }
 }
 

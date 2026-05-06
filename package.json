@@ -1,8 +1,8 @@
 {
   "name": "@sarveshsea/memoire",
-  "version": "0.15.0",
+  "version": "0.16.1",
   "mcpName": "io.github.sarveshsea/memoire",
-  "description": "Agent-first design Studio plus shadcn-native Design CI for Tailwind apps, Figma, Codex, Claude Code, Hermes, and Ollama.",
+  "description": "Design memory and UI quality tools for coding agents: Codex, Claude Code, Cursor, OpenCode, Hermes, OpenClaw, MCP, Figma, shadcn/ui, and Tailwind.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,6 +25,7 @@
     "build:plugin": "node scripts/build-plugin.mjs",
     "bench:cli": "node scripts/bench-cli.mjs",
     "growth:status": "node scripts/growth-status.mjs",
+    "smoke:mcp": "node scripts/smoke-mcp-stdio.mjs",
     "pack:dry-run": "node scripts/pack-dry-run.mjs",
     "publish:ready": "node scripts/publish-ready.mjs",
     "check:release": "node scripts/check-release.mjs",
@@ -56,7 +57,14 @@
     "claude-code",
     "codex-cli",
     "hermes-agent",
+    "hermes-skills",
+    "openclaw",
+    "clawhub",
+    "agent-skills",
+    "skill-md",
+    "ai-design-tools",
     "ollama",
+    "opencode",
     "figma-bridge",
     "design-agent",
     "ui-fix-plan",
@@ -121,8 +129,13 @@
     "scripts/postinstall.mjs",
     "skills",
     "notes",
+    "agent-kits",
     "plugin",
     "assets",
+    "llms.txt",
+    "docs/AGENT_RECIPES.md",
+    "!assets/demo.gif",
+    "!assets/noche-moon.svg",
     "README.md",
     "CHANGELOG.md",
     "server.json",
@@ -161,6 +174,7 @@
   "optionalDependencies": {
     "@napi-rs/canvas": "^0.1.97",
     "@rollup/rollup-darwin-arm64": "^4.60.0",
-    "@rollup/rollup-linux-x64-gnu": "^4.60.1"
+    "@rollup/rollup-linux-x64-gnu": "^4.60.1",
+    "playwright": "^1.59.1"
   }
 }

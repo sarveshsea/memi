@@ -1751,7 +1751,7 @@ dependencies = [
 
 [[package]]
 name = "memoire-studio"
-version = "0.15.0"
+version = "0.16.1"
 dependencies = [
  "reqwest 0.12.28",
  "serde",

@@ -35,6 +35,7 @@ async function createEngine(): Promise<{ engine: MemoireEngine; projectRoot: str
     values: { default: "#0066ff" },
     cssVariable: "--color-primary",
   });
+  await engine.registry.save();
   return { engine, projectRoot };
 }
 

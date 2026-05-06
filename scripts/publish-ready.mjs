@@ -9,6 +9,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const registry = process.env.NPM_CONFIG_REGISTRY || "https://registry.npmjs.org/";
 const skipAuth = process.env.MEMOIRE_PUBLISH_READY_SKIP_AUTH === "1";
 const skipGit = process.env.MEMOIRE_PUBLISH_READY_SKIP_GIT === "1";
+const expectedNpmUser = process.env.MEMOIRE_EXPECTED_NPM_USER || "sarveshsea";
 const failures = [];
 const notes = [];
 
@@ -26,7 +27,11 @@ if (npmPackage) {
   check(npmPackage.identifier === packageJson.name, `server.json npm identifier is ${npmPackage.identifier}`);
   check(npmPackage.version === packageJson.version, `server.json npm version ${npmPackage.version} does not match package.json ${packageJson.version}`);
   check(npmPackage.transport?.type === "stdio", "server.json npm transport must be stdio");
-  check(npmPackage.packageArguments?.some((arg) => arg.type === "positional" && arg.value === "mcp"), "server.json npm package must pass the mcp argument");
+  const packageArgs = (npmPackage.packageArguments ?? [])
+    .filter((arg) => arg.type === "positional")
+    .map((arg) => arg.value);
+  const expectedArgs = ["mcp", "start", "--no-figma"];
+  check(JSON.stringify(packageArgs) === JSON.stringify(expectedArgs), `server.json npm package must use registry-safe MCP args ${expectedArgs.join(" ")}; got ${packageArgs.join(" ")}`);
 }
 
 if (!skipGit && await hasGitRepository()) {
@@ -40,8 +45,17 @@ if (!skipGit && await hasGitRepository()) {
 
 if (!skipAuth) {
   const whoami = run("npm", ["whoami", `--registry=${registry}`]);
-  check(whoami.ok, "npm is not logged in. Run `npm login --registry=https://registry.npmjs.org/`.");
-  if (whoami.ok) notes.push(`npm user: ${whoami.stdout.trim()}`);
+  if (!whoami.ok) {
+    check(false, [
+      "npm is not logged in as the package owner.",
+      "Run `npm logout --registry=https://registry.npmjs.org/` then `npm login --auth-type=web --registry=https://registry.npmjs.org/`.",
+      "If `npm publish` returns E404 on PUT for @sarveshsea/memoire, you are logged into the wrong npm account or using an invalid token for the @sarveshsea scope.",
+    ].join(" "));
+  } else {
+    const user = whoami.stdout.trim();
+    check(user === expectedNpmUser, `npm user is ${user}, expected ${expectedNpmUser}; publishing as another account can produce E404 on PUT for @sarveshsea/memoire.`);
+    notes.push(`npm user: ${user}`);
+  }
 }
 
 const latest = run("npm", ["view", packageJson.name, "version", "mcpName", "--json", `--registry=${registry}`]);
@@ -71,6 +85,10 @@ if (pack.ok) {
   notes.push(`pack: ${summary.filename} (${summary.size} bytes, ${files.length} files)`);
 }
 
+const smoke = run(process.execPath, [join(root, "scripts", "smoke-mcp-stdio.mjs")]);
+check(smoke.ok, smoke.stderr.trim() || smoke.stdout.trim() || "MCP stdio smoke check failed");
+if (smoke.ok) notes.push(smoke.stdout.trim());
+
 if (failures.length > 0) {
   console.error("\nMemoire publish readiness failed:\n");
   for (const failure of failures) console.error(`- ${failure}`);
@@ -81,8 +99,9 @@ if (failures.length > 0) {
 console.log(`Memoire ${packageJson.version} is ready to publish.`);
 for (const note of notes) console.log(`- ${note}`);
 console.log("\nNext:");
-console.log("  npm publish --access public");
-console.log("  mcp-publisher publish");
+console.log("  npm publish --access public --auth-type=web");
+console.log("  npm view @sarveshsea/memoire version dist-tags.latest mcpName --json");
+console.log("  mcp-publisher publish server.json");
 
 async function readJson(path) {
   return JSON.parse(await readFile(join(root, path), "utf-8"));

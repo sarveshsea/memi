@@ -1,12 +1,24 @@
 # Memoire Quickstart
 
-Memoire is Design CI for shadcn/Tailwind apps. Lead with one loop:
+Memoire is design memory and UI quality tooling for coding agents working on shadcn/Tailwind apps. Lead with one loop:
 
 1. Diagnose the app you already have.
 2. Improve the visual system behind it.
 3. Publish the improved system as an installable registry.
 
 ## Fastest paths
+
+### Coding agent setup
+
+```bash
+npm i -g @sarveshsea/memoire
+memi agent install claude-code --project .
+memi agent install cursor --project .
+memi agent install codex
+memi agent install opencode --project .
+```
+
+Use this before Codex, Claude Code, Cursor, OpenCode, Hermes, or OpenClaw edits UI code. More copy-paste agent workflows live in [`docs/AGENT_RECIPES.md`](./AGENT_RECIPES.md).
 
 ### Existing app to diagnosis
 
