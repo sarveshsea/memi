@@ -579,6 +579,8 @@ export function App() {
   const latestRun = session ?? recentSessions[0] ?? null;
   const workspaceLabel = status?.projectRoot.split("/").filter(Boolean).at(-1) ?? "workspace";
   const visibleRecentSessions = recentSessions.length ? recentSessions : session ? [session] : [];
+  const runningSessionCount = visibleRecentSessions.filter((recent) => recent.status === "running").length + (isStartingSession && session?.status !== "running" ? 1 : 0);
+  const sessionQueueState = isStartingSession ? "starting" : runningSessionCount > 1 ? "concurrent" : runningSessionCount === 1 ? "running" : "idle";
   const activeSidebarProjectId = session?.cwd ?? visibleRecentSessions[0]?.cwd ?? status?.projectRoot ?? null;
   useEffect(() => {
     if (!activeSidebarProjectId) return;
@@ -2643,6 +2645,8 @@ export function App() {
           data-action-registry="studio-actions"
           data-action-count={STUDIO_ACTION_REGISTRY.length}
           data-sidebar-collapsed={String(projectSidebarCollapsed)}
+          data-concurrent-run-count={runningSessionCount}
+          data-session-queue-state={sessionQueueState}
         >
           <ProjectSidebar
             sessions={visibleRecentSessions}

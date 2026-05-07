@@ -439,6 +439,9 @@ button.active,
 .project-sidebar[data-sidebar-collapsed="true"] .project-sidebar-footer {
   padding: var(--space-2) var(--space-1);
 }
+.project-sidebar[data-sidebar-readable-collapsed="true"] .project-session-list {
+  display: none;
+}
 .project-sidebar[data-sidebar-collapsed="true"] button {
   grid-template-columns: auto;
   justify-content: center;

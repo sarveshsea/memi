@@ -775,7 +775,7 @@ export function ProjectSidebar(props: {
   const projects = groupSessionsByProject(props.sessions);
   const expanded = new Set(props.expandedProjectIds);
   return (
-    <aside className="project-sidebar" data-project-sidebar="codex-style" data-sidebar-collapsed={String(props.collapsed)} aria-label="Projects">
+    <aside className="project-sidebar" data-project-sidebar="codex-style" data-sidebar-collapsed={String(props.collapsed)} data-sidebar-readable-collapsed={String(props.collapsed)} aria-label="Projects">
       <div className="project-sidebar-main">
         <div className="project-sidebar-top">
           <button data-action-id="sidebar.collapse" type="button" onClick={props.onToggleCollapsed} aria-label={props.collapsed ? "Expand sidebar" : "Collapse sidebar"}>
