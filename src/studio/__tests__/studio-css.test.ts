@@ -249,6 +249,15 @@ describe("studio visual cleanup", () => {
     expect(css).toContain("[data-hidden-file-count]");
   });
 
+  it("styles the right pane as a focused inspector", async () => {
+    const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
+
+    expect(css).toContain(".right-pane-inspector");
+    expect(css).toContain('[data-right-pane-inspector="current-agent-work"]');
+    expect(css).toContain(".right-pane-inspector-actions");
+    expect(css).toContain("grid-template-columns: minmax(0, 1fr) auto");
+  });
+
   it("styles the Agent Cockpit and Mermaid Board as the right-pane work surface", async () => {
     const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
 

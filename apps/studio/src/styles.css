@@ -490,6 +490,12 @@ button.active,
 .artifact-pane-tabs button { min-height: var(--control-height-compact); flex: 0 0 auto; border-color: transparent; background: transparent; color: var(--ink-muted); padding: var(--space-1) var(--space-2); }
 .artifact-pane-tabs button.active { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
 .artifact-pane-body { min-width: 0; min-height: 0; overflow-y: auto; }
+.right-pane-inspector[data-right-pane-inspector="current-agent-work"] { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-2); border-bottom: 1px solid var(--line); background: var(--surface); padding: var(--space-2) var(--space-3); }
+.right-pane-inspector div:first-child { min-width: 0; display: grid; gap: var(--space-0-5); }
+.right-pane-inspector span, .right-pane-inspector small, .right-pane-inspector strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.right-pane-inspector span, .right-pane-inspector small { color: var(--ink-muted); font-size: var(--font-size-xs); }
+.right-pane-inspector-actions { display: flex; align-items: center; gap: var(--space-1); }
+.right-pane-inspector-actions button { min-height: var(--control-height-compact); padding: var(--space-0-5) var(--space-1-5); }
 .agent-pane-intent { min-width: 0; display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: center; gap: var(--space-2); border-bottom: 1px solid var(--line); background: var(--surface-soft); color: var(--ink-muted); font-size: var(--font-size-xs); padding: var(--space-1) var(--space-3); }
 .agent-pane-intent strong { color: var(--ink); font-weight: var(--font-weight-medium); }
 .agent-pane-intent small { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -2602,6 +2602,37 @@ export function App() {
     );
   }
 
+  function copyRightPaneInspectorSummary() {
+    const activeTab = RIGHT_PANE_TABS.find((tab) => tab.id === rightPaneTab);
+    const inspectorSubject = activeDesignArtifact?.title ?? latestRun?.prompt ?? workspaceLabel;
+    void copyText([
+      `Surface: ${activeTab?.label ?? rightPaneTab}`,
+      `Subject: ${inspectorSubject}`,
+      `Reason: ${paneIntent?.reason ?? "manual inspection"}`,
+      `Files: ${designTrace?.files.length ?? 0}`,
+      `Evidence: ${creationEvidenceItems().length}`,
+    ].join("\n"));
+  }
+
+  function renderRightPaneInspectorChrome() {
+    const activeTab = RIGHT_PANE_TABS.find((tab) => tab.id === rightPaneTab);
+    const inspectorSubject = activeDesignArtifact?.title ?? latestRun?.prompt ?? workspaceLabel;
+    const inspectorMeta = paneIntent?.reason ?? `${designTrace?.files.length ?? 0} files / ${creationEvidenceItems().length} evidence`;
+    return (
+      <section className="right-pane-inspector" data-right-pane-inspector="current-agent-work">
+        <div>
+          <span>{activeTab?.label ?? rightPaneTab}</span>
+          <strong title={inspectorSubject}>{trimText(inspectorSubject, 92)}</strong>
+          <small>{inspectorMeta}</small>
+        </div>
+        <div className="right-pane-inspector-actions">
+          <button data-action-id="right-pane.inspector.copy" type="button" onClick={() => copyRightPaneInspectorSummary()}>Copy</button>
+          <button data-action-id="right-pane.inspector.focus-center" type="button" onClick={() => setCenterStageMode("inspector")}>Focus</button>
+        </div>
+      </section>
+    );
+  }
+
   function renderRightPaneBody() {
     if (rightPaneTab === "run") return renderRunCockpitPane();
     if (rightPaneTab === "changes") return renderChangesCockpitPane();
@@ -2764,6 +2795,7 @@ export function App() {
                       </button>
                     ))}
                   </div>
+                  {renderRightPaneInspectorChrome()}
                   {paneIntent ? (
                     <div className="agent-pane-intent" data-agent-pane-intent="suggested-switch">
                       <span>Agent Cockpit</span>

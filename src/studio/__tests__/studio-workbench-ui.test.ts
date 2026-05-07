@@ -218,6 +218,19 @@ describe("studio harness console UI", () => {
     expect(components).toContain("data-muted-activity-count={quietActivities.length}");
   });
 
+  it("frames the right pane as a focused inspector for current agent work", async () => {
+    const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
+
+    expect(app).toContain("function renderRightPaneInspectorChrome()");
+    expect(app).toContain('data-right-pane-inspector="current-agent-work"');
+    expect(app).toContain("const inspectorSubject = activeDesignArtifact?.title ?? latestRun?.prompt ?? workspaceLabel");
+    expect(app).toContain("copyRightPaneInspectorSummary()");
+    expect(app).toContain('data-action-id="right-pane.inspector.copy"');
+    expect(app).toContain('data-action-id="right-pane.inspector.focus-center"');
+    expect(app).toContain('setCenterStageMode("inspector")');
+    expect(app).toContain("{renderRightPaneInspectorChrome()}");
+  });
+
   it("renders the Studio topbar as an ultra-compact icon/status strip", async () => {
     const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
     const components = await readFile(join(process.cwd(), "apps", "studio", "src", "workbench-components.tsx"), "utf-8");
