@@ -327,6 +327,7 @@ export function App() {
   const scrollRegionRef = useRef<HTMLElement | null>(null);
   const bottomAnchorRef = useRef<HTMLDivElement | null>(null);
   const latestScrollRestoringRef = useRef(false);
+  const scrollRetryTimeoutsRef = useRef<number[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const traceRefreshTimerRef = useRef<number | null>(null);
   const pendingTraceSessionIdRef = useRef<string | null>(null);
@@ -631,6 +632,13 @@ export function App() {
     traceModel.activities.length,
     userPinnedToBottom,
   ]);
+
+  useEffect(() => {
+    return () => {
+      scrollRetryTimeoutsRef.current.forEach((timeout) => window.clearTimeout(timeout));
+      scrollRetryTimeoutsRef.current = [];
+    };
+  }, []);
 
   async function refresh() {
     try {
@@ -1481,29 +1489,50 @@ export function App() {
   function handleConversationScroll() {
     const element = scrollRegionRef.current;
     if (!element) return;
-    if (latestScrollRestoringRef.current) return;
+    if (latestScrollRestoringRef.current) {
+      element.dataset.autoScrollState = "pinned";
+      return;
+    }
     const pinned = isNearScrollBottom(element);
+    element.dataset.autoScrollState = pinned ? "pinned" : "paused";
     setUserPinnedToBottom((current) => current === pinned ? current : pinned);
   }
 
   function scrollConversationToLatest(behavior: ScrollBehavior = "auto") {
     latestScrollRestoringRef.current = true;
     setUserPinnedToBottom(true);
-    const element = scrollRegionRef.current;
-    if (element) {
-      element.scrollTo({ top: element.scrollHeight, behavior });
-      window.requestAnimationFrame(() => {
-        element.scrollTop = element.scrollHeight;
-        setUserPinnedToBottom(true);
-      });
-      window.setTimeout(() => {
-        latestScrollRestoringRef.current = false;
-        setUserPinnedToBottom(isNearScrollBottom(element));
-      }, 180);
-    } else {
+    scrollRetryTimeoutsRef.current.forEach((timeout) => window.clearTimeout(timeout));
+    scrollRetryTimeoutsRef.current = [];
+    const scrollNow = (nextBehavior: ScrollBehavior) => {
+      const element = scrollRegionRef.current;
+      if (!element) return null;
+      element.dataset.autoScrollState = "pinned";
+      element.scrollTo({ top: element.scrollHeight, behavior: nextBehavior });
+      element.scrollTop = element.scrollHeight;
+      bottomAnchorRef.current?.scrollIntoView({ block: "end", behavior: nextBehavior });
+      setUserPinnedToBottom(true);
+      return element;
+    };
+    if (!scrollNow(behavior)) {
       latestScrollRestoringRef.current = false;
+      bottomAnchorRef.current?.scrollIntoView({ block: "end", behavior });
+      return;
     }
-    bottomAnchorRef.current?.scrollIntoView({ block: "end", behavior });
+    window.requestAnimationFrame(() => {
+      scrollNow("auto");
+      window.requestAnimationFrame(() => scrollNow("auto"));
+    });
+    scrollRetryTimeoutsRef.current = [80, 220, 420].map((delay) =>
+      window.setTimeout(() => {
+        const element = scrollNow("auto");
+        if (delay === 420) {
+          const stillPinned = element ? isNearScrollBottom(element) : true;
+          if (element) element.dataset.autoScrollState = stillPinned ? "pinned" : "paused";
+          latestScrollRestoringRef.current = false;
+          setUserPinnedToBottom(stillPinned);
+        }
+      }, delay),
+    );
   }
 
   function handleChatFollowUp(text: string) {
