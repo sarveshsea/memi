@@ -761,6 +761,7 @@ button.active,
 .inline-evidence-shelf[data-evidence-shelf="creation-context"] { min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--space-1); }
 .inline-evidence-shelf button { min-width: 0; display: grid; gap: var(--space-0-5); justify-items: start; border-color: var(--line); background: var(--surface); padding: var(--space-1); text-align: left; }
 .inline-evidence-shelf span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stage-mode-panel[data-file-priority="design-first"][data-hidden-file-count] { align-content: start; }
 .creation-output-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-2); }
 .creation-output-grid article, .stage-mode-panel button { min-width: 0; display: grid; gap: var(--space-1); justify-items: start; border: 1px solid var(--line); border-radius: var(--radius-default); background: var(--surface); padding: var(--space-2); text-align: left; }
 .creation-output-grid span, .creation-output-grid small, .creation-stage-panel header span, .stage-mode-panel small { min-width: 0; overflow: hidden; color: var(--ink-muted); font-size: var(--font-size-xs); text-overflow: ellipsis; white-space: nowrap; }
@@ -1016,6 +1017,11 @@ button.active,
   border-bottom: 1px solid var(--line);
   padding: var(--space-1) var(--space-3);
 }
+.activity-timeline[data-activity-density="signal-first"] { align-content: start; }
+.activity-noise-summary[data-muted-activity-count] { border: 1px solid var(--line); border-radius: var(--radius-default); background: var(--surface); padding: var(--space-1); }
+.activity-noise-summary summary { cursor: pointer; color: var(--ink-muted); font-size: var(--font-size-xs); }
+.activity-noise-summary div { display: flex; flex-wrap: wrap; gap: var(--space-1); padding-top: var(--space-1); }
+.activity-noise-summary span { max-width: 180px; overflow: hidden; color: var(--ink-faint); font-size: var(--font-size-xs); text-overflow: ellipsis; white-space: nowrap; }
 .activity-list {
   display: grid;
   gap: var(--space-1);

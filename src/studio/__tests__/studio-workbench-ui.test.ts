@@ -204,6 +204,20 @@ describe("studio harness console UI", () => {
     expect(app).toContain("void copyText(item.copyValue)");
   });
 
+  it("de-noises routine terminal activity and prioritizes design changed files", async () => {
+    const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
+    const components = await readFile(join(process.cwd(), "apps", "studio", "src", "workbench-components.tsx"), "utf-8");
+
+    expect(app).toContain("sortDesignFilesForReview(designTrace?.files ?? [])");
+    expect(app).toContain('data-file-priority="design-first"');
+    expect(app).toContain("const hiddenFileCount = files.length - visibleFiles.length");
+    expect(app).toContain("data-hidden-file-count={hiddenFileCount}");
+    expect(components).toContain("function isHighSignalActivity");
+    expect(components).toContain('data-activity-density="signal-first"');
+    expect(components).toContain("const quietActivities");
+    expect(components).toContain("data-muted-activity-count={quietActivities.length}");
+  });
+
   it("renders the Studio topbar as an ultra-compact icon/status strip", async () => {
     const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
     const components = await readFile(join(process.cwd(), "apps", "studio", "src", "workbench-components.tsx"), "utf-8");

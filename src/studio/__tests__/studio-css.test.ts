@@ -239,6 +239,16 @@ describe("studio visual cleanup", () => {
     expect(css).toContain("grid-template-columns: repeat(auto-fit, minmax(120px, 1fr))");
   });
 
+  it("styles signal-first activity and design-first file review", async () => {
+    const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
+
+    expect(css).toContain('[data-activity-density="signal-first"]');
+    expect(css).toContain(".activity-noise-summary");
+    expect(css).toContain("[data-muted-activity-count]");
+    expect(css).toContain('[data-file-priority="design-first"]');
+    expect(css).toContain("[data-hidden-file-count]");
+  });
+
   it("styles the Agent Cockpit and Mermaid Board as the right-pane work surface", async () => {
     const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
 

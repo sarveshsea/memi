@@ -985,16 +985,30 @@ export function ActivityTimeline(props: {
   activeProcesses: StudioActiveProcess[];
   onCopyPath?: (path: string) => void;
 }) {
-  const visibleActivities = props.activities.slice(-16);
-  if (visibleActivities.length === 0 && props.activeProcesses.length === 0) return null;
-  const traceGroups = deriveToolTraceGroups(visibleActivities, props.activeProcesses);
+  const recentActivities = props.activities.slice(-24);
+  const signalActivities = recentActivities.filter(isHighSignalActivity);
+  const visibleActivities = (signalActivities.length ? signalActivities : recentActivities).slice(-8);
+  const visibleActivityIds = new Set(visibleActivities.map((activity) => activity.id));
+  const quietActivities = recentActivities.filter((activity) => !visibleActivityIds.has(activity.id));
+  if (recentActivities.length === 0 && props.activeProcesses.length === 0) return null;
+  const traceGroups = deriveToolTraceGroups(recentActivities, props.activeProcesses);
   return (
-    <section className="activity-timeline" data-agent-activity="timeline" aria-label="Agent activity">
+    <section className="activity-timeline" data-agent-activity="timeline" data-activity-density="signal-first" aria-label="Agent activity">
       <section className="tool-trace-summary" data-tool-trace-summary="intent-groups">
         {traceGroups.map((group) => (
           <span key={group.id}>{group.label} {group.count}</span>
         ))}
       </section>
+      {quietActivities.length > 0 ? (
+        <details className="activity-noise-summary" data-muted-activity-count={quietActivities.length}>
+          <summary>{quietActivities.length} routine events folded</summary>
+          <div>
+            {quietActivities.slice(-6).map((activity) => (
+              <span key={activity.id}>{activityMeta(activity)}</span>
+            ))}
+          </div>
+        </details>
+      ) : null}
       {props.activeProcesses.length > 0 ? (
         <details className="running-terminals-strip" data-running-terminals="active-processes" open>
           <summary>
@@ -1057,6 +1071,11 @@ export function ActivityTimeline(props: {
       </div>
     </section>
   );
+}
+
+function isHighSignalActivity(activity: StudioActivityItem): boolean {
+  if (activity.status === "running" || activity.status === "failed") return true;
+  return !["reading_file", "searching", "listing", "thinking"].includes(activity.kind);
 }
 
 function deriveToolTraceGroups(activities: StudioActivityItem[], activeProcesses: StudioActiveProcess[]): Array<{ id: string; label: string; count: number }> {

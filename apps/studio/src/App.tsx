@@ -349,6 +349,15 @@ const STUDIO_ACTION_REGISTRY: StudioActionRegistryItem[] = [
   { id: "computer.action", label: "Run", kind: "runtime", surface: "computer" },
 ];
 
+function sortDesignFilesForReview(files: StudioDesignSystemTrace["files"]): StudioDesignSystemTrace["files"] {
+  return [...files].sort((first, second) => {
+    if (first.designSystem !== second.designSystem) return first.designSystem ? -1 : 1;
+    const firstDelta = first.insertions + first.deletions;
+    const secondDelta = second.insertions + second.deletions;
+    return secondDelta - firstDelta;
+  });
+}
+
 export function App() {
   const scrollRegionRef = useRef<HTMLElement | null>(null);
   const bottomAnchorRef = useRef<HTMLDivElement | null>(null);
@@ -2115,16 +2124,19 @@ export function App() {
   }
 
   function renderFilesStage() {
-    const files = designTrace?.files ?? [];
+    const files = sortDesignFilesForReview(designTrace?.files ?? []);
+    const visibleFiles = files.slice(0, 8);
+    const hiddenFileCount = files.length - visibleFiles.length;
     return (
-      <section className="stage-mode-panel" aria-label="Changed files">
+      <section className="stage-mode-panel" data-file-priority="design-first" data-hidden-file-count={hiddenFileCount} aria-label="Changed files">
         <header><strong>{designTrace?.reviewLabel ?? "Changed files"}</strong><button data-action-id="center-stage.files-review" type="button" onClick={() => chooseRightPane("changes", "Changed files review")}>Review</button></header>
-        {files.slice(0, 8).map((file) => (
+        {visibleFiles.map((file) => (
           <button data-action-id={`center-stage.file.${file.path}`} key={file.path} type="button" onClick={() => void copyText(file.path)}>
             <span>{file.path.split("/").pop() ?? file.path}</span>
-            <small>+{file.insertions} -{file.deletions}</small>
+            <small>{file.designSystem ? "design" : file.kind} / +{file.insertions} -{file.deletions}</small>
           </button>
         ))}
+        {hiddenFileCount > 0 ? <p className="empty">{hiddenFileCount} quieter files folded.</p> : null}
         {files.length === 0 ? <p className="empty">No changed files.</p> : null}
       </section>
     );
