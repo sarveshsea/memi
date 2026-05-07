@@ -2011,8 +2011,8 @@ export function App() {
                 <h2>No matching output.</h2>
               </div>
             ) : null}
+            <div aria-hidden="true" data-latest-anchor ref={bottomAnchorRef} />
           </section>
-          <div aria-hidden="true" data-latest-anchor ref={bottomAnchorRef} />
         </section>
 
         <div className="agent-live-status" data-agent-thinking-state={agentThinkingState}>
