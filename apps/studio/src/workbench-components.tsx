@@ -323,6 +323,12 @@ export function ChatQualityLayer(props: {
   );
 }
 
+export function filterTerminalBlocksByQuery(blocks: TerminalBlock[], query: string): TerminalBlock[] {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return blocks;
+  return blocks.filter((block) => `${block.title} ${block.meta} ${block.messages.join(" ")}`.toLowerCase().includes(normalized));
+}
+
 function deriveChatFollowUps(props: {
   designTrace: StudioDesignSystemTrace | null;
   lastFailure: StudioEvent | null;
@@ -3267,6 +3273,20 @@ export function buildTerminalBlocks(input: {
   }
 
   return ensureUniqueTerminalBlockIds(blocks);
+}
+
+export function filterTerminalBlocksByQuery(blocks: TerminalBlock[], query: string): TerminalBlock[] {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (!normalizedQuery) return blocks;
+  return blocks.filter((block) => {
+    const haystack = [
+      block.title,
+      block.meta,
+      ...block.messages,
+      ...block.events.map((event) => `${event.type} ${event.message}`),
+    ].join("\n").toLowerCase();
+    return haystack.includes(normalizedQuery);
+  });
 }
 
 function ensureUniqueTerminalBlockIds(blocks: TerminalBlock[]): TerminalBlock[] {
