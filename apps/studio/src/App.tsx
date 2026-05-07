@@ -187,6 +187,7 @@ const PERMISSION_MODES: Array<{ id: StudioPermissionMode; label: string }> = [
 ];
 
 type RightPaneTab = "run" | "changes" | "design-system" | "mirofish-research" | "mermaid-board" | "design-changelog" | "figma" | "memory";
+type CenterStageMode = "creation" | "chat" | "trace" | "files" | "inspector";
 type ScenarioLabNodeKind = "agent" | "finding" | "variable" | "outcome";
 
 interface PaneIntent {
@@ -278,6 +279,13 @@ const RIGHT_PANE_TABS: Array<{ id: RightPaneTab; label: string }> = [
   { id: "design-changelog", label: "Changelog" },
   { id: "figma", label: "Figma" },
   { id: "memory", label: "Memory" },
+];
+const CENTER_STAGE_MODES: Array<{ id: CenterStageMode; label: string }> = [
+  { id: "creation", label: "Creation" },
+  { id: "chat", label: "Chat" },
+  { id: "trace", label: "Trace" },
+  { id: "files", label: "Files" },
+  { id: "inspector", label: "Inspector" },
 ];
 
 const SCENARIO_TOOL_IDS = ["simulation.models", "simulation.run_matrix", "simulation.transcript", "research.design_package", "mermaid_jam.export"] as const;
@@ -412,6 +420,7 @@ export function App() {
   const [scenarioFigJamExports, setScenarioFigJamExports] = useState<ScenarioFigJamExport[]>([]);
   const [scenarioRunning, setScenarioRunning] = useState(false);
   const [rightPaneTab, setRightPaneTab] = useState<RightPaneTab>("design-system");
+  const [centerStageMode, setCenterStageMode] = useState<CenterStageMode>("creation");
   const [paneIntent, setPaneIntent] = useState<PaneIntent | null>(null);
   const [mermaidBoard, setMermaidBoard] = useState<MermaidBoard | null>(null);
   const [mermaidBoardExports, setMermaidBoardExports] = useState<MermaidBoardExport[]>([]);
@@ -2019,6 +2028,75 @@ export function App() {
     );
   }
 
+  function renderCreationStage() {
+    const outputs = (traceModel.outputs ?? [])
+      .filter((output) => ["artifact", "design", "preview", "research", "handoff"].includes(output.kind))
+      .slice(-4)
+      .reverse();
+    const fallback = [{ id: "draft", kind: "prompt", title: "Prompt", summary: prompt || "Start with a prompt." }];
+    const cards = outputs.length ? outputs : fallback;
+    return (
+      <section className="creation-stage-panel" data-center-stage="agent-creation" aria-label="Agent creation stage">
+        <header>
+          <div>
+            <p className="eyebrow">Creation Stage</p>
+            <h3>{activeDesignArtifact?.title ?? cards[0]?.title ?? "Ready"}</h3>
+            <span>{outputs.length ? `${outputs.length} output signals` : `${currentHarness?.label ?? selectedHarness} / ${effectiveActionLabel}`}</span>
+          </div>
+          <button data-action-id="center-stage.open-inspector" type="button" onClick={() => setCenterStageMode("inspector")}>Inspector</button>
+        </header>
+        <div className="creation-output-grid">
+          {cards.map((output) => (
+            <article key={output.id}>
+              <span>{output.kind}</span>
+              <strong>{output.title}</strong>
+              <small>{trimText(output.summary, 96)}</small>
+            </article>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  function renderTraceStage() {
+    return (
+      <section className="stage-mode-panel" aria-label="Agent trace">
+        <header><strong>Trace</strong><small>{traceModel.activities.length} recent activities</small></header>
+        <ActivityTimeline activities={traceModel.activities} activeProcesses={traceModel.activeProcesses} />
+      </section>
+    );
+  }
+
+  function renderFilesStage() {
+    const files = designTrace?.files ?? [];
+    return (
+      <section className="stage-mode-panel" aria-label="Changed files">
+        <header><strong>{designTrace?.reviewLabel ?? "Changed files"}</strong><button data-action-id="center-stage.files-review" type="button" onClick={() => chooseRightPane("changes", "Changed files review")}>Review</button></header>
+        {files.slice(0, 8).map((file) => (
+          <button data-action-id={`center-stage.file.${file.path}`} key={file.path} type="button" onClick={() => void copyText(file.path)}>
+            <span>{file.path.split("/").pop() ?? file.path}</span>
+            <small>+{file.insertions} -{file.deletions}</small>
+          </button>
+        ))}
+        {files.length === 0 ? <p className="empty">No changed files.</p> : null}
+      </section>
+    );
+  }
+
+  function renderInspectorStage() {
+    return (
+      <section className="stage-mode-panel" aria-label="Inspector shortcuts">
+        <header><strong>Inspector</strong><small>{paneIntent?.reason ?? "Choose a right-pane surface."}</small></header>
+        {RIGHT_PANE_TABS.map((tab) => (
+          <button data-action-id={`center-stage.inspector.${tab.id}`} key={tab.id} type="button" onClick={() => chooseRightPane(tab.id, "Inspector shortcut")}>
+            <span>{tab.label}</span>
+            <small>{rightPaneTab === tab.id ? "active" : "open"}</small>
+          </button>
+        ))}
+      </section>
+    );
+  }
+
   function renderConsolePanel() {
     return (
       <section
@@ -2032,6 +2110,11 @@ export function App() {
         <header className="panel-head">
           <div>
             <h2>{latestRun ? trimText(latestRun.prompt, 72) : "Run"}</h2>
+            <section className="run-goal-banner" data-run-goal-banner="agent-objective" aria-label="Run goal">
+              <span>{currentHarness?.label ?? selectedHarness}</span>
+              <span>{effectiveActionLabel}</span>
+              <strong>{compactSessionStatusLabel(visibleSessionStatus)}</strong>
+            </section>
           </div>
           <div className="inline-actions">
             <button aria-label="Run pane" className="icon-button" data-action-id="right-pane.tab.run" title="Run" type="button" onClick={() => chooseRightPane("run", "Run pane opened")}>
@@ -2105,10 +2188,31 @@ export function App() {
           data-auto-scroll-state={userPinnedToBottom ? "pinned" : "paused"}
           data-agent-thinking-state={agentThinkingState}
           data-conversation-scroll="activity-output"
+          data-output-mode={centerStageMode}
           aria-label="Conversation activity and output"
           onScroll={handleConversationScroll}
           ref={scrollRegionRef}
         >
+          <div className="center-stage-tabs" data-output-mode-tabs="creation-chat-trace-files-inspector" role="tablist" aria-label="Output modes">
+            {CENTER_STAGE_MODES.map((mode) => (
+              <button
+                aria-selected={centerStageMode === mode.id}
+                className={centerStageMode === mode.id ? "active" : ""}
+                data-action-id={`center-stage.mode.${mode.id}`}
+                data-output-mode-tab={mode.id}
+                key={mode.id}
+                role="tab"
+                type="button"
+                onClick={() => setCenterStageMode(mode.id)}
+              >
+                {mode.label}
+              </button>
+            ))}
+          </div>
+          {centerStageMode === "creation" ? renderCreationStage() : null}
+          {centerStageMode === "trace" ? renderTraceStage() : null}
+          {centerStageMode === "files" ? renderFilesStage() : null}
+          {centerStageMode === "inspector" ? renderInspectorStage() : null}
           <ActivityTimeline
             activities={traceModel.activities}
             activeProcesses={traceModel.activeProcesses}

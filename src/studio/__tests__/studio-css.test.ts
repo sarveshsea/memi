@@ -214,6 +214,36 @@ describe("studio visual cleanup", () => {
     expect(css).toContain("overflow-y: auto");
   });
 
+  it("styles the creation-stage output modes as the center of the chat rail", async () => {
+    const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
+
+    expect(css).toContain(".run-goal-banner");
+    expect(css).toContain('data-run-goal-banner="agent-objective"');
+    expect(css).toContain(".center-stage-tabs");
+    expect(css).toContain('data-output-mode-tabs="creation-chat-trace-files-inspector"');
+    expect(css).toContain(".creation-stage-panel");
+    expect(css).toContain(".creation-output-grid");
+    expect(css).toContain(".stage-mode-panel");
+    expect(css).toContain(".conversation-scroll-region[data-output-mode=\"creation\"]");
+    expect(css).toContain("grid-template-columns: repeat(auto-fit, minmax(140px, 1fr))");
+    expect(css).toContain("position: sticky");
+  });
+
+  it("styles the Agent Cockpit and Mermaid Board as the right-pane work surface", async () => {
+    const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
+
+    expect(css).toContain(".agent-pane-intent");
+    expect(css).toContain(".agent-cockpit-pane");
+    expect(css).toContain(".cockpit-card");
+    expect(css).toContain(".mermaid-board-layout");
+    expect(css).toContain(".mermaid-board-canvas");
+    expect(css).toContain(".mermaid-board-node");
+    expect(css).toContain(".mermaid-board-inspector");
+    expect(css).toContain('data-agent-cockpit-shell="right-pane"');
+    expect(css).toContain("grid-template-columns: minmax(420px, 1fr) minmax(260px, 0.32fr)");
+    expect(css).toContain("position: sticky");
+  });
+
   it("supports a persisted resizable conversation and artifact grid", async () => {
     const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
 

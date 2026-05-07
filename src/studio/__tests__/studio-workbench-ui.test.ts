@@ -149,6 +149,46 @@ describe("studio harness console UI", () => {
     expect(components).toContain("deriveVerificationSignals");
   });
 
+  it("centers agent output behind the Agent Cockpit right pane", async () => {
+    const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
+
+    expect(app).toContain('type RightPaneTab = "run" | "changes" | "design-system"');
+    expect(app).toContain("interface PaneIntent");
+    expect(app).toContain("const RIGHT_PANE_TABS");
+    expect(app).toContain('const [rightPaneTab, setRightPaneTab] = useState<RightPaneTab>("design-system")');
+    expect(app).toContain("paneIntentForAction");
+    expect(app).toContain("paneIntentForEvents");
+    expect(app).toContain('data-agent-cockpit-shell="right-pane"');
+    expect(app).toContain('data-right-pane-tabs="agent-cockpit-mermaid-board"');
+    expect(app).toContain('data-agent-pane-intent="suggested-switch"');
+    expect(app).toContain("renderRunCockpitPane()");
+    expect(app).toContain("renderChangesCockpitPane()");
+    expect(app).toContain("renderMermaidBoardPane()");
+    expect(app).toContain("renderRightPaneBody()");
+    expect(app).toContain("CenterStageMode");
+  });
+
+  it("centers agent creation behind explicit output mode tabs and a run goal banner", async () => {
+    const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
+
+    expect(app).toContain('type CenterStageMode = "creation" | "chat" | "trace" | "files" | "inspector"');
+    expect(app).toContain("const CENTER_STAGE_MODES");
+    expect(app).toContain('const [centerStageMode, setCenterStageMode] = useState<CenterStageMode>("creation")');
+    expect(app).toContain('data-run-goal-banner="agent-objective"');
+    expect(app).toContain('data-output-mode-tabs="creation-chat-trace-files-inspector"');
+    expect(app).toContain('data-center-stage="agent-creation"');
+    expect(app).toContain('data-output-mode={centerStageMode}');
+    expect(app).toContain('data-output-mode-tab={mode.id}');
+    expect(app).toContain('centerStageMode === "creation"');
+    expect(app).toContain('centerStageMode === "trace"');
+    expect(app).toContain('centerStageMode === "files"');
+    expect(app).toContain('centerStageMode === "inspector"');
+    expect(app).toContain("renderCreationStage()");
+    expect(app).toContain("renderTraceStage()");
+    expect(app).toContain("renderFilesStage()");
+    expect(app).toContain("renderInspectorStage()");
+  });
+
   it("renders the Studio topbar as an ultra-compact icon/status strip", async () => {
     const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
     const components = await readFile(join(process.cwd(), "apps", "studio", "src", "workbench-components.tsx"), "utf-8");
@@ -181,6 +221,9 @@ describe("studio harness console UI", () => {
 
     expect(app).toContain("projectSidebarCollapsed");
     expect(app).toContain("expandedProjectIds");
+    expect(app).toContain("runningSessionCount");
+    expect(app).toContain('data-concurrent-run-count={runningSessionCount}');
+    expect(app).toContain('data-session-queue-state={sessionQueueState}');
     expect(app).toContain("memoire.studio.projectSidebarCollapsed");
     expect(app).toContain("memoire.studio.expandedProjectIds");
     expect(app).toContain("onOpenSettings={() => openSettingsPanel()}");
@@ -190,12 +233,14 @@ describe("studio harness console UI", () => {
     expect(components).toContain('data-project-session-row');
     expect(components).toContain('className="project-session-copy"');
     expect(components).toContain('<i className="project-session-status"');
+    expect(components).toContain('data-sidebar-readable-collapsed');
     expect(components).toContain('data-action-id="sidebar.collapse"');
     expect(components).toContain('data-action-id="settings.open.sidebar"');
     expect(components).toContain("session.harness} / {session.action ?? \"run\"} / {session.status}");
     expect(css).toContain("--project-sidebar-width:");
     expect(css).toContain("--project-sidebar-collapsed-width:");
     expect(css).toContain('[data-sidebar-collapsed="true"]');
+    expect(css).toContain("[data-sidebar-readable-collapsed=\"true\"]");
   });
 
   it("wires sidebar actions to concrete Studio surfaces and uses one clean monochrome icon pack", async () => {

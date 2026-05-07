@@ -745,6 +745,17 @@ button.active,
 .drawer-head h2,
 .empty-state h2 { margin: var(--space-0); font-size: var(--font-size-md); font-weight: var(--font-weight-regular); }
 .panel-head h2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.run-goal-banner[data-run-goal-banner="agent-objective"] { min-width: 0; display: flex; align-items: center; gap: var(--space-1); overflow: hidden; color: var(--ink-muted); font-size: var(--font-size-xs); }
+.run-goal-banner span, .run-goal-banner strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.center-stage-tabs[data-output-mode-tabs="creation-chat-trace-files-inspector"] { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: var(--space-1); overflow-x: auto; border-bottom: 1px solid var(--line); background: var(--feed-bg); padding: var(--space-1) var(--space-3); }
+.center-stage-tabs button { min-height: var(--control-height-compact); padding: var(--space-0-5) var(--space-1-5); }
+.conversation-scroll-region[data-output-mode="creation"] { align-content: stretch; }
+.creation-stage-panel, .stage-mode-panel { min-width: 0; display: grid; align-content: start; gap: var(--space-2); padding: var(--space-3); }
+.creation-stage-panel header, .stage-mode-panel header { min-width: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); }
+.creation-stage-panel h3, .creation-stage-panel p { margin: var(--space-0); }
+.creation-output-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-2); }
+.creation-output-grid article, .stage-mode-panel button { min-width: 0; display: grid; gap: var(--space-1); justify-items: start; border: 1px solid var(--line); border-radius: var(--radius-default); background: var(--surface); padding: var(--space-2); text-align: left; }
+.creation-output-grid span, .creation-output-grid small, .creation-stage-panel header span, .stage-mode-panel small { min-width: 0; overflow: hidden; color: var(--ink-muted); font-size: var(--font-size-xs); text-overflow: ellipsis; white-space: nowrap; }
 .eyebrow { margin: var(--space-0) var(--space-0) var(--space-1); color: var(--ink-faint); font-size: var(--font-size-xs); letter-spacing: 0.08em; text-transform: uppercase; }
 .chat-quality-layer[data-chat-qol="codex-antigravity"] { max-height: 132px; display: grid; grid-template-rows: auto auto; gap: var(--space-1); overflow-y: auto; border-bottom: 1px solid var(--line); background: var(--surface); padding: var(--space-1) var(--space-3); }
 .chat-live-plan { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(96px, 0.46fr) auto; align-items: center; gap: var(--space-1); }
