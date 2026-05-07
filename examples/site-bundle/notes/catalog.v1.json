@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-07T05:55:33.758Z",
+  "generatedAt": "2026-05-07T14:32:13.173Z",
   "baseUrl": "https://www.memoire.cv/notes",
   "notes": [
     {
@@ -33,7 +33,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/accessibility-audit",
       "archive": {
         "url": "https://www.memoire.cv/notes/accessibility-audit/accessibility-audit-2.0.0.tgz",
-        "sha256": "99248d7d8a37b716ac0c110163a460fe293983258e74a8d3593e48e5ba002806",
+        "sha256": "b2d88f95cca6a4bc4a4ca7160caca1cb77e83b2c546ec7ed26acd9e24f27e623",
         "size": 8953
       },
       "manifest": {
@@ -96,8 +96,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/agent-memory-profiles",
       "archive": {
         "url": "https://www.memoire.cv/notes/agent-memory-profiles/agent-memory-profiles-0.1.0.tgz",
-        "sha256": "3e92da8c225e169105107f0fadc7af70e2a682c3acc72ae26076620158e1fad3",
-        "size": 1366
+        "sha256": "1df506809eb56d3f75f833b1963c883ef915c94259cff939abc4913a340452ec",
+        "size": 992
       },
       "manifest": {
         "name": "agent-memory-profiles",
@@ -159,8 +159,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/agent-messaging-gateway",
       "archive": {
         "url": "https://www.memoire.cv/notes/agent-messaging-gateway/agent-messaging-gateway-0.1.0.tgz",
-        "sha256": "a0c5b56031a0e0facf87fc72154513f4834b5db9da7a0fca8445ab277a049cd8",
-        "size": 1351
+        "sha256": "48d39d0e33812392004ed1bcba20916d7b5dfc3ef2f19a169d315c5af9482438",
+        "size": 978
       },
       "manifest": {
         "name": "agent-messaging-gateway",
@@ -222,8 +222,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/agent-session-checkpoints",
       "archive": {
         "url": "https://www.memoire.cv/notes/agent-session-checkpoints/agent-session-checkpoints-0.1.0.tgz",
-        "sha256": "d064ae19476ba4413eaaabc400e0b505140559bf3a4b9f079843915253986cc2",
-        "size": 1394
+        "sha256": "f37b463d29e977a1fc8f2cff18fdefdecc7d9c2063cbf8fd763bec3411e9b6ac",
+        "size": 1011
       },
       "manifest": {
         "name": "agent-session-checkpoints",
@@ -285,8 +285,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/agent-skill-migration",
       "archive": {
         "url": "https://www.memoire.cv/notes/agent-skill-migration/agent-skill-migration-0.1.0.tgz",
-        "sha256": "c4ff9bddf551df36fd73a706d26f9f0b83d5cfa90e6aa7c25c6af1bcf9749ad7",
-        "size": 1365
+        "sha256": "c366ca832a382bb871d273564f0f3f4cdb2f156ffcf4b815f5da2306b12d5b0e",
+        "size": 990
       },
       "manifest": {
         "name": "agent-skill-migration",
@@ -348,8 +348,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/animation-craft",
       "archive": {
         "url": "https://www.memoire.cv/notes/animation-craft/animation-craft-1.0.0.tgz",
-        "sha256": "c2f21e71823487b7acfb0aee27e1aac39a4be9582ef1826ab6788c3a612023dc",
-        "size": 13819
+        "sha256": "f34a3e3119975b0d40fc34606790213a779d848a05dcb576d94f84e4599550d6",
+        "size": 13469
       },
       "manifest": {
         "name": "animation-craft",
@@ -415,8 +415,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/apple-desktop-automation",
       "archive": {
         "url": "https://www.memoire.cv/notes/apple-desktop-automation/apple-desktop-automation-0.1.0.tgz",
-        "sha256": "85ce9e549a2fa26d7523e70c87659eacf35803c771f42cc453f94417e11f2c86",
-        "size": 1348
+        "sha256": "691478951134e82819b6480f2b0cafc3f0c5a2760a0a72fd68565591bfa4414a",
+        "size": 982
       },
       "manifest": {
         "name": "apple-desktop-automation",
@@ -478,8 +478,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/approval-sandbox-policies",
       "archive": {
         "url": "https://www.memoire.cv/notes/approval-sandbox-policies/approval-sandbox-policies-0.1.0.tgz",
-        "sha256": "9dcf8ae5a0fdcdbad660b4b62aa73fa1e32cb5c6b4e1e149a93665d39f2188f7",
-        "size": 1389
+        "sha256": "6c65541f5d108b9c4c87913319ea4873314714c6d4f7ec4f6ea0e00553fb2684",
+        "size": 1022
       },
       "manifest": {
         "name": "approval-sandbox-policies",
@@ -541,8 +541,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/browser-research-agent",
       "archive": {
         "url": "https://www.memoire.cv/notes/browser-research-agent/browser-research-agent-0.1.0.tgz",
-        "sha256": "92e24bbdea04fee416e23a3b30a9e31e321cf1f526abc3e5c088add4c2d486d2",
-        "size": 1341
+        "sha256": "40c26ccf5b036f71a829033040be050378d341c7c81e48b054d851d69298128c",
+        "size": 971
       },
       "manifest": {
         "name": "browser-research-agent",
@@ -601,7 +601,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/codex-ops",
       "archive": {
         "url": "https://www.memoire.cv/notes/codex-ops/codex-ops-1.0.0.tgz",
-        "sha256": "6636380e648485d64da18137f2a2273c604874a205cdb2558bc770df380e0743",
+        "sha256": "2ddf45fff309bbf458bd33695f1c2696b01d2677c980b8816a14a0a366168a0d",
         "size": 1882
       },
       "manifest": {
@@ -654,7 +654,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/competitive-intel",
       "archive": {
         "url": "https://www.memoire.cv/notes/competitive-intel/competitive-intel-1.0.0.tgz",
-        "sha256": "66a486c1be80258a46739f96951f8947af92c1779e5ce343c9fc4d8d169317e0",
+        "sha256": "f285e156e817e541014b6adeaf07662c7e957687845da69dfdb76fad0e219d62",
         "size": 13234
       },
       "manifest": {
@@ -710,8 +710,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/cron-agent-workflows",
       "archive": {
         "url": "https://www.memoire.cv/notes/cron-agent-workflows/cron-agent-workflows-0.1.0.tgz",
-        "sha256": "9578879ee438cc2741b510fd8ea129d2d69e170015d74e4f5352ef0d515a649a",
-        "size": 1376
+        "sha256": "d4196491252a509caac870fbc6634e008807e8d03560f00539b29dfa62276ef3",
+        "size": 1002
       },
       "manifest": {
         "name": "cron-agent-workflows",
@@ -770,7 +770,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/data-synthesis",
       "archive": {
         "url": "https://www.memoire.cv/notes/data-synthesis/data-synthesis-1.0.0.tgz",
-        "sha256": "e4f0a289bffbe2137b9f8ed03636cf55b8ba579d5cb0c396ba316ec44634656a",
+        "sha256": "52ef667d5a1b52d6fff90a300c055a33b20d40715ab0b28f45fb3b3a01145e8f",
         "size": 5163
       },
       "manifest": {
@@ -824,7 +824,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/design-systems",
       "archive": {
         "url": "https://www.memoire.cv/notes/design-systems/design-systems-1.0.0.tgz",
-        "sha256": "1ca1a3b4edb2978bee2bf0cc84dcf4a83353168dfe09cac59491bf2b246a313d",
+        "sha256": "ea38fe8098c074da1772d747cde9456bc8f70eee23436fb2be9062cf83616dd4",
         "size": 15605
       },
       "manifest": {
@@ -880,7 +880,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/docker-environments",
       "archive": {
         "url": "https://www.memoire.cv/notes/docker-environments/docker-environments-1.0.0.tgz",
-        "sha256": "6c76ec50fce6aa9ff62e417ce91160f1674fe24f37d43eb67b83e9beab5e919d",
+        "sha256": "afbbdb42666181ef10c72451e2a0292ff5a51b0f70052c5abde2223b22ebe21b",
         "size": 4411
       },
       "manifest": {
@@ -934,7 +934,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-code-connect",
       "archive": {
         "url": "https://www.memoire.cv/notes/figma-code-connect/figma-code-connect-1.0.0.tgz",
-        "sha256": "421f55953c99fc28df4b708caf8f9d900381eb334701d9d5a66158569aad81c6",
+        "sha256": "d1c1dffb83b0ac7587e6759b9583909456e2088041084d0bef093c5f810d6fbd",
         "size": 2890
       },
       "manifest": {
@@ -988,7 +988,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-create-file",
       "archive": {
         "url": "https://www.memoire.cv/notes/figma-create-file/figma-create-file-1.0.0.tgz",
-        "sha256": "d66b716627f6f214220acd5b845134932cdb586dc624ec1f43107567b2413544",
+        "sha256": "9bf5d93f082353e4607bb01eccba3a38287db7e100b1320759df086378d3f6d5",
         "size": 1905
       },
       "manifest": {
@@ -1044,7 +1044,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-design-systems",
       "archive": {
         "url": "https://www.memoire.cv/notes/figma-design-systems/figma-design-systems-1.0.0.tgz",
-        "sha256": "1c5161b687e190d2832dd6b55248108ab45641cec304752168b1150e1c158a1b",
+        "sha256": "9eab5de739cb967e1774b145ff67cbe2c62644f38b809c2d12a4a2288008af89",
         "size": 13558
       },
       "manifest": {
@@ -1101,7 +1101,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-ds-rules",
       "archive": {
         "url": "https://www.memoire.cv/notes/figma-ds-rules/figma-ds-rules-1.0.0.tgz",
-        "sha256": "e598d63f239fe0a885990002cc816a4519ab19d47740a4a24f386d8a4784c6d2",
+        "sha256": "730388a1ef0b331d1c22e753d8e0f8f4f208c638dddf736dd7ce7f9202addaa2",
         "size": 3622
       },
       "manifest": {
@@ -1157,7 +1157,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-implement-design",
       "archive": {
         "url": "https://www.memoire.cv/notes/figma-implement-design/figma-implement-design-1.0.0.tgz",
-        "sha256": "855a39f0482ed7a74e5414ae4bbfef5af9670072e9c2ceb0c50af395c548ac97",
+        "sha256": "478a6c2f800de0584aa823148a46badf2190338c91b30dde605af61bdf6ad4e4",
         "size": 3390
       },
       "manifest": {
@@ -1214,7 +1214,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-library-builder",
       "archive": {
         "url": "https://www.memoire.cv/notes/figma-library-builder/figma-library-builder-1.0.0.tgz",
-        "sha256": "c562261cfc285a266336853459b66ea11e8f8e29ad3fe5f71fd37c9f2f6756b5",
+        "sha256": "9388dd6c28fa8527ba7d21655bfc95437c3d87780cebdf45f05e75f495241d05",
         "size": 63535
       },
       "manifest": {
@@ -1271,7 +1271,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-plugin-api",
       "archive": {
         "url": "https://www.memoire.cv/notes/figma-plugin-api/figma-plugin-api-1.0.0.tgz",
-        "sha256": "90c99e5a0ad0fabcb65dd1235fc2d113e1c015f9a12bb17fc2f27d44d600c4af",
+        "sha256": "29301047500561cbd1cca13bd10500345546c388147e2182a1621dc190eaa760",
         "size": 34212
       },
       "manifest": {
@@ -1327,7 +1327,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-sync",
       "archive": {
         "url": "https://www.memoire.cv/notes/figma-sync/figma-sync-1.0.0.tgz",
-        "sha256": "773c78b72de713327dc6cc7f2ba6d6b0cd3050c23ab12891a100432d6aea93ec",
+        "sha256": "21fe81d85a9d1bbee6eb4bc92cb81c9a38c32f6c7d7b1ac1132c0080c38e2f6d",
         "size": 2816
       },
       "manifest": {
@@ -1379,7 +1379,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-web-capture",
       "archive": {
         "url": "https://www.memoire.cv/notes/figma-web-capture/figma-web-capture-1.0.0.tgz",
-        "sha256": "5e8e1ce6e0bc95589634b5d9d7086ac241c38131558d67d3ae82c2a4ffab1784",
+        "sha256": "8f77f4a48cf3be5b657db8a9c31221669cd5d9dfff6d7e0c6b5d8d0b37be5937",
         "size": 1993
       },
       "manifest": {
@@ -1432,7 +1432,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/flutter-gen",
       "archive": {
         "url": "https://www.memoire.cv/notes/flutter-gen/flutter-gen-1.0.0.tgz",
-        "sha256": "85be80634dfcf7767d8493d91932af02ef501c33bbcaa6656d81e21f4f2fbe87",
+        "sha256": "6a575918e7454ac82d9c9faf8c1ec14f41bf4e49695e864104dd75d30ede3719",
         "size": 15270
       },
       "manifest": {
@@ -1489,8 +1489,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/gateway-ops-observability",
       "archive": {
         "url": "https://www.memoire.cv/notes/gateway-ops-observability/gateway-ops-observability-0.1.0.tgz",
-        "sha256": "6b3642302b9bac913a6fa1a6d4c9044c9374bab77721618c153abdec92bbc311",
-        "size": 1346
+        "sha256": "bf063bcab6a35285ca09fbdf4bed34e919c4d961b60614e185b08cdc4fc48a2b",
+        "size": 976
       },
       "manifest": {
         "name": "gateway-ops-observability",
@@ -1552,8 +1552,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/hermes-agent-bridge",
       "archive": {
         "url": "https://www.memoire.cv/notes/hermes-agent-bridge/hermes-agent-bridge-0.1.0.tgz",
-        "sha256": "ddc93c9f5b0cd9080d1e46e5bea9d8bc34fc9530c259f67dacf5e84ac28bab9b",
-        "size": 1335
+        "sha256": "4b2a85e7159dca63805fd926c31ae26d7a9a7634f5c2045d201d7061d202df0e",
+        "size": 961
       },
       "manifest": {
         "name": "hermes-agent-bridge",
@@ -1616,8 +1616,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/hyperframes-video",
       "archive": {
         "url": "https://www.memoire.cv/notes/hyperframes-video/hyperframes-video-0.1.0.tgz",
-        "sha256": "f497e360350e2c6b0b85658c5bdf25b75203f4295eb52711e92032cf30fa6e8b",
-        "size": 1624
+        "sha256": "a6a3bcf7a826ea7a4830d59574df01022f3f1a4abab4f7b6f46d2345ef81fef1",
+        "size": 1247
       },
       "manifest": {
         "name": "hyperframes-video",
@@ -1679,7 +1679,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/interview-research",
       "archive": {
         "url": "https://www.memoire.cv/notes/interview-research/interview-research-1.0.0.tgz",
-        "sha256": "8b778924c5ec2b1ea61b8126c3e875c509508db8d944b4e03dc581871a709311",
+        "sha256": "da8c780eb0d816c84cfac0f6d8ee9d0c9f9a5519a6d56fb526f4651ab96a5c59",
         "size": 8771
       },
       "manifest": {
@@ -1733,7 +1733,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/linear-sync",
       "archive": {
         "url": "https://www.memoire.cv/notes/linear-sync/linear-sync-1.0.0.tgz",
-        "sha256": "48bc1c2c3f176ebd2f8ef8e7bc972fb0fa7aa07ca36294466e78a12ab1fe1cb3",
+        "sha256": "b4cf3abb3f525c34a396081b967e98877dc71e87997b17d4a6ba21806ca35698",
         "size": 11543
       },
       "manifest": {
@@ -1790,8 +1790,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/mcp-server-studio",
       "archive": {
         "url": "https://www.memoire.cv/notes/mcp-server-studio/mcp-server-studio-0.1.0.tgz",
-        "sha256": "7706cae4ea707563589675fdc33c8024dd780eaae53638c8616d282bf5cc987d",
-        "size": 1368
+        "sha256": "cf2bd065e931804223fc5b4eb1c267743c2cde41ab141bde5082a002233bfaa2",
+        "size": 1002
       },
       "manifest": {
         "name": "mcp-server-studio",
@@ -1849,8 +1849,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/mermaid-jam",
       "archive": {
         "url": "https://www.memoire.cv/notes/mermaid-jam/mermaid-jam-1.0.0.tgz",
-        "sha256": "f42a695ffe5abf09f5a0f49dbc84d26f2ee6d9a7e3f724bc8933ab29dffe464e",
-        "size": 1593
+        "sha256": "256521e844a87ab6f5b62ab64f636f8296d1ad71da25fad95169d3362394fb84",
+        "size": 1890
       },
       "manifest": {
         "name": "mermaid-jam",
@@ -1907,7 +1907,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/mobile-craft",
       "archive": {
         "url": "https://www.memoire.cv/notes/mobile-craft/mobile-craft-1.0.0.tgz",
-        "sha256": "96693c8e8d7753f76e8d0fa2742be3de2e6b5048c11b4225549699df09864d28",
+        "sha256": "fc2fa5ac21d731e1764975458f9a2910f9618cfe703872d3142a9e3cce89f1fe",
         "size": 17318
       },
       "manifest": {
@@ -1965,8 +1965,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/model-router-diagnostics",
       "archive": {
         "url": "https://www.memoire.cv/notes/model-router-diagnostics/model-router-diagnostics-0.1.0.tgz",
-        "sha256": "500c141e0edf2870a3e6da0c8673c0d050dd62053e8281e7b35a83c547a76454",
-        "size": 1376
+        "sha256": "ada74419f35df6243c849e2d0bf95a68832b6a38c022b3ba2170fef7d5ac94d0",
+        "size": 1002
       },
       "manifest": {
         "name": "model-router-diagnostics",
@@ -2027,8 +2027,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/motion-performance",
       "archive": {
         "url": "https://www.memoire.cv/notes/motion-performance/motion-performance-0.1.0.tgz",
-        "sha256": "35e2f4b3c8eda2d7c64d7e444adfedbc71824af4875ef59be47a13e6109c1355",
-        "size": 1465
+        "sha256": "8da192b2dad82233cdd84a3f2c8e28a12b0c530c883cf066a6a164c518211768",
+        "size": 1101
       },
       "manifest": {
         "name": "motion-performance",
@@ -2091,8 +2091,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/multi-agent-kanban",
       "archive": {
         "url": "https://www.memoire.cv/notes/multi-agent-kanban/multi-agent-kanban-0.1.0.tgz",
-        "sha256": "da7b12a918f5db4486e4f43538edf7534fa72dc51bb9afa20affb97a205dbc19",
-        "size": 1404
+        "sha256": "fe2176fe7cdde77374b6f48a76ebed633b08cf7dde25082502dd46a4b796acbc",
+        "size": 1028
       },
       "manifest": {
         "name": "multi-agent-kanban",
@@ -2151,7 +2151,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/notion-sync",
       "archive": {
         "url": "https://www.memoire.cv/notes/notion-sync/notion-sync-1.0.0.tgz",
-        "sha256": "7cbd45714bb60a13c3c0b44a87d8699748e82487ce3da0c62a1d45161ee3f35b",
+        "sha256": "62c3afbcdc7ca9fb9c853c92ef44484f58489d6849887e725f7ac04b4ea43576",
         "size": 13051
       },
       "manifest": {
@@ -2208,8 +2208,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/openclaw-agent-bridge",
       "archive": {
         "url": "https://www.memoire.cv/notes/openclaw-agent-bridge/openclaw-agent-bridge-0.1.0.tgz",
-        "sha256": "26ed3ec0bf78fee439e1f32baf4f1a077a437be25300787471e77394dcfa98dc",
-        "size": 1295
+        "sha256": "00159e79b1ce3e64cf9f88d7814a4516e40982390342fd405fcc48ffe47a63ee",
+        "size": 928
       },
       "manifest": {
         "name": "openclaw-agent-bridge",
@@ -2268,7 +2268,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/react-native-gen",
       "archive": {
         "url": "https://www.memoire.cv/notes/react-native-gen/react-native-gen-1.0.0.tgz",
-        "sha256": "50c0034c4292995d0e9c49fca59d84c02afe1d78673aeb2ff750be5e4c11be21",
+        "sha256": "cc3c8120a1c2fc1841d3c21c6058915a223a7469b2dbc4ff101d255ee067e78d",
         "size": 2302
       },
       "manifest": {
@@ -2324,8 +2324,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/remotion-video",
       "archive": {
         "url": "https://www.memoire.cv/notes/remotion-video/remotion-video-0.1.0.tgz",
-        "sha256": "475c1a5c638f140ba8056e5624586fcebe9ea8b841cec5d72770c04c96ce5f2a",
-        "size": 1655
+        "sha256": "e8d75eec8ceb09fe7dfb142ccbc77b26e0b0c921e531ce232fd63ab199cdf42d",
+        "size": 1278
       },
       "manifest": {
         "name": "remotion-video",
@@ -2388,8 +2388,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/secure-secrets-for-agents",
       "archive": {
         "url": "https://www.memoire.cv/notes/secure-secrets-for-agents/secure-secrets-for-agents-0.1.0.tgz",
-        "sha256": "82f75a7f1d7eca2b95eb7463ab2ec8a769f60f6f709b35bf4b0c75805e6793ad",
-        "size": 1391
+        "sha256": "34eb592be9355a5a4c2336886660bec7db9d54653366465cabb11e781df3b75d",
+        "size": 1017
       },
       "manifest": {
         "name": "secure-secrets-for-agents",
@@ -2446,7 +2446,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/self-improving-agent",
       "archive": {
         "url": "https://www.memoire.cv/notes/self-improving-agent/self-improving-agent-3.0.6.tgz",
-        "sha256": "68fecc0fad28a75567f8d40ff599eb7931228f894dd0d0e404193138593c68f0",
+        "sha256": "6d1c091fa9be304a40789fb8da9de42c8e7b28235d7048de146f79c431764a8a",
         "size": 7856
       },
       "manifest": {
@@ -2499,7 +2499,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/survey-connect",
       "archive": {
         "url": "https://www.memoire.cv/notes/survey-connect/survey-connect-1.0.0.tgz",
-        "sha256": "5f493c983574a5343f63c3622cfb1e07a0cb85b39ed445ffa1149575b7096a08",
+        "sha256": "f9b6dc1d3400993ad6700d00f67ac12704caad5bd3403ba914dc7c1214d4a3d9",
         "size": 7464
       },
       "manifest": {
@@ -2553,7 +2553,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/token-architecture",
       "archive": {
         "url": "https://www.memoire.cv/notes/token-architecture/token-architecture-1.0.0.tgz",
-        "sha256": "97faa0b089067853944518cb90ab613e5f560656dc0a6e16defd6655c2af377b",
+        "sha256": "33a7e593195b29bd6bc292ec1166a5ce73b9c8a72eab6ceaef45fbaf639821d7",
         "size": 3878
       },
       "manifest": {
@@ -2607,7 +2607,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/usability-testing",
       "archive": {
         "url": "https://www.memoire.cv/notes/usability-testing/usability-testing-1.0.0.tgz",
-        "sha256": "219c2ea9d9f8c2889161e0e403ddff32086260ba1f788b89cc15f96676e6b4b4",
+        "sha256": "e2dbf8db904dc05fd9a253a36d74a44b15fb0b625335279590b6dd37c663f953",
         "size": 5153
       },
       "manifest": {
@@ -2661,7 +2661,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/vue-gen",
       "archive": {
         "url": "https://www.memoire.cv/notes/vue-gen/vue-gen-1.0.0.tgz",
-        "sha256": "218dcc2b4b58c6bd9e8c5529a2ccf62d1d3649459b6c633fdd27ef28ba40c554",
+        "sha256": "4b8657c234f51d9faf1613d50c6610627dca4328f9c17bd32cd51faef443e9df",
         "size": 3970
       },
       "manifest": {
@@ -2714,7 +2714,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/web-research",
       "archive": {
         "url": "https://www.memoire.cv/notes/web-research/web-research-1.0.0.tgz",
-        "sha256": "133d15ed7ac82b5ef4a328461709b3dc7e635f5e9461eb6243433915f031f558",
+        "sha256": "a5c093a4fb7905f8de72ae049b66643932eca6ee395f3a9c1dc0d3e15f5619b7",
         "size": 9410
       },
       "manifest": {
@@ -2768,8 +2768,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/website-to-video",
       "archive": {
         "url": "https://www.memoire.cv/notes/website-to-video/website-to-video-0.1.0.tgz",
-        "sha256": "02b3651e0b645b0edda0acafd6522bb735565023aac2c9cde5e81ff55584b1cf",
-        "size": 1524
+        "sha256": "437d05ef5ccf8606e13c489574e1b8a69b04e896a50334689646405a0e701432",
+        "size": 1147
       },
       "manifest": {
         "name": "website-to-video",

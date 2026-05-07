@@ -8,19 +8,88 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ## Unreleased
 
+## v0.17.0 — 2026-05-07
+
+### The upgrade
+This minor cuts the bundled wave of Mermaid Jam, research-backed vibe design, the clean-room simulation domain, Model Swarm V2, Studio Automations, the Codex plugin package, and 19 new agent/motion Notes onto a single coordinated release across the npm package, MCP registry, macOS Studio DMG, and the marketing site.
+
 ### New
 - Added a native Mermaid Jam integration for routing Mermaid and markdown diagram source into the Mermaid Jam FigJam plugin.
 - Added `memi mermaid-jam status` / `memi mermaid-jam open`, a Studio `/api/integrations/mermaid-jam` endpoint, and a built-in `mermaid-jam` Note for agent workflows.
+- Added research-backed vibe design packages with `memi research design`, `memi mermaid-jam export --from`, Studio/MCP `research.design_package`, `research.generate_specs`, and `mermaid_jam.export` tools.
+- Added the clean-room `src/simulation/` domain, `memi simulate` CLI, Studio/MCP simulation tools, Scenario Lab surface, and optional MiroFish fork bridge adapter.
+- Added Model Swarm Simulation V2 with Codex-first profiles, deterministic fallback routing, 20-60 agent cohorts, transcripts, matrices, comparisons, costs, and Scenario Lab model/cost/transcript surfaces.
+- Added Mémoire Studio Automations with Codex-style JSON workspace definitions, JSONL run history, design-harness templates, runtime API routes, CLI commands, and a macOS user LaunchAgent scheduler.
+- Added a native Studio Automations center with template creation, edit, pause/resume, run-now, run history, scheduler status, and safe write-policy controls for Codex design harness work.
+- Added a Codex plugin package for Memoire with bundled skill context, MCP server wiring, repo-local marketplace metadata, and `memi agent install codex-plugin`.
+- Added public Git-backed Codex marketplace distribution docs, store-ready PNG plugin assets, screenshots, privacy/terms links, `/codex-plugin` site copy, and a `smoke:codex-plugin` gate.
+- Added 19 new agent and motion Notes covering memory profiles, messaging gateway, session checkpoints, skill migration, apple-desktop-automation, approval sandbox policies, browser-research-agent, cron workflows, gateway ops observability, hermes/openclaw bridges, mcp-server-studio, model-router-diagnostics, multi-agent-kanban, secure-secrets, hyperframes-video, remotion-video, motion-performance, and website-to-video.
+- Refreshed animation-craft to depend on the new motion-performance, remotion-video, and hyperframes-video Notes.
+
+### Fixed
+- Studio surface routing no longer snaps back to the workbench when opening a session summary or starting a new chat, so the user-selected surface persists across session changes.
+- Studio trace view-model derives activities once and reuses them for active-process inference, fixing the reasoning-live behavior covered by view-model.test.ts.
+
+### Security
+- Added a release gate and unit coverage that fail if packaged files contain copied MiroFish source markers while allowing written references and optional fork bridge documentation.
 
 ### Verification
 - Focused Mermaid Jam resolver, CLI, and Studio API tests passed.
+- Focused research design package, Mermaid Jam export, Studio tool, MCP registration, and Scenario Lab UI tests passed.
 - Packaged Note asset tests and Studio Marketplace tests passed.
 - `npm run typecheck` passed.
+- Focused simulation core, CLI, Studio tool, and license-boundary tests passed.
+- Focused Studio automation store, server, CLI, scheduler, and workbench UI tests passed.
+- Focused Codex plugin packaging and agent-install tests passed.
+- Focused Codex plugin store-readiness, site-bundle, and marketplace smoke tests passed.
 
 ### Commits
 | Hash | Message |
 |------|---------|
+| `32b028b0` | fix(studio): trailing 0.17 polish for surface routing and trace activities |
+| `c1cbcd4f` | docs(0.17): refresh README, llms.txt, skills, site bundle, preset READMEs |
+| `079b8e15` | feat(0.17): ship Studio simulation, swarm v2, automations, codex plugin, vibe design, agent-kits |
+| `20a0d3b9` | feat(notes): add 19 agent/motion notes and refresh animation-craft + mermaid-jam |
+| `87011ce5` | chore(release): harden 0.16.1 agent registry metadata |
+| `9f436086` | docs: sync mermaid jam changelog |
 | `49bbded2` | feat: add native mermaid jam integration |
+
+## v0.16.3 — 2026-05-06
+
+### The upgrade
+This patch republishes the native-runtime trust fixes under a new immutable npm version after `0.16.2` was already present on npm. It keeps the supply-chain repair intact while ensuring the published Studio runtime, agent envelope, and packaged web assets default to guarded execution.
+
+### Fixed
+- Restored guarded Studio execution as the default permission mode in the macOS/web shell.
+- Restored guarded defaults in Studio agent-envelope context so missing session metadata no longer falls back to `full_access`.
+- Kept shell access disabled by default and computer actions approval-gated in the default Studio config.
+- Kept the Figma companion on Studio web/runtime defaults `1420` and `8765`, with bridge hello messages serialized through the v2 bridge envelope.
+
+### Verification
+- `npm run prepublishOnly` passed with release checks, production audit, typecheck, 1,243 tests, and build.
+- `npm run pack:dry-run` and `npm run smoke:mcp` passed.
+- Pulled the public `0.16.2` tarball to confirm npm immutability required a `0.16.3` patch instead of republishing over `0.16.2`.
+
+## v0.16.2 — 2026-05-06
+
+### The upgrade
+This patch repairs the public-package trust surface before the next growth push. Memoire no longer performs npm install-time writes, the default Figma plugin disables raw JavaScript execution, production dependencies clear high audit findings, and native agent installs now create daemon-aware suite context for low-latency Codex, Claude Code, Cursor, OpenCode, Hermes, and OpenClaw workflows.
+
+### New
+- Added `memi daemon start|status|stop` as the shared local runtime entrypoint for CLI, Studio, MCP, and agent adapters.
+- Added `memi suite init|doctor|run <recipe>` plus `memoire.agent.yaml` so agents share one YAML contract for product memory, harnesses, skills, and product-team recipes.
+- Made `memi agent install` plan or write `memoire.agent.yaml` and updated Hermes, OpenClaw, Codex, and OpenCode kits to prefer warmed daemon context, suite recipes, and `memi mcp start --no-figma`.
+- Added explicit plugin setup/repair commands with `memi setup plugin` and `memi doctor --repair-plugin`.
+
+### Security
+- Removed public npm lifecycle scripts for `prepare` and `postinstall`; packaged installs no longer write to `~/.memoire` automatically.
+- Updated `@chenglou/pretext` and MCP/transitive dependency ranges, then added `npm audit --omit=dev --audit-level=high` to release gates.
+- Added text-length and repeated-punctuation guards before Pretext measurement falls through to `prepare()`.
+- Disabled raw Figma JavaScript execution in the default packaged plugin and removed the public MCP `figma_execute` tool.
+
+### Verification
+- Release checks now fail on public lifecycle scripts, packed lifecycle helpers, unsynced release metadata, stale changelog preview, and production high audit findings.
+- Focused daemon, suite, agent-kit, text-measurement, supply-chain, and MCP smoke tests cover the new trust and runtime paths.
 
 ## v0.16.1 — 2026-05-06
 

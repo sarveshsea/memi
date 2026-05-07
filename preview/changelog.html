@@ -390,9 +390,9 @@ a:hover { text-decoration: underline; }
       <a href="changelog.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Changelog</a>
     </nav>
     <div class="hdr-stats">
-      <span><span class="n" id="stat-commits">233</span> commits</span>
-      <span><span class="n" id="stat-versions">19</span> versions</span>
-      <span><span class="n" id="stat-latest">2026-05-06</span> latest</span>
+      <span><span class="n" id="stat-commits">240</span> commits</span>
+      <span><span class="n" id="stat-versions">22</span> versions</span>
+      <span><span class="n" id="stat-latest">2026-05-07</span> latest</span>
     </div>
   </header>
 
@@ -407,8 +407,8 @@ a:hover { text-decoration: underline; }
         <div class="hero-kpis">
           <div class="summary-card">
             <span class="summary-kicker">Current release</span>
-            <strong class="summary-value">v0.16.1</strong>
-            <div class="summary-caption">0 commits tracked in v0.16.1 from CHANGELOG.md.</div>
+            <strong class="summary-value">v0.17.0</strong>
+            <div class="summary-caption">7 commits tracked in v0.17.0 from CHANGELOG.md.</div>
           </div>
           <div class="summary-card">
             <span class="summary-kicker">Biggest theme</span>
@@ -434,10 +434,108 @@ a:hover { text-decoration: underline; }
     <section class="release-list" id="release-list"></section>
   </main>
 
-  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v0.16.1</footer>
+  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v0.17.0</footer>
 
 <script>
 const releases = [
+  {
+    "version": "v0.17.0",
+    "date": "2026-05-07",
+    "tag": "feature",
+    "summary": "Added a native Mermaid Jam integration for routing Mermaid and markdown diagram source into the Mermaid Jam FigJam plugin; Added memi mermaid-jam status / memi mermaid-jam open, a Studio /api/integrations/mermaid-jam endpoint, and a built-in mermaid-jam Note for agent workflows; Added research-backed vibe design packages with memi research design, memi mermaid-jam export --from, Studio/MCP research.design_package, research.generate_specs, and mermaid_jam.export tools.",
+    "commits": [
+      [
+        "32b028b0",
+        "fix(studio): trailing 0.17 polish for surface routing and trace activities"
+      ],
+      [
+        "c1cbcd4f",
+        "docs(0.17): refresh README, llms.txt, skills, site bundle, preset READMEs"
+      ],
+      [
+        "079b8e15",
+        "feat(0.17): ship Studio simulation, swarm v2, automations, codex plugin, vibe design, agent-kits"
+      ],
+      [
+        "20a0d3b9",
+        "feat(notes): add 19 agent/motion notes and refresh animation-craft + mermaid-jam"
+      ],
+      [
+        "87011ce5",
+        "chore(release): harden 0.16.1 agent registry metadata"
+      ],
+      [
+        "9f436086",
+        "docs: sync mermaid jam changelog"
+      ],
+      [
+        "49bbded2",
+        "feat: add native mermaid jam integration"
+      ]
+    ],
+    "decisions": [],
+    "changes": [
+      "Added a native Mermaid Jam integration for routing Mermaid and markdown diagram source into the Mermaid Jam FigJam plugin.",
+      "Added memi mermaid-jam status / memi mermaid-jam open, a Studio /api/integrations/mermaid-jam endpoint, and a built-in mermaid-jam Note for agent workflows.",
+      "Added research-backed vibe design packages with memi research design, memi mermaid-jam export --from, Studio/MCP research.design_package, research.generate_specs, and mermaid_jam.export tools.",
+      "Added the clean-room src/simulation/ domain, memi simulate CLI, Studio/MCP simulation tools, Scenario Lab surface, and optional MiroFish fork bridge adapter.",
+      "Added Model Swarm Simulation V2 with Codex-first profiles, deterministic fallback routing, 20-60 agent cohorts, transcripts, matrices, comparisons, costs, and Scenario Lab model/cost/transcript surfaces.",
+      "Added Mémoire Studio Automations with Codex-style JSON workspace definitions, JSONL run history, design-harness templates, runtime API routes, CLI commands, and a macOS user LaunchAgent scheduler.",
+      "Added a native Studio Automations center with template creation, edit, pause/resume, run-now, run history, scheduler status, and safe write-policy controls for Codex design harness work.",
+      "Added a Codex plugin package for Memoire with bundled skill context, MCP server wiring, repo-local marketplace metadata, and memi agent install codex-plugin.",
+      "Added public Git-backed Codex marketplace distribution docs, store-ready PNG plugin assets, screenshots, privacy/terms links, /codex-plugin site copy, and a smoke:codex-plugin gate.",
+      "Added 19 new agent and motion Notes covering memory profiles, messaging gateway, session checkpoints, skill migration, apple-desktop-automation, approval sandbox policies, browser-research-agent, cron workflows, gateway ops observability, hermes/openclaw bridges, mcp-server-studio, model-router-diagnostics, multi-agent-kanban, secure-secrets, hyperframes-video, remotion-video, motion-performance, and website-to-video.",
+      "Refreshed animation-craft to depend on the new motion-performance, remotion-video, and hyperframes-video Notes.",
+      "Studio surface routing no longer snaps back to the workbench when opening a session summary or starting a new chat, so the user-selected surface persists across session changes.",
+      "Studio trace view-model derives activities once and reuses them for active-process inference, fixing the reasoning-live behavior covered by view-model.test.ts.",
+      "Added a release gate and unit coverage that fail if packaged files contain copied MiroFish source markers while allowing written references and optional fork bridge documentation.",
+      "Focused Mermaid Jam resolver, CLI, and Studio API tests passed.",
+      "Focused research design package, Mermaid Jam export, Studio tool, MCP registration, and Scenario Lab UI tests passed.",
+      "Packaged Note asset tests and Studio Marketplace tests passed.",
+      "npm run typecheck passed.",
+      "Focused simulation core, CLI, Studio tool, and license-boundary tests passed.",
+      "Focused Studio automation store, server, CLI, scheduler, and workbench UI tests passed.",
+      "Focused Codex plugin packaging and agent-install tests passed.",
+      "Focused Codex plugin store-readiness, site-bundle, and marketplace smoke tests passed."
+    ]
+  },
+  {
+    "version": "v0.16.3",
+    "date": "2026-05-06",
+    "tag": "fix",
+    "summary": "Restored guarded Studio execution as the default permission mode in the macOS/web shell; Restored guarded defaults in Studio agent-envelope context so missing session metadata no longer falls back to full_access; Kept shell access disabled by default and computer actions approval-gated in the default Studio config.",
+    "commits": [],
+    "decisions": [],
+    "changes": [
+      "Restored guarded Studio execution as the default permission mode in the macOS/web shell.",
+      "Restored guarded defaults in Studio agent-envelope context so missing session metadata no longer falls back to full_access.",
+      "Kept shell access disabled by default and computer actions approval-gated in the default Studio config.",
+      "Kept the Figma companion on Studio web/runtime defaults 1420 and 8765, with bridge hello messages serialized through the v2 bridge envelope.",
+      "npm run prepublishOnly passed with release checks, production audit, typecheck, 1,243 tests, and build.",
+      "npm run pack:dry-run and npm run smoke:mcp passed.",
+      "Pulled the public 0.16.2 tarball to confirm npm immutability required a 0.16.3 patch instead of republishing over 0.16.2."
+    ]
+  },
+  {
+    "version": "v0.16.2",
+    "date": "2026-05-06",
+    "tag": "fix",
+    "summary": "Added memi daemon start|status|stop as the shared local runtime entrypoint for CLI, Studio, MCP, and agent adapters; Added memi suite init|doctor|run <recipe> plus memoire.agent.yaml so agents share one YAML contract for product memory, harnesses, skills, and product-team recipes; Made memi agent install plan or write memoire.agent.yaml and updated Hermes, OpenClaw, Codex, and OpenCode kits to prefer warmed daemon context, suite recipes, and memi mcp start --no-figma.",
+    "commits": [],
+    "decisions": [],
+    "changes": [
+      "Added memi daemon start|status|stop as the shared local runtime entrypoint for CLI, Studio, MCP, and agent adapters.",
+      "Added memi suite init|doctor|run <recipe> plus memoire.agent.yaml so agents share one YAML contract for product memory, harnesses, skills, and product-team recipes.",
+      "Made memi agent install plan or write memoire.agent.yaml and updated Hermes, OpenClaw, Codex, and OpenCode kits to prefer warmed daemon context, suite recipes, and memi mcp start --no-figma.",
+      "Added explicit plugin setup/repair commands with memi setup plugin and memi doctor --repair-plugin.",
+      "Removed public npm lifecycle scripts for prepare and postinstall; packaged installs no longer write to ~/.memoire automatically.",
+      "Updated @chenglou/pretext and MCP/transitive dependency ranges, then added npm audit --omit=dev --audit-level=high to release gates.",
+      "Added text-length and repeated-punctuation guards before Pretext measurement falls through to prepare().",
+      "Disabled raw Figma JavaScript execution in the default packaged plugin and removed the public MCP figma_execute tool.",
+      "Release checks now fail on public lifecycle scripts, packed lifecycle helpers, unsynced release metadata, stale changelog preview, and production high audit findings.",
+      "Focused daemon, suite, agent-kit, text-measurement, supply-chain, and MCP smoke tests cover the new trust and runtime paths."
+    ]
+  },
   {
     "version": "v0.16.1",
     "date": "2026-05-06",
