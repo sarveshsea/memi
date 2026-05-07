@@ -1,0 +1,31 @@
+{
+  "name": "openclaw-agent-bridge",
+  "version": "0.1.0",
+  "description": "Connect Memoire to OpenClaw onboarding, agents, gateway health, MCP, and approval flows.",
+  "category": "connect",
+  "tags": [
+    "openclaw",
+    "gateway",
+    "agents",
+    "mcp",
+    "approvals"
+  ],
+  "sourceUrls": [
+    "https://docs.openclaw.ai/cli",
+    "https://docs.openclaw.ai/start/wizard",
+    "https://docs.openclaw.ai/cli/models"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 30,
+  "skills": [
+    {
+      "file": "openclaw-agent-bridge.md",
+      "name": "OpenClaw Agent Bridge",
+      "activateOn": "OpenClaw setup, gateway agent route, openclaw health, openclaw mcp",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

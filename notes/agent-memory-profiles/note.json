@@ -1,0 +1,31 @@
+{
+  "name": "agent-memory-profiles",
+  "version": "0.1.0",
+  "description": "Design durable user, project, persona, and task memory profiles for local agents.",
+  "category": "connect",
+  "tags": [
+    "memory",
+    "profiles",
+    "persona",
+    "context",
+    "project"
+  ],
+  "sourceUrls": [
+    "https://github.com/nousresearch/hermes-agent",
+    "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/",
+    "https://docs.openclaw.ai/cli"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 60,
+  "skills": [
+    {
+      "file": "agent-memory-profiles.md",
+      "name": "Agent Memory Profiles",
+      "activateOn": "agent memory profile, persona file, context file, persistent memory",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

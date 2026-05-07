@@ -1,0 +1,31 @@
+{
+  "name": "browser-research-agent",
+  "version": "0.1.0",
+  "description": "Run browser-backed research agents that capture evidence, citations, and source freshness.",
+  "category": "research",
+  "tags": [
+    "browser",
+    "research",
+    "citations",
+    "evidence",
+    "web"
+  ],
+  "sourceUrls": [
+    "https://developers.openai.com/codex/use-cases",
+    "https://github.com/nousresearch/hermes-agent",
+    "https://docs.openclaw.ai/cli"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 30,
+  "skills": [
+    {
+      "file": "browser-research-agent.md",
+      "name": "Browser Research Agent",
+      "activateOn": "browser research, web evidence, citation capture, source comparison",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

@@ -1,0 +1,31 @@
+{
+  "name": "agent-skill-migration",
+  "version": "0.1.0",
+  "description": "Move skills, memories, context files, and agent rules between Memoire and peer agent ecosystems.",
+  "category": "connect",
+  "tags": [
+    "skills",
+    "migration",
+    "memory",
+    "codex",
+    "claude"
+  ],
+  "sourceUrls": [
+    "https://github.com/nousresearch/hermes-agent",
+    "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/",
+    "https://docs.openclaw.ai/cli"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 30,
+  "skills": [
+    {
+      "file": "agent-skill-migration.md",
+      "name": "Agent Skill Migration",
+      "activateOn": "migrate skills, convert agent memory, import OpenClaw, export Hermes skill",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

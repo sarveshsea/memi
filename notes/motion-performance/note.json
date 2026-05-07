@@ -1,0 +1,22 @@
+{
+  "name": "motion-performance",
+  "version": "0.1.0",
+  "description": "Motion performance pack for 60fps UI animation, reduced-motion fallbacks, render budget checks, and video export QA.",
+  "category": "craft",
+  "tags": ["motion", "performance", "accessibility", "video", "qa"],
+  "sourceUrls": [
+    "https://www.remotion.dev/docs/renderer",
+    "https://hyperframes.mintlify.app/packages/core"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 60,
+  "skills": [{
+    "file": "motion-performance.md",
+    "name": "Motion Performance",
+    "activateOn": "motion-video",
+    "freedomLevel": "high"
+  }],
+  "dependencies": ["animation-craft"],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

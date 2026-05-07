@@ -1,16 +1,22 @@
 {
   "name": "animation-craft",
   "version": "1.0.0",
-  "description": "Motion design and micro-interaction craft — animation principles, timing curves, Framer Motion patterns, CSS transitions, loading states, and delightful UI choreography",
+  "description": "Motion design and micro-interaction craft — timing, easing, UI choreography, and links into the current Remotion/Hyperframes production packs.",
   "category": "craft",
   "tags": ["animation", "motion", "framer-motion", "micro-interactions", "transitions", "choreography"],
+  "sourceUrls": [
+    "https://www.remotion.dev/docs/studio",
+    "https://hyperframes.mintlify.app/packages/cli"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 90,
   "skills": [{
     "file": "animation-craft.md",
     "name": "Animation Craft",
     "activateOn": "component-creation",
     "freedomLevel": "high"
   }],
-  "dependencies": [],
+  "dependencies": ["remotion-video", "hyperframes-video", "motion-performance"],
   "createdAt": "2026-03-28T00:00:00.000Z",
-  "updatedAt": "2026-03-28T00:00:00.000Z"
+  "updatedAt": "2026-05-07T00:00:00.000Z"
 }

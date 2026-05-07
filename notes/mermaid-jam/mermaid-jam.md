@@ -20,6 +20,11 @@ author: Memoire
 Use this Note when a user asks to turn Mermaid markdown, fenced Mermaid blocks,
 or markdown user-flow notes into a FigJam diagram.
 
+Use the research-vibe-design path when the source should come from Memoire
+research or Scenario Lab instead of hand-authored Mermaid. It generates Atomic
+Design specs, evidence maps, journey maps, IA flows, and optional simulation
+timelines before handing source to Mermaid Jam.
+
 ## Native Route
 
 1. Run `memi mermaid-jam status --json`.
@@ -60,3 +65,22 @@ memi mermaid-jam status --json
 
 If the status is `needs-build`, run `npm install && npm run build` inside the
 Mermaid Jam checkout before importing `plugin/manifest.json`.
+
+## Research Vibe Design
+
+```bash
+memi research synthesize
+memi research design --intent "Design a research-backed product decision workspace" --write-specs --mermaid-jam --json
+memi mermaid-jam export --from research --json
+```
+
+If Scenario Lab has a completed simulation, use the run id:
+
+```bash
+memi research design --run-id <simulation-run-id> --mermaid-jam --open --json
+memi mermaid-jam export --from <simulation-run-id> --open --json
+```
+
+Stay on the source + open path: write nonempty `.mmd` or `.md` files under
+`.memoire/mermaid-jam/`, open Mermaid Jam through the local manifest or
+Community URL, then let the user paste source into the FigJam plugin.

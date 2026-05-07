@@ -1,0 +1,31 @@
+{
+  "name": "multi-agent-kanban",
+  "version": "0.1.0",
+  "description": "Coordinate multiple local agents through a durable board with owner, state, and evidence fields.",
+  "category": "connect",
+  "tags": [
+    "multi-agent",
+    "kanban",
+    "coordination",
+    "sessions",
+    "handoff"
+  ],
+  "sourceUrls": [
+    "https://github.com/nousresearch/hermes-agent",
+    "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+    "https://docs.openclaw.ai/cli"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 60,
+  "skills": [
+    {
+      "file": "multi-agent-kanban.md",
+      "name": "Multi-Agent Kanban",
+      "activateOn": "multi agent board, kanban swarm, agent coordination, durable task board",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

@@ -1,0 +1,31 @@
+{
+  "name": "apple-desktop-automation",
+  "version": "0.1.0",
+  "description": "Prepare macOS agents to work with Apple apps, local files, permissions, and desktop automation.",
+  "category": "connect",
+  "tags": [
+    "macos",
+    "apple",
+    "desktop",
+    "permissions",
+    "automation"
+  ],
+  "sourceUrls": [
+    "https://support.apple.com/guide/shortcuts/welcome/mac",
+    "https://support.apple.com/guide/terminal/welcome/mac",
+    "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 60,
+  "skills": [
+    {
+      "file": "apple-desktop-automation.md",
+      "name": "Apple Desktop Automation",
+      "activateOn": "macOS automation, Apple Notes, Reminders, iMessage, desktop app control",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

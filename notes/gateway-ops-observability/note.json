@@ -1,0 +1,31 @@
+{
+  "name": "gateway-ops-observability",
+  "version": "0.1.0",
+  "description": "Observe and debug local agent gateways, daemons, health probes, logs, and usage costs.",
+  "category": "connect",
+  "tags": [
+    "gateway",
+    "logs",
+    "health",
+    "observability",
+    "daemon"
+  ],
+  "sourceUrls": [
+    "https://docs.openclaw.ai/cli",
+    "https://github.com/nousresearch/hermes-agent",
+    "https://docs.openclaw.ai/cli/models"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 30,
+  "skills": [
+    {
+      "file": "gateway-ops-observability.md",
+      "name": "Gateway Ops Observability",
+      "activateOn": "gateway logs, agent health, daemon status, usage cost, ops troubleshooting",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

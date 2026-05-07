@@ -1,0 +1,31 @@
+{
+  "name": "hermes-agent-bridge",
+  "version": "0.1.0",
+  "description": "Run Hermes Agent from Memoire with CLI, skills, toolsets, worktree, and session recipes.",
+  "category": "connect",
+  "tags": [
+    "hermes",
+    "cli",
+    "skills",
+    "toolsets",
+    "worktrees"
+  ],
+  "sourceUrls": [
+    "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+    "https://github.com/nousresearch/hermes-agent",
+    "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 30,
+  "skills": [
+    {
+      "file": "hermes-agent-bridge.md",
+      "name": "Hermes Agent Bridge",
+      "activateOn": "hermes agent setup, Hermes CLI delegation, skills preload, worktree agent run",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

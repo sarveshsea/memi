@@ -1,0 +1,31 @@
+{
+  "name": "mcp-server-studio",
+  "version": "0.1.0",
+  "description": "Expose Memoire Studio context, tools, and artifacts to other agents through MCP.",
+  "category": "connect",
+  "tags": [
+    "mcp",
+    "studio",
+    "tools",
+    "resources",
+    "agent"
+  ],
+  "sourceUrls": [
+    "https://docs.openclaw.ai/cli",
+    "https://github.com/nousresearch/hermes-agent",
+    "https://modelcontextprotocol.io/docs"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 60,
+  "skills": [
+    {
+      "file": "mcp-server-studio.md",
+      "name": "MCP Server Studio",
+      "activateOn": "MCP server, expose Studio tools, connect external agent to Memoire",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

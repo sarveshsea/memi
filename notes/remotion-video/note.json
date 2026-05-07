@@ -1,0 +1,22 @@
+{
+  "name": "remotion-video",
+  "version": "0.1.0",
+  "description": "Current Remotion video production pack for React-based product videos, previews, and renderer handoff.",
+  "category": "generate",
+  "tags": ["video", "remotion", "react", "motion", "renderer"],
+  "sourceUrls": [
+    "https://www.remotion.dev/docs/studio",
+    "https://www.remotion.dev/docs/renderer"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 60,
+  "skills": [{
+    "file": "remotion-video.md",
+    "name": "Remotion Video",
+    "activateOn": "motion-video",
+    "freedomLevel": "high"
+  }],
+  "dependencies": ["animation-craft"],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

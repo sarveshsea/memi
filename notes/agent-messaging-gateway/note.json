@@ -1,0 +1,31 @@
+{
+  "name": "agent-messaging-gateway",
+  "version": "0.1.0",
+  "description": "Design gateway-backed agent delivery through chat, email, and team messaging channels.",
+  "category": "connect",
+  "tags": [
+    "gateway",
+    "messaging",
+    "telegram",
+    "discord",
+    "slack"
+  ],
+  "sourceUrls": [
+    "https://github.com/nousresearch/hermes-agent",
+    "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+    "https://docs.openclaw.ai/cli"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 30,
+  "skills": [
+    {
+      "file": "agent-messaging-gateway.md",
+      "name": "Agent Messaging Gateway",
+      "activateOn": "agent messaging, gateway setup, platform channel, delivery routing",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

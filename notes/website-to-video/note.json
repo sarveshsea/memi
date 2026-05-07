@@ -1,0 +1,22 @@
+{
+  "name": "website-to-video",
+  "version": "0.1.0",
+  "description": "Website-to-video capture pack for turning product pages, flows, and browser states into structured video scenes.",
+  "category": "generate",
+  "tags": ["video", "website-capture", "browser", "product-demo"],
+  "sourceUrls": [
+    "https://www.remotion.dev/docs/studio",
+    "https://hyperframes.mintlify.app/guides/rendering"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 60,
+  "skills": [{
+    "file": "website-to-video.md",
+    "name": "Website To Video",
+    "activateOn": "motion-video",
+    "freedomLevel": "high"
+  }],
+  "dependencies": ["remotion-video", "hyperframes-video"],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

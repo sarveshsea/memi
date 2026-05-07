@@ -21,6 +21,11 @@ principles adapted for interfaces, timing systems, Framer Motion patterns,
 CSS transitions, loading choreography, scroll-triggered motion, accessibility,
 and performance optimization.
 
+For video deliverables, do not duplicate renderer-specific guidance here. Load
+`remotion-video` for React/Remotion production, `hyperframes-video` for
+HTML-first rendering, `website-to-video` for browser-flow capture, and
+`motion-performance` for queue, accessibility, and export checks.
+
 ---
 
 ## 1. The 12 Principles of Animation — Adapted for UI

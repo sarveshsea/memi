@@ -1,0 +1,31 @@
+{
+  "name": "model-router-diagnostics",
+  "version": "0.1.0",
+  "description": "Diagnose provider auth, model routing, quota windows, and fallback behavior before agent runs.",
+  "category": "connect",
+  "tags": [
+    "models",
+    "providers",
+    "auth",
+    "routing",
+    "diagnostics"
+  ],
+  "sourceUrls": [
+    "https://docs.openclaw.ai/cli/models",
+    "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+    "https://developers.openai.com/codex/cli"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 30,
+  "skills": [
+    {
+      "file": "model-router-diagnostics.md",
+      "name": "Model Router Diagnostics",
+      "activateOn": "model router, provider auth, quota check, fallback model, reasoning setting",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

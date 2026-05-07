@@ -1,0 +1,31 @@
+{
+  "name": "cron-agent-workflows",
+  "version": "0.1.0",
+  "description": "Turn repeatable agent work into scheduled jobs with explicit outputs and safe permissions.",
+  "category": "connect",
+  "tags": [
+    "cron",
+    "automation",
+    "scheduler",
+    "reports",
+    "monitoring"
+  ],
+  "sourceUrls": [
+    "https://github.com/nousresearch/hermes-agent",
+    "https://docs.openclaw.ai/cli",
+    "https://developers.openai.com/codex/use-cases"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 60,
+  "skills": [
+    {
+      "file": "cron-agent-workflows.md",
+      "name": "Cron Agent Workflows",
+      "activateOn": "scheduled agent, cron workflow, recurring report, automated run",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

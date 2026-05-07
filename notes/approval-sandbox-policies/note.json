@@ -1,0 +1,31 @@
+{
+  "name": "approval-sandbox-policies",
+  "version": "0.1.0",
+  "description": "Define approval, sandbox, filesystem, and command policy for local autonomous agents.",
+  "category": "connect",
+  "tags": [
+    "approvals",
+    "sandbox",
+    "allowlist",
+    "security",
+    "filesystem"
+  ],
+  "sourceUrls": [
+    "https://docs.openclaw.ai/cli",
+    "https://github.com/nousresearch/hermes-agent",
+    "https://developers.openai.com/codex/cli"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 30,
+  "skills": [
+    {
+      "file": "approval-sandbox-policies.md",
+      "name": "Approval Sandbox Policies",
+      "activateOn": "agent approvals, sandbox mode, command allowlist, secure agent run",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

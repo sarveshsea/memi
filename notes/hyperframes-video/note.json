@@ -1,0 +1,24 @@
+{
+  "name": "hyperframes-video",
+  "version": "0.1.0",
+  "description": "Current Hyperframes pack for HTML-first motion videos, lintable frames, previews, and render command prep.",
+  "category": "generate",
+  "tags": ["video", "hyperframes", "html", "motion", "rendering"],
+  "sourceUrls": [
+    "https://hyperframes.mintlify.app/packages/cli",
+    "https://hyperframes.mintlify.app/guides/rendering",
+    "https://hyperframes.mintlify.app/packages/producer",
+    "https://hyperframes.mintlify.app/packages/core"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 60,
+  "skills": [{
+    "file": "hyperframes-video.md",
+    "name": "Hyperframes Video",
+    "activateOn": "motion-video",
+    "freedomLevel": "high"
+  }],
+  "dependencies": ["animation-craft"],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}

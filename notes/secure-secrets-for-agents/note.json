@@ -1,0 +1,31 @@
+{
+  "name": "secure-secrets-for-agents",
+  "version": "0.1.0",
+  "description": "Handle agent credentials with env refs, redaction, least privilege, and non-leaking prompts.",
+  "category": "connect",
+  "tags": [
+    "secrets",
+    "redaction",
+    "env",
+    "security",
+    "credentials"
+  ],
+  "sourceUrls": [
+    "https://docs.openclaw.ai/cli",
+    "https://github.com/nousresearch/hermes-agent",
+    "https://developers.openai.com/codex/cli"
+  ],
+  "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+  "freshnessDays": 30,
+  "skills": [
+    {
+      "file": "secure-secrets-for-agents.md",
+      "name": "Secure Secrets for Agents",
+      "activateOn": "agent secret, env key, credential setup, redaction, api key handling",
+      "freedomLevel": "high"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-07T00:00:00.000Z",
+  "updatedAt": "2026-05-07T00:00:00.000Z"
+}
