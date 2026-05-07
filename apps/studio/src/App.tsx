@@ -666,6 +666,8 @@ export function App() {
     ?? latestThinkingActivity?.summary
     ?? latestActivity?.summary
     ?? visibleSessionStatus;
+  const composerFocusLabel = activeDesignArtifact?.title ?? latestRun?.prompt ?? "New agent run";
+  const composerFocusMeta = `${currentHarness?.label ?? selectedHarness} / ${effectiveActionLabel} / ${permissionModePowerLabel(permissionMode)}`;
 
   useEffect(() => {
     setUserPinnedToBottom(true);
@@ -2353,6 +2355,22 @@ export function App() {
             data-chat-mode={chatMode}
             data-permission-mode={permissionMode}
           >
+            <div className="composer-focus-strip" data-composer-focus="agent-target">
+              <span>Target</span>
+              <strong title={composerFocusLabel}>{trimText(composerFocusLabel, 96)}</strong>
+              <small>{composerFocusMeta}</small>
+              <button data-action-id="composer.focus.creation" type="button" onClick={() => setCenterStageMode("creation")}>Creation</button>
+              <button
+                data-action-id="composer.clear-context"
+                type="button"
+                onClick={() => {
+                  setPrompt("");
+                  setAttachments([]);
+                }}
+              >
+                Clear
+              </button>
+            </div>
             <textarea
               aria-label="Prompt"
               placeholder={inputMode === "terminal" ? "Command" : inputMode === "auto" ? "Prompt or command" : "Prompt"}
@@ -2430,7 +2448,7 @@ export function App() {
               </label>
               {session && isSessionActive ? <button className="danger" data-action-id="session.cancel" type="button" onClick={cancel}>Stop</button> : null}
               <button className="primary run-button submit-button" data-action-id="session.run" type="button" onClick={run} disabled={!canRunSession}>
-                {isStartingSession ? "..." : sessionStatus === "running" ? "Run" : canRunSession ? "↑" : harnessStatusCopy}
+                {isStartingSession ? "..." : sessionStatus === "running" ? "Run" : canRunSession ? "Run" : harnessStatusCopy}
               </button>
             </div>
           </div>

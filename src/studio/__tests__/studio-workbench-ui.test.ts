@@ -231,6 +231,20 @@ describe("studio harness console UI", () => {
     expect(app).toContain("{renderRightPaneInspectorChrome()}");
   });
 
+  it("keeps the composer focused on the current creation target with readable run actions", async () => {
+    const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
+
+    expect(app).toContain('data-composer-focus="agent-target"');
+    expect(app).toContain('const composerFocusLabel = activeDesignArtifact?.title ?? latestRun?.prompt ?? "New agent run"');
+    expect(app).toContain("const composerFocusMeta");
+    expect(app).toContain('data-action-id="composer.focus.creation"');
+    expect(app).toContain('setCenterStageMode("creation")');
+    expect(app).toContain('data-action-id="composer.clear-context"');
+    expect(app).toContain("setAttachments([])");
+    expect(app).toContain('canRunSession ? "Run"');
+    expect(app).not.toContain('canRunSession ? "↑"');
+  });
+
   it("renders the Studio topbar as an ultra-compact icon/status strip", async () => {
     const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
     const components = await readFile(join(process.cwd(), "apps", "studio", "src", "workbench-components.tsx"), "utf-8");

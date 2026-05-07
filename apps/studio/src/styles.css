@@ -951,6 +951,7 @@ button.active,
   border-radius: var(--radius-panel);
   background: var(--surface);
 }
+.composer-focus-strip[data-composer-focus="agent-target"] { min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-1); border-bottom: 1px solid var(--line); background: var(--surface-soft); padding: var(--space-1); }.composer-focus-strip span, .composer-focus-strip strong, .composer-focus-strip small { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.composer-focus-strip span, .composer-focus-strip small { color: var(--ink-muted); font-size: var(--font-size-xs); }.composer-focus-strip button { min-height: var(--control-height-compact); padding: var(--space-0-5) var(--space-1-5); }
 .message-composer textarea {
   width: 100%;
   min-height: 72px;

@@ -258,6 +258,15 @@ describe("studio visual cleanup", () => {
     expect(css).toContain("grid-template-columns: minmax(0, 1fr) auto");
   });
 
+  it("styles the composer focus strip without increasing control height", async () => {
+    const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
+
+    expect(css).toContain(".composer-focus-strip");
+    expect(css).toContain('[data-composer-focus="agent-target"]');
+    expect(css).toContain("grid-template-columns: auto minmax(0, 1fr) auto auto");
+    expect(css).toContain(".composer-focus-strip button");
+  });
+
   it("styles the Agent Cockpit and Mermaid Board as the right-pane work surface", async () => {
     const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
 
