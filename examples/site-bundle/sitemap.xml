@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://www.memoire.cv/components</loc></url>
+  <url><loc>https://www.memoire.cv/codex-plugin</loc></url>
+  <url><loc>https://www.memoire.cv/privacy</loc></url>
+  <url><loc>https://www.memoire.cv/terms</loc></url>
   <url><loc>https://www.memoire.cv/components/starter-saas</loc></url>
   <url><loc>https://www.memoire.cv/components/docs-blog</loc></url>
   <url><loc>https://www.memoire.cv/components/dashboard</loc></url>

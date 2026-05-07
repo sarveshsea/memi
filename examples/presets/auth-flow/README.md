@@ -31,4 +31,4 @@ memi add AuthCard --from @memoire-examples/auth-flow
 
 Source: [examples/presets/auth-flow](https://github.com/sarveshsea/m-moire/tree/main/examples/presets/auth-flow)
 
-Generated for Memoire v0.15.0.
+Generated for Memoire v0.16.3.

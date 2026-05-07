@@ -104,6 +104,10 @@ describe("studio visual cleanup", () => {
     expect(css).toContain(".console-panel {");
     expect(css).toContain("grid-template-rows: auto auto auto minmax(0, 1fr) auto");
     expect(css).toContain(".conversation-scroll-region");
+    expect(css).toContain(".agent-live-status");
+    expect(css).toContain(".scroll-latest-button");
+    expect(css).toContain("[data-latest-anchor]");
+    expect(css).toContain('.agent-live-status[data-agent-thinking-state="thinking"] .status-dot');
     expect(css).toContain("padding: var(--space-0)");
     expect(css).toContain(".settings-setup-surface");
     expect(css).toContain("position: sticky");
@@ -160,6 +164,25 @@ describe("studio visual cleanup", () => {
     expect(css).toContain("flex: 1 1 150px");
     expect(css).toContain("min-width: 148px");
     expect(css).not.toContain("flex: 0 1 96px");
+  });
+
+  it("styles compact chat quality-of-life surfaces without stealing composer space", async () => {
+    const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
+
+    expect(css).toContain(".chat-quality-layer");
+    expect(css).toContain("data-chat-qol=\"codex-antigravity\"");
+    expect(css).toContain(".chat-live-plan");
+    expect(css).toContain(".chat-qol-grid");
+    expect(css).toContain(".chat-search-row");
+    expect(css).toContain(".chat-follow-up-row");
+    expect(css).toContain(".chat-memory-pins");
+    expect(css).toContain(".chat-artifact-shelf");
+    expect(css).toContain(".chat-verification-receipt");
+    expect(css).toContain(".chat-agent-lanes");
+    expect(css).toContain(".tool-trace-summary");
+    expect(css).toContain("grid-template-rows: auto auto auto auto minmax(0, 1fr) auto");
+    expect(css).toContain("max-height: 148px");
+    expect(css).toContain("overflow-y: auto");
   });
 
   it("supports a persisted resizable conversation and artifact grid", async () => {

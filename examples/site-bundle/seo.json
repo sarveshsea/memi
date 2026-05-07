@@ -1,6 +1,46 @@
 {
   "pages": [
     {
+      "slug": "codex-plugin",
+      "title": "Memoire Codex plugin | Design memory for Codex",
+      "description": "Install Memoire as a Codex plugin with design-system memory, MCP tools, Tailwind and shadcn diagnostics, and Atomic Design guidance.",
+      "canonicalUrl": "https://www.memoire.cv/codex-plugin",
+      "keywords": [
+        "Codex plugin",
+        "Codex marketplace",
+        "design memory",
+        "MCP tools",
+        "Tailwind diagnostics",
+        "shadcn",
+        "Figma"
+      ],
+      "ogImage": "https://www.memoire.cv/plugin/memoire/assets/screenshot-plugin-overview.png"
+    },
+    {
+      "slug": "privacy",
+      "title": "Memoire privacy policy",
+      "description": "Privacy policy for Memoire CLI, MCP server, Codex plugin, and design tooling.",
+      "canonicalUrl": "https://www.memoire.cv/privacy",
+      "keywords": [
+        "Memoire privacy",
+        "Codex plugin privacy",
+        "MCP privacy"
+      ],
+      "ogImage": "https://www.memoire.cv/plugin/memoire/assets/screenshot-plugin-overview.png"
+    },
+    {
+      "slug": "terms",
+      "title": "Memoire terms of service",
+      "description": "Terms of service for Memoire CLI, MCP server, Codex plugin, and design tooling.",
+      "canonicalUrl": "https://www.memoire.cv/terms",
+      "keywords": [
+        "Memoire terms",
+        "Codex plugin terms",
+        "MCP terms"
+      ],
+      "ogImage": "https://www.memoire.cv/plugin/memoire/assets/screenshot-plugin-overview.png"
+    },
+    {
       "slug": "starter-saas",
       "title": "Starter SaaS shadcn registry | Memoire",
       "description": "Neutral SaaS starter with blue product accents and clean app-shell primitives.",

@@ -61,7 +61,7 @@ figma_batch_create_variables (up to 100 per call):
    ├── Section "Organisms"
    └── Section "Templates"
 3. For each component:
-   a. Use use_figma (preferred) or figma_execute for creation
+   a. Use use_figma (preferred) or typed Mémoire Figma actions for creation
    b. Add variant properties matching React props
    c. Bind all visual properties to variables
    d. Apply correct sizing (hug/fill)
@@ -163,4 +163,4 @@ memi spec component LoginForm
 - Forgetting to create the component set (just loose frames)
 - **Not establishing Code Connect after creation** — this is the whole point
 - Using individual variable creation instead of batch operations
-- Using `figma_execute` for design-system-aware creation when `use_figma` works
+- Using raw Figma execution for design-system-aware creation when `use_figma` works

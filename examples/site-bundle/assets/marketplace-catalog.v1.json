@@ -1,0 +1,527 @@
+{
+  "version": 1,
+  "generatedAt": "2026-04-26T00:00:00.000Z",
+  "source": "memoire-repo",
+  "entries": [
+    {
+      "slug": "starter-saas",
+      "title": "Starter SaaS",
+      "packageName": "@memoire-examples/starter-saas",
+      "description": "Neutral SaaS starter with blue product accents and clean app-shell primitives.",
+      "category": "saas",
+      "tags": [
+        "saas",
+        "starter",
+        "app-shell",
+        "blue",
+        "neutral"
+      ],
+      "featured": true,
+      "installCommand": "memi add Button --from @memoire-examples/starter-saas",
+      "componentCount": 4,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
+      ],
+      "sourcePath": "examples/presets/starter-saas",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/starter-saas",
+      "screenshotPath": "assets/showcases/starter-saas.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/starter-saas.svg",
+      "registryItemUrl": "https://www.memoire.cv/r/starter-saas/button.json",
+      "openInV0Url": "https://v0.dev/chat/api/open?url=https%3A%2F%2Fwww.memoire.cv%2Fr%2Fstarter-saas%2Fbutton.json"
+    },
+    {
+      "slug": "docs-blog",
+      "title": "Docs Blog",
+      "packageName": "@memoire-examples/docs-blog",
+      "description": "Editorial docs/blog kit with softer surfaces and reading-friendly accents.",
+      "category": "content",
+      "tags": [
+        "docs",
+        "blog",
+        "editorial",
+        "content",
+        "reading"
+      ],
+      "featured": true,
+      "installCommand": "memi add Button --from @memoire-examples/docs-blog",
+      "componentCount": 4,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
+      ],
+      "sourcePath": "examples/presets/docs-blog",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/docs-blog",
+      "screenshotPath": "assets/showcases/docs-blog.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/docs-blog.svg",
+      "registryItemUrl": "https://www.memoire.cv/r/docs-blog/button.json",
+      "openInV0Url": "https://v0.dev/chat/api/open?url=https%3A%2F%2Fwww.memoire.cv%2Fr%2Fdocs-blog%2Fbutton.json"
+    },
+    {
+      "slug": "dashboard",
+      "title": "Dashboard",
+      "packageName": "@memoire-examples/dashboard",
+      "description": "High-contrast analytics dashboard starter for admin and ops products.",
+      "category": "dashboard",
+      "tags": [
+        "dashboard",
+        "analytics",
+        "admin",
+        "ops",
+        "dark"
+      ],
+      "featured": true,
+      "installCommand": "memi add Button --from @memoire-examples/dashboard",
+      "componentCount": 4,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
+      ],
+      "sourcePath": "examples/presets/dashboard",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/dashboard",
+      "screenshotPath": "assets/showcases/dashboard.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/dashboard.svg",
+      "registryItemUrl": "https://www.memoire.cv/r/dashboard/button.json",
+      "openInV0Url": "https://v0.dev/chat/api/open?url=https%3A%2F%2Fwww.memoire.cv%2Fr%2Fdashboard%2Fbutton.json"
+    },
+    {
+      "slug": "landing-page",
+      "title": "Landing Page",
+      "packageName": "@memoire-examples/landing-page",
+      "description": "Conversion-focused landing page registry with hero, CTA, and form primitives.",
+      "category": "marketing",
+      "tags": [
+        "landing-page",
+        "marketing",
+        "conversion",
+        "hero",
+        "waitlist"
+      ],
+      "featured": false,
+      "installCommand": "memi add HeroSection --from @memoire-examples/landing-page",
+      "componentCount": 5,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        },
+        {
+          "name": "HeroSection",
+          "level": "organism",
+          "category": "marketing"
+        }
+      ],
+      "sourcePath": "examples/presets/landing-page",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/landing-page",
+      "screenshotPath": "assets/showcases/landing-page.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/landing-page.svg",
+      "registryItemUrl": "https://www.memoire.cv/r/landing-page/hero-section.json",
+      "openInV0Url": "https://v0.dev/chat/api/open?url=https%3A%2F%2Fwww.memoire.cv%2Fr%2Flanding-page%2Fhero-section.json"
+    },
+    {
+      "slug": "auth-flow",
+      "title": "Auth Flow",
+      "packageName": "@memoire-examples/auth-flow",
+      "description": "Install login, signup, and account-settings UI into shadcn apps.",
+      "category": "auth",
+      "tags": [
+        "auth",
+        "login",
+        "signup",
+        "settings",
+        "shadcn"
+      ],
+      "featured": false,
+      "installCommand": "memi add AuthCard --from @memoire-examples/auth-flow",
+      "componentCount": 5,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        },
+        {
+          "name": "AuthCard",
+          "level": "organism",
+          "category": "auth"
+        }
+      ],
+      "sourcePath": "examples/presets/auth-flow",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/auth-flow",
+      "screenshotPath": "assets/showcases/auth-flow.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/auth-flow.svg",
+      "registryItemUrl": "https://www.memoire.cv/r/auth-flow/auth-card.json",
+      "openInV0Url": "https://v0.dev/chat/api/open?url=https%3A%2F%2Fwww.memoire.cv%2Fr%2Fauth-flow%2Fauth-card.json"
+    },
+    {
+      "slug": "ai-chat",
+      "title": "AI Chat",
+      "packageName": "@memoire-examples/ai-chat",
+      "description": "AI chat registry with composer, message, card, and prompt primitives.",
+      "category": "ai-chat",
+      "tags": [
+        "ai-chat",
+        "chat-ui",
+        "llm",
+        "assistant",
+        "shadcn"
+      ],
+      "featured": false,
+      "installCommand": "memi add ChatComposer --from @memoire-examples/ai-chat",
+      "componentCount": 6,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        },
+        {
+          "name": "ChatMessage",
+          "level": "molecule",
+          "category": "chat-message"
+        },
+        {
+          "name": "ChatComposer",
+          "level": "molecule",
+          "category": "chat-input"
+        }
+      ],
+      "sourcePath": "examples/presets/ai-chat",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/ai-chat",
+      "screenshotPath": "assets/showcases/ai-chat.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/ai-chat.svg",
+      "registryItemUrl": "https://www.memoire.cv/r/ai-chat/chat-composer.json",
+      "openInV0Url": "https://v0.dev/chat/api/open?url=https%3A%2F%2Fwww.memoire.cv%2Fr%2Fai-chat%2Fchat-composer.json"
+    },
+    {
+      "slug": "ecommerce",
+      "title": "Ecommerce",
+      "packageName": "@memoire-examples/ecommerce",
+      "description": "Product card, badge, input, and button patterns for shadcn stores.",
+      "category": "ecommerce",
+      "tags": [
+        "ecommerce",
+        "product",
+        "conversion",
+        "storefront",
+        "shadcn"
+      ],
+      "featured": false,
+      "installCommand": "memi add ProductCard --from @memoire-examples/ecommerce",
+      "componentCount": 5,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        },
+        {
+          "name": "ProductCard",
+          "level": "organism",
+          "category": "product-card"
+        }
+      ],
+      "sourcePath": "examples/presets/ecommerce",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/ecommerce",
+      "screenshotPath": "assets/showcases/ecommerce.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/ecommerce.svg",
+      "registryItemUrl": "https://www.memoire.cv/r/ecommerce/product-card.json",
+      "openInV0Url": "https://v0.dev/chat/api/open?url=https%3A%2F%2Fwww.memoire.cv%2Fr%2Fecommerce%2Fproduct-card.json"
+    },
+    {
+      "slug": "starter",
+      "title": "Starter",
+      "packageName": "@memoire-examples/starter",
+      "description": "Minimal neutral registry for teams that want a clean shadcn starting point.",
+      "category": "starter",
+      "tags": [
+        "starter",
+        "minimal",
+        "shadcn",
+        "tailwind",
+        "neutral"
+      ],
+      "featured": false,
+      "installCommand": "memi add Button --from @memoire-examples/starter",
+      "componentCount": 4,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
+      ],
+      "sourcePath": "examples/presets/starter",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/starter",
+      "screenshotPath": "assets/showcases/starter.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/starter.svg",
+      "registryItemUrl": "https://www.memoire.cv/r/starter/button.json",
+      "openInV0Url": "https://v0.dev/chat/api/open?url=https%3A%2F%2Fwww.memoire.cv%2Fr%2Fstarter%2Fbutton.json"
+    },
+    {
+      "slug": "tweakcn-vercel",
+      "title": "tweakcn Vercel",
+      "packageName": "@memoire-examples/tweakcn-vercel",
+      "description": "Vercel-inspired dark registry with sharp surfaces and electric-blue actions.",
+      "category": "tweakcn",
+      "tags": [
+        "tweakcn",
+        "vercel",
+        "dark",
+        "minimal",
+        "blue"
+      ],
+      "featured": false,
+      "installCommand": "memi add Button --from @memoire-examples/tweakcn-vercel",
+      "componentCount": 4,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
+      ],
+      "sourcePath": "examples/presets/tweakcn-vercel",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/tweakcn-vercel",
+      "screenshotPath": "assets/showcases/tweakcn-vercel.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/tweakcn-vercel.svg",
+      "registryItemUrl": "https://www.memoire.cv/r/tweakcn-vercel/button.json",
+      "openInV0Url": "https://v0.dev/chat/api/open?url=https%3A%2F%2Fwww.memoire.cv%2Fr%2Ftweakcn-vercel%2Fbutton.json"
+    },
+    {
+      "slug": "tweakcn-supabase",
+      "title": "tweakcn Supabase",
+      "packageName": "@memoire-examples/tweakcn-supabase",
+      "description": "Supabase-inspired registry for technical products with green-on-dark contrast.",
+      "category": "tweakcn",
+      "tags": [
+        "tweakcn",
+        "supabase",
+        "green",
+        "technical",
+        "dark"
+      ],
+      "featured": false,
+      "installCommand": "memi add Button --from @memoire-examples/tweakcn-supabase",
+      "componentCount": 4,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
+      ],
+      "sourcePath": "examples/presets/tweakcn-supabase",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/tweakcn-supabase",
+      "screenshotPath": "assets/showcases/tweakcn-supabase.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/tweakcn-supabase.svg",
+      "registryItemUrl": "https://www.memoire.cv/r/tweakcn-supabase/button.json",
+      "openInV0Url": "https://v0.dev/chat/api/open?url=https%3A%2F%2Fwww.memoire.cv%2Fr%2Ftweakcn-supabase%2Fbutton.json"
+    },
+    {
+      "slug": "tweakcn-linear",
+      "title": "tweakcn Linear",
+      "packageName": "@memoire-examples/tweakcn-linear",
+      "description": "Linear-inspired registry with warm surfaces and focused indigo-violet accents.",
+      "category": "tweakcn",
+      "tags": [
+        "tweakcn",
+        "linear",
+        "indigo",
+        "productivity",
+        "editorial"
+      ],
+      "featured": false,
+      "installCommand": "memi add Button --from @memoire-examples/tweakcn-linear",
+      "componentCount": 4,
+      "components": [
+        {
+          "name": "Button",
+          "level": "atom",
+          "category": "action"
+        },
+        {
+          "name": "Card",
+          "level": "molecule",
+          "category": "surface"
+        },
+        {
+          "name": "Badge",
+          "level": "atom",
+          "category": "status"
+        },
+        {
+          "name": "Input",
+          "level": "atom",
+          "category": "form"
+        }
+      ],
+      "sourcePath": "examples/presets/tweakcn-linear",
+      "sourceUrl": "https://github.com/sarveshsea/m-moire/tree/main/examples/presets/tweakcn-linear",
+      "screenshotPath": "assets/showcases/tweakcn-linear.svg",
+      "screenshotUrl": "https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/showcases/tweakcn-linear.svg",
+      "registryItemUrl": "https://www.memoire.cv/r/tweakcn-linear/button.json",
+      "openInV0Url": "https://v0.dev/chat/api/open?url=https%3A%2F%2Fwww.memoire.cv%2Fr%2Ftweakcn-linear%2Fbutton.json"
+    }
+  ]
+}

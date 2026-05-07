@@ -44,6 +44,14 @@ describe("studio harness console UI", () => {
     expect(app).toContain('data-message-feed="chat-output"');
     expect(app).toContain('data-block-feed="terminal-blocks"');
     expect(app).toContain('data-conversation-scroll="activity-output"');
+    expect(app).toContain("const scrollRegionRef = useRef<HTMLElement | null>(null)");
+    expect(app).toContain("const bottomAnchorRef = useRef<HTMLDivElement | null>(null)");
+    expect(app).toContain('ref={scrollRegionRef}');
+    expect(app).toContain('onScroll={handleConversationScroll}');
+    expect(app).toContain('data-auto-scroll-state={userPinnedToBottom ? "pinned" : "paused"}');
+    expect(app).toContain('data-agent-thinking-state={agentThinkingState}');
+    expect(app).toContain('data-latest-anchor');
+    expect(app).toContain('data-action-id="conversation.scroll-latest"');
     expect(app).toContain('data-codex-power-strip="sandbox"');
     expect(app).toContain('data-harness-readiness-contract="compact"');
     expect(app).toContain('data-composer-agent-state="codex-workbench"');
@@ -85,6 +93,39 @@ describe("studio harness console UI", () => {
     expect(css).toContain(".project-sidebar");
     expect(css).toContain(".harness-console-shell");
     expect(css).toContain(".harness-readiness-row");
+  });
+
+  it("renders Codex/Antigravity-style chat quality-of-life controls around the composer", async () => {
+    const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
+    const components = await readFile(join(process.cwd(), "apps", "studio", "src", "workbench-components.tsx"), "utf-8");
+    const ui = `${app}\n${components}`;
+
+    expect(app).toContain("ChatQualityLayer");
+    expect(app).toContain("chatSearchQuery");
+    expect(app).toContain("chatMemoryPins");
+    expect(app).toContain("memoire.studio.chatMemoryPins");
+    expect(app).toContain("filterTerminalBlocksByQuery(terminalBlocks, chatSearchQuery)");
+    expect(app).toContain("handleChatFollowUp");
+    expect(app).toContain("pinCurrentChatMemory");
+    expect(app).toContain("branchCurrentChat");
+    expect(app).toContain("copyCurrentVerificationReceipt");
+    expect(app).toContain("visibleTerminalBlocks.map((block)");
+    expect(ui).toContain('data-chat-qol="codex-antigravity"');
+    expect(ui).toContain('data-chat-live-plan="current-run"');
+    expect(ui).toContain('data-chat-search="conversation"');
+    expect(ui).toContain('data-follow-up-chips="contextual"');
+    expect(ui).toContain('data-memory-pins="session"');
+    expect(ui).toContain('data-artifact-shelf="chat-evidence"');
+    expect(ui).toContain('data-verification-receipt="run"');
+    expect(ui).toContain('data-approval-queue="inline"');
+    expect(ui).toContain('data-parallel-agent-lanes="mini"');
+    expect(ui).toContain('data-action-id="chat.branch-current"');
+    expect(ui).toContain('data-action-id="chat.pin-memory"');
+    expect(ui).toContain('data-action-id="chat.copy-verification"');
+    expect(components).toContain("export function ChatQualityLayer");
+    expect(components).toContain("export function filterTerminalBlocksByQuery");
+    expect(components).toContain("deriveChatFollowUps");
+    expect(components).toContain("deriveVerificationSignals");
   });
 
   it("groups sessions in a collapsible project sidebar with settings pinned at the bottom", async () => {

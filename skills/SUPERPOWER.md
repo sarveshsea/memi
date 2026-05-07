@@ -43,7 +43,7 @@ Build order: atoms → molecules → organisms → templates → pages.
 
 ### 3. EXECUTE
 - Use `use_figma` for design-system-aware canvas writes (preferred)
-- Use `figma_execute` for bulk operations, custom logic, conditional scripts
+- Use typed Mémoire Figma actions for bulk operations; raw JavaScript execution is not shipped in the default package
 - Spawn parallel agents for independent subtasks (see `/multi-agent`)
 
 ### 4. VALIDATE (Self-Healing — MANDATORY)

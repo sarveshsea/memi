@@ -13,12 +13,22 @@ npm i -g @sarveshsea/memoire
 Before UI work:
 
 ```bash
+memi suite init --project .
+memi daemon start --project . --port auto
+memi daemon status --json
 memi diagnose
 memi tokens --from ./src --report
 memi agent install claude-code --project .
 memi agent install cursor --project .
 memi agent install codex
+memi agent install codex-plugin
 memi agent install opencode --project .
+```
+
+Public Codex marketplace:
+
+```bash
+codex plugin marketplace add sarveshsea/m-moire --ref main --sparse .agents/plugins --sparse plugins/memoire
 ```
 
 MCP server:
@@ -34,7 +44,7 @@ Claude Code project config:
   "mcpServers": {
     "memoire": {
       "command": "memi",
-      "args": ["mcp", "start"]
+      "args": ["mcp", "start", "--no-figma"]
     }
   }
 }
@@ -45,7 +55,10 @@ High-value commands for agents:
 - `memi diagnose [target]` finds UI quality, Tailwind, shadcn, accessibility, and token issues from code or URL.
 - `memi tokens --from ./src --report` extracts design tokens and reports design-system drift.
 - `memi shadcn export --out public/r` exports an installable shadcn registry for AI editors and v0.
-- `memi agent install [target]` installs native context for Claude Code, Cursor, Codex, OpenCode, Hermes, and OpenClaw.
+- `memi simulate plan|run|interview|report|export-spec` pressure-tests product hypotheses against Memoire research evidence and exports product-spec impact artifacts.
+- `memi agent install [target]` installs native context for Claude Code, Cursor, Codex, Codex plugin, OpenCode, Hermes, and OpenClaw.
+- `memi suite init --project .` writes `memoire.agent.yaml`, the workspace YAML contract for memory sources, harnesses, skills, and recipes.
+- `memi daemon start --project . --port auto` warms markdown/YAML knowledge, project memory, harness metadata, MCP tools, and agent-kit plans once per workspace.
 - `memi mcp start --no-figma` exposes Memoire tools over stdio for MCP registries and agent clients.
 - `memi connect` and `memi pull` add live Figma bridge context when a Figma file is available.
 
@@ -53,4 +66,6 @@ Default agent policy:
 
 - Run Memoire before making broad UI changes.
 - Prefer evidence from `diagnose`, `tokens`, `get_shadcn_registry`, and MCP tools over visual guessing.
+- Use `simulation.plan`, `simulation.run`, `simulation.interview`, `simulation.report`, and `simulation.export_spec` when product research should affect a spec before implementation.
 - Use Memoire as a design-system memory layer for Codex, Claude Code, Cursor, OpenCode, Hermes, and OpenClaw.
+- Treat shell/network/Figma bridge operations as explicit local actions; the public npm package does not run install-time scripts or raw Figma JavaScript.

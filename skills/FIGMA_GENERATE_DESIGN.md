@@ -143,5 +143,5 @@ Use `MIN_WIDTH` + `MAX_WIDTH` on content containers. `FILL` on flexible elements
 - Raw hex colors instead of variable bindings
 - Fixed widths on elements that should be responsive
 - Skipping the self-healing screenshot loop
-- Using `figma_execute` when `use_figma` would work better
+- Using raw Figma execution when `use_figma` would work better
 - Creating components that already exist in Code Connect

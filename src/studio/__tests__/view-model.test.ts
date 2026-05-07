@@ -305,6 +305,79 @@ describe("studio trace view model", () => {
     expect(trace.activeProcesses).toEqual([]);
   });
 
+  it("keeps latest reasoning live while a session is active", () => {
+    const trace = deriveStudioTrace({
+      session: {
+        id: "studio-session-1",
+        action: "audit",
+        status: "running",
+      },
+      events: [
+        makeEvent("reasoning", "Checking the next step."),
+      ],
+    });
+
+    expect(trace.activities).toEqual([
+      expect.objectContaining({
+        kind: "thinking",
+        label: "Thinking",
+        status: "running",
+        summary: "Checking the next step.",
+      }),
+    ]);
+  });
+
+  it("completes reasoning once a later tool event starts", () => {
+    const trace = deriveStudioTrace({
+      session: {
+        id: "studio-session-1",
+        action: "audit",
+        status: "running",
+      },
+      events: [
+        makeEvent("reasoning", "Checking the next step."),
+        makeEvent("tool_call", "Read", {
+          id: "tool_1",
+          name: "Read",
+          input: { file_path: "apps/studio/src/App.tsx" },
+        }),
+      ],
+    });
+
+    expect(trace.activities).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: "thinking",
+        status: "completed",
+      }),
+      expect.objectContaining({
+        kind: "reading_file",
+        status: "running",
+      }),
+    ]));
+  });
+
+  it("does not keep reasoning live after session completion", () => {
+    const trace = deriveStudioTrace({
+      session: {
+        id: "studio-session-1",
+        action: "audit",
+        status: "completed",
+      },
+      events: [
+        makeEvent("reasoning", "Checking the next step."),
+        makeEvent("session_done", "Session completed"),
+      ],
+    });
+
+    expect(trace.activities).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: "thinking",
+        status: "completed",
+      }),
+    ]));
+    expect(trace.activeProcesses).toEqual([]);
+  });
+
   it("derives file activity from Claude-style tool calls", () => {
     const trace = deriveStudioTrace({
       session: {

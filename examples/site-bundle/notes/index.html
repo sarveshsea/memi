@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Memoire Notes Marketplace</title>
+    <style>
+    :root { color-scheme: light dark; --bg: #181717; --panel: #222020; --line: #3a3434; --ink: #ffffff; --muted: #b8adad; --accent: #f08cab; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    a { color: inherit; text-decoration: none; }
+    main[data-notes-marketplace] { min-height: 100vh; display: grid; grid-template-columns: 260px minmax(0, 1fr); }
+    .filter-rail { border-right: 1px solid var(--line); padding: 20px; background: #171616; display: grid; align-content: start; gap: 16px; position: sticky; top: 0; height: 100vh; }
+    .brand { font-weight: 650; color: var(--accent); }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; }
+    input { width: 100%; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); padding: 10px; }
+    nav { display: grid; gap: 6px; }
+    button { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); padding: 8px 10px; text-align: left; cursor: pointer; }
+    .results { padding: 28px; display: grid; gap: 18px; align-content: start; }
+    header p, header span, .note-row span, .note-row p, .detail-card > p, .detail-card > span, dd, dt { color: var(--muted); }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; letter-spacing: 0; }
+    .note-list { display: grid; gap: 8px; }
+    .note-row { border: 1px solid var(--line); border-radius: 7px; background: var(--panel); padding: 12px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+    .note-row a { display: grid; gap: 5px; min-width: 0; }
+    code { border: 1px solid var(--line); border-radius: 5px; background: #111111; color: var(--accent); padding: 6px 8px; white-space: nowrap; }
+    .detail-page { min-height: 100vh; padding: 28px; display: grid; align-content: start; gap: 16px; }
+    .back-link { color: var(--accent); }
+    .detail-card { max-width: 860px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 24px; display: grid; gap: 14px; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag-row span { border: 1px solid var(--line); border-radius: 999px; padding: 5px 8px; color: var(--muted); }
+    .command-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .command-row a { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; color: var(--accent); }
+    dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; }
+    dl div { border: 1px solid var(--line); border-radius: 6px; padding: 10px; }
+    @media (max-width: 760px) { main[data-notes-marketplace] { grid-template-columns: 1fr; } .filter-rail { position: static; height: auto; } .note-row, dl { grid-template-columns: 1fr; } }
+  </style>
+  </head>
+  <body>
+    <main data-notes-marketplace="vscode-style">
+      <aside class="filter-rail">
+        <a class="brand" href="/">Memoire</a>
+        <label>
+          <span>Search Marketplace</span>
+          <input data-marketplace-search type="search" placeholder="Search Notes">
+        </label>
+        <nav aria-label="Note categories">
+          <button type="button" data-category-filter="all">All</button>
+          <button type="button" data-category-filter="connect">connect</button>
+            <button type="button" data-category-filter="craft">craft</button>
+            <button type="button" data-category-filter="generate">generate</button>
+            <button type="button" data-category-filter="research">research</button>
+        </nav>
+        <nav aria-label="Note sources" data-marketplace-source-filter="official-community">
+          <button type="button" data-source-filter="all">All sources</button>
+          <button type="button" data-source-filter="official">Official</button>
+          <button type="button" data-source-filter="community">Community</button>
+        </nav>
+      </aside>
+      <section class="results">
+        <header>
+          <p>Memoire Notes Marketplace</p>
+          <h1>Install agent capabilities in one command.</h1>
+          <span>48 Notes &middot; generated 2026-05-07</span>
+        </header>
+        <div class="note-list">
+
+          <article class="note-row" data-note-row data-category="research" data-source="official" data-search="accessibility-audit accessibility audit wcag 2.2 compliance auditing — color contrast, keyboard nav, screen reader, focus management, touch targets, cognitive accessibility, motion sensitivity, forms, automated testing integration accessibility wcag a11y screen-reader color-contrast keyboard-nav aria cognitive focus-management touch-targets reduced-motion forms">
+            <a href="/notes/accessibility-audit/">
+              <strong>Accessibility Audit</strong>
+              <span>accessibility-audit &middot; 2.0.0 &middot; research</span>
+              <p>WCAG 2.2 compliance auditing — color contrast, keyboard nav, screen reader, focus management, touch targets, cognitive accessibility, motion sensitivity, forms, automated testing integration</p>
+            </a>
+            <code>memi notes install accessibility-audit</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="agent-memory-profiles agent memory profiles design durable user, project, persona, and task memory profiles for local agents. memory profiles persona context project">
+            <a href="/notes/agent-memory-profiles/">
+              <strong>Agent Memory Profiles</strong>
+              <span>agent-memory-profiles &middot; 0.1.0 &middot; connect</span>
+              <p>Design durable user, project, persona, and task memory profiles for local agents.</p>
+            </a>
+            <code>memi notes install agent-memory-profiles</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="agent-messaging-gateway agent messaging gateway design gateway-backed agent delivery through chat, email, and team messaging channels. gateway messaging telegram discord slack">
+            <a href="/notes/agent-messaging-gateway/">
+              <strong>Agent Messaging Gateway</strong>
+              <span>agent-messaging-gateway &middot; 0.1.0 &middot; connect</span>
+              <p>Design gateway-backed agent delivery through chat, email, and team messaging channels.</p>
+            </a>
+            <code>memi notes install agent-messaging-gateway</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="agent-session-checkpoints agent session checkpoints capture restartable agent sessions with checkpoints, rollback notes, and resume metadata. sessions checkpoints rollback resume history">
+            <a href="/notes/agent-session-checkpoints/">
+              <strong>Agent Session Checkpoints</strong>
+              <span>agent-session-checkpoints &middot; 0.1.0 &middot; connect</span>
+              <p>Capture restartable agent sessions with checkpoints, rollback notes, and resume metadata.</p>
+            </a>
+            <code>memi notes install agent-session-checkpoints</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="agent-skill-migration agent skill migration move skills, memories, context files, and agent rules between memoire and peer agent ecosystems. skills migration memory codex claude">
+            <a href="/notes/agent-skill-migration/">
+              <strong>Agent Skill Migration</strong>
+              <span>agent-skill-migration &middot; 0.1.0 &middot; connect</span>
+              <p>Move skills, memories, context files, and agent rules between Memoire and peer agent ecosystems.</p>
+            </a>
+            <code>memi notes install agent-skill-migration</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="craft" data-source="official" data-search="animation-craft animation craft motion design and micro-interaction craft — timing, easing, ui choreography, and links into the current remotion/hyperframes production packs. animation motion framer-motion micro-interactions transitions choreography">
+            <a href="/notes/animation-craft/">
+              <strong>Animation Craft</strong>
+              <span>animation-craft &middot; 1.0.0 &middot; craft</span>
+              <p>Motion design and micro-interaction craft — timing, easing, UI choreography, and links into the current Remotion/Hyperframes production packs.</p>
+            </a>
+            <code>memi notes install animation-craft</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="apple-desktop-automation apple desktop automation prepare macos agents to work with apple apps, local files, permissions, and desktop automation. macos apple desktop permissions automation">
+            <a href="/notes/apple-desktop-automation/">
+              <strong>Apple Desktop Automation</strong>
+              <span>apple-desktop-automation &middot; 0.1.0 &middot; connect</span>
+              <p>Prepare macOS agents to work with Apple apps, local files, permissions, and desktop automation.</p>
+            </a>
+            <code>memi notes install apple-desktop-automation</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="approval-sandbox-policies approval sandbox policies define approval, sandbox, filesystem, and command policy for local autonomous agents. approvals sandbox allowlist security filesystem">
+            <a href="/notes/approval-sandbox-policies/">
+              <strong>Approval Sandbox Policies</strong>
+              <span>approval-sandbox-policies &middot; 0.1.0 &middot; connect</span>
+              <p>Define approval, sandbox, filesystem, and command policy for local autonomous agents.</p>
+            </a>
+            <code>memi notes install approval-sandbox-policies</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="research" data-source="official" data-search="browser-research-agent browser research agent run browser-backed research agents that capture evidence, citations, and source freshness. browser research citations evidence web">
+            <a href="/notes/browser-research-agent/">
+              <strong>Browser Research Agent</strong>
+              <span>browser-research-agent &middot; 0.1.0 &middot; research</span>
+              <p>Run browser-backed research agents that capture evidence, citations, and source freshness.</p>
+            </a>
+            <code>memi notes install browser-research-agent</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="codex-ops codex ops codex and claude operating workflow for memoire - json-first commands, commit hygiene, review loops, memory capture, and safe autonomous repo operation codex claude json git review memory">
+            <a href="/notes/codex-ops/">
+              <strong>Codex Ops</strong>
+              <span>codex-ops &middot; 1.0.0 &middot; connect</span>
+              <p>Codex and Claude operating workflow for Memoire - JSON-first commands, commit hygiene, review loops, memory capture, and safe autonomous repo operation</p>
+            </a>
+            <code>memi notes install codex-ops</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="research" data-source="official" data-search="competitive-intel competitive intel competitive intelligence and market analysis — systematic frameworks for analyzing competitor products, design patterns, feature matrices, positioning maps, and ux benchmarking competitive-analysis market-research benchmarking ux-audit feature-matrix">
+            <a href="/notes/competitive-intel/">
+              <strong>Competitive Intel</strong>
+              <span>competitive-intel &middot; 1.0.0 &middot; research</span>
+              <p>Competitive intelligence and market analysis — systematic frameworks for analyzing competitor products, design patterns, feature matrices, positioning maps, and UX benchmarking</p>
+            </a>
+            <code>memi notes install competitive-intel</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="cron-agent-workflows cron agent workflows turn repeatable agent work into scheduled jobs with explicit outputs and safe permissions. cron automation scheduler reports monitoring">
+            <a href="/notes/cron-agent-workflows/">
+              <strong>Cron Agent Workflows</strong>
+              <span>cron-agent-workflows &middot; 0.1.0 &middot; connect</span>
+              <p>Turn repeatable agent work into scheduled jobs with explicit outputs and safe permissions.</p>
+            </a>
+            <code>memi notes install cron-agent-workflows</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="research" data-source="official" data-search="data-synthesis data synthesis qualitative and quantitative data synthesis — affinity mapping, thematic analysis, statistical frameworks, insight triangulation, and research-to-spec pipelines data-synthesis qualitative quantitative thematic-analysis affinity-mapping insights">
+            <a href="/notes/data-synthesis/">
+              <strong>Data Synthesis</strong>
+              <span>data-synthesis &middot; 1.0.0 &middot; research</span>
+              <p>Qualitative and quantitative data synthesis — affinity mapping, thematic analysis, statistical frameworks, insight triangulation, and research-to-spec pipelines</p>
+            </a>
+            <code>memi notes install data-synthesis</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="craft" data-source="official" data-search="design-systems design systems design system architecture and governance — token taxonomy, component apis, versioning strategy, adoption metrics, multi-brand theming, and cross-platform consistency design-system tokens governance theming component-api versioning">
+            <a href="/notes/design-systems/">
+              <strong>Design Systems</strong>
+              <span>design-systems &middot; 1.0.0 &middot; craft</span>
+              <p>Design system architecture and governance — token taxonomy, component APIs, versioning strategy, adoption metrics, multi-brand theming, and cross-platform consistency</p>
+            </a>
+            <code>memi notes install design-systems</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="docker-environments docker environments docker-aware mémoire operation — ci/cd headless pipelines, shared mcp server, agent worker containers, and figma bridge port-forwarding for containerized setups docker container ci-cd devcontainer mcp headless multi-agent compose">
+            <a href="/notes/docker-environments/">
+              <strong>Docker Environments</strong>
+              <span>docker-environments &middot; 1.0.0 &middot; connect</span>
+              <p>Docker-aware Mémoire operation — CI/CD headless pipelines, shared MCP server, agent worker containers, and Figma bridge port-forwarding for containerized setups</p>
+            </a>
+            <code>memi notes install docker-environments</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="figma-code-connect figma code connect code connect workflow — map figma components to codebase implementations, batch mappings, keep design-code parity figma code-connect component-mapping design-system">
+            <a href="/notes/figma-code-connect/">
+              <strong>Figma Code Connect</strong>
+              <span>figma-code-connect &middot; 1.0.0 &middot; connect</span>
+              <p>Code Connect workflow — map Figma components to codebase implementations, batch mappings, keep design-code parity</p>
+            </a>
+            <code>memi notes install figma-code-connect</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="craft" data-source="official" data-search="figma-create-file figma create file create new figma design or figjam files via mcp — resolve plans, scaffold files, prepare for canvas operations figma file-creation figjam scaffold">
+            <a href="/notes/figma-create-file/">
+              <strong>Figma Create File</strong>
+              <span>figma-create-file &middot; 1.0.0 &middot; craft</span>
+              <p>Create new Figma design or FigJam files via MCP — resolve plans, scaffold files, prepare for canvas operations</p>
+            </a>
+            <code>memi notes install figma-create-file</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="craft" data-source="official" data-search="figma-design-systems working with figma design systems working with design systems in figma — components, variables, text styles, effect styles, creation and usage patterns figma design-systems variables components tokens styles">
+            <a href="/notes/figma-design-systems/">
+              <strong>Working with Figma Design Systems</strong>
+              <span>figma-design-systems &middot; 1.0.0 &middot; craft</span>
+              <p>Working with Design Systems in Figma — components, variables, text styles, effect styles, creation and usage patterns</p>
+            </a>
+            <code>memi notes install figma-design-systems</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="craft" data-source="official" data-search="figma-ds-rules figma design system rules generate design system rules for ai agents — encode codebase conventions, token usage, component patterns into claude.md/agents.md/.cursor rules figma design-system agent-rules conventions codegen">
+            <a href="/notes/figma-ds-rules/">
+              <strong>Figma Design System Rules</strong>
+              <span>figma-ds-rules &middot; 1.0.0 &middot; craft</span>
+              <p>Generate design system rules for AI agents — encode codebase conventions, token usage, component patterns into CLAUDE.md/AGENTS.md/.cursor rules</p>
+            </a>
+            <code>memi notes install figma-ds-rules</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="generate" data-source="official" data-search="figma-implement-design figma implement design figma-to-code implementation — extract design context, map tokens, generate production-ready components with 1:1 visual parity figma design-to-code implementation code-connect visual-parity">
+            <a href="/notes/figma-implement-design/">
+              <strong>Figma Implement Design</strong>
+              <span>figma-implement-design &middot; 1.0.0 &middot; generate</span>
+              <p>Figma-to-code implementation — extract design context, map tokens, generate production-ready components with 1:1 visual parity</p>
+            </a>
+            <code>memi notes install figma-implement-design</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="craft" data-source="official" data-search="figma-library-builder figma library builder figma design system library builder — phased workflow for tokens, components, documentation, with ready-to-use plugin api scripts figma library design-system tokens components scripts">
+            <a href="/notes/figma-library-builder/">
+              <strong>Figma Library Builder</strong>
+              <span>figma-library-builder &middot; 1.0.0 &middot; craft</span>
+              <p>Figma design system library builder — phased workflow for tokens, components, documentation, with ready-to-use Plugin API scripts</p>
+            </a>
+            <code>memi notes install figma-library-builder</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="craft" data-source="official" data-search="figma-plugin-api figma plugin api reference figma plugin api reference — gotchas, patterns, variables, components, text/effect styles, validation and error recovery figma plugin-api reference patterns gotchas">
+            <a href="/notes/figma-plugin-api/">
+              <strong>Figma Plugin API Reference</strong>
+              <span>figma-plugin-api &middot; 1.0.0 &middot; craft</span>
+              <p>Figma Plugin API reference — gotchas, patterns, variables, components, text/effect styles, validation and error recovery</p>
+            </a>
+            <code>memi notes install figma-plugin-api</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="figma-sync figma sync patterns figma sync workflow patterns — bidirectional design-code sync, conflict resolution, incremental updates, multi-file orchestration figma sync design-system bidirectional incremental">
+            <a href="/notes/figma-sync/">
+              <strong>Figma Sync Patterns</strong>
+              <span>figma-sync &middot; 1.0.0 &middot; connect</span>
+              <p>Figma sync workflow patterns — bidirectional design-code sync, conflict resolution, incremental updates, multi-file orchestration</p>
+            </a>
+            <code>memi notes install figma-sync</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="figma-web-capture figma web capture figma web capture workflow - import live webpages or dom elements into editable figma layers with the public html-to-design capture.js bookmarklet figma html-to-design bookmarklet web-capture editable-layers">
+            <a href="/notes/figma-web-capture/">
+              <strong>Figma Web Capture</strong>
+              <span>figma-web-capture &middot; 1.0.0 &middot; connect</span>
+              <p>Figma web capture workflow - import live webpages or DOM elements into editable Figma layers with the public html-to-design capture.js bookmarklet</p>
+            </a>
+            <code>memi notes install figma-web-capture</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="generate" data-source="official" data-search="flutter-gen flutter generator flutter and dart widget generation — transforms mémoire component specs into flutter widgets with material 3, riverpod state management, and responsive layouts flutter dart material3 riverpod widgets codegen">
+            <a href="/notes/flutter-gen/">
+              <strong>Flutter Generator</strong>
+              <span>flutter-gen &middot; 1.0.0 &middot; generate</span>
+              <p>Flutter and Dart widget generation — transforms Mémoire component specs into Flutter widgets with Material 3, Riverpod state management, and responsive layouts</p>
+            </a>
+            <code>memi notes install flutter-gen</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="gateway-ops-observability gateway ops observability observe and debug local agent gateways, daemons, health probes, logs, and usage costs. gateway logs health observability daemon">
+            <a href="/notes/gateway-ops-observability/">
+              <strong>Gateway Ops Observability</strong>
+              <span>gateway-ops-observability &middot; 0.1.0 &middot; connect</span>
+              <p>Observe and debug local agent gateways, daemons, health probes, logs, and usage costs.</p>
+            </a>
+            <code>memi notes install gateway-ops-observability</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="hermes-agent-bridge hermes agent bridge run hermes agent from memoire with cli, skills, toolsets, worktree, and session recipes. hermes cli skills toolsets worktrees">
+            <a href="/notes/hermes-agent-bridge/">
+              <strong>Hermes Agent Bridge</strong>
+              <span>hermes-agent-bridge &middot; 0.1.0 &middot; connect</span>
+              <p>Run Hermes Agent from Memoire with CLI, skills, toolsets, worktree, and session recipes.</p>
+            </a>
+            <code>memi notes install hermes-agent-bridge</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="generate" data-source="official" data-search="hyperframes-video hyperframes video current hyperframes pack for html-first motion videos, lintable frames, previews, and render command prep. video hyperframes html motion rendering">
+            <a href="/notes/hyperframes-video/">
+              <strong>Hyperframes Video</strong>
+              <span>hyperframes-video &middot; 0.1.0 &middot; generate</span>
+              <p>Current Hyperframes pack for HTML-first motion videos, lintable frames, previews, and render command prep.</p>
+            </a>
+            <code>memi notes install hyperframes-video</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="research" data-source="official" data-search="interview-research interview research user interview and transcript analysis — parsing speaker-labeled transcripts, extracting pain points/goals/behaviors, sentiment analysis, and persona generation from qualitative data interview transcript qualitative user-research sentiment persona">
+            <a href="/notes/interview-research/">
+              <strong>Interview Research</strong>
+              <span>interview-research &middot; 1.0.0 &middot; research</span>
+              <p>User interview and transcript analysis — parsing speaker-labeled transcripts, extracting pain points/goals/behaviors, sentiment analysis, and persona generation from qualitative data</p>
+            </a>
+            <code>memi notes install interview-research</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="linear-sync linear sync linear integration for mémoire — sync design issues, component specs, and project tracking between linear and the mémoire registry linear integration issues tracking project-management sync">
+            <a href="/notes/linear-sync/">
+              <strong>Linear Sync</strong>
+              <span>linear-sync &middot; 1.0.0 &middot; connect</span>
+              <p>Linear integration for Mémoire — sync design issues, component specs, and project tracking between Linear and the Mémoire registry</p>
+            </a>
+            <code>memi notes install linear-sync</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="mcp-server-studio mcp server studio expose memoire studio context, tools, and artifacts to other agents through mcp. mcp studio tools resources agent">
+            <a href="/notes/mcp-server-studio/">
+              <strong>MCP Server Studio</strong>
+              <span>mcp-server-studio &middot; 0.1.0 &middot; connect</span>
+              <p>Expose Memoire Studio context, tools, and artifacts to other agents through MCP.</p>
+            </a>
+            <code>memi notes install mcp-server-studio</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="mermaid-jam mermaid jam route mermaid and markdown diagram source into the mermaid jam figjam plugin for editable native figjam output figjam mermaid markdown diagram user-flow">
+            <a href="/notes/mermaid-jam/">
+              <strong>Mermaid Jam</strong>
+              <span>mermaid-jam &middot; 1.0.0 &middot; connect</span>
+              <p>Route Mermaid and markdown diagram source into the Mermaid Jam FigJam plugin for editable native FigJam output</p>
+            </a>
+            <code>memi notes install mermaid-jam</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="craft" data-source="official" data-search="mobile-craft mobile craft mobile-first design mastery — touch targets, gesture patterns, responsive breakpoints, native-feel animations, thumb zones, platform conventions (ios/android), and progressive enhancement strategies mobile responsive touch ios android gestures progressive-enhancement">
+            <a href="/notes/mobile-craft/">
+              <strong>Mobile Craft</strong>
+              <span>mobile-craft &middot; 1.0.0 &middot; craft</span>
+              <p>Mobile-first design mastery — touch targets, gesture patterns, responsive breakpoints, native-feel animations, thumb zones, platform conventions (iOS/Android), and progressive enhancement strategies</p>
+            </a>
+            <code>memi notes install mobile-craft</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="model-router-diagnostics model router diagnostics diagnose provider auth, model routing, quota windows, and fallback behavior before agent runs. models providers auth routing diagnostics">
+            <a href="/notes/model-router-diagnostics/">
+              <strong>Model Router Diagnostics</strong>
+              <span>model-router-diagnostics &middot; 0.1.0 &middot; connect</span>
+              <p>Diagnose provider auth, model routing, quota windows, and fallback behavior before agent runs.</p>
+            </a>
+            <code>memi notes install model-router-diagnostics</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="craft" data-source="official" data-search="motion-performance motion performance motion performance pack for 60fps ui animation, reduced-motion fallbacks, render budget checks, and video export qa. motion performance accessibility video qa">
+            <a href="/notes/motion-performance/">
+              <strong>Motion Performance</strong>
+              <span>motion-performance &middot; 0.1.0 &middot; craft</span>
+              <p>Motion performance pack for 60fps UI animation, reduced-motion fallbacks, render budget checks, and video export QA.</p>
+            </a>
+            <code>memi notes install motion-performance</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="multi-agent-kanban multi-agent kanban coordinate multiple local agents through a durable board with owner, state, and evidence fields. multi-agent kanban coordination sessions handoff">
+            <a href="/notes/multi-agent-kanban/">
+              <strong>Multi-Agent Kanban</strong>
+              <span>multi-agent-kanban &middot; 0.1.0 &middot; connect</span>
+              <p>Coordinate multiple local agents through a durable board with owner, state, and evidence fields.</p>
+            </a>
+            <code>memi notes install multi-agent-kanban</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="notion-sync notion sync notion integration for mémoire — sync research insights, specs, and project context between notion databases and the mémoire registry notion integration sync research specs database">
+            <a href="/notes/notion-sync/">
+              <strong>Notion Sync</strong>
+              <span>notion-sync &middot; 1.0.0 &middot; connect</span>
+              <p>Notion integration for Mémoire — sync research insights, specs, and project context between Notion databases and the Mémoire registry</p>
+            </a>
+            <code>memi notes install notion-sync</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="openclaw-agent-bridge openclaw agent bridge connect memoire to openclaw onboarding, agents, gateway health, mcp, and approval flows. openclaw gateway agents mcp approvals">
+            <a href="/notes/openclaw-agent-bridge/">
+              <strong>OpenClaw Agent Bridge</strong>
+              <span>openclaw-agent-bridge &middot; 0.1.0 &middot; connect</span>
+              <p>Connect Memoire to OpenClaw onboarding, agents, gateway health, MCP, and approval flows.</p>
+            </a>
+            <code>memi notes install openclaw-agent-bridge</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="generate" data-source="official" data-search="react-native-gen react native generator react native code generation from memoire specs — nativewind styling, expo-compatible, platform-specific patterns react-native nativewind expo mobile ios android">
+            <a href="/notes/react-native-gen/">
+              <strong>React Native Generator</strong>
+              <span>react-native-gen &middot; 1.0.0 &middot; generate</span>
+              <p>React Native code generation from Memoire specs — NativeWind styling, Expo-compatible, platform-specific patterns</p>
+            </a>
+            <code>memi notes install react-native-gen</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="generate" data-source="official" data-search="remotion-video remotion video current remotion video production pack for react-based product videos, previews, and renderer handoff. video remotion react motion renderer">
+            <a href="/notes/remotion-video/">
+              <strong>Remotion Video</strong>
+              <span>remotion-video &middot; 0.1.0 &middot; generate</span>
+              <p>Current Remotion video production pack for React-based product videos, previews, and renderer handoff.</p>
+            </a>
+            <code>memi notes install remotion-video</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="secure-secrets-for-agents secure secrets for agents handle agent credentials with env refs, redaction, least privilege, and non-leaking prompts. secrets redaction env security credentials">
+            <a href="/notes/secure-secrets-for-agents/">
+              <strong>Secure Secrets for Agents</strong>
+              <span>secure-secrets-for-agents &middot; 0.1.0 &middot; connect</span>
+              <p>Handle agent credentials with env refs, redaction, least privilege, and non-leaking prompts.</p>
+            </a>
+            <code>memi notes install secure-secrets-for-agents</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="self-improving-agent self-improving agent closed-loop learning system — captures errors, corrections, and discoveries into structured logs, promotes recurring patterns to project memory, and extracts reusable skills learning self-improvement error-tracking knowledge-management">
+            <a href="/notes/self-improving-agent/">
+              <strong>Self-Improving Agent</strong>
+              <span>self-improving-agent &middot; 3.0.6 &middot; connect</span>
+              <p>Closed-loop learning system — captures errors, corrections, and discoveries into structured logs, promotes recurring patterns to project memory, and extracts reusable skills</p>
+            </a>
+            <code>memi notes install self-improving-agent</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="connect" data-source="official" data-search="survey-connect survey connect survey platform integration — import responses from typeform, google forms, surveymonkey, airtable, and csv exports into mémoire's research pipeline survey typeform google-forms airtable csv import">
+            <a href="/notes/survey-connect/">
+              <strong>Survey Connect</strong>
+              <span>survey-connect &middot; 1.0.0 &middot; connect</span>
+              <p>Survey platform integration — import responses from Typeform, Google Forms, SurveyMonkey, Airtable, and CSV exports into Mémoire's research pipeline</p>
+            </a>
+            <code>memi notes install survey-connect</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="craft" data-source="official" data-search="token-architecture token architecture design token architecture — multi-tier token systems, semantic naming, theme switching, css custom properties, tailwind mapping, and figma variable sync design-tokens theming css-variables tailwind figma-variables semantic-tokens">
+            <a href="/notes/token-architecture/">
+              <strong>Token Architecture</strong>
+              <span>token-architecture &middot; 1.0.0 &middot; craft</span>
+              <p>Design token architecture — multi-tier token systems, semantic naming, theme switching, CSS custom properties, Tailwind mapping, and Figma variable sync</p>
+            </a>
+            <code>memi notes install token-architecture</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="research" data-source="official" data-search="usability-testing usability testing usability testing frameworks — test planning, task scenarios, moderated and unmoderated protocols, analysis frameworks, and insight synthesis for mémoire research pipeline usability testing ux-research task-analysis think-aloud insights">
+            <a href="/notes/usability-testing/">
+              <strong>Usability Testing</strong>
+              <span>usability-testing &middot; 1.0.0 &middot; research</span>
+              <p>Usability testing frameworks — test planning, task scenarios, moderated and unmoderated protocols, analysis frameworks, and insight synthesis for Mémoire research pipeline</p>
+            </a>
+            <code>memi notes install usability-testing</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="generate" data-source="official" data-search="vue-gen vue generator vue 3 composition api code generation — transforms mémoire component specs into vue sfcs with script setup, tailwind styling, and composable patterns vue vue3 composition-api sfc tailwind codegen">
+            <a href="/notes/vue-gen/">
+              <strong>Vue Generator</strong>
+              <span>vue-gen &middot; 1.0.0 &middot; generate</span>
+              <p>Vue 3 Composition API code generation — transforms Mémoire component specs into Vue SFCs with script setup, Tailwind styling, and composable patterns</p>
+            </a>
+            <code>memi notes install vue-gen</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="research" data-source="official" data-search="web-research web research structured web research — topic exploration, content fetching, finding extraction, cross-source validation, and gap analysis for design research web-research content-analysis competitive market-research trends">
+            <a href="/notes/web-research/">
+              <strong>Web Research</strong>
+              <span>web-research &middot; 1.0.0 &middot; research</span>
+              <p>Structured web research — topic exploration, content fetching, finding extraction, cross-source validation, and gap analysis for design research</p>
+            </a>
+            <code>memi notes install web-research</code>
+          </article>
+
+          <article class="note-row" data-note-row data-category="generate" data-source="official" data-search="website-to-video website to video website-to-video capture pack for turning product pages, flows, and browser states into structured video scenes. video website-capture browser product-demo">
+            <a href="/notes/website-to-video/">
+              <strong>Website To Video</strong>
+              <span>website-to-video &middot; 0.1.0 &middot; generate</span>
+              <p>Website-to-video capture pack for turning product pages, flows, and browser states into structured video scenes.</p>
+            </a>
+            <code>memi notes install website-to-video</code>
+          </article>
+        </div>
+      </section>
+    </main>
+    <script>
+      const input = document.querySelector("[data-marketplace-search]");
+      const rows = Array.from(document.querySelectorAll("[data-note-row]"));
+      let category = "all";
+      let source = "all";
+      function sync() {
+        const query = (input.value || "").trim().toLowerCase();
+        for (const row of rows) {
+          const categoryMatch = category === "all" || row.dataset.category === category;
+          const sourceMatch = source === "all" || row.dataset.source === source;
+          const queryMatch = !query || row.dataset.search.includes(query);
+          row.hidden = !(categoryMatch && sourceMatch && queryMatch);
+        }
+      }
+      input.addEventListener("input", sync);
+      for (const button of document.querySelectorAll("[data-category-filter]")) {
+        button.addEventListener("click", () => {
+          category = button.dataset.categoryFilter;
+          sync();
+        });
+      }
+      for (const button of document.querySelectorAll("[data-source-filter]")) {
+        button.addEventListener("click", () => {
+          source = button.dataset.sourceFilter;
+          sync();
+        });
+      }
+    </script>
+  </body>
+</html>

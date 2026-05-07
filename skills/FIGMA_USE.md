@@ -30,7 +30,7 @@ CREATE a design using existing components/tokens:
   and produces structured output. ALWAYS try this first.
 
 RUN raw Plugin API code (batch ops, custom logic):
-  → figma_execute (Console MCP)
+  → typed Mémoire Figma actions
   WHY: For operations use_figma doesn't support — complex scripts,
   bulk modifications, conditional logic.
 
@@ -130,7 +130,7 @@ Before creating any component, check Code Connect:
 1. Check Code Connect → get_code_connect_map
 2. Check if component exists → figma_search_components
 3. If exists → figma_instantiate_component
-4. If new design → use_figma (preferred) or figma_execute (raw)
+4. If new design → use_figma (preferred) or typed Mémoire Figma actions
 5. Always place inside a Section or Frame (NEVER floating)
 6. Bind all visual properties to variables
 7. SCREENSHOT → validate → iterate
@@ -159,7 +159,7 @@ CREATE → SCREENSHOT → ANALYZE → FIX → VERIFY (max 3 rounds)
 ### Figma API Gotchas
 - `counterAxisSizingMode` only accepts `"FIXED"` or `"AUTO"` (not `"FILL"`)
 - `DROP_SHADOW` effects require `blendMode: "NORMAL"`
-- `figma.currentPage` — set it on a page node, not the global: `figma.currentPage = figma.root.children.find(p => p.name === "Dashboard")`. This works correctly inside `figma_execute`.
+- `figma.currentPage` — set it through typed page-selection helpers; raw JavaScript execution is not part of the default package.
 - `layoutGrow` only works inside Auto Layout parents
 - Always `await figma.loadFontAsync()` before setting text
 

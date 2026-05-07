@@ -3,6 +3,8 @@
 Hero: Shadcn-native Design CI for Tailwind apps.
 Subhead: Turn an existing app into a registry that works with shadcn, v0, AI editors, npm, and Memoire.
 Primary CTA: https://www.npmjs.com/package/@sarveshsea/memoire
+Codex plugin: https://www.memoire.cv/codex-plugin
+Codex marketplace install: codex plugin marketplace add sarveshsea/m-moire --ref main --sparse .agents/plugins --sparse plugins/memoire
 
 ## Registry Cards
 

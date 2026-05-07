@@ -1,0 +1,2809 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-07T05:55:33.758Z",
+  "baseUrl": "https://www.memoire.cv/notes",
+  "notes": [
+    {
+      "id": "accessibility-audit",
+      "name": "accessibility-audit",
+      "title": "Accessibility Audit",
+      "version": "2.0.0",
+      "description": "WCAG 2.2 compliance auditing — color contrast, keyboard nav, screen reader, focus management, touch targets, cognitive accessibility, motion sensitivity, forms, automated testing integration",
+      "category": "research",
+      "tags": [
+        "accessibility",
+        "wcag",
+        "a11y",
+        "screen-reader",
+        "color-contrast",
+        "keyboard-nav",
+        "aria",
+        "cognitive",
+        "focus-management",
+        "touch-targets",
+        "reduced-motion",
+        "forms"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/accessibility-audit",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/accessibility-audit",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/accessibility-audit/accessibility-audit-2.0.0.tgz",
+        "sha256": "99248d7d8a37b716ac0c110163a460fe293983258e74a8d3593e48e5ba002806",
+        "size": 8953
+      },
+      "manifest": {
+        "name": "accessibility-audit",
+        "version": "2.0.0",
+        "description": "WCAG 2.2 compliance auditing — color contrast, keyboard nav, screen reader, focus management, touch targets, cognitive accessibility, motion sensitivity, forms, automated testing integration",
+        "category": "research",
+        "tags": [
+          "accessibility",
+          "wcag",
+          "a11y",
+          "screen-reader",
+          "color-contrast",
+          "keyboard-nav",
+          "aria",
+          "cognitive",
+          "focus-management",
+          "touch-targets",
+          "reduced-motion",
+          "forms"
+        ],
+        "skills": [
+          {
+            "file": "accessibility-audit.md",
+            "name": "Accessibility Audit",
+            "activateOn": "design-review",
+            "freedomLevel": "read-only"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "agent-memory-profiles",
+      "name": "agent-memory-profiles",
+      "title": "Agent Memory Profiles",
+      "version": "0.1.0",
+      "description": "Design durable user, project, persona, and task memory profiles for local agents.",
+      "category": "connect",
+      "tags": [
+        "memory",
+        "profiles",
+        "persona",
+        "context",
+        "project"
+      ],
+      "sourceUrls": [
+        "https://github.com/nousresearch/hermes-agent",
+        "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/",
+        "https://docs.openclaw.ai/cli"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/agent-memory-profiles",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/agent-memory-profiles",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/agent-memory-profiles/agent-memory-profiles-0.1.0.tgz",
+        "sha256": "3e92da8c225e169105107f0fadc7af70e2a682c3acc72ae26076620158e1fad3",
+        "size": 1366
+      },
+      "manifest": {
+        "name": "agent-memory-profiles",
+        "version": "0.1.0",
+        "description": "Design durable user, project, persona, and task memory profiles for local agents.",
+        "category": "connect",
+        "tags": [
+          "memory",
+          "profiles",
+          "persona",
+          "context",
+          "project"
+        ],
+        "sourceUrls": [
+          "https://github.com/nousresearch/hermes-agent",
+          "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/",
+          "https://docs.openclaw.ai/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "agent-memory-profiles.md",
+            "name": "Agent Memory Profiles",
+            "activateOn": "agent memory profile, persona file, context file, persistent memory",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "agent-messaging-gateway",
+      "name": "agent-messaging-gateway",
+      "title": "Agent Messaging Gateway",
+      "version": "0.1.0",
+      "description": "Design gateway-backed agent delivery through chat, email, and team messaging channels.",
+      "category": "connect",
+      "tags": [
+        "gateway",
+        "messaging",
+        "telegram",
+        "discord",
+        "slack"
+      ],
+      "sourceUrls": [
+        "https://github.com/nousresearch/hermes-agent",
+        "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+        "https://docs.openclaw.ai/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/agent-messaging-gateway",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/agent-messaging-gateway",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/agent-messaging-gateway/agent-messaging-gateway-0.1.0.tgz",
+        "sha256": "a0c5b56031a0e0facf87fc72154513f4834b5db9da7a0fca8445ab277a049cd8",
+        "size": 1351
+      },
+      "manifest": {
+        "name": "agent-messaging-gateway",
+        "version": "0.1.0",
+        "description": "Design gateway-backed agent delivery through chat, email, and team messaging channels.",
+        "category": "connect",
+        "tags": [
+          "gateway",
+          "messaging",
+          "telegram",
+          "discord",
+          "slack"
+        ],
+        "sourceUrls": [
+          "https://github.com/nousresearch/hermes-agent",
+          "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+          "https://docs.openclaw.ai/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "agent-messaging-gateway.md",
+            "name": "Agent Messaging Gateway",
+            "activateOn": "agent messaging, gateway setup, platform channel, delivery routing",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "agent-session-checkpoints",
+      "name": "agent-session-checkpoints",
+      "title": "Agent Session Checkpoints",
+      "version": "0.1.0",
+      "description": "Capture restartable agent sessions with checkpoints, rollback notes, and resume metadata.",
+      "category": "connect",
+      "tags": [
+        "sessions",
+        "checkpoints",
+        "rollback",
+        "resume",
+        "history"
+      ],
+      "sourceUrls": [
+        "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://docs.openclaw.ai/cli"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/agent-session-checkpoints",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/agent-session-checkpoints",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/agent-session-checkpoints/agent-session-checkpoints-0.1.0.tgz",
+        "sha256": "d064ae19476ba4413eaaabc400e0b505140559bf3a4b9f079843915253986cc2",
+        "size": 1394
+      },
+      "manifest": {
+        "name": "agent-session-checkpoints",
+        "version": "0.1.0",
+        "description": "Capture restartable agent sessions with checkpoints, rollback notes, and resume metadata.",
+        "category": "connect",
+        "tags": [
+          "sessions",
+          "checkpoints",
+          "rollback",
+          "resume",
+          "history"
+        ],
+        "sourceUrls": [
+          "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://docs.openclaw.ai/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "agent-session-checkpoints.md",
+            "name": "Agent Session Checkpoints",
+            "activateOn": "checkpoint agent run, rollback session, resume session, session cleanup",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "agent-skill-migration",
+      "name": "agent-skill-migration",
+      "title": "Agent Skill Migration",
+      "version": "0.1.0",
+      "description": "Move skills, memories, context files, and agent rules between Memoire and peer agent ecosystems.",
+      "category": "connect",
+      "tags": [
+        "skills",
+        "migration",
+        "memory",
+        "codex",
+        "claude"
+      ],
+      "sourceUrls": [
+        "https://github.com/nousresearch/hermes-agent",
+        "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/",
+        "https://docs.openclaw.ai/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/agent-skill-migration",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/agent-skill-migration",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/agent-skill-migration/agent-skill-migration-0.1.0.tgz",
+        "sha256": "c4ff9bddf551df36fd73a706d26f9f0b83d5cfa90e6aa7c25c6af1bcf9749ad7",
+        "size": 1365
+      },
+      "manifest": {
+        "name": "agent-skill-migration",
+        "version": "0.1.0",
+        "description": "Move skills, memories, context files, and agent rules between Memoire and peer agent ecosystems.",
+        "category": "connect",
+        "tags": [
+          "skills",
+          "migration",
+          "memory",
+          "codex",
+          "claude"
+        ],
+        "sourceUrls": [
+          "https://github.com/nousresearch/hermes-agent",
+          "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/",
+          "https://docs.openclaw.ai/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "agent-skill-migration.md",
+            "name": "Agent Skill Migration",
+            "activateOn": "migrate skills, convert agent memory, import OpenClaw, export Hermes skill",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "animation-craft",
+      "name": "animation-craft",
+      "title": "Animation Craft",
+      "version": "1.0.0",
+      "description": "Motion design and micro-interaction craft — timing, easing, UI choreography, and links into the current Remotion/Hyperframes production packs.",
+      "category": "craft",
+      "tags": [
+        "animation",
+        "motion",
+        "framer-motion",
+        "micro-interactions",
+        "transitions",
+        "choreography"
+      ],
+      "sourceUrls": [
+        "https://www.remotion.dev/docs/studio",
+        "https://hyperframes.mintlify.app/packages/cli"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/animation-craft",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/animation-craft",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/animation-craft/animation-craft-1.0.0.tgz",
+        "sha256": "c2f21e71823487b7acfb0aee27e1aac39a4be9582ef1826ab6788c3a612023dc",
+        "size": 13819
+      },
+      "manifest": {
+        "name": "animation-craft",
+        "version": "1.0.0",
+        "description": "Motion design and micro-interaction craft — timing, easing, UI choreography, and links into the current Remotion/Hyperframes production packs.",
+        "category": "craft",
+        "tags": [
+          "animation",
+          "motion",
+          "framer-motion",
+          "micro-interactions",
+          "transitions",
+          "choreography"
+        ],
+        "sourceUrls": [
+          "https://www.remotion.dev/docs/studio",
+          "https://hyperframes.mintlify.app/packages/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "animation-craft.md",
+            "name": "Animation Craft",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [
+          "remotion-video",
+          "hyperframes-video",
+          "motion-performance"
+        ],
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "apple-desktop-automation",
+      "name": "apple-desktop-automation",
+      "title": "Apple Desktop Automation",
+      "version": "0.1.0",
+      "description": "Prepare macOS agents to work with Apple apps, local files, permissions, and desktop automation.",
+      "category": "connect",
+      "tags": [
+        "macos",
+        "apple",
+        "desktop",
+        "permissions",
+        "automation"
+      ],
+      "sourceUrls": [
+        "https://support.apple.com/guide/shortcuts/welcome/mac",
+        "https://support.apple.com/guide/terminal/welcome/mac",
+        "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/apple-desktop-automation",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/apple-desktop-automation",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/apple-desktop-automation/apple-desktop-automation-0.1.0.tgz",
+        "sha256": "85ce9e549a2fa26d7523e70c87659eacf35803c771f42cc453f94417e11f2c86",
+        "size": 1348
+      },
+      "manifest": {
+        "name": "apple-desktop-automation",
+        "version": "0.1.0",
+        "description": "Prepare macOS agents to work with Apple apps, local files, permissions, and desktop automation.",
+        "category": "connect",
+        "tags": [
+          "macos",
+          "apple",
+          "desktop",
+          "permissions",
+          "automation"
+        ],
+        "sourceUrls": [
+          "https://support.apple.com/guide/shortcuts/welcome/mac",
+          "https://support.apple.com/guide/terminal/welcome/mac",
+          "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "apple-desktop-automation.md",
+            "name": "Apple Desktop Automation",
+            "activateOn": "macOS automation, Apple Notes, Reminders, iMessage, desktop app control",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "approval-sandbox-policies",
+      "name": "approval-sandbox-policies",
+      "title": "Approval Sandbox Policies",
+      "version": "0.1.0",
+      "description": "Define approval, sandbox, filesystem, and command policy for local autonomous agents.",
+      "category": "connect",
+      "tags": [
+        "approvals",
+        "sandbox",
+        "allowlist",
+        "security",
+        "filesystem"
+      ],
+      "sourceUrls": [
+        "https://docs.openclaw.ai/cli",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://developers.openai.com/codex/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/approval-sandbox-policies",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/approval-sandbox-policies",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/approval-sandbox-policies/approval-sandbox-policies-0.1.0.tgz",
+        "sha256": "9dcf8ae5a0fdcdbad660b4b62aa73fa1e32cb5c6b4e1e149a93665d39f2188f7",
+        "size": 1389
+      },
+      "manifest": {
+        "name": "approval-sandbox-policies",
+        "version": "0.1.0",
+        "description": "Define approval, sandbox, filesystem, and command policy for local autonomous agents.",
+        "category": "connect",
+        "tags": [
+          "approvals",
+          "sandbox",
+          "allowlist",
+          "security",
+          "filesystem"
+        ],
+        "sourceUrls": [
+          "https://docs.openclaw.ai/cli",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://developers.openai.com/codex/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "approval-sandbox-policies.md",
+            "name": "Approval Sandbox Policies",
+            "activateOn": "agent approvals, sandbox mode, command allowlist, secure agent run",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "browser-research-agent",
+      "name": "browser-research-agent",
+      "title": "Browser Research Agent",
+      "version": "0.1.0",
+      "description": "Run browser-backed research agents that capture evidence, citations, and source freshness.",
+      "category": "research",
+      "tags": [
+        "browser",
+        "research",
+        "citations",
+        "evidence",
+        "web"
+      ],
+      "sourceUrls": [
+        "https://developers.openai.com/codex/use-cases",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://docs.openclaw.ai/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/browser-research-agent",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/browser-research-agent",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/browser-research-agent/browser-research-agent-0.1.0.tgz",
+        "sha256": "92e24bbdea04fee416e23a3b30a9e31e321cf1f526abc3e5c088add4c2d486d2",
+        "size": 1341
+      },
+      "manifest": {
+        "name": "browser-research-agent",
+        "version": "0.1.0",
+        "description": "Run browser-backed research agents that capture evidence, citations, and source freshness.",
+        "category": "research",
+        "tags": [
+          "browser",
+          "research",
+          "citations",
+          "evidence",
+          "web"
+        ],
+        "sourceUrls": [
+          "https://developers.openai.com/codex/use-cases",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://docs.openclaw.ai/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "browser-research-agent.md",
+            "name": "Browser Research Agent",
+            "activateOn": "browser research, web evidence, citation capture, source comparison",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "codex-ops",
+      "name": "codex-ops",
+      "title": "Codex Ops",
+      "version": "1.0.0",
+      "description": "Codex and Claude operating workflow for Memoire - JSON-first commands, commit hygiene, review loops, memory capture, and safe autonomous repo operation",
+      "category": "connect",
+      "tags": [
+        "codex",
+        "claude",
+        "json",
+        "git",
+        "review",
+        "memory"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/codex-ops",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/codex-ops",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/codex-ops/codex-ops-1.0.0.tgz",
+        "sha256": "6636380e648485d64da18137f2a2273c604874a205cdb2558bc770df380e0743",
+        "size": 1882
+      },
+      "manifest": {
+        "name": "codex-ops",
+        "version": "1.0.0",
+        "description": "Codex and Claude operating workflow for Memoire - JSON-first commands, commit hygiene, review loops, memory capture, and safe autonomous repo operation",
+        "category": "connect",
+        "tags": [
+          "codex",
+          "claude",
+          "json",
+          "git",
+          "review",
+          "memory"
+        ],
+        "skills": [
+          {
+            "file": "codex-ops.md",
+            "name": "Codex Ops",
+            "activateOn": "always",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-27T00:00:00.000Z",
+        "updatedAt": "2026-03-27T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-27T00:00:00.000Z"
+    },
+    {
+      "id": "competitive-intel",
+      "name": "competitive-intel",
+      "title": "Competitive Intel",
+      "version": "1.0.0",
+      "description": "Competitive intelligence and market analysis — systematic frameworks for analyzing competitor products, design patterns, feature matrices, positioning maps, and UX benchmarking",
+      "category": "research",
+      "tags": [
+        "competitive-analysis",
+        "market-research",
+        "benchmarking",
+        "ux-audit",
+        "feature-matrix"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/competitive-intel",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/competitive-intel",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/competitive-intel/competitive-intel-1.0.0.tgz",
+        "sha256": "66a486c1be80258a46739f96951f8947af92c1779e5ce343c9fc4d8d169317e0",
+        "size": 13234
+      },
+      "manifest": {
+        "name": "competitive-intel",
+        "version": "1.0.0",
+        "description": "Competitive intelligence and market analysis — systematic frameworks for analyzing competitor products, design patterns, feature matrices, positioning maps, and UX benchmarking",
+        "category": "research",
+        "tags": [
+          "competitive-analysis",
+          "market-research",
+          "benchmarking",
+          "ux-audit",
+          "feature-matrix"
+        ],
+        "skills": [
+          {
+            "file": "competitive-intel.md",
+            "name": "Competitive Intel",
+            "activateOn": "research-to-dashboard",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-03-26T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-26T00:00:00.000Z"
+    },
+    {
+      "id": "cron-agent-workflows",
+      "name": "cron-agent-workflows",
+      "title": "Cron Agent Workflows",
+      "version": "0.1.0",
+      "description": "Turn repeatable agent work into scheduled jobs with explicit outputs and safe permissions.",
+      "category": "connect",
+      "tags": [
+        "cron",
+        "automation",
+        "scheduler",
+        "reports",
+        "monitoring"
+      ],
+      "sourceUrls": [
+        "https://github.com/nousresearch/hermes-agent",
+        "https://docs.openclaw.ai/cli",
+        "https://developers.openai.com/codex/use-cases"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/cron-agent-workflows",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/cron-agent-workflows",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/cron-agent-workflows/cron-agent-workflows-0.1.0.tgz",
+        "sha256": "9578879ee438cc2741b510fd8ea129d2d69e170015d74e4f5352ef0d515a649a",
+        "size": 1376
+      },
+      "manifest": {
+        "name": "cron-agent-workflows",
+        "version": "0.1.0",
+        "description": "Turn repeatable agent work into scheduled jobs with explicit outputs and safe permissions.",
+        "category": "connect",
+        "tags": [
+          "cron",
+          "automation",
+          "scheduler",
+          "reports",
+          "monitoring"
+        ],
+        "sourceUrls": [
+          "https://github.com/nousresearch/hermes-agent",
+          "https://docs.openclaw.ai/cli",
+          "https://developers.openai.com/codex/use-cases"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "cron-agent-workflows.md",
+            "name": "Cron Agent Workflows",
+            "activateOn": "scheduled agent, cron workflow, recurring report, automated run",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "data-synthesis",
+      "name": "data-synthesis",
+      "title": "Data Synthesis",
+      "version": "1.0.0",
+      "description": "Qualitative and quantitative data synthesis — affinity mapping, thematic analysis, statistical frameworks, insight triangulation, and research-to-spec pipelines",
+      "category": "research",
+      "tags": [
+        "data-synthesis",
+        "qualitative",
+        "quantitative",
+        "thematic-analysis",
+        "affinity-mapping",
+        "insights"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/data-synthesis",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/data-synthesis",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/data-synthesis/data-synthesis-1.0.0.tgz",
+        "sha256": "e4f0a289bffbe2137b9f8ed03636cf55b8ba579d5cb0c396ba316ec44634656a",
+        "size": 5163
+      },
+      "manifest": {
+        "name": "data-synthesis",
+        "version": "1.0.0",
+        "description": "Qualitative and quantitative data synthesis — affinity mapping, thematic analysis, statistical frameworks, insight triangulation, and research-to-spec pipelines",
+        "category": "research",
+        "tags": [
+          "data-synthesis",
+          "qualitative",
+          "quantitative",
+          "thematic-analysis",
+          "affinity-mapping",
+          "insights"
+        ],
+        "skills": [
+          {
+            "file": "data-synthesis.md",
+            "name": "Data Synthesis",
+            "activateOn": "research-to-dashboard",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "design-systems",
+      "name": "design-systems",
+      "title": "Design Systems",
+      "version": "1.0.0",
+      "description": "Design system architecture and governance — token taxonomy, component APIs, versioning strategy, adoption metrics, multi-brand theming, and cross-platform consistency",
+      "category": "craft",
+      "tags": [
+        "design-system",
+        "tokens",
+        "governance",
+        "theming",
+        "component-api",
+        "versioning"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/design-systems",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/design-systems",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/design-systems/design-systems-1.0.0.tgz",
+        "sha256": "1ca1a3b4edb2978bee2bf0cc84dcf4a83353168dfe09cac59491bf2b246a313d",
+        "size": 15605
+      },
+      "manifest": {
+        "name": "design-systems",
+        "version": "1.0.0",
+        "description": "Design system architecture and governance — token taxonomy, component APIs, versioning strategy, adoption metrics, multi-brand theming, and cross-platform consistency",
+        "category": "craft",
+        "tags": [
+          "design-system",
+          "tokens",
+          "governance",
+          "theming",
+          "component-api",
+          "versioning"
+        ],
+        "skills": [
+          {
+            "file": "design-systems.md",
+            "name": "Design Systems",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-03-26T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-26T00:00:00.000Z"
+    },
+    {
+      "id": "docker-environments",
+      "name": "docker-environments",
+      "title": "Docker Environments",
+      "version": "1.0.0",
+      "description": "Docker-aware Mémoire operation — CI/CD headless pipelines, shared MCP server, agent worker containers, and Figma bridge port-forwarding for containerized setups",
+      "category": "connect",
+      "tags": [
+        "docker",
+        "container",
+        "ci-cd",
+        "devcontainer",
+        "mcp",
+        "headless",
+        "multi-agent",
+        "compose"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/docker-environments",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/docker-environments",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/docker-environments/docker-environments-1.0.0.tgz",
+        "sha256": "6c76ec50fce6aa9ff62e417ce91160f1674fe24f37d43eb67b83e9beab5e919d",
+        "size": 4411
+      },
+      "manifest": {
+        "name": "docker-environments",
+        "version": "1.0.0",
+        "description": "Docker-aware Mémoire operation — CI/CD headless pipelines, shared MCP server, agent worker containers, and Figma bridge port-forwarding for containerized setups",
+        "category": "connect",
+        "tags": [
+          "docker",
+          "container",
+          "ci-cd",
+          "devcontainer",
+          "mcp",
+          "headless",
+          "multi-agent",
+          "compose"
+        ],
+        "skills": [
+          {
+            "file": "docker-environments.md",
+            "name": "Docker Environments",
+            "activateOn": "docker-environment",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-04-06T00:00:00.000Z",
+        "updatedAt": "2026-04-06T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-04-06T00:00:00.000Z"
+    },
+    {
+      "id": "figma-code-connect",
+      "name": "figma-code-connect",
+      "title": "Figma Code Connect",
+      "version": "1.0.0",
+      "description": "Code Connect workflow — map Figma components to codebase implementations, batch mappings, keep design-code parity",
+      "category": "connect",
+      "tags": [
+        "figma",
+        "code-connect",
+        "component-mapping",
+        "design-system"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/figma-code-connect",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-code-connect",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/figma-code-connect/figma-code-connect-1.0.0.tgz",
+        "sha256": "421f55953c99fc28df4b708caf8f9d900381eb334701d9d5a66158569aad81c6",
+        "size": 2890
+      },
+      "manifest": {
+        "name": "figma-code-connect",
+        "version": "1.0.0",
+        "description": "Code Connect workflow — map Figma components to codebase implementations, batch mappings, keep design-code parity",
+        "author": "Figma (adapted for Memoire)",
+        "category": "connect",
+        "tags": [
+          "figma",
+          "code-connect",
+          "component-mapping",
+          "design-system"
+        ],
+        "skills": [
+          {
+            "file": "figma-code-connect.md",
+            "name": "Figma Code Connect",
+            "activateOn": "figma-canvas-operation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "figma-create-file",
+      "name": "figma-create-file",
+      "title": "Figma Create File",
+      "version": "1.0.0",
+      "description": "Create new Figma design or FigJam files via MCP — resolve plans, scaffold files, prepare for canvas operations",
+      "category": "craft",
+      "tags": [
+        "figma",
+        "file-creation",
+        "figjam",
+        "scaffold"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/figma-create-file",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-create-file",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/figma-create-file/figma-create-file-1.0.0.tgz",
+        "sha256": "d66b716627f6f214220acd5b845134932cdb586dc624ec1f43107567b2413544",
+        "size": 1905
+      },
+      "manifest": {
+        "name": "figma-create-file",
+        "version": "1.0.0",
+        "description": "Create new Figma design or FigJam files via MCP — resolve plans, scaffold files, prepare for canvas operations",
+        "author": "Figma (adapted for Memoire)",
+        "category": "craft",
+        "tags": [
+          "figma",
+          "file-creation",
+          "figjam",
+          "scaffold"
+        ],
+        "skills": [
+          {
+            "file": "figma-create-file.md",
+            "name": "Figma Create File",
+            "activateOn": "figma-canvas-operation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "figma-design-systems",
+      "name": "figma-design-systems",
+      "title": "Working with Figma Design Systems",
+      "version": "1.0.0",
+      "description": "Working with Design Systems in Figma — components, variables, text styles, effect styles, creation and usage patterns",
+      "category": "craft",
+      "tags": [
+        "figma",
+        "design-systems",
+        "variables",
+        "components",
+        "tokens",
+        "styles"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/figma-design-systems",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-design-systems",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/figma-design-systems/figma-design-systems-1.0.0.tgz",
+        "sha256": "1c5161b687e190d2832dd6b55248108ab45641cec304752168b1150e1c158a1b",
+        "size": 13558
+      },
+      "manifest": {
+        "name": "figma-design-systems",
+        "version": "1.0.0",
+        "description": "Working with Design Systems in Figma — components, variables, text styles, effect styles, creation and usage patterns",
+        "author": "Figma (adapted for Memoire)",
+        "category": "craft",
+        "tags": [
+          "figma",
+          "design-systems",
+          "variables",
+          "components",
+          "tokens",
+          "styles"
+        ],
+        "skills": [
+          {
+            "file": "figma-design-systems.md",
+            "name": "Working with Figma Design Systems",
+            "activateOn": "design-creation",
+            "freedomLevel": "reference"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "figma-ds-rules",
+      "name": "figma-ds-rules",
+      "title": "Figma Design System Rules",
+      "version": "1.0.0",
+      "description": "Generate design system rules for AI agents — encode codebase conventions, token usage, component patterns into CLAUDE.md/AGENTS.md/.cursor rules",
+      "category": "craft",
+      "tags": [
+        "figma",
+        "design-system",
+        "agent-rules",
+        "conventions",
+        "codegen"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/figma-ds-rules",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-ds-rules",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/figma-ds-rules/figma-ds-rules-1.0.0.tgz",
+        "sha256": "e598d63f239fe0a885990002cc816a4519ab19d47740a4a24f386d8a4784c6d2",
+        "size": 3622
+      },
+      "manifest": {
+        "name": "figma-ds-rules",
+        "version": "1.0.0",
+        "description": "Generate design system rules for AI agents — encode codebase conventions, token usage, component patterns into CLAUDE.md/AGENTS.md/.cursor rules",
+        "author": "Figma (adapted for Memoire)",
+        "category": "craft",
+        "tags": [
+          "figma",
+          "design-system",
+          "agent-rules",
+          "conventions",
+          "codegen"
+        ],
+        "skills": [
+          {
+            "file": "figma-ds-rules.md",
+            "name": "Figma Design System Rules",
+            "activateOn": "design-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "figma-implement-design",
+      "name": "figma-implement-design",
+      "title": "Figma Implement Design",
+      "version": "1.0.0",
+      "description": "Figma-to-code implementation — extract design context, map tokens, generate production-ready components with 1:1 visual parity",
+      "category": "generate",
+      "tags": [
+        "figma",
+        "design-to-code",
+        "implementation",
+        "code-connect",
+        "visual-parity"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/figma-implement-design",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-implement-design",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/figma-implement-design/figma-implement-design-1.0.0.tgz",
+        "sha256": "855a39f0482ed7a74e5414ae4bbfef5af9670072e9c2ceb0c50af395c548ac97",
+        "size": 3390
+      },
+      "manifest": {
+        "name": "figma-implement-design",
+        "version": "1.0.0",
+        "description": "Figma-to-code implementation — extract design context, map tokens, generate production-ready components with 1:1 visual parity",
+        "author": "Figma (adapted for Memoire)",
+        "category": "generate",
+        "tags": [
+          "figma",
+          "design-to-code",
+          "implementation",
+          "code-connect",
+          "visual-parity"
+        ],
+        "skills": [
+          {
+            "file": "figma-implement-design.md",
+            "name": "Figma Implement Design",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "figma-library-builder",
+      "name": "figma-library-builder",
+      "title": "Figma Library Builder",
+      "version": "1.0.0",
+      "description": "Figma design system library builder — phased workflow for tokens, components, documentation, with ready-to-use Plugin API scripts",
+      "category": "craft",
+      "tags": [
+        "figma",
+        "library",
+        "design-system",
+        "tokens",
+        "components",
+        "scripts"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/figma-library-builder",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-library-builder",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/figma-library-builder/figma-library-builder-1.0.0.tgz",
+        "sha256": "c562261cfc285a266336853459b66ea11e8f8e29ad3fe5f71fd37c9f2f6756b5",
+        "size": 63535
+      },
+      "manifest": {
+        "name": "figma-library-builder",
+        "version": "1.0.0",
+        "description": "Figma design system library builder — phased workflow for tokens, components, documentation, with ready-to-use Plugin API scripts",
+        "author": "Figma (adapted for Memoire)",
+        "category": "craft",
+        "tags": [
+          "figma",
+          "library",
+          "design-system",
+          "tokens",
+          "components",
+          "scripts"
+        ],
+        "skills": [
+          {
+            "file": "figma-library-builder.md",
+            "name": "Figma Library Builder",
+            "activateOn": "library-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "figma-plugin-api",
+      "name": "figma-plugin-api",
+      "title": "Figma Plugin API Reference",
+      "version": "1.0.0",
+      "description": "Figma Plugin API reference — gotchas, patterns, variables, components, text/effect styles, validation and error recovery",
+      "category": "craft",
+      "tags": [
+        "figma",
+        "plugin-api",
+        "reference",
+        "patterns",
+        "gotchas"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/figma-plugin-api",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-plugin-api",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/figma-plugin-api/figma-plugin-api-1.0.0.tgz",
+        "sha256": "90c99e5a0ad0fabcb65dd1235fc2d113e1c015f9a12bb17fc2f27d44d600c4af",
+        "size": 34212
+      },
+      "manifest": {
+        "name": "figma-plugin-api",
+        "version": "1.0.0",
+        "description": "Figma Plugin API reference — gotchas, patterns, variables, components, text/effect styles, validation and error recovery",
+        "author": "Figma (adapted for Memoire)",
+        "category": "craft",
+        "tags": [
+          "figma",
+          "plugin-api",
+          "reference",
+          "patterns",
+          "gotchas"
+        ],
+        "skills": [
+          {
+            "file": "figma-plugin-api.md",
+            "name": "Figma Plugin API Reference",
+            "activateOn": "figma-canvas-operation",
+            "freedomLevel": "reference"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "figma-sync",
+      "name": "figma-sync",
+      "title": "Figma Sync Patterns",
+      "version": "1.0.0",
+      "description": "Figma sync workflow patterns — bidirectional design-code sync, conflict resolution, incremental updates, multi-file orchestration",
+      "category": "connect",
+      "tags": [
+        "figma",
+        "sync",
+        "design-system",
+        "bidirectional",
+        "incremental"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/figma-sync",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-sync",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/figma-sync/figma-sync-1.0.0.tgz",
+        "sha256": "773c78b72de713327dc6cc7f2ba6d6b0cd3050c23ab12891a100432d6aea93ec",
+        "size": 2816
+      },
+      "manifest": {
+        "name": "figma-sync",
+        "version": "1.0.0",
+        "description": "Figma sync workflow patterns — bidirectional design-code sync, conflict resolution, incremental updates, multi-file orchestration",
+        "category": "connect",
+        "tags": [
+          "figma",
+          "sync",
+          "design-system",
+          "bidirectional",
+          "incremental"
+        ],
+        "skills": [
+          {
+            "file": "figma-sync.md",
+            "name": "Figma Sync Patterns",
+            "activateOn": "figma-canvas-operation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-03-26T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-26T00:00:00.000Z"
+    },
+    {
+      "id": "figma-web-capture",
+      "name": "figma-web-capture",
+      "title": "Figma Web Capture",
+      "version": "1.0.0",
+      "description": "Figma web capture workflow - import live webpages or DOM elements into editable Figma layers with the public html-to-design capture.js bookmarklet",
+      "category": "connect",
+      "tags": [
+        "figma",
+        "html-to-design",
+        "bookmarklet",
+        "web-capture",
+        "editable-layers"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/figma-web-capture",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/figma-web-capture",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/figma-web-capture/figma-web-capture-1.0.0.tgz",
+        "sha256": "5e8e1ce6e0bc95589634b5d9d7086ac241c38131558d67d3ae82c2a4ffab1784",
+        "size": 1993
+      },
+      "manifest": {
+        "name": "figma-web-capture",
+        "version": "1.0.0",
+        "description": "Figma web capture workflow - import live webpages or DOM elements into editable Figma layers with the public html-to-design capture.js bookmarklet",
+        "category": "connect",
+        "tags": [
+          "figma",
+          "html-to-design",
+          "bookmarklet",
+          "web-capture",
+          "editable-layers"
+        ],
+        "skills": [
+          {
+            "file": "figma-web-capture.md",
+            "name": "Figma Web Capture",
+            "activateOn": "figma-canvas-operation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-27T00:00:00.000Z",
+        "updatedAt": "2026-03-27T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-27T00:00:00.000Z"
+    },
+    {
+      "id": "flutter-gen",
+      "name": "flutter-gen",
+      "title": "Flutter Generator",
+      "version": "1.0.0",
+      "description": "Flutter and Dart widget generation — transforms Mémoire component specs into Flutter widgets with Material 3, Riverpod state management, and responsive layouts",
+      "category": "generate",
+      "tags": [
+        "flutter",
+        "dart",
+        "material3",
+        "riverpod",
+        "widgets",
+        "codegen"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/flutter-gen",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/flutter-gen",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/flutter-gen/flutter-gen-1.0.0.tgz",
+        "sha256": "85be80634dfcf7767d8493d91932af02ef501c33bbcaa6656d81e21f4f2fbe87",
+        "size": 15270
+      },
+      "manifest": {
+        "name": "flutter-gen",
+        "version": "1.0.0",
+        "description": "Flutter and Dart widget generation — transforms Mémoire component specs into Flutter widgets with Material 3, Riverpod state management, and responsive layouts",
+        "category": "generate",
+        "tags": [
+          "flutter",
+          "dart",
+          "material3",
+          "riverpod",
+          "widgets",
+          "codegen"
+        ],
+        "skills": [
+          {
+            "file": "flutter-gen.md",
+            "name": "Flutter Generator",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "gateway-ops-observability",
+      "name": "gateway-ops-observability",
+      "title": "Gateway Ops Observability",
+      "version": "0.1.0",
+      "description": "Observe and debug local agent gateways, daemons, health probes, logs, and usage costs.",
+      "category": "connect",
+      "tags": [
+        "gateway",
+        "logs",
+        "health",
+        "observability",
+        "daemon"
+      ],
+      "sourceUrls": [
+        "https://docs.openclaw.ai/cli",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://docs.openclaw.ai/cli/models"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/gateway-ops-observability",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/gateway-ops-observability",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/gateway-ops-observability/gateway-ops-observability-0.1.0.tgz",
+        "sha256": "6b3642302b9bac913a6fa1a6d4c9044c9374bab77721618c153abdec92bbc311",
+        "size": 1346
+      },
+      "manifest": {
+        "name": "gateway-ops-observability",
+        "version": "0.1.0",
+        "description": "Observe and debug local agent gateways, daemons, health probes, logs, and usage costs.",
+        "category": "connect",
+        "tags": [
+          "gateway",
+          "logs",
+          "health",
+          "observability",
+          "daemon"
+        ],
+        "sourceUrls": [
+          "https://docs.openclaw.ai/cli",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://docs.openclaw.ai/cli/models"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "gateway-ops-observability.md",
+            "name": "Gateway Ops Observability",
+            "activateOn": "gateway logs, agent health, daemon status, usage cost, ops troubleshooting",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "hermes-agent-bridge",
+      "name": "hermes-agent-bridge",
+      "title": "Hermes Agent Bridge",
+      "version": "0.1.0",
+      "description": "Run Hermes Agent from Memoire with CLI, skills, toolsets, worktree, and session recipes.",
+      "category": "connect",
+      "tags": [
+        "hermes",
+        "cli",
+        "skills",
+        "toolsets",
+        "worktrees"
+      ],
+      "sourceUrls": [
+        "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/hermes-agent-bridge",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/hermes-agent-bridge",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/hermes-agent-bridge/hermes-agent-bridge-0.1.0.tgz",
+        "sha256": "ddc93c9f5b0cd9080d1e46e5bea9d8bc34fc9530c259f67dacf5e84ac28bab9b",
+        "size": 1335
+      },
+      "manifest": {
+        "name": "hermes-agent-bridge",
+        "version": "0.1.0",
+        "description": "Run Hermes Agent from Memoire with CLI, skills, toolsets, worktree, and session recipes.",
+        "category": "connect",
+        "tags": [
+          "hermes",
+          "cli",
+          "skills",
+          "toolsets",
+          "worktrees"
+        ],
+        "sourceUrls": [
+          "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "hermes-agent-bridge.md",
+            "name": "Hermes Agent Bridge",
+            "activateOn": "hermes agent setup, Hermes CLI delegation, skills preload, worktree agent run",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "hyperframes-video",
+      "name": "hyperframes-video",
+      "title": "Hyperframes Video",
+      "version": "0.1.0",
+      "description": "Current Hyperframes pack for HTML-first motion videos, lintable frames, previews, and render command prep.",
+      "category": "generate",
+      "tags": [
+        "video",
+        "hyperframes",
+        "html",
+        "motion",
+        "rendering"
+      ],
+      "sourceUrls": [
+        "https://hyperframes.mintlify.app/packages/cli",
+        "https://hyperframes.mintlify.app/guides/rendering",
+        "https://hyperframes.mintlify.app/packages/producer",
+        "https://hyperframes.mintlify.app/packages/core"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/hyperframes-video",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/hyperframes-video",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/hyperframes-video/hyperframes-video-0.1.0.tgz",
+        "sha256": "f497e360350e2c6b0b85658c5bdf25b75203f4295eb52711e92032cf30fa6e8b",
+        "size": 1624
+      },
+      "manifest": {
+        "name": "hyperframes-video",
+        "version": "0.1.0",
+        "description": "Current Hyperframes pack for HTML-first motion videos, lintable frames, previews, and render command prep.",
+        "category": "generate",
+        "tags": [
+          "video",
+          "hyperframes",
+          "html",
+          "motion",
+          "rendering"
+        ],
+        "sourceUrls": [
+          "https://hyperframes.mintlify.app/packages/cli",
+          "https://hyperframes.mintlify.app/guides/rendering",
+          "https://hyperframes.mintlify.app/packages/producer",
+          "https://hyperframes.mintlify.app/packages/core"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "hyperframes-video.md",
+            "name": "Hyperframes Video",
+            "activateOn": "motion-video",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [
+          "animation-craft"
+        ],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "interview-research",
+      "name": "interview-research",
+      "title": "Interview Research",
+      "version": "1.0.0",
+      "description": "User interview and transcript analysis — parsing speaker-labeled transcripts, extracting pain points/goals/behaviors, sentiment analysis, and persona generation from qualitative data",
+      "category": "research",
+      "tags": [
+        "interview",
+        "transcript",
+        "qualitative",
+        "user-research",
+        "sentiment",
+        "persona"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/interview-research",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/interview-research",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/interview-research/interview-research-1.0.0.tgz",
+        "sha256": "8b778924c5ec2b1ea61b8126c3e875c509508db8d944b4e03dc581871a709311",
+        "size": 8771
+      },
+      "manifest": {
+        "name": "interview-research",
+        "version": "1.0.0",
+        "description": "User interview and transcript analysis — parsing speaker-labeled transcripts, extracting pain points/goals/behaviors, sentiment analysis, and persona generation from qualitative data",
+        "category": "research",
+        "tags": [
+          "interview",
+          "transcript",
+          "qualitative",
+          "user-research",
+          "sentiment",
+          "persona"
+        ],
+        "skills": [
+          {
+            "file": "interview-research.md",
+            "name": "Interview Research",
+            "activateOn": "research-to-dashboard",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "linear-sync",
+      "name": "linear-sync",
+      "title": "Linear Sync",
+      "version": "1.0.0",
+      "description": "Linear integration for Mémoire — sync design issues, component specs, and project tracking between Linear and the Mémoire registry",
+      "category": "connect",
+      "tags": [
+        "linear",
+        "integration",
+        "issues",
+        "tracking",
+        "project-management",
+        "sync"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/linear-sync",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/linear-sync",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/linear-sync/linear-sync-1.0.0.tgz",
+        "sha256": "48bc1c2c3f176ebd2f8ef8e7bc972fb0fa7aa07ca36294466e78a12ab1fe1cb3",
+        "size": 11543
+      },
+      "manifest": {
+        "name": "linear-sync",
+        "version": "1.0.0",
+        "description": "Linear integration for Mémoire — sync design issues, component specs, and project tracking between Linear and the Mémoire registry",
+        "category": "connect",
+        "tags": [
+          "linear",
+          "integration",
+          "issues",
+          "tracking",
+          "project-management",
+          "sync"
+        ],
+        "skills": [
+          {
+            "file": "linear-sync.md",
+            "name": "Linear Sync",
+            "activateOn": "always",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "mcp-server-studio",
+      "name": "mcp-server-studio",
+      "title": "MCP Server Studio",
+      "version": "0.1.0",
+      "description": "Expose Memoire Studio context, tools, and artifacts to other agents through MCP.",
+      "category": "connect",
+      "tags": [
+        "mcp",
+        "studio",
+        "tools",
+        "resources",
+        "agent"
+      ],
+      "sourceUrls": [
+        "https://docs.openclaw.ai/cli",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://modelcontextprotocol.io/docs"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/mcp-server-studio",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/mcp-server-studio",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/mcp-server-studio/mcp-server-studio-0.1.0.tgz",
+        "sha256": "7706cae4ea707563589675fdc33c8024dd780eaae53638c8616d282bf5cc987d",
+        "size": 1368
+      },
+      "manifest": {
+        "name": "mcp-server-studio",
+        "version": "0.1.0",
+        "description": "Expose Memoire Studio context, tools, and artifacts to other agents through MCP.",
+        "category": "connect",
+        "tags": [
+          "mcp",
+          "studio",
+          "tools",
+          "resources",
+          "agent"
+        ],
+        "sourceUrls": [
+          "https://docs.openclaw.ai/cli",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://modelcontextprotocol.io/docs"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "mcp-server-studio.md",
+            "name": "MCP Server Studio",
+            "activateOn": "MCP server, expose Studio tools, connect external agent to Memoire",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "mermaid-jam",
+      "name": "mermaid-jam",
+      "title": "Mermaid Jam",
+      "version": "1.0.0",
+      "description": "Route Mermaid and markdown diagram source into the Mermaid Jam FigJam plugin for editable native FigJam output",
+      "category": "connect",
+      "tags": [
+        "figjam",
+        "mermaid",
+        "markdown",
+        "diagram",
+        "user-flow"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/mermaid-jam",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/mermaid-jam",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/mermaid-jam/mermaid-jam-1.0.0.tgz",
+        "sha256": "f42a695ffe5abf09f5a0f49dbc84d26f2ee6d9a7e3f724bc8933ab29dffe464e",
+        "size": 1593
+      },
+      "manifest": {
+        "name": "mermaid-jam",
+        "version": "1.0.0",
+        "description": "Route Mermaid and markdown diagram source into the Mermaid Jam FigJam plugin for editable native FigJam output",
+        "author": "Memoire",
+        "category": "connect",
+        "tags": [
+          "figjam",
+          "mermaid",
+          "markdown",
+          "diagram",
+          "user-flow"
+        ],
+        "skills": [
+          {
+            "file": "mermaid-jam.md",
+            "name": "Mermaid Jam",
+            "activateOn": "figma-canvas-operation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=0.15.0"
+        },
+        "createdAt": "2026-05-06T00:00:00.000Z",
+        "updatedAt": "2026-05-06T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-06T00:00:00.000Z"
+    },
+    {
+      "id": "mobile-craft",
+      "name": "mobile-craft",
+      "title": "Mobile Craft",
+      "version": "1.0.0",
+      "description": "Mobile-first design mastery — touch targets, gesture patterns, responsive breakpoints, native-feel animations, thumb zones, platform conventions (iOS/Android), and progressive enhancement strategies",
+      "category": "craft",
+      "tags": [
+        "mobile",
+        "responsive",
+        "touch",
+        "ios",
+        "android",
+        "gestures",
+        "progressive-enhancement"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/mobile-craft",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/mobile-craft",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/mobile-craft/mobile-craft-1.0.0.tgz",
+        "sha256": "96693c8e8d7753f76e8d0fa2742be3de2e6b5048c11b4225549699df09864d28",
+        "size": 17318
+      },
+      "manifest": {
+        "name": "mobile-craft",
+        "version": "1.0.0",
+        "description": "Mobile-first design mastery — touch targets, gesture patterns, responsive breakpoints, native-feel animations, thumb zones, platform conventions (iOS/Android), and progressive enhancement strategies",
+        "category": "craft",
+        "tags": [
+          "mobile",
+          "responsive",
+          "touch",
+          "ios",
+          "android",
+          "gestures",
+          "progressive-enhancement"
+        ],
+        "skills": [
+          {
+            "file": "mobile-craft.md",
+            "name": "Mobile Craft",
+            "activateOn": "design-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-03-26T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-26T00:00:00.000Z"
+    },
+    {
+      "id": "model-router-diagnostics",
+      "name": "model-router-diagnostics",
+      "title": "Model Router Diagnostics",
+      "version": "0.1.0",
+      "description": "Diagnose provider auth, model routing, quota windows, and fallback behavior before agent runs.",
+      "category": "connect",
+      "tags": [
+        "models",
+        "providers",
+        "auth",
+        "routing",
+        "diagnostics"
+      ],
+      "sourceUrls": [
+        "https://docs.openclaw.ai/cli/models",
+        "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+        "https://developers.openai.com/codex/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/model-router-diagnostics",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/model-router-diagnostics",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/model-router-diagnostics/model-router-diagnostics-0.1.0.tgz",
+        "sha256": "500c141e0edf2870a3e6da0c8673c0d050dd62053e8281e7b35a83c547a76454",
+        "size": 1376
+      },
+      "manifest": {
+        "name": "model-router-diagnostics",
+        "version": "0.1.0",
+        "description": "Diagnose provider auth, model routing, quota windows, and fallback behavior before agent runs.",
+        "category": "connect",
+        "tags": [
+          "models",
+          "providers",
+          "auth",
+          "routing",
+          "diagnostics"
+        ],
+        "sourceUrls": [
+          "https://docs.openclaw.ai/cli/models",
+          "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+          "https://developers.openai.com/codex/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "model-router-diagnostics.md",
+            "name": "Model Router Diagnostics",
+            "activateOn": "model router, provider auth, quota check, fallback model, reasoning setting",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "motion-performance",
+      "name": "motion-performance",
+      "title": "Motion Performance",
+      "version": "0.1.0",
+      "description": "Motion performance pack for 60fps UI animation, reduced-motion fallbacks, render budget checks, and video export QA.",
+      "category": "craft",
+      "tags": [
+        "motion",
+        "performance",
+        "accessibility",
+        "video",
+        "qa"
+      ],
+      "sourceUrls": [
+        "https://www.remotion.dev/docs/renderer",
+        "https://hyperframes.mintlify.app/packages/core"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/motion-performance",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/motion-performance",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/motion-performance/motion-performance-0.1.0.tgz",
+        "sha256": "35e2f4b3c8eda2d7c64d7e444adfedbc71824af4875ef59be47a13e6109c1355",
+        "size": 1465
+      },
+      "manifest": {
+        "name": "motion-performance",
+        "version": "0.1.0",
+        "description": "Motion performance pack for 60fps UI animation, reduced-motion fallbacks, render budget checks, and video export QA.",
+        "category": "craft",
+        "tags": [
+          "motion",
+          "performance",
+          "accessibility",
+          "video",
+          "qa"
+        ],
+        "sourceUrls": [
+          "https://www.remotion.dev/docs/renderer",
+          "https://hyperframes.mintlify.app/packages/core"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "motion-performance.md",
+            "name": "Motion Performance",
+            "activateOn": "motion-video",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [
+          "animation-craft"
+        ],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "multi-agent-kanban",
+      "name": "multi-agent-kanban",
+      "title": "Multi-Agent Kanban",
+      "version": "0.1.0",
+      "description": "Coordinate multiple local agents through a durable board with owner, state, and evidence fields.",
+      "category": "connect",
+      "tags": [
+        "multi-agent",
+        "kanban",
+        "coordination",
+        "sessions",
+        "handoff"
+      ],
+      "sourceUrls": [
+        "https://github.com/nousresearch/hermes-agent",
+        "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+        "https://docs.openclaw.ai/cli"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/multi-agent-kanban",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/multi-agent-kanban",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/multi-agent-kanban/multi-agent-kanban-0.1.0.tgz",
+        "sha256": "da7b12a918f5db4486e4f43538edf7534fa72dc51bb9afa20affb97a205dbc19",
+        "size": 1404
+      },
+      "manifest": {
+        "name": "multi-agent-kanban",
+        "version": "0.1.0",
+        "description": "Coordinate multiple local agents through a durable board with owner, state, and evidence fields.",
+        "category": "connect",
+        "tags": [
+          "multi-agent",
+          "kanban",
+          "coordination",
+          "sessions",
+          "handoff"
+        ],
+        "sourceUrls": [
+          "https://github.com/nousresearch/hermes-agent",
+          "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+          "https://docs.openclaw.ai/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "multi-agent-kanban.md",
+            "name": "Multi-Agent Kanban",
+            "activateOn": "multi agent board, kanban swarm, agent coordination, durable task board",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "notion-sync",
+      "name": "notion-sync",
+      "title": "Notion Sync",
+      "version": "1.0.0",
+      "description": "Notion integration for Mémoire — sync research insights, specs, and project context between Notion databases and the Mémoire registry",
+      "category": "connect",
+      "tags": [
+        "notion",
+        "integration",
+        "sync",
+        "research",
+        "specs",
+        "database"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/notion-sync",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/notion-sync",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/notion-sync/notion-sync-1.0.0.tgz",
+        "sha256": "7cbd45714bb60a13c3c0b44a87d8699748e82487ce3da0c62a1d45161ee3f35b",
+        "size": 13051
+      },
+      "manifest": {
+        "name": "notion-sync",
+        "version": "1.0.0",
+        "description": "Notion integration for Mémoire — sync research insights, specs, and project context between Notion databases and the Mémoire registry",
+        "category": "connect",
+        "tags": [
+          "notion",
+          "integration",
+          "sync",
+          "research",
+          "specs",
+          "database"
+        ],
+        "skills": [
+          {
+            "file": "notion-sync.md",
+            "name": "Notion Sync",
+            "activateOn": "always",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "openclaw-agent-bridge",
+      "name": "openclaw-agent-bridge",
+      "title": "OpenClaw Agent Bridge",
+      "version": "0.1.0",
+      "description": "Connect Memoire to OpenClaw onboarding, agents, gateway health, MCP, and approval flows.",
+      "category": "connect",
+      "tags": [
+        "openclaw",
+        "gateway",
+        "agents",
+        "mcp",
+        "approvals"
+      ],
+      "sourceUrls": [
+        "https://docs.openclaw.ai/cli",
+        "https://docs.openclaw.ai/start/wizard",
+        "https://docs.openclaw.ai/cli/models"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/openclaw-agent-bridge",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/openclaw-agent-bridge",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/openclaw-agent-bridge/openclaw-agent-bridge-0.1.0.tgz",
+        "sha256": "26ed3ec0bf78fee439e1f32baf4f1a077a437be25300787471e77394dcfa98dc",
+        "size": 1295
+      },
+      "manifest": {
+        "name": "openclaw-agent-bridge",
+        "version": "0.1.0",
+        "description": "Connect Memoire to OpenClaw onboarding, agents, gateway health, MCP, and approval flows.",
+        "category": "connect",
+        "tags": [
+          "openclaw",
+          "gateway",
+          "agents",
+          "mcp",
+          "approvals"
+        ],
+        "sourceUrls": [
+          "https://docs.openclaw.ai/cli",
+          "https://docs.openclaw.ai/start/wizard",
+          "https://docs.openclaw.ai/cli/models"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "openclaw-agent-bridge.md",
+            "name": "OpenClaw Agent Bridge",
+            "activateOn": "OpenClaw setup, gateway agent route, openclaw health, openclaw mcp",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "react-native-gen",
+      "name": "react-native-gen",
+      "title": "React Native Generator",
+      "version": "1.0.0",
+      "description": "React Native code generation from Memoire specs — NativeWind styling, Expo-compatible, platform-specific patterns",
+      "category": "generate",
+      "tags": [
+        "react-native",
+        "nativewind",
+        "expo",
+        "mobile",
+        "ios",
+        "android"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/react-native-gen",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/react-native-gen",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/react-native-gen/react-native-gen-1.0.0.tgz",
+        "sha256": "50c0034c4292995d0e9c49fca59d84c02afe1d78673aeb2ff750be5e4c11be21",
+        "size": 2302
+      },
+      "manifest": {
+        "name": "react-native-gen",
+        "version": "1.0.0",
+        "description": "React Native code generation from Memoire specs — NativeWind styling, Expo-compatible, platform-specific patterns",
+        "category": "generate",
+        "tags": [
+          "react-native",
+          "nativewind",
+          "expo",
+          "mobile",
+          "ios",
+          "android"
+        ],
+        "skills": [
+          {
+            "file": "react-native-gen.md",
+            "name": "React Native Generator",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-03-26T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-26T00:00:00.000Z"
+    },
+    {
+      "id": "remotion-video",
+      "name": "remotion-video",
+      "title": "Remotion Video",
+      "version": "0.1.0",
+      "description": "Current Remotion video production pack for React-based product videos, previews, and renderer handoff.",
+      "category": "generate",
+      "tags": [
+        "video",
+        "remotion",
+        "react",
+        "motion",
+        "renderer"
+      ],
+      "sourceUrls": [
+        "https://www.remotion.dev/docs/studio",
+        "https://www.remotion.dev/docs/renderer"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/remotion-video",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/remotion-video",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/remotion-video/remotion-video-0.1.0.tgz",
+        "sha256": "475c1a5c638f140ba8056e5624586fcebe9ea8b841cec5d72770c04c96ce5f2a",
+        "size": 1655
+      },
+      "manifest": {
+        "name": "remotion-video",
+        "version": "0.1.0",
+        "description": "Current Remotion video production pack for React-based product videos, previews, and renderer handoff.",
+        "category": "generate",
+        "tags": [
+          "video",
+          "remotion",
+          "react",
+          "motion",
+          "renderer"
+        ],
+        "sourceUrls": [
+          "https://www.remotion.dev/docs/studio",
+          "https://www.remotion.dev/docs/renderer"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "remotion-video.md",
+            "name": "Remotion Video",
+            "activateOn": "motion-video",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [
+          "animation-craft"
+        ],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "secure-secrets-for-agents",
+      "name": "secure-secrets-for-agents",
+      "title": "Secure Secrets for Agents",
+      "version": "0.1.0",
+      "description": "Handle agent credentials with env refs, redaction, least privilege, and non-leaking prompts.",
+      "category": "connect",
+      "tags": [
+        "secrets",
+        "redaction",
+        "env",
+        "security",
+        "credentials"
+      ],
+      "sourceUrls": [
+        "https://docs.openclaw.ai/cli",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://developers.openai.com/codex/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/secure-secrets-for-agents",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/secure-secrets-for-agents",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/secure-secrets-for-agents/secure-secrets-for-agents-0.1.0.tgz",
+        "sha256": "82f75a7f1d7eca2b95eb7463ab2ec8a769f60f6f709b35bf4b0c75805e6793ad",
+        "size": 1391
+      },
+      "manifest": {
+        "name": "secure-secrets-for-agents",
+        "version": "0.1.0",
+        "description": "Handle agent credentials with env refs, redaction, least privilege, and non-leaking prompts.",
+        "category": "connect",
+        "tags": [
+          "secrets",
+          "redaction",
+          "env",
+          "security",
+          "credentials"
+        ],
+        "sourceUrls": [
+          "https://docs.openclaw.ai/cli",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://developers.openai.com/codex/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "secure-secrets-for-agents.md",
+            "name": "Secure Secrets for Agents",
+            "activateOn": "agent secret, env key, credential setup, redaction, api key handling",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "self-improving-agent",
+      "name": "self-improving-agent",
+      "title": "Self-Improving Agent",
+      "version": "3.0.6",
+      "description": "Closed-loop learning system — captures errors, corrections, and discoveries into structured logs, promotes recurring patterns to project memory, and extracts reusable skills",
+      "category": "connect",
+      "tags": [
+        "learning",
+        "self-improvement",
+        "error-tracking",
+        "knowledge-management"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/self-improving-agent",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/self-improving-agent",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/self-improving-agent/self-improving-agent-3.0.6.tgz",
+        "sha256": "68fecc0fad28a75567f8d40ff599eb7931228f894dd0d0e404193138593c68f0",
+        "size": 7856
+      },
+      "manifest": {
+        "name": "self-improving-agent",
+        "version": "3.0.6",
+        "description": "Closed-loop learning system — captures errors, corrections, and discoveries into structured logs, promotes recurring patterns to project memory, and extracts reusable skills",
+        "author": "peterskoett (ported to Mémoire)",
+        "category": "connect",
+        "tags": [
+          "learning",
+          "self-improvement",
+          "error-tracking",
+          "knowledge-management"
+        ],
+        "skills": [
+          {
+            "file": "self-improving-agent.md",
+            "name": "Self-Improving Agent",
+            "activateOn": "always",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-03-26T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-26T00:00:00.000Z"
+    },
+    {
+      "id": "survey-connect",
+      "name": "survey-connect",
+      "title": "Survey Connect",
+      "version": "1.0.0",
+      "description": "Survey platform integration — import responses from Typeform, Google Forms, SurveyMonkey, Airtable, and CSV exports into Mémoire's research pipeline",
+      "category": "connect",
+      "tags": [
+        "survey",
+        "typeform",
+        "google-forms",
+        "airtable",
+        "csv",
+        "import"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/survey-connect",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/survey-connect",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/survey-connect/survey-connect-1.0.0.tgz",
+        "sha256": "5f493c983574a5343f63c3622cfb1e07a0cb85b39ed445ffa1149575b7096a08",
+        "size": 7464
+      },
+      "manifest": {
+        "name": "survey-connect",
+        "version": "1.0.0",
+        "description": "Survey platform integration — import responses from Typeform, Google Forms, SurveyMonkey, Airtable, and CSV exports into Mémoire's research pipeline",
+        "category": "connect",
+        "tags": [
+          "survey",
+          "typeform",
+          "google-forms",
+          "airtable",
+          "csv",
+          "import"
+        ],
+        "skills": [
+          {
+            "file": "survey-connect.md",
+            "name": "Survey Connect",
+            "activateOn": "research-to-dashboard",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "token-architecture",
+      "name": "token-architecture",
+      "title": "Token Architecture",
+      "version": "1.0.0",
+      "description": "Design token architecture — multi-tier token systems, semantic naming, theme switching, CSS custom properties, Tailwind mapping, and Figma variable sync",
+      "category": "craft",
+      "tags": [
+        "design-tokens",
+        "theming",
+        "css-variables",
+        "tailwind",
+        "figma-variables",
+        "semantic-tokens"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/token-architecture",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/token-architecture",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/token-architecture/token-architecture-1.0.0.tgz",
+        "sha256": "97faa0b089067853944518cb90ab613e5f560656dc0a6e16defd6655c2af377b",
+        "size": 3878
+      },
+      "manifest": {
+        "name": "token-architecture",
+        "version": "1.0.0",
+        "description": "Design token architecture — multi-tier token systems, semantic naming, theme switching, CSS custom properties, Tailwind mapping, and Figma variable sync",
+        "category": "craft",
+        "tags": [
+          "design-tokens",
+          "theming",
+          "css-variables",
+          "tailwind",
+          "figma-variables",
+          "semantic-tokens"
+        ],
+        "skills": [
+          {
+            "file": "token-architecture.md",
+            "name": "Token Architecture",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "usability-testing",
+      "name": "usability-testing",
+      "title": "Usability Testing",
+      "version": "1.0.0",
+      "description": "Usability testing frameworks — test planning, task scenarios, moderated and unmoderated protocols, analysis frameworks, and insight synthesis for Mémoire research pipeline",
+      "category": "research",
+      "tags": [
+        "usability",
+        "testing",
+        "ux-research",
+        "task-analysis",
+        "think-aloud",
+        "insights"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/usability-testing",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/usability-testing",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/usability-testing/usability-testing-1.0.0.tgz",
+        "sha256": "219c2ea9d9f8c2889161e0e403ddff32086260ba1f788b89cc15f96676e6b4b4",
+        "size": 5153
+      },
+      "manifest": {
+        "name": "usability-testing",
+        "version": "1.0.0",
+        "description": "Usability testing frameworks — test planning, task scenarios, moderated and unmoderated protocols, analysis frameworks, and insight synthesis for Mémoire research pipeline",
+        "category": "research",
+        "tags": [
+          "usability",
+          "testing",
+          "ux-research",
+          "task-analysis",
+          "think-aloud",
+          "insights"
+        ],
+        "skills": [
+          {
+            "file": "usability-testing.md",
+            "name": "Usability Testing",
+            "activateOn": "research-to-dashboard",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "vue-gen",
+      "name": "vue-gen",
+      "title": "Vue Generator",
+      "version": "1.0.0",
+      "description": "Vue 3 Composition API code generation — transforms Mémoire component specs into Vue SFCs with script setup, Tailwind styling, and composable patterns",
+      "category": "generate",
+      "tags": [
+        "vue",
+        "vue3",
+        "composition-api",
+        "sfc",
+        "tailwind",
+        "codegen"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/vue-gen",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/vue-gen",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/vue-gen/vue-gen-1.0.0.tgz",
+        "sha256": "218dcc2b4b58c6bd9e8c5529a2ccf62d1d3649459b6c633fdd27ef28ba40c554",
+        "size": 3970
+      },
+      "manifest": {
+        "name": "vue-gen",
+        "version": "1.0.0",
+        "description": "Vue 3 Composition API code generation — transforms Mémoire component specs into Vue SFCs with script setup, Tailwind styling, and composable patterns",
+        "category": "generate",
+        "tags": [
+          "vue",
+          "vue3",
+          "composition-api",
+          "sfc",
+          "tailwind",
+          "codegen"
+        ],
+        "skills": [
+          {
+            "file": "vue-gen.md",
+            "name": "Vue Generator",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "web-research",
+      "name": "web-research",
+      "title": "Web Research",
+      "version": "1.0.0",
+      "description": "Structured web research — topic exploration, content fetching, finding extraction, cross-source validation, and gap analysis for design research",
+      "category": "research",
+      "tags": [
+        "web-research",
+        "content-analysis",
+        "competitive",
+        "market-research",
+        "trends"
+      ],
+      "sourceUrls": [],
+      "freshnessDays": 90,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/web-research",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/web-research",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/web-research/web-research-1.0.0.tgz",
+        "sha256": "133d15ed7ac82b5ef4a328461709b3dc7e635f5e9461eb6243433915f031f558",
+        "size": 9410
+      },
+      "manifest": {
+        "name": "web-research",
+        "version": "1.0.0",
+        "description": "Structured web research — topic exploration, content fetching, finding extraction, cross-source validation, and gap analysis for design research",
+        "category": "research",
+        "tags": [
+          "web-research",
+          "content-analysis",
+          "competitive",
+          "market-research",
+          "trends"
+        ],
+        "skills": [
+          {
+            "file": "web-research.md",
+            "name": "Web Research",
+            "activateOn": "research-to-dashboard",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-03-28T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-03-28T00:00:00.000Z"
+    },
+    {
+      "id": "website-to-video",
+      "name": "website-to-video",
+      "title": "Website To Video",
+      "version": "0.1.0",
+      "description": "Website-to-video capture pack for turning product pages, flows, and browser states into structured video scenes.",
+      "category": "generate",
+      "tags": [
+        "video",
+        "website-capture",
+        "browser",
+        "product-demo"
+      ],
+      "sourceUrls": [
+        "https://www.remotion.dev/docs/studio",
+        "https://hyperframes.mintlify.app/guides/rendering"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "official",
+      "sourceRepo": "https://github.com/sarveshsea/m-moire",
+      "sourcePath": "notes/website-to-video",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/website-to-video",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/website-to-video/website-to-video-0.1.0.tgz",
+        "sha256": "02b3651e0b645b0edda0acafd6522bb735565023aac2c9cde5e81ff55584b1cf",
+        "size": 1524
+      },
+      "manifest": {
+        "name": "website-to-video",
+        "version": "0.1.0",
+        "description": "Website-to-video capture pack for turning product pages, flows, and browser states into structured video scenes.",
+        "category": "generate",
+        "tags": [
+          "video",
+          "website-capture",
+          "browser",
+          "product-demo"
+        ],
+        "sourceUrls": [
+          "https://www.remotion.dev/docs/studio",
+          "https://hyperframes.mintlify.app/guides/rendering"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "website-to-video.md",
+            "name": "Website To Video",
+            "activateOn": "motion-video",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [
+          "remotion-video",
+          "hyperframes-video"
+        ],
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-05-07T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    }
+  ]
+}
