@@ -189,6 +189,21 @@ describe("studio harness console UI", () => {
     expect(app).toContain("renderInspectorStage()");
   });
 
+  it("surfaces the latest artifact snapshot and inline evidence shelf in creation mode", async () => {
+    const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
+
+    expect(app).toContain("function creationEvidenceItems()");
+    expect(app).toContain("activeDesignArtifact?.sections");
+    expect(app).toContain("designTrace?.files");
+    expect(app).toContain("traceModel.citations");
+    expect(app).toContain('data-artifact-snapshot="latest-agent-output"');
+    expect(app).toContain('data-action-id="artifact-snapshot.open"');
+    expect(app).toContain('chooseRightPane("design-system", "Artifact snapshot opened")');
+    expect(app).toContain('data-evidence-shelf="creation-context"');
+    expect(app).toContain('data-action-id={`evidence.copy.${item.id}`}');
+    expect(app).toContain("void copyText(item.copyValue)");
+  });
+
   it("renders the Studio topbar as an ultra-compact icon/status strip", async () => {
     const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
     const components = await readFile(join(process.cwd(), "apps", "studio", "src", "workbench-components.tsx"), "utf-8");

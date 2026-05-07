@@ -1615,6 +1615,31 @@ export function App() {
     void copyText(receipt);
   }
 
+  function creationEvidenceItems() {
+    const sectionItems = (activeDesignArtifact?.sections ?? []).slice(0, 2).map((section) => ({
+      id: `section-${section.id}`,
+      kind: "artifact",
+      label: section.title,
+      meta: section.kind,
+      copyValue: [section.title, section.summary, section.content].filter(Boolean).join("\n\n"),
+    }));
+    const fileItems = (designTrace?.files ?? []).slice(0, 3).map((file) => ({
+      id: `file-${file.path.replace(/[^a-z0-9]+/gi, "-")}`,
+      kind: "file",
+      label: file.path.split("/").pop() ?? file.path,
+      meta: `${file.kind} +${file.insertions} -${file.deletions}`,
+      copyValue: file.path,
+    }));
+    const citationItems = traceModel.citations.slice(0, 2).map((citation) => ({
+      id: `citation-${citation.id}`,
+      kind: "source",
+      label: citation.label,
+      meta: citation.sourcePath ?? citation.url ?? "reference",
+      copyValue: citation.url ?? citation.sourcePath ?? citation.label,
+    }));
+    return [...sectionItems, ...fileItems, ...citationItems].slice(0, 6);
+  }
+
   function handleAttachmentPick(event: ChangeEvent<HTMLInputElement>) {
     void addFilesToComposer(event.target.files ?? [], "file");
     event.currentTarget.value = "";
@@ -2037,16 +2062,36 @@ export function App() {
       .reverse();
     const fallback = [{ id: "draft", kind: "prompt", title: "Prompt", summary: prompt || "Start with a prompt." }];
     const cards = outputs.length ? outputs : fallback;
+    const evidenceItems = creationEvidenceItems();
+    const snapshotTitle = activeDesignArtifact?.title ?? cards[0]?.title ?? "Ready";
+    const snapshotSummary = activeDesignArtifact?.sections[0]?.summary ?? cards[0]?.summary ?? "No output yet.";
     return (
       <section className="creation-stage-panel" data-center-stage="agent-creation" aria-label="Agent creation stage">
         <header>
           <div>
             <p className="eyebrow">Creation Stage</p>
-            <h3>{activeDesignArtifact?.title ?? cards[0]?.title ?? "Ready"}</h3>
+            <h3>{snapshotTitle}</h3>
             <span>{outputs.length ? `${outputs.length} output signals` : `${currentHarness?.label ?? selectedHarness} / ${effectiveActionLabel}`}</span>
           </div>
           <button data-action-id="center-stage.open-inspector" type="button" onClick={() => setCenterStageMode("inspector")}>Inspector</button>
         </header>
+        <section className="artifact-snapshot-card" data-artifact-snapshot="latest-agent-output">
+          <div>
+            <span>{activeDesignArtifact ? "Design artifact" : cards[0]?.kind ?? "Output"}</span>
+            <strong>{snapshotTitle}</strong>
+            <p>{trimText(snapshotSummary, 180)}</p>
+          </div>
+          <button data-action-id="artifact-snapshot.open" type="button" onClick={() => chooseRightPane("design-system", "Artifact snapshot opened")}>Open</button>
+        </section>
+        <div className="inline-evidence-shelf" data-evidence-shelf="creation-context" aria-label="Creation evidence">
+          {evidenceItems.map((item) => (
+            <button data-action-id={`evidence.copy.${item.id}`} key={item.id} type="button" onClick={() => void copyText(item.copyValue)} title={item.copyValue}>
+              <span>{item.label}</span>
+              <small>{item.kind} / {trimText(item.meta, 42)}</small>
+            </button>
+          ))}
+          {evidenceItems.length === 0 ? <p className="empty">Evidence appears here as the agent creates artifacts.</p> : null}
+        </div>
         <div className="creation-output-grid">
           {cards.map((output) => (
             <article key={output.id}>

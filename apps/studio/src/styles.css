@@ -756,6 +756,11 @@ button.active,
 .creation-stage-panel, .stage-mode-panel { min-width: 0; display: grid; align-content: start; gap: var(--space-2); padding: var(--space-3); }
 .creation-stage-panel header, .stage-mode-panel header { min-width: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); }
 .creation-stage-panel h3, .creation-stage-panel p { margin: var(--space-0); }
+.artifact-snapshot-card[data-artifact-snapshot="latest-agent-output"] { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-2); border: 1px solid var(--line-strong); border-radius: var(--radius-default); background: var(--surface-soft); padding: var(--space-2); }
+.artifact-snapshot-card span, .artifact-snapshot-card p, .inline-evidence-shelf small { min-width: 0; overflow: hidden; color: var(--ink-muted); font-size: var(--font-size-xs); text-overflow: ellipsis; white-space: nowrap; }
+.inline-evidence-shelf[data-evidence-shelf="creation-context"] { min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--space-1); }
+.inline-evidence-shelf button { min-width: 0; display: grid; gap: var(--space-0-5); justify-items: start; border-color: var(--line); background: var(--surface); padding: var(--space-1); text-align: left; }
+.inline-evidence-shelf span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .creation-output-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-2); }
 .creation-output-grid article, .stage-mode-panel button { min-width: 0; display: grid; gap: var(--space-1); justify-items: start; border: 1px solid var(--line); border-radius: var(--radius-default); background: var(--surface); padding: var(--space-2); text-align: left; }
 .creation-output-grid span, .creation-output-grid small, .creation-stage-panel header span, .stage-mode-panel small { min-width: 0; overflow: hidden; color: var(--ink-muted); font-size: var(--font-size-xs); text-overflow: ellipsis; white-space: nowrap; }

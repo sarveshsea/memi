@@ -229,6 +229,16 @@ describe("studio visual cleanup", () => {
     expect(css).toContain("position: sticky");
   });
 
+  it("styles the latest artifact snapshot and inline evidence shelf", async () => {
+    const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
+
+    expect(css).toContain(".artifact-snapshot-card");
+    expect(css).toContain('[data-artifact-snapshot="latest-agent-output"]');
+    expect(css).toContain(".inline-evidence-shelf");
+    expect(css).toContain('[data-evidence-shelf="creation-context"]');
+    expect(css).toContain("grid-template-columns: repeat(auto-fit, minmax(120px, 1fr))");
+  });
+
   it("styles the Agent Cockpit and Mermaid Board as the right-pane work surface", async () => {
     const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
 
