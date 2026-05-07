@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const maxSizeBytes = Number.parseInt(process.env.MEMOIRE_PACK_MAX_BYTES || "1250000", 10);
+const maxSizeBytes = Number.parseInt(process.env.MEMOIRE_PACK_MAX_BYTES || "1275000", 10);
 const npmCommand = "npm";
 const tempRoot = await mkdtemp(join(tmpdir(), "memoire-pack-"));
 
@@ -16,7 +16,6 @@ try {
   const includePaths = [
     "package.json",
     "package-lock.json",
-    "scripts/prepare.mjs",
     ...packageJson.files.filter((entry) => !entry.startsWith("!")),
   ];
 

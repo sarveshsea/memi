@@ -91,8 +91,15 @@ describe("studio output normalizer", () => {
         },
       }),
       JSON.stringify({
-        type: "agent_message",
-        message: "Design audit complete.",
+        type: "item.completed",
+        item: {
+          type: "agent_message",
+          text: "Design audit complete.",
+        },
+      }),
+      JSON.stringify({
+        type: "turn.completed",
+        usage: { input_tokens: 10, output_tokens: 5 },
       }),
       "",
     ].join("\n"));
@@ -106,6 +113,220 @@ describe("studio output normalizer", () => {
       expect.objectContaining({
         type: "session_result",
         message: "Design audit complete.",
+      }),
+      expect.objectContaining({
+        type: "token_usage",
+        message: "Token usage",
+      }),
+    ]);
+  });
+
+  it("maps Codex function call outputs into tool result events", () => {
+    const state = createStudioOutputNormalizer("codex-jsonl");
+    const events = normalizeStudioOutputChunk(state, "stdout", [
+      JSON.stringify({
+        type: "item.completed",
+        item: {
+          id: "item_result",
+          type: "function_call_output",
+          call_id: "call_1",
+          output: "{\"ok\":true}",
+        },
+      }),
+      "",
+    ].join("\n"));
+
+    expect(events).toEqual([
+      expect.objectContaining({
+        type: "tool_result",
+        message: "{\"ok\":true}",
+        data: expect.objectContaining({
+          id: "call_1",
+          callId: "call_1",
+          output: "{\"ok\":true}",
+        }),
+      }),
+    ]);
+  });
+
+  it("maps Claude tool result payloads into tool result events", () => {
+    const state = createStudioOutputNormalizer("claude-stream-json");
+    const events = normalizeStudioOutputChunk(state, "stdout", [
+      JSON.stringify({
+        type: "user",
+        message: {
+          content: [
+            {
+              type: "tool_result",
+              tool_use_id: "toolu_1",
+              content: "Read App.tsx",
+            },
+          ],
+        },
+      }),
+      "",
+    ].join("\n"));
+
+    expect(events).toEqual([
+      expect.objectContaining({
+        type: "tool_result",
+        message: "Read App.tsx",
+        data: expect.objectContaining({
+          id: "toolu_1",
+          toolUseId: "toolu_1",
+        }),
+      }),
+    ]);
+  });
+
+  it("preserves structured approval lifecycle events", () => {
+    const state = createStudioOutputNormalizer("codex-jsonl");
+    const events = normalizeStudioOutputChunk(state, "stdout", [
+      JSON.stringify({
+        type: "approval_resolved",
+        message: "Approved",
+        data: { id: "approval_1", status: "approved" },
+      }),
+      "",
+    ].join("\n"));
+
+    expect(events).toEqual([
+      expect.objectContaining({
+        type: "approval_resolved",
+        message: "Approved",
+        data: { id: "approval_1", status: "approved" },
+      }),
+    ]);
+  });
+
+  it("splits labeled final model output into first-class Studio events with raw result context", () => {
+    const state = createStudioOutputNormalizer("codex-jsonl");
+    const rawResult = [
+      "**research_note**",
+      "Buzzr tokens are fragmented across theme files.",
+      "",
+      "**design_decision**",
+      "Use the token layer as canonical source.",
+      "",
+      "**artifact**",
+      "- P1: Token inventory",
+      "",
+      "**session_result**",
+      "Files changed: none.",
+      "",
+      "**acceptance_statement**",
+      "Audit completed read-only.",
+    ].join("\n");
+
+    const events = normalizeStudioOutputChunk(state, "stdout", [
+      JSON.stringify({
+        type: "item.completed",
+        item: {
+          id: "item_audit",
+          type: "agent_message",
+          text: rawResult,
+        },
+      }),
+      "",
+    ].join("\n"));
+
+    expect(events.map((event) => event.type)).toEqual([
+      "research_note",
+      "design_decision",
+      "artifact",
+      "session_result",
+      "acceptance_statement",
+    ]);
+    expect(events[0]).toMatchObject({
+      message: "Buzzr tokens are fragmented across theme files.",
+      data: {
+        sectionLabel: "research_note",
+        sourceEventId: "item_audit",
+        rawResult,
+      },
+    });
+    expect(events.at(-1)).toMatchObject({
+      message: "Audit completed read-only.",
+      data: {
+        sectionLabel: "acceptance_statement",
+        sourceEventId: "item_audit",
+        rawResult,
+      },
+    });
+  });
+
+  it("normalizes human section headings from Codex into structured result blocks", () => {
+    const state = createStudioOutputNormalizer("codex-jsonl");
+    const rawResult = [
+      "## Research Findings",
+      "- Users need faster design QA before implementation.",
+      "",
+      "## Design Decisions",
+      "Use Memoire as the command ladder before code edits.",
+      "",
+      "## Commands Run",
+      "`memi status --json`",
+      "",
+      "## Files Changed",
+      "- apps/studio/src/App.tsx",
+      "",
+      "## Acceptance Criteria",
+      "Plan mode stays read-only and research output is sectioned.",
+    ].join("\n");
+
+    const events = normalizeStudioOutputChunk(state, "stdout", [
+      JSON.stringify({
+        type: "item.completed",
+        item: {
+          id: "item_research",
+          type: "agent_message",
+          text: rawResult,
+        },
+      }),
+      "",
+    ].join("\n"));
+
+    expect(events.map((event) => event.type)).toEqual([
+      "research_note",
+      "design_decision",
+      "tool_call",
+      "artifact",
+      "acceptance_statement",
+    ]);
+    expect(events[0]).toMatchObject({
+      message: "- Users need faster design QA before implementation.",
+      data: expect.objectContaining({ sectionLabel: "research_note" }),
+    });
+    expect(events[2]).toMatchObject({
+      message: "`memi status --json`",
+      data: expect.objectContaining({ sectionLabel: "tool_call" }),
+    });
+  });
+
+  it("maps Codex command execution items into terminal blocks", () => {
+    const state = createStudioOutputNormalizer("codex-jsonl");
+    const events = normalizeStudioOutputChunk(state, "stdout", [
+      JSON.stringify({
+        type: "item.completed",
+        item: {
+          type: "command_execution",
+          command: "/bin/zsh -lc 'rg tokens'",
+          aggregated_output: "src/theme/tokens.ts\n",
+          exit_code: 0,
+          status: "completed",
+        },
+      }),
+      "",
+    ].join("\n"));
+
+    expect(events).toEqual([
+      expect.objectContaining({
+        type: "terminal_command",
+        message: "/bin/zsh -lc 'rg tokens'",
+      }),
+      expect.objectContaining({
+        type: "terminal_output",
+        message: "src/theme/tokens.ts\n",
       }),
     ]);
   });

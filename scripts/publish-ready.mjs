@@ -20,6 +20,12 @@ check(packageJson.name === "@sarveshsea/memoire", `package name is ${packageJson
 check(packageJson.version === serverJson.version, `server.json version ${serverJson.version} does not match package.json ${packageJson.version}`);
 check(packageJson.mcpName === "io.github.sarveshsea/memoire", `package.json mcpName is ${packageJson.mcpName}`);
 check(serverJson.name === packageJson.mcpName, `server.json name ${serverJson.name} does not match package.json mcpName ${packageJson.mcpName}`);
+for (const lifecycle of ["preinstall", "install", "postinstall", "prepare"]) {
+  check(!packageJson.scripts?.[lifecycle], `package.json must not define npm lifecycle script "${lifecycle}" for the public package`);
+}
+for (const unsafeFile of ["scripts/postinstall.mjs", "scripts/prepare.mjs"]) {
+  check(!packageJson.files?.includes(unsafeFile), `package.json files must not ship lifecycle helper ${unsafeFile}`);
+}
 
 const npmPackage = serverJson.packages?.find((entry) => entry.registryType === "npm");
 check(!!npmPackage, "server.json is missing npm package entry");
@@ -84,6 +90,10 @@ if (pack.ok) {
   check(files.includes("dist/index.js"), "npm pack is missing dist/index.js; run `npm run build`");
   notes.push(`pack: ${summary.filename} (${summary.size} bytes, ${files.length} files)`);
 }
+
+const audit = run("npm", ["audit", "--omit=dev", "--audit-level=high", "--json"]);
+check(audit.ok, audit.stderr.trim() || audit.stdout.trim() || "production npm audit failed");
+if (audit.ok) notes.push("prod audit: no high vulnerabilities");
 
 const smoke = run(process.execPath, [join(root, "scripts", "smoke-mcp-stdio.mjs")]);
 check(smoke.ok, smoke.stderr.trim() || smoke.stdout.trim() || "MCP stdio smoke check failed");

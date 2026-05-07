@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 
 export function TopWidget(props: {
   label: string;
@@ -30,19 +30,20 @@ export function WorkbenchPanel(props: {
   meta?: string;
   className?: string;
   children: ReactNode;
-}) {
+} & HTMLAttributes<HTMLElement>) {
+  const { eyebrow, title, meta, className, children, ...sectionProps } = props;
   return (
-    <section className={props.className ? `workbench-panel ${props.className}` : "workbench-panel"}>
-      {props.title || props.eyebrow || props.meta ? (
+    <section {...sectionProps} className={className ? `workbench-panel ${className}` : "workbench-panel"}>
+      {title || eyebrow || meta ? (
         <header className="panel-head">
           <div>
-            {props.eyebrow ? <p className="eyebrow">{props.eyebrow}</p> : null}
-            {props.title ? <h2>{props.title}</h2> : null}
+            {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
+            {title ? <h2>{title}</h2> : null}
           </div>
-          {props.meta ? <span>{props.meta}</span> : null}
+          {meta ? <span>{meta}</span> : null}
         </header>
       ) : null}
-      {props.children}
+      {children}
     </section>
   );
 }

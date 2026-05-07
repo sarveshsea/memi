@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readdir, readFile, access } from "node:fs/promises";
+import { readdir, readFile, access, stat } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -22,11 +22,60 @@ function normalizeNewlines(value) {
   return value.replace(/\r\n/g, "\n");
 }
 
+function isPng(buffer) {
+  return buffer[0] === 0x89
+    && buffer[1] === 0x50
+    && buffer[2] === 0x4e
+    && buffer[3] === 0x47
+    && buffer[4] === 0x0d
+    && buffer[5] === 0x0a
+    && buffer[6] === 0x1a
+    && buffer[7] === 0x0a;
+}
+
 const packageJson = await readJson(join(root, "package.json"));
 const version = packageJson.version;
 const expectedMcpName = "io.github.sarveshsea/memoire";
 if (packageJson.mcpName !== expectedMcpName) {
   fail(`package.json mcpName ${packageJson.mcpName} does not match ${expectedMcpName}`);
+}
+
+for (const lifecycle of ["preinstall", "install", "postinstall", "prepare"]) {
+  if (packageJson.scripts?.[lifecycle]) {
+    fail(`package.json must not define npm lifecycle script "${lifecycle}" for the public package`);
+  }
+}
+
+for (const unsafeFile of ["scripts/postinstall.mjs", "scripts/prepare.mjs"]) {
+  if (packageJson.files?.includes(unsafeFile)) {
+    fail(`package.json files must not ship lifecycle helper ${unsafeFile}`);
+  }
+}
+
+const copiedMiroFishMarkers = [
+  ["camel", "-oasis"].join(""),
+  ["camel", "_oasis"].join(""),
+  ["generate", "_twitter", "_agent", "_graph"].join(""),
+  ["generate", "_reddit", "_agent", "_graph"].join(""),
+  ["MiroFish", " Team"].join(""),
+  ["ZepGraph", "Memory", "Updater"].join(""),
+  ["Oasis", "Profile", "Generator"].join(""),
+  ["run", "_parallel", "_simulation", ".py"].join(""),
+];
+for (const file of await collectPackagedFiles(packageJson.files ?? [])) {
+  if (isMiroFishBoundaryScanner(file)) continue;
+  if (/\.(md|mdx|txt)$/i.test(file) || !/\.(cjs|css|html|js|json|mjs|toml|ts|tsx|ya?ml)$/i.test(file)) continue;
+  let content = "";
+  try {
+    content = await readFile(join(root, file), "utf-8");
+  } catch {
+    continue;
+  }
+  for (const marker of copiedMiroFishMarkers) {
+    if (content.includes(marker)) {
+      fail(`packaged file ${file} contains copied MiroFish source marker: ${marker}`);
+    }
+  }
 }
 
 const readme = await readFile(join(root, "README.md"), "utf-8");
@@ -37,6 +86,8 @@ const requiredReadmeTerms = [
   "Install Mémoire into your AI agent",
   "memi agent install claude-code --project .",
   "memi agent install codex",
+  "memi agent install codex-plugin",
+  "codex plugin marketplace add sarveshsea/m-moire --ref main --sparse .agents/plugins --sparse plugins/memoire",
   "memi shadcn export",
   "memi registry install",
   "https://ui.shadcn.com/docs/registry/getting-started",
@@ -48,6 +99,55 @@ for (const term of requiredReadmeTerms) {
   if (!readmeTopFold.includes(term)) {
     fail(`README top fold is missing required conversion term: ${term}`);
   }
+}
+
+const codexInstallCommand = "codex plugin marketplace add sarveshsea/m-moire --ref main --sparse .agents/plugins --sparse plugins/memoire";
+const codexPluginDocs = await readFile(join(root, "docs", "CODEX_PLUGIN.md"), "utf-8");
+if (!codexPluginDocs.includes(codexInstallCommand)) {
+  fail("docs/CODEX_PLUGIN.md is missing the public Codex marketplace install command");
+}
+if (!packageJson.scripts?.["smoke:codex-plugin"]) {
+  fail("package.json scripts must include smoke:codex-plugin");
+}
+
+const codexPluginManifest = await readJson(join(root, "plugins", "memoire", ".codex-plugin", "plugin.json"));
+const codexInterface = codexPluginManifest.interface ?? {};
+if (codexPluginManifest.homepage !== "https://www.memoire.cv/codex-plugin") {
+  fail("Codex plugin manifest homepage must point to https://www.memoire.cv/codex-plugin");
+}
+for (const field of ["privacyPolicyURL", "termsOfServiceURL"]) {
+  if (typeof codexPluginManifest[field] !== "string" || !codexPluginManifest[field].startsWith("https://www.memoire.cv/")) {
+    fail(`Codex plugin manifest is missing ${field}`);
+  }
+  if (typeof codexInterface[field] !== "string" || !codexInterface[field].startsWith("https://www.memoire.cv/")) {
+    fail(`Codex plugin interface is missing ${field}`);
+  }
+}
+for (const assetPath of [
+  codexInterface.logo,
+  codexInterface.composerIcon,
+  ...(codexInterface.screenshots ?? []),
+]) {
+  if (typeof assetPath !== "string" || !assetPath.endsWith(".png")) {
+    fail(`Codex plugin asset must be a PNG path: ${assetPath}`);
+    continue;
+  }
+  const buffer = await readFile(join(root, "plugins", "memoire", assetPath.replace(/^\.\//, "")));
+  if (!isPng(buffer)) fail(`Codex plugin asset is not a PNG: ${assetPath}`);
+}
+
+const codexPagePath = join(root, "examples", "site-bundle", "codex-plugin", "index.html");
+const codexPage = await readFile(codexPagePath, "utf-8");
+if (!codexPage.includes(codexInstallCommand) || !codexPage.includes("memi agent install codex-plugin")) {
+  fail("examples/site-bundle/codex-plugin/index.html is missing Codex plugin install paths");
+}
+const codexPrivacyPage = await readFile(join(root, "examples", "site-bundle", "privacy", "index.html"), "utf-8");
+const codexTermsPage = await readFile(join(root, "examples", "site-bundle", "terms", "index.html"), "utf-8");
+if (!codexPrivacyPage.includes("Memoire privacy policy")) {
+  fail("examples/site-bundle/privacy/index.html is missing the Memoire privacy policy");
+}
+if (!codexTermsPage.includes("Memoire terms of service")) {
+  fail("examples/site-bundle/terms/index.html is missing the Memoire terms of service");
 }
 
 const cliEntry = await readFile(join(root, "src", "index.ts"), "utf-8");
@@ -204,6 +304,61 @@ if (!Array.isArray(marketplaceCatalog.entries) || marketplaceCatalog.entries.len
   }
 }
 
+const requiredAgentNotes = [
+  "hermes-agent-bridge",
+  "openclaw-agent-bridge",
+  "agent-messaging-gateway",
+  "multi-agent-kanban",
+  "agent-skill-migration",
+  "mcp-server-studio",
+  "approval-sandbox-policies",
+  "model-router-diagnostics",
+  "agent-memory-profiles",
+  "cron-agent-workflows",
+  "agent-session-checkpoints",
+  "apple-desktop-automation",
+  "browser-research-agent",
+  "gateway-ops-observability",
+  "secure-secrets-for-agents",
+];
+for (const noteName of requiredAgentNotes) {
+  const manifestPath = join(root, "notes", noteName, "note.json");
+  const skillPath = join(root, "notes", noteName, `${noteName}.md`);
+  let manifest;
+  try {
+    manifest = await readJson(manifestPath);
+  } catch {
+    fail(`required agent note is missing manifest: ${noteName}`);
+    continue;
+  }
+  try {
+    await access(skillPath);
+  } catch {
+    fail(`required agent note is missing skill markdown: ${noteName}`);
+  }
+  if (!Array.isArray(manifest.sourceUrls) || manifest.sourceUrls.length < 2) {
+    fail(`required agent note ${noteName} must include at least two sourceUrls`);
+  }
+  if (!manifest.lastResearchedAt) {
+    fail(`required agent note ${noteName} must include lastResearchedAt`);
+  }
+  if (!Number.isInteger(manifest.freshnessDays) || manifest.freshnessDays <= 0) {
+    fail(`required agent note ${noteName} must include a positive freshnessDays`);
+  }
+}
+for (const siteBundlePath of [
+  join(root, "examples", "site-bundle", "notes", "catalog.v1.json"),
+  join(root, "examples", "site-bundle", "notes", "index.html"),
+  join(root, "examples", "site-bundle", "notes", "hermes-agent-bridge", "index.html"),
+  join(root, "examples", "site-bundle", "assets", "marketplace-catalog.v1.json"),
+]) {
+  try {
+    await access(siteBundlePath);
+  } catch {
+    fail(`site bundle is missing required marketplace path: ${siteBundlePath}`);
+  }
+}
+
 if (process.env.SKIP_PACK_GATE !== "1") {
   const pack = spawnSync(process.execPath, [join(root, "scripts", "pack-dry-run.mjs")], {
     cwd: root,
@@ -212,6 +367,21 @@ if (process.env.SKIP_PACK_GATE !== "1") {
   });
   if (pack.status !== 0) {
     fail(`package size gate failed: ${pack.stderr.trim() || pack.stdout.trim() || pack.status}`);
+  }
+}
+
+if (process.env.SKIP_AUDIT_GATE !== "1") {
+  const audit = spawnSync("npm", ["audit", "--omit=dev", "--audit-level=high", "--json"], {
+    cwd: root,
+    encoding: "utf-8",
+    maxBuffer: 1024 * 1024 * 5,
+    env: {
+      ...process.env,
+      npm_config_ignore_scripts: "true",
+    },
+  });
+  if (audit.status !== 0) {
+    fail(`production audit gate failed: ${audit.stderr.trim() || audit.stdout.trim() || audit.status}`);
   }
 }
 
@@ -242,4 +412,56 @@ async function findRegistryFiles(dir) {
   }
 
   return registryFiles;
+}
+
+async function collectPackagedFiles(fileEntries) {
+  const includes = fileEntries.filter((entry) => typeof entry === "string" && !entry.startsWith("!"));
+  const excludes = fileEntries.filter((entry) => typeof entry === "string" && entry.startsWith("!")).map((entry) => entry.slice(1));
+  const files = [];
+
+  for (const entry of includes) {
+    const abs = join(root, entry);
+    let entryStat;
+    try {
+      entryStat = await stat(abs);
+    } catch {
+      continue;
+    }
+    if (entryStat.isDirectory()) await walkPackagedDir(abs, excludes, files);
+    else pushPackagedFile(entry, excludes, files);
+  }
+
+  return Array.from(new Set(files));
+}
+
+async function walkPackagedDir(dir, excludes, files) {
+  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+  for (const entry of entries) {
+    const abs = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      await walkPackagedDir(abs, excludes, files);
+    } else {
+      pushPackagedFile(abs.slice(root.length + 1), excludes, files);
+    }
+  }
+}
+
+function pushPackagedFile(file, excludes, files) {
+  const normalized = file.replace(/\\/g, "/");
+  if (isExcludedPackageFile(normalized, excludes)) return;
+  files.push(normalized);
+}
+
+function isExcludedPackageFile(file, excludes) {
+  return excludes.some((pattern) => {
+    const normalized = pattern.replace(/\\/g, "/");
+    if (normalized.includes("**/__tests__")) return file.includes("/__tests__/");
+    if (!normalized.includes("*")) return file === normalized;
+    const prefix = normalized.split("*")[0];
+    return file.startsWith(prefix);
+  });
+}
+
+function isMiroFishBoundaryScanner(file) {
+  return /(^|\/)simulation\/license-boundary\.(cjs|js|mjs|ts)$/.test(file);
 }

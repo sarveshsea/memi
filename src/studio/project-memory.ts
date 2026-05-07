@@ -1,9 +1,9 @@
 import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { basename, extname, join, relative, resolve } from "node:path";
-import type { ProjectMemoryIndex, ProjectMemoryItem, ProjectMemoryKind } from "./types.js";
+import type { DesignChangelogEntry, ProjectMemoryIndex, ProjectMemoryItem, ProjectMemoryKind } from "./types.js";
 
 const KIND_ORDER: ProjectMemoryKind[] = ["home", "research", "spec", "system", "monitor", "changelog"];
-const MEMORY_SOURCE_EXTENSIONS = new Set([".md", ".mdx", ".json", ".html"]);
+const MEMORY_SOURCE_EXTENSIONS = new Set([".md", ".mdx", ".json", ".html", ".yaml", ".yml"]);
 const STALE_MEMORY_PATTERN = /\b(dibs|aicp|bidding|bids?|bid)\b/i;
 const EXCLUDED_PREVIEW_PATHS = [
   /(^|\/)preview\/generated\//,
@@ -161,20 +161,51 @@ async function indexMonitor(root: string): Promise<ProjectMemoryItem[]> {
 }
 
 async function indexChangelog(root: string): Promise<ProjectMemoryItem[]> {
+  const localItems = await indexLocalDesignChangelog(root);
   const file = join(root, "CHANGELOG.md");
   const content = await readText(file);
-  if (!content) return [];
-  if (isStaleMemorySource(root, file, content, "Changelog")) return [];
-  return [memoryItem({
+  if (!content || isStaleMemorySource(root, file, content, "Changelog")) return localItems;
+  return [...localItems, memoryItem({
     kind: "changelog",
     root,
     file,
     title: "Changelog",
     summary: markdownTitle(content) ?? firstText(content) ?? "Project changelog.",
-    status: "tracked",
+    status: "release-notes",
     tags: ["release-notes", "decisions"],
     data: { excerpt: content.slice(0, 2400) },
   })];
+}
+
+async function indexLocalDesignChangelog(root: string): Promise<ProjectMemoryItem[]> {
+  const dir = join(projectMemoryDir(root), "changelog");
+  const files = await walkFiles(dir);
+  return compactItems(await Promise.all(files
+    .filter((file) => extname(file) === ".json")
+    .map(async (file) => {
+      const metadata = await fileMetadata(root, file);
+      const json = await readJSONFile(file) as DesignChangelogEntry | null;
+      if (!json || json.schemaVersion !== 1 || typeof json.title !== "string") return null;
+      return memoryItem({
+        kind: "changelog",
+        root,
+        file,
+        title: json.title,
+        summary: typeof json.summary === "string" && json.summary.trim() ? json.summary : "Local Studio design changelog entry.",
+        status: json.status === "archived" ? "archived" : "active",
+        tags: normalizeTags(["design-changelog", ...(Array.isArray(json.tags) ? json.tags : [])]),
+        links: [
+          { label: "Local changelog entry", href: String(metadata.sourcePath) },
+          ...(typeof json.sessionId === "string" && json.sessionId ? [{ label: "Source session", href: json.sessionId }] : []),
+        ],
+        data: {
+          ...metadata,
+          entry: json,
+          fileRefs: Array.isArray(json.fileRefs) ? json.fileRefs : [],
+          captureWarnings: Array.isArray(json.captureWarnings) ? json.captureWarnings : [],
+        },
+      });
+    })));
 }
 
 function homeItem(root: string): ProjectMemoryItem {

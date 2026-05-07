@@ -43,4 +43,32 @@ describe("marketplace site bundle", () => {
       expect(copy).toContain(entry.installCommand);
     }
   });
+
+  it("contains a public Codex plugin landing page and SEO entry", async () => {
+    const seo = JSON.parse(await readFile(join(bundleRoot, "seo.json"), "utf8"));
+    const sitemap = await readFile(join(bundleRoot, "sitemap.xml"), "utf8");
+    const page = await readFile(join(bundleRoot, "codex-plugin", "index.html"), "utf8");
+    const privacy = await readFile(join(bundleRoot, "privacy", "index.html"), "utf8");
+    const terms = await readFile(join(bundleRoot, "terms", "index.html"), "utf8");
+    const seoPage = seo.pages.find((candidate: { slug: string }) => candidate.slug === "codex-plugin");
+    const privacyPage = seo.pages.find((candidate: { slug: string }) => candidate.slug === "privacy");
+    const termsPage = seo.pages.find((candidate: { slug: string }) => candidate.slug === "terms");
+    const installCommand = "codex plugin marketplace add sarveshsea/m-moire --ref main --sparse .agents/plugins --sparse plugins/memoire";
+
+    expect(seoPage).toMatchObject({
+      slug: "codex-plugin",
+      title: "Memoire Codex plugin | Design memory for Codex",
+      canonicalUrl: "https://www.memoire.cv/codex-plugin",
+    });
+    expect(sitemap).toContain("https://www.memoire.cv/codex-plugin");
+    expect(sitemap).toContain("https://www.memoire.cv/privacy");
+    expect(sitemap).toContain("https://www.memoire.cv/terms");
+    expect(page).toContain("Memoire Codex plugin");
+    expect(page).toContain(installCommand);
+    expect(page).toContain("memi agent install codex-plugin");
+    expect(privacyPage).toMatchObject({ canonicalUrl: "https://www.memoire.cv/privacy" });
+    expect(termsPage).toMatchObject({ canonicalUrl: "https://www.memoire.cv/terms" });
+    expect(privacy).toContain("Memoire privacy policy");
+    expect(terms).toContain("Memoire terms of service");
+  });
 });

@@ -12,17 +12,37 @@ export interface StudioOutputNormalizerState {
 }
 
 const STRUCTURED_EVENT_TYPES = new Set<StudioEventType>([
+  "chat_message",
   "package_log",
   "harness_log",
   "auth_status",
+  "auth_state",
+  "terminal_command",
+  "terminal_output",
   "tool_call",
+  "tool_result",
   "approval_request",
+  "approval_resolved",
   "artifact",
+  "design_system_artifact",
   "file_change",
   "screenshot",
+  "browser_snapshot",
+  "mcp_call",
+  "design_artifact",
   "design_preview",
+  "preview_ready",
+  "figma_candidate",
+  "spec_reference",
+  "handoff_bundle",
+  "research_capture",
+  "research_code",
+  "research_theme",
+  "research_metric",
   "research_note",
   "design_decision",
+  "acceptance_statement",
+  "marketplace_download",
   "token_usage",
   "session_result",
   "video_project_created",
@@ -72,7 +92,7 @@ export function flushStudioOutputNormalizer(state: StudioOutputNormalizerState):
   if (state.parser === "hermes-text") {
     const message = state.stdoutBuffer.trim();
     state.stdoutBuffer = "";
-    return message ? [{ type: "session_result", message, data: { result: message, parser: "hermes-text" } }] : [];
+    return message ? eventsFromModelTextResult(message, { result: message, parser: "hermes-text" }) : [];
   }
   if (state.parser !== "memoire-jsonl" && state.parser !== "claude-stream-json" && state.parser !== "codex-jsonl") {
     const message = state.stdoutBuffer;
@@ -151,6 +171,9 @@ function eventFromParsedMemoirePayload(parsed: unknown): StudioNormalizedOutputE
 function eventsFromClaudePayload(parsed: unknown): StudioNormalizedOutputEvent[] {
   if (!isRecord(parsed)) return [{ type: "stdout", message: JSON.stringify(parsed) }];
   const type = stringField(parsed.type);
+  if (type === "tool_result") return [eventFromClaudeToolResult(parsed)];
+  const structured = structuredEventFromPayload(parsed, type);
+  if (structured) return [structured];
   if (type === "assistant") {
     const message = isRecord(parsed.message) ? parsed.message : parsed;
     const content = Array.isArray(message.content) ? message.content : [];
@@ -164,12 +187,23 @@ function eventsFromClaudePayload(parsed: unknown): StudioNormalizedOutputEvent[]
         const name = stringField(part.name) ?? "tool";
         events.push({ type: "tool_call", message: name, data: part });
       }
+      if (part.type === "tool_result") {
+        events.push(eventFromClaudeToolResult(part));
+      }
     }
     return events.length > 0 ? events : [{ type: "stdout", message: JSON.stringify(parsed) }];
   }
+  if (type === "user") {
+    const message = isRecord(parsed.message) ? parsed.message : parsed;
+    const content = Array.isArray(message.content) ? message.content : [];
+    const events = content
+      .filter((part): part is Record<string, unknown> => isRecord(part) && part.type === "tool_result")
+      .map((part) => eventFromClaudeToolResult(part));
+    return events.length > 0 ? events : [];
+  }
   if (type === "result") {
     const result = stringField(parsed.result) ?? stringField(parsed.message) ?? "Claude result";
-    return [{ type: "session_result", message: result, data: parsed }];
+    return eventsFromModelTextResult(result, parsed, stringField(parsed.id));
   }
   if (type === "tool_use") {
     const name = stringField(parsed.name) ?? "tool";
@@ -184,6 +218,9 @@ function eventsFromClaudePayload(parsed: unknown): StudioNormalizedOutputEvent[]
 function eventsFromCodexPayload(parsed: unknown): StudioNormalizedOutputEvent[] {
   if (!isRecord(parsed)) return [{ type: "stdout", message: JSON.stringify(parsed) }];
   const type = stringField(parsed.type);
+  if (type === "tool_result" || type === "function_call_output" || type === "function_call_result") return [eventFromCodexToolResult(parsed)];
+  const structured = structuredEventFromPayload(parsed, type);
+  if (structured) return [structured];
   const item = isRecord(parsed.item) ? parsed.item : null;
 
   if (item && (item.type === "function_call" || item.type === "tool_call")) {
@@ -191,14 +228,26 @@ function eventsFromCodexPayload(parsed: unknown): StudioNormalizedOutputEvent[] 
     return [{ type: "tool_call", message: name, data: item }];
   }
 
-  if (type === "agent_message" || type === "message" || type === "turn.completed") {
-    const message = stringField(parsed.message) ?? stringField(parsed.text) ?? extractCodexItemText(item) ?? "Codex result";
-    return [{ type: "session_result", message, data: parsed }];
+  if (item && (item.type === "function_call_output" || item.type === "tool_result" || item.type === "function_call_result")) {
+    return [eventFromCodexToolResult(item)];
   }
 
-  if (item && item.type === "message") {
+  if (item && item.type === "command_execution") {
+    return eventsFromCodexCommandExecution(item);
+  }
+
+  if (item && (item.type === "agent_message" || item.type === "message")) {
     const message = extractCodexItemText(item);
-    return message ? [{ type: "reasoning", message, data: parsed }] : [];
+    return message ? eventsFromModelTextResult(message, parsed, stringField(item.id) ?? stringField(parsed.id)) : [];
+  }
+
+  if (type === "agent_message" || type === "message") {
+    const message = stringField(parsed.message) ?? stringField(parsed.text) ?? extractCodexItemText(item) ?? "Codex result";
+    return eventsFromModelTextResult(message, parsed, stringField(parsed.id));
+  }
+
+  if (type === "turn.completed") {
+    return [{ type: "token_usage", message: "Token usage", data: parsed }];
   }
 
   if (type === "token_count" || type === "token_usage") {
@@ -210,6 +259,142 @@ function eventsFromCodexPayload(parsed: unknown): StudioNormalizedOutputEvent[] 
   }
 
   return [];
+}
+
+function eventFromClaudeToolResult(part: Record<string, unknown>): StudioNormalizedOutputEvent {
+  const id = stringField(part.tool_use_id) ?? stringField(part.toolUseId) ?? stringField(part.id);
+  const content = stringField(part.content) ?? stringField(part.text) ?? stringField(part.result) ?? "tool result";
+  return {
+    type: "tool_result",
+    message: content,
+    data: {
+      ...part,
+      ...(id ? { id, toolUseId: id } : {}),
+      output: content,
+    },
+  };
+}
+
+function eventFromCodexToolResult(item: Record<string, unknown>): StudioNormalizedOutputEvent {
+  const id = stringField(item.call_id) ?? stringField(item.callId) ?? stringField(item.id);
+  const output = stringField(item.output) ?? stringField(item.result) ?? extractCodexItemText(item) ?? "tool result";
+  return {
+    type: "tool_result",
+    message: output,
+    data: {
+      ...item,
+      ...(id ? { id, callId: id } : {}),
+      output,
+    },
+  };
+}
+
+const MODEL_SECTION_TYPES = new Set<StudioEventType>([
+  "research_note",
+  "design_decision",
+  "design_system_artifact",
+  "tool_call",
+  "artifact",
+  "session_result",
+  "acceptance_statement",
+]);
+
+function eventsFromModelTextResult(
+  message: string,
+  data: unknown,
+  sourceEventId?: string | null,
+): StudioNormalizedOutputEvent[] {
+  const sections = splitLabeledModelSections(message);
+  if (sections.length === 0) return [{ type: "session_result", message, data }];
+  return sections.map((section) => ({
+    type: section.type,
+    message: section.message,
+    data: {
+      ...(sourceEventId ? { sourceEventId } : {}),
+      sectionLabel: section.type,
+      rawResult: message,
+      rawPayload: data,
+    },
+  }));
+}
+
+function splitLabeledModelSections(message: string): Array<{ type: StudioEventType; message: string }> {
+  const sections: Array<{ type: StudioEventType; lines: string[] }> = [];
+  const labelPattern = /^\s*(?:[-*]\s*)?(?:#{1,6}\s*)?(?:\*\*)?([A-Za-z][A-Za-z0-9 _/-]{2,64})(?:\*\*)?\s*:?\s*(.*)$/;
+  for (const line of message.split(/\r?\n/)) {
+    const match = line.match(labelPattern);
+    const sectionType = match ? normalizeModelSectionType(match[1]) : null;
+    if (match && sectionType && isExplicitModelSectionLine(line, match[1])) {
+      sections.push({ type: sectionType, lines: match[2]?.trim() ? [match[2].trim()] : [] });
+      continue;
+    }
+    sections.at(-1)?.lines.push(line);
+  }
+  return sections
+    .map((section) => ({ type: section.type, message: section.lines.join("\n").trim() }))
+    .filter((section) => section.message.length > 0);
+}
+
+function isExplicitModelSectionLine(line: string, label: string): boolean {
+  if (/^\s*(?:[-*]\s*)?(?:#{1,6}\s+|\*\*)/.test(line)) return true;
+  return MODEL_SECTION_TYPES.has(label.trim().toLowerCase() as StudioEventType);
+}
+
+function normalizeModelSectionType(label: string): StudioEventType | null {
+  const normalized = label
+    .trim()
+    .replace(/[*`]/g, "")
+    .replace(/[_/-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+  const exact = normalized.replaceAll(" ", "_") as StudioEventType;
+  if (MODEL_SECTION_TYPES.has(exact)) return exact;
+  if (/^(research|research notes?|research findings?|findings|evidence|evidence summary|user research|market research)$/.test(normalized)) {
+    return "research_note";
+  }
+  if (/^(design decisions?|decisions?|recommendations?|design rationale|rationale)$/.test(normalized)) {
+    return "design_decision";
+  }
+  if (/^(commands?|commands run|command log|tools?|tool calls?|tool usage|memoire commands|codex commands)$/.test(normalized)) {
+    return "tool_call";
+  }
+  if (/^(artifacts?|files changed|outputs?|deliverables?|patches?|generated files?)$/.test(normalized)) {
+    return "artifact";
+  }
+  if (/^(acceptance|acceptance criteria|acceptance statement|verification|verification plan|checks?)$/.test(normalized)) {
+    return "acceptance_statement";
+  }
+  if (/^(summary|result|session result|final result|next steps|handoff)$/.test(normalized)) {
+    return "session_result";
+  }
+  if (/^(design system artifact|design system artifacts)$/.test(normalized)) {
+    return "design_system_artifact";
+  }
+  return null;
+}
+
+function eventsFromCodexCommandExecution(item: Record<string, unknown>): StudioNormalizedOutputEvent[] {
+  const command = stringField(item.command) ?? stringField(item.name) ?? "command";
+  const events: StudioNormalizedOutputEvent[] = [
+    { type: "terminal_command", message: command, data: item },
+  ];
+  const output = stringField(item.aggregated_output) ?? stringField(item.output);
+  if (output) {
+    events.push({ type: "terminal_output", message: output, data: item });
+  }
+  return events;
+}
+
+function structuredEventFromPayload(
+  parsed: Record<string, unknown>,
+  type: string | null,
+): StudioNormalizedOutputEvent | null {
+  if (!type || !STRUCTURED_EVENT_TYPES.has(type as StudioEventType)) return null;
+  return {
+    type: type as StudioEventType,
+    message: stringField(parsed.message) ?? stringField(parsed.title) ?? stringField(parsed.path) ?? type,
+    data: isRecord(parsed.data) ? parsed.data : parsed,
+  };
 }
 
 function extractCodexItemText(item: Record<string, unknown> | null): string | null {

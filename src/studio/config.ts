@@ -12,7 +12,7 @@ export function defaultStudioConfig(projectRoot: string): StudioConfig {
   return {
     schemaVersion: 1,
     workspaceRoots: [root],
-    defaultHarness: "memoire",
+    defaultHarness: "codex",
     defaultModel: null,
     providers: {
       anthropic: { enabled: true, envKey: "ANTHROPIC_API_KEY" },
@@ -20,13 +20,63 @@ export function defaultStudioConfig(projectRoot: string): StudioConfig {
       openaiCompatible: { enabled: false, baseUrl: null, envKey: null },
       ollama: { enabled: true, baseUrl: "http://127.0.0.1:11434", defaultModel: "llama3.1:8b" },
     },
+    codex: {
+      model: "gpt-5.5",
+      reasoningEffort: "xhigh",
+      approvalPolicy: "never",
+      webSearch: true,
+      skipGitRepoCheck: true,
+      includeMemoireCommands: true,
+      includeCodexCommands: true,
+      planModeDefault: false,
+    },
+    ui: {
+      theme: "dark",
+      inputMode: "agent",
+      commandPaletteEnabled: true,
+      toolbeltLayout: "compact",
+    },
+    agentProfiles: [{
+      id: "design",
+      name: "Design",
+      defaultHarness: "codex",
+      defaultAction: "app-build",
+      model: null,
+      autonomy: "autonomous",
+    }],
+    permissions: {
+      workspaceWrite: "allow",
+      shell: "allow",
+      computer: "allow",
+      figma: "allow",
+      allowlist: [],
+      denylist: [],
+    },
+    computer: {
+      enabled: process.platform === "darwin",
+      allowedApps: ["Figma", "Google Chrome", "Safari", "Finder", "Terminal", "iTerm", "Visual Studio Code", "Cursor"],
+      requireApproval: false,
+      permissions: {
+        accessibility: "unknown",
+        screenRecording: "unknown",
+        automation: "unknown",
+        fileAccess: "unknown",
+      },
+    },
+    setup: {
+      wizardVersion: 1,
+      completedAt: null,
+      dismissedAt: null,
+      lastCheckedAt: null,
+      downloadReadyAcknowledged: false,
+    },
     harnesses: getHarnessManifest().harnesses.map((harness) => ({
       ...harness,
       enabled: harness.enabledByDefault,
       command: harness.id === "shell" ? (process.env.SHELL || harness.command) : harness.command,
     })),
     enabledTools: {
-      shell: false,
+      shell: true,
       browser: true,
       figma: true,
       mcp: true,
@@ -76,6 +126,37 @@ function mergeStudioConfig(defaults: StudioConfig, raw: Partial<StudioConfig>): 
       ...defaults.enabledTools,
       ...(raw.enabledTools ?? {}),
     },
+    codex: {
+      ...defaults.codex,
+      ...(raw.codex ?? {}),
+    },
+    ui: {
+      ...defaults.ui,
+      ...(raw.ui ?? {}),
+    },
+    agentProfiles: raw.agentProfiles && raw.agentProfiles.length > 0
+      ? raw.agentProfiles
+      : defaults.agentProfiles,
+    permissions: {
+      ...defaults.permissions,
+      ...(raw.permissions ?? {}),
+      allowlist: raw.permissions?.allowlist ?? defaults.permissions.allowlist,
+      denylist: raw.permissions?.denylist ?? defaults.permissions.denylist,
+    },
+    computer: {
+      ...defaults.computer,
+      ...(raw.computer ?? {}),
+      permissions: {
+        ...defaults.computer.permissions,
+        ...(raw.computer?.permissions ?? {}),
+      },
+      allowedApps: raw.computer?.allowedApps ?? defaults.computer.allowedApps,
+    },
+    setup: {
+      ...defaults.setup,
+      ...(raw.setup ?? {}),
+      wizardVersion: 1,
+    },
     figma: {
       autoStartBridge: raw.figma?.autoStartBridge ?? defaults.figma?.autoStartBridge ?? false,
       preferredPort: raw.figma?.preferredPort ?? defaults.figma?.preferredPort ?? null,
@@ -83,9 +164,13 @@ function mergeStudioConfig(defaults: StudioConfig, raw: Partial<StudioConfig>): 
       lastFileKey: raw.figma?.lastFileKey ?? defaults.figma?.lastFileKey ?? null,
       lastConnectedAt: raw.figma?.lastConnectedAt ?? defaults.figma?.lastConnectedAt ?? null,
     },
-    harnesses: defaults.harnesses.map((harness) => ({
-      ...harness,
-      ...(overrideHarnesses.get(harness.id) ?? {}),
-    })),
+    harnesses: defaults.harnesses.map((harness) => {
+      const override = overrideHarnesses.get(harness.id);
+      return {
+        ...harness,
+        enabled: override?.enabled ?? harness.enabled,
+        command: override?.command ?? harness.command,
+      };
+    }),
   };
 }

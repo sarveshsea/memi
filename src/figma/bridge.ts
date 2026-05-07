@@ -25,6 +25,8 @@ export interface FigmaBridgeConfig {
   fileKey?: string;
   port?: number;
   instanceName?: string;
+  studioUrl?: string;
+  runtimeUrl?: string;
   onEvent?: (event: MemoireEvent) => void;
   onChat?: (text: string, from: string) => void;
 }
@@ -113,6 +115,8 @@ export class FigmaBridge extends EventEmitter {
     this.server = new MemoireWsServer({
       port: config.port,
       instanceName: config.instanceName,
+      studioUrl: config.studioUrl,
+      runtimeUrl: config.runtimeUrl,
       onChat: config.onChat,
       onEvent: (evt) => {
         config.onEvent?.(evt);
@@ -272,6 +276,30 @@ export class FigmaBridge extends EventEmitter {
     return result.image;
   }
 
+  async createNode(params: Record<string, unknown>): Promise<unknown> {
+    return this.server.sendCommand("createNode", params, 30000);
+  }
+
+  async updateNode(
+    nodeId: string,
+    properties: Record<string, unknown>,
+    expectedVersion?: string,
+  ): Promise<unknown> {
+    return this.server.sendCommand("updateNode", { nodeId, properties, expectedVersion }, 30000);
+  }
+
+  async deleteNode(nodeId: string): Promise<unknown> {
+    return this.server.sendCommand("deleteNode", { nodeId }, 20000);
+  }
+
+  async setSelection(nodeIds: string[]): Promise<unknown> {
+    return this.server.sendCommand("setSelection", { nodeIds }, 15000);
+  }
+
+  async navigateTo(nodeId: string): Promise<unknown> {
+    return this.server.sendCommand("navigateTo", { nodeId }, 15000);
+  }
+
   async extractDesignSystem(): Promise<DesignSystem> {
     this.emitEvent("info", "Pulling design tokens, components, and styles from Figma...");
 
@@ -415,12 +443,22 @@ export class FigmaBridge extends EventEmitter {
    * Push token values to Figma (code → Figma direction).
    * Sends a token-push message to the connected plugin.
    */
-  async pushTokens(tokens: { name: string; values: Record<string, string | number> }[], source: "code" | "manual" = "code"): Promise<void> {
+  async pushTokens(
+    tokens: { name: string; values: Record<string, string | number> }[],
+    sourceOrOptions: "code" | "manual" | { source?: "code" | "manual"; createMissing?: boolean; collectionName?: string } = "code",
+  ): Promise<unknown> {
     if (!this.isConnected) {
       throw new Error("Not connected to Figma — cannot push tokens");
     }
-    await this.server.sendCommand("pushTokens", { tokens, source }, 30000);
+    const options = typeof sourceOrOptions === "string" ? { source: sourceOrOptions } : sourceOrOptions;
+    const result = await this.server.sendCommand("pushTokens", {
+      tokens,
+      source: options.source ?? "code",
+      createMissing: options.createMissing,
+      collectionName: options.collectionName,
+    }, 30000);
     this.emitEvent("success", `Pushed ${tokens.length} token${tokens.length !== 1 ? "s" : ""} to Figma`);
+    return result;
   }
 
   // ── Parsers ──────────────────────────────────────────

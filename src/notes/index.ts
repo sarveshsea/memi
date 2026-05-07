@@ -35,3 +35,31 @@ export {
   getNoteInfo,
   parseGithubNoteRepo,
 } from "./installer.js";
+
+export {
+  DEFAULT_NOTES_CATALOG_URL,
+  DEFAULT_COMMUNITY_NOTES_CATALOG_URL,
+  NoteCatalogArchiveSchema,
+  NoteCatalogEntrySchema,
+  NoteCatalogSchema,
+  assertSafeArchiveEntries,
+  catalogEntryToManifest,
+  findCatalogNote,
+  installCatalogNote,
+  isSafeNoteName,
+  loadNotesCatalog,
+  noteArchiveName,
+  noteTitleFromName,
+  type NoteCatalog,
+  type NoteCatalogEntry,
+} from "./catalog.js";
+
+export {
+  buildNoteForkPrHandoff,
+  diffNoteFork,
+  forkNoteDirectory,
+  getNoteForkFiles,
+  listNoteForks,
+  updateNoteForkFile,
+  validateCommunityNoteDir,
+} from "./community.js";

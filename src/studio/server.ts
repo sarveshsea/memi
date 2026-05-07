@@ -1,22 +1,90 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import { readdir, stat, readFile, writeFile } from "node:fs/promises";
 import { basename, join, relative, resolve, sep } from "node:path";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { buildHarnessCommand, harnessProbeCacheAgeMs, listHarnesses } from "./harnesses.js";
+import { buildHarnessCommand, clearHarnessProbeCaches, harnessProbeCacheAgeMs, listHarnesses } from "./harnesses.js";
 import { loadStudioConfig, saveStudioConfig } from "./config.js";
 import { redactSecrets } from "./redact.js";
-import { StudioSessionStore } from "./session-store.js";
+import { StudioSessionStore, type StudioSessionIndexEntry } from "./session-store.js";
+import {
+  DESIGN_AUTOMATION_TEMPLATES,
+  StudioAutomationStore,
+  buildAutomationPrompt,
+  createAutomationFromTemplate,
+  installScheduler,
+  schedulerStatus,
+  uninstallScheduler,
+} from "./automations.js";
 import {
   createStudioOutputNormalizer,
   flushStudioOutputNormalizer,
   normalizeStudioOutputChunk,
 } from "./output-normalizer.js";
 import { indexProjectMemory, refreshProjectMemory } from "./project-memory.js";
+import {
+  captureKnowledgeEvent,
+  compactKnowledgeIndex,
+  getKnowledgeItem,
+  listKnowledgeStore,
+  refreshKnowledgeStore,
+  shouldCaptureKnowledgeEvent,
+} from "./knowledge-store.js";
+import { StudioBrowserAdapter } from "./browser-adapter.js";
+import { StudioComputerAdapter } from "./computer-adapter.js";
+import { createStudioCompatibilitySnapshot } from "./compatibility.js";
+import {
+  captureDesignSystemArtifact,
+  getDesignSystemArtifact,
+  listDesignSystemArtifacts,
+  updateDesignSystemArtifactSectionReview,
+} from "./design-system-artifact-store.js";
+import {
+  archiveDesignChangelogEntry,
+  captureDesignChangelogEntry,
+  createDesignChangelogEntry,
+  exportDesignChangelogMarkdown,
+  listDesignChangelogEntries,
+  restoreDesignChangelogEntry,
+  updateDesignChangelogEntry,
+} from "./design-changelog.js";
+import { captureStudioAttachment, getStudioAttachment } from "./attachment-store.js";
+import { readResolvedAsset } from "./design-system-resolver.js";
+import { shouldCaptureDesignSystemArtifactEvent } from "./design-system-artifacts.js";
+import { collectDesignSystemTrace } from "./design-system-trace.js";
 import { StudioFigmaController } from "./figma-controller.js";
-import { installMarketplaceNote, listMarketplaceNotes, removeMarketplaceNote } from "./marketplace.js";
+import {
+  getMarketplaceNote,
+  listMarketplaceNotes,
+  removeMarketplaceNote,
+  studioCatalogCache,
+} from "./marketplace.js";
+import {
+  buildNoteForkPrHandoff,
+  diffNoteFork,
+  forkNoteDirectory,
+  getNoteForkFiles,
+  listNoteForks,
+  updateNoteForkFile,
+  validateCommunityNoteDir,
+} from "../notes/community.js";
+import { StudioDownloadStore } from "./downloads.js";
+import { StudioToolBroker } from "./tool-broker.js";
+import { buildSessionReferenceTrace } from "./reference-trace.js";
+import { createStudioTraceSnapshot } from "./view-model.js";
+import { FileSimulationStore } from "../simulation/index.js";
+import type { ResearchStore } from "../research/engine.js";
+import {
+  createVideoProject,
+  getVideoAdapterStatus,
+  listVideoProjects,
+  previewVideoProject,
+  renderVideoProject,
+  videoDownloadArtifact,
+} from "./video.js";
+import { AGENT_INSTALL_TARGETS, installAgentKits, normalizeAgentInstallTarget, planAgentInstall, planSuiteManifest } from "../agents/agent-kits.js";
 import { openMermaidJamTarget, resolveMermaidJamIntegration, type MermaidJamOpenTarget } from "../integrations/mermaid-jam.js";
 import type {
   StudioConfig,
@@ -24,11 +92,29 @@ import type {
   StudioEventType,
   StudioFigmaActionRequest,
   StudioFigmaOpenRequest,
+  StudioKnowledgeCaptureRequest,
   StudioRuntimeInfo,
   StudioSession,
+  StudioSessionMode,
   StudioHarnessId,
+  StudioHarnessStatus,
   StudioRunAction,
   StudioAgentContext,
+  StudioChatMode,
+  StudioPermissionMode,
+  StudioToolCallRequest,
+  StudioToolCallResult,
+  StudioBrowserActionRequest,
+  StudioComputerActionRequest,
+  StudioComputerOpenRequest,
+  StudioDesignSystemArtifactCaptureRequest,
+  StudioDesignSystemArtifactReviewPatch,
+  DesignChangelogCaptureRequest,
+  StudioAttachment,
+  StudioAttachmentCaptureRequest,
+  StudioAutomationDefinition,
+  StudioAutomationRun,
+  StudioCodexConfig,
 } from "./types.js";
 
 interface StudioRuntimeServerOptions {
@@ -43,6 +129,16 @@ interface SessionClient {
   res: ServerResponse;
 }
 
+type StudioSessionSource = "live" | "persisted";
+type StudioSessionSummary = (
+  | (Omit<StudioSession, "events"> & { eventCount: number })
+  | StudioSessionIndexEntry
+) & { source: StudioSessionSource };
+
+type AutomationCreateBody = Partial<StudioAutomationDefinition> & {
+  templateId?: string;
+};
+
 export class StudioRuntimeServer {
   private readonly projectRoot: string;
   private readonly requestedPort: number;
@@ -54,21 +150,39 @@ export class StudioRuntimeServer {
   private clients = new Set<SessionClient>();
   private readonly sessionStore: StudioSessionStore;
   private readonly figma: StudioFigmaController;
+  private readonly browser: StudioBrowserAdapter;
+  private readonly computer: StudioComputerAdapter;
+  private readonly toolBroker: StudioToolBroker;
+  private readonly automations: StudioAutomationStore;
+  private readonly downloads: StudioDownloadStore;
+  private readonly toolCalls = new Map<string, StudioToolCallResult>();
   private readonly startedAt = Date.now();
   private readonly activeStreams = new Set<string>();
   private eventBufferSize = 0;
   private readonly maxInMemoryEvents = 400;
+  private harnessSnapshot: { harnesses: StudioHarnessStatus[]; checkedAt: number } | null = null;
+  private readonly harnessSnapshotTtlMs = 5_000;
 
   constructor(options: StudioRuntimeServerOptions) {
     this.projectRoot = resolve(options.projectRoot);
     this.requestedPort = options.port ?? 8765;
     this.host = options.host ?? "127.0.0.1";
     this.sessionStore = new StudioSessionStore(this.projectRoot);
+    this.automations = new StudioAutomationStore(this.projectRoot);
+    this.downloads = new StudioDownloadStore(this.projectRoot);
+    this.browser = new StudioBrowserAdapter({ projectRoot: this.projectRoot });
+    this.computer = new StudioComputerAdapter({ projectRoot: this.projectRoot });
     this.figma = options.figma ?? new StudioFigmaController({
       projectRoot: this.projectRoot,
       onEvent: (event) => {
         this.eventBufferSize = Math.min(200_000, this.eventBufferSize + event.message.length);
       },
+    });
+    this.toolBroker = new StudioToolBroker({
+      projectRoot: this.projectRoot,
+      getConfig: () => this.getConfig(),
+      browser: this.browser,
+      runFigmaAction: (request) => this.figma.runAction(request),
     });
   }
 
@@ -76,6 +190,7 @@ export class StudioRuntimeServer {
     if (this.server) return this.runtimeInfo();
     this.config = await loadStudioConfig(this.projectRoot);
     this.sessionStore.init();
+    await this.downloads.init();
     this.server = createServer((req, res) => {
       void this.handle(req, res).catch((error: unknown) => {
         this.sendJSON(res, 500, { error: error instanceof Error ? error.message : String(error) });
@@ -97,6 +212,7 @@ export class StudioRuntimeServer {
   async stop(): Promise<void> {
     for (const child of this.processes.values()) child.kill("SIGTERM");
     this.processes.clear();
+    await this.browser.closeAll();
     for (const client of this.clients) client.res.end();
     this.clients.clear();
     if (!this.server) return;
@@ -108,17 +224,27 @@ export class StudioRuntimeServer {
     return this.sessions.get(id) ?? null;
   }
 
-  async startSession(input: { harness: StudioHarnessId; cwd: string; prompt: string; action?: StudioRunAction }): Promise<StudioSession> {
-    const config = await this.getConfig();
+  async startSession(input: { harness: StudioHarnessId; cwd: string; prompt: string; action?: StudioRunAction; mode?: StudioSessionMode; chatMode?: StudioChatMode; permissionMode?: StudioPermissionMode; attachments?: StudioAttachment[]; codex?: Partial<StudioCodexConfig> }): Promise<StudioSession> {
+    const baseConfig = await this.getConfig();
+    const config = input.codex
+      ? { ...baseConfig, codex: { ...baseConfig.codex, ...input.codex } }
+      : baseConfig;
     const cwd = resolve(input.cwd || this.projectRoot);
     if (!isInWorkspace(cwd, config.workspaceRoots)) {
       throw Object.assign(new Error(`Workspace path is not allowed: ${cwd}`), { statusCode: 403 });
     }
     if (!input.prompt.trim()) throw Object.assign(new Error("Prompt is required"), { statusCode: 400 });
     const action = input.action ?? (input.harness === "memoire" ? "compose" : "raw");
+    const mode = input.mode ?? "delegate";
+    const chatMode = input.chatMode ?? defaultChatMode(input.harness, action, input.prompt);
+    const permissionMode = input.permissionMode ?? "guarded";
+    const attachments = input.attachments ?? [];
     const agentContext = await this.buildAgentContext({
       harness: input.harness,
       action,
+      mode,
+      chatMode,
+      permissionMode,
       cwd,
       prompt: input.prompt,
       config,
@@ -128,6 +254,8 @@ export class StudioRuntimeServer {
       cwd,
       prompt: input.prompt,
       action,
+      chatMode,
+      permissionMode,
       agentContext,
     });
 
@@ -135,8 +263,12 @@ export class StudioRuntimeServer {
       id: `studio-${Date.now().toString(36)}-${randomUUID().slice(0, 8)}`,
       harness: input.harness,
       action,
+      mode,
+      chatMode,
+      permissionMode,
       cwd,
       prompt: input.prompt,
+      attachments,
       status: "running",
       startedAt: new Date().toISOString(),
       completedAt: null,
@@ -148,7 +280,23 @@ export class StudioRuntimeServer {
     this.sessions.set(session.id, session);
     this.activeStreams.add(session.id);
     const outputNormalizer = createStudioOutputNormalizer(commandSpec.outputParser);
-    this.addEvent(session.id, "session_started", `Started ${input.harness}`, { cwd, prompt: input.prompt });
+    this.addEvent(session.id, "chat_message", input.prompt.trim(), {
+      role: "user",
+      chatMode,
+      permissionMode,
+      harness: input.harness,
+      action,
+      attachments,
+    });
+    this.addEvent(session.id, "session_started", `Started ${input.harness}`, { cwd, prompt: input.prompt, mode, chatMode, permissionMode, attachments });
+    this.addEvent(session.id, "reference_trace", "Mémoire package and source references loaded", {
+      references: buildSessionReferenceTrace(agentContext),
+    });
+    if (mode === "brokered") {
+      this.addEvent(session.id, "harness_log", "Brokered tool routing enabled", {
+        tools: this.toolBroker.listTools().map((tool) => tool.id),
+      });
+    }
 
     const child = spawn(commandSpec.command, commandSpec.args, {
       cwd: commandSpec.cwd,
@@ -246,15 +394,148 @@ export class StudioRuntimeServer {
         projectRoot: this.projectRoot,
         runtime: this.runtimeInfo(),
         config,
-        sessions: Array.from(this.sessions.values()).map(summarySession),
-        indexedSessions: this.sessionStore.listSessions(),
         metrics: this.metrics(config),
       });
       return;
     }
 
     if (req.method === "GET" && url.pathname === "/api/harnesses") {
-      this.sendJSON(res, 200, { harnesses: listHarnesses(await this.getConfig()) });
+      this.sendJSON(res, 200, { harnesses: await this.listHarnessSnapshot(isRefreshRequest(url)) });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/compatibility") {
+      this.sendJSON(res, 200, { compatibility: await this.compatibilitySnapshot(isRefreshRequest(url)) });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/tools") {
+      this.sendJSON(res, 200, { tools: this.toolBroker.listTools() });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/tools/call") {
+      const body = await readJSON<StudioToolCallRequest>(req);
+      const call = await this.toolBroker.call(body);
+      this.toolCalls.set(call.id, call);
+      this.emitToolCallEvents(body, call);
+      this.sendJSON(res, call.status === "failed" ? statusCodeForError(call.error) : 200, { call });
+      return;
+    }
+
+    const toolCallMatch = url.pathname.match(/^\/api\/tools\/calls\/([^/]+)$/);
+    if (req.method === "GET" && toolCallMatch) {
+      const id = decodeURIComponent(toolCallMatch[1]);
+      const call = this.toolCalls.get(id);
+      if (!call) {
+        this.sendJSON(res, 404, { error: `Unknown tool call: ${id}` });
+        return;
+      }
+      this.sendJSON(res, 200, { call });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/browser/status") {
+      const config = await this.getConfig();
+      this.sendJSON(res, 200, await this.browser.status(config.enabledTools.browser));
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/computer/status") {
+      const config = await this.getConfig();
+      this.sendJSON(res, 200, this.computer.status(config));
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/computer/open") {
+      const config = await this.getConfig();
+      const body = await readJSON<StudioComputerOpenRequest>(req);
+      const result = await this.computer.open(body, config);
+      this.emitComputerEvent(body.approved ? null : undefined, result);
+      this.sendJSON(res, 200, { result });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/computer/action") {
+      const config = await this.getConfig();
+      const body = await readJSON<StudioComputerActionRequest>(req);
+      const result = await this.computer.action(body, config);
+      this.emitComputerEvent(body.sessionId ?? null, result);
+      this.sendJSON(res, 200, { result });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/browser/session") {
+      const config = await this.getConfig();
+      if (!config.enabledTools.browser) {
+        this.sendJSON(res, 403, { error: "Browser tools are disabled in Studio config" });
+        return;
+      }
+      try {
+        const body = await readJSON<{ url?: string | null }>(req);
+        this.sendJSON(res, 201, { session: await this.browser.createSession(body) });
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/browser/action") {
+      const config = await this.getConfig();
+      if (!config.enabledTools.browser) {
+        this.sendJSON(res, 403, { error: "Browser tools are disabled in Studio config" });
+        return;
+      }
+      try {
+        const body = await readJSON<StudioBrowserActionRequest>(req);
+        this.sendJSON(res, 200, { result: await this.browser.runAction(body) });
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/agents/kits") {
+      try {
+        const target = normalizeAgentInstallTarget(url.searchParams.get("target") ?? "all");
+        this.sendJSON(res, 200, {
+          targets: AGENT_INSTALL_TARGETS,
+          projectRoot: this.projectRoot,
+          suiteManifest: await planSuiteManifest(this.projectRoot, url.searchParams.get("force") === "true"),
+          plans: await planAgentInstall({
+            target,
+            projectRoot: this.projectRoot,
+            dryRun: true,
+            force: url.searchParams.get("force") === "true",
+            global: url.searchParams.get("global") === "true",
+          }),
+        });
+      } catch (error) {
+        this.sendJSON(res, 400, { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/agents/kits/install") {
+      try {
+        const body = await readJSON<{
+          target?: string;
+          dryRun?: boolean;
+          force?: boolean;
+          global?: boolean;
+        }>(req);
+        this.sendJSON(res, 200, await installAgentKits({
+          target: normalizeAgentInstallTarget(body.target),
+          projectRoot: this.projectRoot,
+          dryRun: Boolean(body.dryRun),
+          force: Boolean(body.force),
+          global: Boolean(body.global),
+        }));
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const statusCode = /already exists|already has/i.test(message) ? 409 : 400;
+        this.sendJSON(res, statusCode, { error: message });
+      }
       return;
     }
 
@@ -276,22 +557,268 @@ export class StudioRuntimeServer {
       return;
     }
 
+    if (req.method === "GET" && url.pathname === "/api/automations/templates") {
+      this.sendJSON(res, 200, { templates: DESIGN_AUTOMATION_TEMPLATES });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/automations/scheduler/status") {
+      this.sendJSON(res, 200, { scheduler: schedulerStatus(this.projectRoot, process.execPath) });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/automations/scheduler/install") {
+      this.sendJSON(res, 200, { scheduler: await installScheduler(this.projectRoot, process.execPath) });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/automations/scheduler/uninstall") {
+      this.sendJSON(res, 200, { scheduler: await uninstallScheduler(this.projectRoot, process.execPath) });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/automations/run-due") {
+      const body = await readJSON<{ now?: string }>(req);
+      this.sendJSON(res, 200, { runs: await this.runDueAutomations(body.now) });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/automations") {
+      this.sendJSON(res, 200, { automations: await this.automations.list() });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/automations") {
+      try {
+        const body = await readJSON<AutomationCreateBody>(req);
+        const config = await this.getConfig();
+        const cwd = resolve(body.cwd ?? this.projectRoot);
+        if (!isInWorkspace(cwd, config.workspaceRoots)) {
+          this.sendJSON(res, 403, { error: `Workspace path is not allowed: ${cwd}` });
+          return;
+        }
+        const base = body.templateId
+          ? createAutomationFromTemplate({
+            templateId: body.templateId,
+            cwd,
+            timezone: body.timezone ?? "America/Chicago",
+            sourceSessionId: body.sourceSessionId ?? null,
+          })
+          : {};
+        const automation = await this.automations.create({
+          ...base,
+          ...body,
+          cwd,
+        });
+        this.sendJSON(res, 201, { automation });
+      } catch (error) {
+        const statusCode = typeof (error as { statusCode?: unknown }).statusCode === "number"
+          ? (error as { statusCode: number }).statusCode
+          : 400;
+        this.sendJSON(res, statusCode, { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    const automationRunMatch = url.pathname.match(/^\/api\/automations\/([^/]+)\/run$/);
+    if (req.method === "POST" && automationRunMatch) {
+      try {
+        this.sendJSON(res, 200, { run: await this.runAutomation(decodeURIComponent(automationRunMatch[1])) });
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    const automationRunsMatch = url.pathname.match(/^\/api\/automations\/([^/]+)\/runs$/);
+    if (req.method === "GET" && automationRunsMatch) {
+      try {
+        const automationId = decodeURIComponent(automationRunsMatch[1]);
+        this.sendJSON(res, 200, { runs: await this.automations.listRuns(automationId) });
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    const automationMatch = url.pathname.match(/^\/api\/automations\/([^/]+)$/);
+    if (automationMatch) {
+      const automationId = decodeURIComponent(automationMatch[1]);
+      if (req.method === "GET") {
+        const automation = await this.automations.get(automationId);
+        if (!automation) {
+          this.sendJSON(res, 404, { error: `Unknown automation: ${automationId}` });
+          return;
+        }
+        this.sendJSON(res, 200, { automation });
+        return;
+      }
+      if (req.method === "PATCH") {
+        try {
+          const body = await readJSON<Partial<StudioAutomationDefinition>>(req);
+          this.sendJSON(res, 200, { automation: await this.automations.update(automationId, body) });
+        } catch (error) {
+          this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+        }
+        return;
+      }
+      if (req.method === "DELETE") {
+        this.sendJSON(res, 200, { deleted: await this.automations.delete(automationId) });
+        return;
+      }
+    }
+
     if (req.method === "GET" && url.pathname === "/api/marketplace/notes") {
-      this.sendJSON(res, 200, await listMarketplaceNotes(this.projectRoot));
+      this.sendJSON(res, 200, await listMarketplaceNotes(this.projectRoot, {
+        refresh: isRefreshRequest(url),
+        catalogUrl: url.searchParams.get("catalogUrl"),
+        includeRemote: isRefreshRequest(url) || url.searchParams.has("catalogUrl"),
+      }));
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/marketplace/notes/fork") {
+      try {
+        const body = await readJSON<{ noteId?: string }>(req);
+        const noteId = body.noteId?.trim();
+        if (!noteId) throw Object.assign(new Error("noteId is required"), { statusCode: 400 });
+        const note = await getMarketplaceNote(this.projectRoot, noteId, { includeRemote: false });
+        if (!note) throw Object.assign(new Error(`Unknown marketplace note: ${noteId}`), { statusCode: 404 });
+        if (!note.isForkable || note.sourcePath.startsWith("http://") || note.sourcePath.startsWith("https://")) {
+          throw Object.assign(new Error(`Marketplace note is not locally forkable yet: ${note.name}`), { statusCode: 400 });
+        }
+        const fork = await forkNoteDirectory(this.projectRoot, {
+          sourcePath: note.sourcePath,
+          sourceRepo: note.sourceRepo ?? "https://github.com/sarveshsea/m-moire",
+          sourcePathInRepo: note.sourcePath.includes("/notes/") ? `notes/${note.name}` : note.sourcePath,
+        });
+        this.sendJSON(res, 201, {
+          fork,
+          marketplace: await listMarketplaceNotes(this.projectRoot),
+        });
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/marketplace/notes/forks") {
+      this.sendJSON(res, 200, { forks: await listNoteForks(this.projectRoot) });
+      return;
+    }
+
+    const marketplaceForkFilesMatch = url.pathname.match(/^\/api\/marketplace\/notes\/forks\/([^/]+)\/files$/);
+    if (marketplaceForkFilesMatch) {
+      const forkName = decodeURIComponent(marketplaceForkFilesMatch[1]);
+      try {
+        if (req.method === "GET") {
+          this.sendJSON(res, 200, { files: await getNoteForkFiles(this.projectRoot, forkName) });
+          return;
+        }
+        if (req.method === "PUT") {
+          const body = await readJSON<{ path?: string; content?: string }>(req);
+          this.sendJSON(res, 200, {
+            file: await updateNoteForkFile(this.projectRoot, forkName, {
+              path: body.path ?? "",
+              content: body.content ?? "",
+            }),
+          });
+          return;
+        }
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+        return;
+      }
+    }
+
+    const marketplaceForkActionMatch = url.pathname.match(/^\/api\/marketplace\/notes\/forks\/([^/]+)\/(diff|validate|export-pr)$/);
+    if (marketplaceForkActionMatch) {
+      const forkName = decodeURIComponent(marketplaceForkActionMatch[1]);
+      const action = marketplaceForkActionMatch[2];
+      try {
+        if (req.method === "GET" && action === "diff") {
+          this.sendJSON(res, 200, { diff: await diffNoteFork(this.projectRoot, forkName) });
+          return;
+        }
+        if (req.method === "POST" && action === "validate") {
+          this.sendJSON(res, 200, {
+            validation: await validateCommunityNoteDir(join(this.projectRoot, ".memoire", "notes", forkName), {
+              strictCommunity: true,
+            }),
+          });
+          return;
+        }
+        if (req.method === "POST" && action === "export-pr") {
+          this.sendJSON(res, 200, { handoff: await buildNoteForkPrHandoff(this.projectRoot, forkName) });
+          return;
+        }
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+        return;
+      }
+    }
+
+    const marketplaceNoteMatch = url.pathname.match(/^\/api\/marketplace\/notes\/([^/]+)$/);
+    if (req.method === "GET" && marketplaceNoteMatch) {
+      const note = await getMarketplaceNote(this.projectRoot, decodeURIComponent(marketplaceNoteMatch[1]), {
+        refresh: isRefreshRequest(url),
+        catalogUrl: url.searchParams.get("catalogUrl"),
+      });
+      if (!note) {
+        this.sendJSON(res, 404, { error: `Unknown marketplace note: ${decodeURIComponent(marketplaceNoteMatch[1])}` });
+        return;
+      }
+      this.sendJSON(res, 200, { note });
       return;
     }
 
     if (req.method === "POST" && url.pathname === "/api/marketplace/notes/install") {
       try {
-        this.sendJSON(res, 200, await installMarketplaceNote(
-          this.projectRoot,
-          await readJSON<{ noteId?: string; source?: string }>(req),
-        ));
+        const body = await readJSON<{ noteId?: string; source?: string; version?: string; catalogUrl?: string }>(req);
+        const localMarketplace = !body.source && !body.catalogUrl && body.noteId
+          ? await listMarketplaceNotes(this.projectRoot)
+          : null;
+        const localNote = localMarketplace?.notes.find((note) => note.id === body.noteId || note.name === body.noteId);
+        const job = await this.downloads.installNoteJob({
+          ...body,
+          source: body.source ?? (localNote?.source !== "remote-catalog" ? localNote?.sourcePath : undefined),
+        });
+        this.sendJSON(res, job.status === "failed" ? 500 : 202, {
+          job,
+          marketplace: await listMarketplaceNotes(this.projectRoot, {
+            catalogUrl: body.catalogUrl,
+            includeRemote: Boolean(body.catalogUrl),
+          }),
+        });
       } catch (error) {
         const statusCode = typeof (error as { statusCode?: unknown }).statusCode === "number"
           ? (error as { statusCode: number }).statusCode
           : 500;
         this.sendJSON(res, statusCode, { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/marketplace/notes/update") {
+      try {
+        const body = await readJSON<{ name?: string; all?: boolean; catalogUrl?: string }>(req);
+        if (body.all) {
+          const marketplace = await listMarketplaceNotes(this.projectRoot, {
+            refresh: true,
+            catalogUrl: body.catalogUrl,
+            includeRemote: true,
+          });
+          const jobs = [];
+          for (const note of marketplace.notes.filter((candidate) => candidate.source === "remote-catalog" || candidate.installable)) {
+            jobs.push(await this.downloads.installNoteJob({ noteId: note.name, catalogUrl: body.catalogUrl }));
+          }
+          this.sendJSON(res, 202, { jobs });
+          return;
+        }
+        const job = await this.downloads.installNoteJob({ noteId: body.name, catalogUrl: body.catalogUrl });
+        this.sendJSON(res, 202, { job });
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
       }
       return;
     }
@@ -311,8 +838,121 @@ export class StudioRuntimeServer {
       return;
     }
 
+    if (req.method === "GET" && url.pathname === "/api/downloads") {
+      this.sendJSON(res, 200, { downloads: this.downloads.list() });
+      return;
+    }
+
+    const downloadEventsMatch = url.pathname.match(/^\/api\/downloads\/([^/]+)\/events$/);
+    if (req.method === "GET" && downloadEventsMatch) {
+      this.downloads.writeEventsSSE(decodeURIComponent(downloadEventsMatch[1]), res);
+      return;
+    }
+
+    const downloadMatch = url.pathname.match(/^\/api\/downloads\/([^/]+)$/);
+    if (req.method === "GET" && downloadMatch) {
+      const download = this.downloads.get(decodeURIComponent(downloadMatch[1]));
+      if (!download) {
+        this.sendJSON(res, 404, { error: `Unknown download: ${decodeURIComponent(downloadMatch[1])}` });
+        return;
+      }
+      this.sendJSON(res, 200, { download, events: this.downloads.eventsFor(download.id) });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/video/status") {
+      this.sendJSON(res, 200, { adapters: getVideoAdapterStatus(), projects: await listVideoProjects(this.projectRoot) });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/video/projects") {
+      this.sendJSON(res, 200, { projects: await listVideoProjects(this.projectRoot) });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/video/projects") {
+      try {
+        const body = await readJSON<{ title?: string; prompt?: string; adapter?: "remotion" | "hyperframes" }>(req);
+        const project = await createVideoProject(this.projectRoot, {
+          title: body.title ?? "",
+          prompt: body.prompt,
+          adapter: body.adapter,
+        });
+        this.sendJSON(res, 201, { project });
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    const videoPreviewMatch = url.pathname.match(/^\/api\/video\/projects\/([^/]+)\/preview$/);
+    if (req.method === "POST" && videoPreviewMatch) {
+      this.sendJSON(res, 200, { result: await previewVideoProject(this.projectRoot, decodeURIComponent(videoPreviewMatch[1])) });
+      return;
+    }
+
+    const videoRenderMatch = url.pathname.match(/^\/api\/video\/projects\/([^/]+)\/render$/);
+    if (req.method === "POST" && videoRenderMatch) {
+      this.sendJSON(res, 200, { result: await renderVideoProject(this.projectRoot, decodeURIComponent(videoRenderMatch[1])) });
+      return;
+    }
+
+    const videoDownloadMatch = url.pathname.match(/^\/api\/video\/projects\/([^/]+)\/download$/);
+    if (req.method === "GET" && videoDownloadMatch) {
+      try {
+        const artifact = await videoDownloadArtifact(this.projectRoot, decodeURIComponent(videoDownloadMatch[1]));
+        res.writeHead(200, {
+          "content-type": artifact.mimeType,
+          "content-disposition": `attachment; filename="${basename(artifact.path)}"`,
+        });
+        res.end(artifact.bytes);
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
     if (req.method === "GET" && url.pathname === "/api/project-memory") {
       this.sendJSON(res, 200, await indexProjectMemory(this.projectRoot));
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/knowledge") {
+      const index = await listKnowledgeStore(this.projectRoot, { includeGenerated: includesGeneratedKnowledge(url) });
+      this.sendJSON(res, 200, wantsCompactKnowledge(url) ? compactKnowledgeIndex(index) : index);
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/knowledge/refresh") {
+      const index = await refreshKnowledgeStore(this.projectRoot, { includeGenerated: includesGeneratedKnowledge(url) });
+      this.sendJSON(res, 200, wantsCompactKnowledge(url) ? compactKnowledgeIndex(index) : index);
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/knowledge/capture") {
+      try {
+        const body = await readJSON<StudioKnowledgeCaptureRequest>(req);
+        if (!body.event) throw Object.assign(new Error("Knowledge capture requires an event"), { statusCode: 400 });
+        const item = await captureKnowledgeEvent(this.projectRoot, body.event, body.session, body.item);
+        this.sendJSON(res, 200, { item });
+      } catch (error) {
+        const statusCode = typeof (error as { statusCode?: unknown }).statusCode === "number"
+          ? (error as { statusCode: number }).statusCode
+          : 500;
+        this.sendJSON(res, statusCode, { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    const knowledgeItemMatch = url.pathname.match(/^\/api\/knowledge\/(.+)$/);
+    if (req.method === "GET" && knowledgeItemMatch) {
+      const id = decodeURIComponent(knowledgeItemMatch[1]);
+      const item = await getKnowledgeItem(this.projectRoot, id);
+      if (!item) {
+        this.sendJSON(res, 404, { error: `Unknown knowledge item: ${id}` });
+        return;
+      }
+      this.sendJSON(res, 200, { item });
       return;
     }
 
@@ -399,29 +1039,187 @@ export class StudioRuntimeServer {
       return;
     }
 
+    if (req.method === "GET" && url.pathname === "/api/design-system/trace") {
+      this.sendJSON(res, 200, { trace: await collectDesignSystemTrace(this.projectRoot) });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/design-changelog") {
+      if (url.searchParams.get("format") === "markdown") {
+        res.writeHead(200, { "content-type": "text/markdown; charset=utf-8" });
+        res.end(await exportDesignChangelogMarkdown(this.projectRoot));
+        return;
+      }
+      this.sendJSON(res, 200, { entries: await listDesignChangelogEntries(this.projectRoot) });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/design-changelog") {
+      try {
+        this.sendJSON(res, 200, { entry: await createDesignChangelogEntry(this.projectRoot, await readJSON(req)) });
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/design-changelog/capture") {
+      try {
+        const body = await readJSON<DesignChangelogCaptureRequest>(req);
+        this.sendJSON(res, 200, await captureDesignChangelogEntry(this.projectRoot, body));
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    const designChangelogRestoreMatch = url.pathname.match(/^\/api\/design-changelog\/([^/]+)\/restore$/);
+    if (req.method === "POST" && designChangelogRestoreMatch) {
+      try {
+        this.sendJSON(res, 200, { entry: await restoreDesignChangelogEntry(this.projectRoot, decodeURIComponent(designChangelogRestoreMatch[1])) });
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    const designChangelogMatch = url.pathname.match(/^\/api\/design-changelog\/([^/]+)$/);
+    if (designChangelogMatch && req.method === "PATCH") {
+      try {
+        this.sendJSON(res, 200, {
+          entry: await updateDesignChangelogEntry(this.projectRoot, decodeURIComponent(designChangelogMatch[1]), await readJSON(req)),
+        });
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    if (designChangelogMatch && req.method === "DELETE") {
+      try {
+        this.sendJSON(res, 200, { entry: await archiveDesignChangelogEntry(this.projectRoot, decodeURIComponent(designChangelogMatch[1])) });
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/design-system/assets") {
+      const asset = await readResolvedAsset(this.projectRoot, url.searchParams.get("path") ?? "");
+      if (!asset) {
+        this.sendJSON(res, 404, { error: "Asset not found or not allowed" });
+        return;
+      }
+      res.writeHead(200, { "content-type": asset.mimeType });
+      res.end(asset.bytes);
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/attachments/capture") {
+      try {
+        const body = await readJSON<StudioAttachmentCaptureRequest>(req);
+        this.sendJSON(res, 200, { attachment: await captureStudioAttachment(this.projectRoot, body) });
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    const attachmentMatch = url.pathname.match(/^\/api\/attachments\/([^/]+)$/);
+    if (req.method === "GET" && attachmentMatch) {
+      const attachment = await getStudioAttachment(this.projectRoot, decodeURIComponent(attachmentMatch[1]));
+      if (!attachment) {
+        this.sendJSON(res, 404, { error: `Unknown attachment: ${decodeURIComponent(attachmentMatch[1])}` });
+        return;
+      }
+      if (url.searchParams.get("raw") === "1" && attachment.path) {
+        res.writeHead(200, { "content-type": attachment.mimeType || "application/octet-stream" });
+        res.end(await readFile(attachment.path));
+        return;
+      }
+      this.sendJSON(res, 200, { attachment });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/artifacts") {
+      this.sendJSON(res, 200, { artifacts: await listDesignSystemArtifacts(this.projectRoot) });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/artifacts/capture") {
+      try {
+        const body = await readJSON<StudioDesignSystemArtifactCaptureRequest>(req);
+        this.sendJSON(res, 200, { artifact: await captureDesignSystemArtifact(this.projectRoot, body) });
+      } catch (error) {
+        const statusCode = typeof (error as { statusCode?: unknown }).statusCode === "number"
+          ? (error as { statusCode: number }).statusCode
+          : 500;
+        this.sendJSON(res, statusCode, { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    const artifactSectionReviewMatch = url.pathname.match(/^\/api\/artifacts\/([^/]+)\/sections\/([^/]+)\/review$/);
+    if (req.method === "PATCH" && artifactSectionReviewMatch) {
+      try {
+        const body = await readJSON<StudioDesignSystemArtifactReviewPatch>(req);
+        this.sendJSON(res, 200, {
+          artifact: await updateDesignSystemArtifactSectionReview(
+            this.projectRoot,
+            decodeURIComponent(artifactSectionReviewMatch[1]),
+            decodeURIComponent(artifactSectionReviewMatch[2]),
+            body,
+          ),
+        });
+      } catch (error) {
+        const statusCode = typeof (error as { statusCode?: unknown }).statusCode === "number"
+          ? (error as { statusCode: number }).statusCode
+          : 500;
+        this.sendJSON(res, statusCode, { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    const artifactMatch = url.pathname.match(/^\/api\/artifacts\/([^/]+)$/);
+    if (req.method === "GET" && artifactMatch) {
+      const artifact = await getDesignSystemArtifact(this.projectRoot, decodeURIComponent(artifactMatch[1]));
+      if (!artifact) {
+        this.sendJSON(res, 404, { error: `Unknown artifact: ${decodeURIComponent(artifactMatch[1])}` });
+        return;
+      }
+      this.sendJSON(res, 200, { artifact });
+      return;
+    }
+
     if (req.method === "PUT" && url.pathname === "/api/config") {
       const body = await readJSON<StudioConfig>(req);
       await saveStudioConfig(this.projectRoot, body);
       this.config = await loadStudioConfig(this.projectRoot);
+      this.harnessSnapshot = null;
+      clearHarnessProbeCaches();
       this.sendJSON(res, 200, { config: this.config });
       return;
     }
 
     if (req.method === "GET" && url.pathname === "/api/sessions") {
-      this.sendJSON(res, 200, { sessions: Array.from(this.sessions.values()).map(summarySession) });
+      this.sendJSON(res, 200, { sessions: this.listSessionSummaries() });
       return;
     }
 
     if (req.method === "POST" && url.pathname === "/api/sessions") {
-      const body = await readJSON<{ harness?: StudioHarnessId; cwd?: string; prompt?: string; action?: StudioRunAction }>(req);
+      const body = await readJSON<{ harness?: StudioHarnessId; cwd?: string; prompt?: string; action?: StudioRunAction; mode?: StudioSessionMode; chatMode?: StudioChatMode; permissionMode?: StudioPermissionMode; attachments?: StudioAttachment[] }>(req);
       try {
         const session = await this.startSession({
           harness: body.harness ?? (await this.getConfig()).defaultHarness,
           cwd: body.cwd ?? this.projectRoot,
           prompt: body.prompt ?? "",
           action: body.action,
+          mode: body.mode,
+          chatMode: body.chatMode,
+          permissionMode: body.permissionMode,
+          attachments: body.attachments,
         });
-        this.sendJSON(res, 201, { session: summarySession(session) });
+        this.sendJSON(res, 201, { session: summarySession(session, "live") });
       } catch (error) {
         const statusCode = typeof (error as { statusCode?: unknown }).statusCode === "number"
           ? (error as { statusCode: number }).statusCode
@@ -433,7 +1231,37 @@ export class StudioRuntimeServer {
 
     const sessionEventsMatch = url.pathname.match(/^\/api\/sessions\/([^/]+)\/events$/);
     if (req.method === "GET" && sessionEventsMatch) {
-      this.handleSessionEvents(sessionEventsMatch[1], res);
+      const sessionId = decodeURIComponent(sessionEventsMatch[1]);
+      const wantsSSE = req.headers.accept?.includes("text/event-stream") && !url.searchParams.has("limit");
+      if (wantsSSE) {
+        this.handleSessionEvents(sessionId, res);
+      } else {
+        const record = this.readSessionRecord(sessionId, parseLimit(url.searchParams.get("limit")));
+        if (!record) {
+          this.sendJSON(res, 404, { error: `Unknown session: ${sessionId}` });
+          return;
+        }
+        this.sendJSON(res, 200, record);
+      }
+      return;
+    }
+
+    const sessionTraceMatch = url.pathname.match(/^\/api\/sessions\/([^/]+)\/trace$/);
+    if (req.method === "GET" && sessionTraceMatch) {
+      const sessionId = decodeURIComponent(sessionTraceMatch[1]);
+      const record = this.readSessionRecord(sessionId);
+      if (!record) {
+        this.sendJSON(res, 404, { error: `Unknown session: ${sessionId}` });
+        return;
+      }
+      this.sendJSON(res, 200, {
+        session: record.session,
+        trace: createStudioTraceSnapshot({
+          session: record.session,
+          events: record.events,
+          source: record.session.source,
+        }),
+      });
       return;
     }
 
@@ -454,6 +1282,73 @@ export class StudioRuntimeServer {
     }
 
     this.sendJSON(res, 404, { error: "Not found" });
+  }
+
+  async runDueAutomations(now?: string): Promise<StudioAutomationRun[]> {
+    const due = await this.automations.claimDue(now ?? new Date().toISOString());
+    const runs: StudioAutomationRun[] = [];
+    for (const automation of due) {
+      runs.push(await this.runAutomation(automation.id, automation));
+    }
+    return runs;
+  }
+
+  async runAutomation(id: string, loaded?: StudioAutomationDefinition): Promise<StudioAutomationRun> {
+    const automation = loaded ?? await this.automations.get(id);
+    if (!automation) throw Object.assign(new Error(`Unknown automation: ${id}`), { statusCode: 404 });
+    const config = await this.getConfig();
+    if (!isInWorkspace(automation.cwd, config.workspaceRoots)) {
+      throw Object.assign(new Error(`Workspace path is not allowed: ${automation.cwd}`), { statusCode: 403 });
+    }
+    const startedAt = new Date().toISOString();
+    const run: StudioAutomationRun = {
+      id: `automation-run-${Date.now().toString(36)}-${randomUUID().slice(0, 8)}`,
+      automationId: automation.id,
+      sessionId: null,
+      status: "running",
+      startedAt,
+      completedAt: null,
+      error: null,
+    };
+    try {
+      const session = await this.startSession({
+        harness: automation.harness,
+        cwd: automation.cwd,
+        prompt: buildAutomationPrompt(automation, config),
+        action: automation.action,
+        chatMode: automation.chatMode,
+        permissionMode: automation.permissionMode,
+        codex: automation.codex,
+      });
+      run.sessionId = session.id;
+      const completedSession = await this.waitForSessionCompletion(session.id);
+      run.status = completedSession.status === "completed" ? "completed" : "failed";
+      run.completedAt = completedSession.completedAt ?? new Date().toISOString();
+      run.error = completedSession.status === "failed" ? `Session exited with code ${completedSession.exitCode ?? "unknown"}` : null;
+      await this.automations.appendRun(automation.id, run);
+      return run;
+    } catch (error) {
+      run.status = "failed";
+      run.completedAt = new Date().toISOString();
+      run.error = error instanceof Error ? error.message : String(error);
+      await this.automations.appendRun(automation.id, run);
+      return run;
+    }
+  }
+
+  private async waitForSessionCompletion(sessionId: string): Promise<StudioSession> {
+    const session = this.sessions.get(sessionId);
+    if (!session) throw Object.assign(new Error(`Unknown session: ${sessionId}`), { statusCode: 404 });
+    if (session.status !== "running") return session;
+    return new Promise((resolveSession) => {
+      const timer = setInterval(() => {
+        const current = this.sessions.get(sessionId) ?? session;
+        if (current.status !== "running") {
+          clearInterval(timer);
+          resolveSession(current);
+        }
+      }, 100);
+    });
   }
 
   private async handleWorkspace(url: URL, res: ServerResponse): Promise<void> {
@@ -524,6 +1419,75 @@ export class StudioRuntimeServer {
     res.on("close", () => this.clients.delete(client));
   }
 
+  private listSessionSummaries(): StudioSessionSummary[] {
+    const live = Array.from(this.sessions.values()).map((session) => summarySession(session, "live"));
+    const liveIds = new Set(live.map((session) => session.id));
+    const persisted = this.sessionStore
+      .listSessions()
+      .filter((session) => !liveIds.has(session.id))
+      .map((session) => ({ ...session, source: "persisted" as const }));
+    return [...live, ...persisted];
+  }
+
+  private async listHarnessSnapshot(forceRefresh = false): Promise<StudioHarnessStatus[]> {
+    const now = Date.now();
+    if (!forceRefresh && this.harnessSnapshot && now - this.harnessSnapshot.checkedAt < this.harnessSnapshotTtlMs) {
+      return this.harnessSnapshot.harnesses;
+    }
+    if (forceRefresh) clearHarnessProbeCaches();
+    const harnesses = listHarnesses(await this.getConfig(), { forceRefresh });
+    this.harnessSnapshot = { harnesses, checkedAt: now };
+    return harnesses;
+  }
+
+  private async compatibilitySnapshot(forceRefresh = false) {
+    const config = await this.getConfig();
+    const [figma, browser] = await Promise.all([
+      this.figma.status(),
+      this.browser.status(config.enabledTools.browser),
+    ]);
+    return createStudioCompatibilitySnapshot({
+      config,
+      harnesses: await this.listHarnessSnapshot(forceRefresh),
+      browser,
+      figma,
+      computer: this.computer.status(config),
+    });
+  }
+
+  private emitComputerEvent(sessionId: string | null | undefined, result: { status: string; action: string; message: string }): void {
+    if (!sessionId) return;
+    if (!this.sessions.has(sessionId)) return;
+    const type: StudioEventType = result.status === "completed"
+      ? "computer_action_completed"
+      : result.status === "approval_required"
+        ? "approval_request"
+        : "computer_action_failed";
+    this.addEvent(sessionId, type, result.message, result);
+  }
+
+  private readSessionRecord(sessionId: string, limit?: number): {
+    session: StudioSessionSummary;
+    events: StudioEvent[];
+  } | null {
+    const live = this.sessions.get(sessionId);
+    if (live) {
+      const persistedEvents = this.sessionStore.readSessionEvents(sessionId, { limit });
+      const events = persistedEvents.length > 0
+        ? persistedEvents
+        : limit && limit > 0
+          ? live.events.slice(-limit)
+          : live.events;
+      return { session: summarySession(live, "live"), events };
+    }
+    const persisted = this.sessionStore.getSession(sessionId);
+    if (!persisted) return null;
+    return {
+      session: { ...persisted, source: "persisted" },
+      events: this.sessionStore.readSessionEvents(sessionId, { limit }),
+    };
+  }
+
   private addEvent(sessionId: string, type: StudioEventType, message: string, data?: unknown): void {
     const session = this.sessions.get(sessionId);
     if (!session) return;
@@ -539,9 +1503,59 @@ export class StudioRuntimeServer {
     if (session.events.length > this.maxInMemoryEvents) session.events.splice(0, session.events.length - this.maxInMemoryEvents);
     this.eventBufferSize = Math.min(200_000, this.eventBufferSize + event.message.length);
     this.sessionStore.appendEvent(session, event);
+    if (shouldCaptureKnowledgeEvent(event)) {
+      void captureKnowledgeEvent(this.projectRoot, event, {
+        harness: session.harness,
+        action: session.action,
+      }).catch(() => undefined);
+    }
+    if (shouldCaptureDesignSystemArtifactEvent(event)) {
+      void captureDesignSystemArtifact(this.projectRoot, {
+        session: {
+          id: session.id,
+          harness: session.harness,
+          action: session.action,
+          cwd: session.cwd,
+        },
+        events: this.sessionStore.readSessionEvents(sessionId),
+      }).catch(() => undefined);
+    }
+    if (event.type === "session_done" || event.type === "session_result") {
+      void captureDesignChangelogEntry(this.projectRoot, {
+        session: {
+          id: session.id,
+          harness: session.harness,
+          action: session.action,
+          cwd: session.cwd,
+          prompt: session.prompt,
+        },
+        events: this.sessionStore.readSessionEvents(sessionId),
+      }).catch(() => undefined);
+    }
     for (const client of this.clients) {
       if (client.sessionId === sessionId) writeSSE(client.res, event);
     }
+  }
+
+  private emitToolCallEvents(request: StudioToolCallRequest, call: StudioToolCallResult): void {
+    if (!request.sessionId || !this.sessions.has(request.sessionId)) return;
+    this.addEvent(request.sessionId, "tool_call", request.toolId, {
+      callId: call.id,
+      input: request.input ?? {},
+      approved: Boolean(request.approved),
+    });
+    if (call.status === "approval_required") {
+      this.addEvent(request.sessionId, "approval_request", call.error ?? "Approval required", {
+        callId: call.id,
+        approval: call.approval,
+      });
+      return;
+    }
+    this.addEvent(request.sessionId, call.status === "completed" ? "tool_result" : "session_error", call.error ?? request.toolId, {
+      callId: call.id,
+      result: call.data,
+      artifactPath: call.artifactPath,
+    });
   }
 
   private async getConfig(): Promise<StudioConfig> {
@@ -552,19 +1566,28 @@ export class StudioRuntimeServer {
   private async buildAgentContext(input: {
     harness: StudioHarnessId;
     action: StudioRunAction;
+    mode: StudioSessionMode;
+    chatMode: StudioChatMode;
+    permissionMode: StudioPermissionMode;
     cwd: string;
     prompt: string;
     config: StudioConfig;
   }): Promise<StudioAgentContext> {
-    const [memory, figmaStatus] = await Promise.all([
+    const [memory, knowledge, figmaStatus, researchDesign] = await Promise.all([
       indexProjectMemory(this.projectRoot).catch(() => null),
+      listKnowledgeStore(this.projectRoot).catch(() => null),
       this.figma.status().catch(() => null),
+      this.buildResearchDesignAgentContext().catch(() => null),
     ]);
     return {
       workspaceLabel: "Memoire workspace",
       projectRoot: this.projectRoot,
       harness: input.harness,
       action: input.action,
+      mode: input.mode,
+      chatMode: input.chatMode,
+      permissionMode: input.permissionMode,
+      codex: input.config.codex,
       prompt: input.prompt,
       memory: {
         counts: memory?.counts ?? { home: 0, research: 0, spec: 0, system: 0, monitor: 0, changelog: 0 },
@@ -572,6 +1595,7 @@ export class StudioRuntimeServer {
           kind: item.kind,
           title: item.title,
           summary: item.summary,
+          sourcePath: item.sourcePath,
         })),
       },
       figma: {
@@ -580,6 +1604,44 @@ export class StudioRuntimeServer {
         clients: figmaStatus?.clients.length ?? 0,
         port: figmaStatus?.port ?? input.config.figma?.preferredPort ?? null,
       },
+      knowledge: {
+        counts: knowledge?.counts ?? {},
+        recent: (knowledge?.items ?? []).slice(0, 8).map((item) => ({
+          kind: item.kind,
+          title: item.title,
+          summary: item.summary,
+          sourcePath: item.sourcePath,
+        })),
+      },
+      researchDesign: researchDesign ?? {
+        personas: [],
+        findings: [],
+        risks: [],
+        metrics: [],
+        latestSimulationRunId: null,
+        suggestedTools: ["research.design_package", "research.generate_specs", "mermaid_jam.export"],
+      },
+    };
+  }
+
+  private async buildResearchDesignAgentContext(): Promise<StudioAgentContext["researchDesign"]> {
+    let research: ResearchStore | null = null;
+    try {
+      research = JSON.parse(await readFile(join(this.projectRoot, "research", "store.v2.json"), "utf-8")) as ResearchStore;
+    } catch {
+      research = null;
+    }
+    const runs = await new FileSimulationStore(this.projectRoot).listRuns();
+    const latestRun = runs
+      .slice()
+      .sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))[0] ?? null;
+    return {
+      personas: (research?.personas ?? []).slice(0, 3).map((persona) => compactResearchContext(`${persona.name}${persona.role ? ` (${persona.role})` : ""}`)),
+      findings: (research?.findings ?? []).slice(0, 5).map((finding) => compactResearchContext(`${finding.id}: ${finding.statement}`)),
+      risks: (research?.risks ?? []).slice(0, 4).map((risk) => compactResearchContext(`${risk.title}: ${risk.summary}`)),
+      metrics: (research?.quantitativeMetrics ?? []).slice(0, 4).map((metric) => compactResearchContext(`${metric.label || metric.field}: ${metric.mean ?? "n/a"}`)),
+      latestSimulationRunId: latestRun?.id ?? null,
+      suggestedTools: ["research.design_package", "research.generate_specs", "mermaid_jam.export"],
     };
   }
 
@@ -599,12 +1661,14 @@ export class StudioRuntimeServer {
       eventBufferSize: this.eventBufferSize,
       harnessProbeCacheAgeMs: harnessProbeCacheAgeMs(),
       enabledHarnesses: config.harnesses.filter((harness) => harness.enabled).length,
+      catalogCacheAgeMs: studioCatalogCache.ageMs,
+      downloads: this.downloads.metrics(),
     };
   }
 
   private setBaseHeaders(res: ServerResponse): void {
     res.setHeader("access-control-allow-origin", "*");
-    res.setHeader("access-control-allow-methods", "GET,POST,PUT,OPTIONS");
+    res.setHeader("access-control-allow-methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
     res.setHeader("access-control-allow-headers", "content-type");
     res.setHeader("x-content-type-options", "nosniff");
   }
@@ -634,20 +1698,60 @@ function parseLimit(value: string | null): number | undefined {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
+function statusCodeFromUnknown(error: unknown): number {
+  const statusCode = typeof (error as { statusCode?: unknown })?.statusCode === "number"
+    ? (error as { statusCode: number }).statusCode
+    : 500;
+  return statusCode;
+}
+
+function statusCodeForError(error: string | undefined): number {
+  if (!error) return 500;
+  if (/not found|unknown/i.test(error)) return 404;
+  if (/not allowed|disabled|workspace/i.test(error)) return 403;
+  if (/requires|invalid/i.test(error)) return 400;
+  if (/unavailable|not installed/i.test(error)) return 501;
+  return 500;
+}
+
 function isInWorkspace(path: string, roots: string[]): boolean {
   return roots.some((root) => isSubpath(path, root));
 }
 
+function isRefreshRequest(url: URL): boolean {
+  return url.searchParams.get("refresh") === "1" || url.searchParams.get("refresh") === "true";
+}
+
+function wantsCompactKnowledge(url: URL): boolean {
+  return url.searchParams.get("detail") === "compact";
+}
+
+function includesGeneratedKnowledge(url: URL): boolean {
+  return url.searchParams.get("includeGenerated") === "1" || url.searchParams.get("includeGenerated") === "true";
+}
+
 function isSubpath(path: string, root: string): boolean {
-  const normalizedPath = resolve(path);
-  const normalizedRoot = resolve(root);
+  const normalizedPath = canonicalPath(path);
+  const normalizedRoot = canonicalPath(root);
   const rel = relative(normalizedRoot, normalizedPath);
   return rel === "" || (!rel.startsWith("..") && !rel.includes(`..${sep}`) && rel !== "..");
 }
 
-function summarySession(session: StudioSession): Omit<StudioSession, "events"> & { eventCount: number } {
+function canonicalPath(path: string): string {
+  const resolved = resolve(path);
+  try {
+    return realpathSync.native(resolved);
+  } catch {
+    return resolved;
+  }
+}
+
+function summarySession(
+  session: StudioSession,
+  source: "live" | "persisted" = "live",
+): StudioSessionSummary {
   const { events: _events, ...rest } = session;
-  return { ...rest, eventCount: session.events.length };
+  return { ...rest, eventCount: session.events.length, source };
 }
 
 function contentTypeFor(filePath: string): string {
@@ -670,6 +1774,20 @@ function candidateStudioAssetRoots(projectRoot: string): string[] {
   ];
 }
 
+function defaultChatMode(harness: StudioHarnessId, action: StudioRunAction, prompt: string): StudioChatMode {
+  const normalized = `${harness} ${action} ${prompt}`.toLowerCase();
+  if (/\bresearch|netnograph|interview|survey|dovetail|theme|insight\b/.test(normalized)) return "research";
+  if (/\baudit|review|check|qa|test\b/.test(normalized)) return "review";
+  if (/\bterminal|shell|command|logs?\b/.test(normalized) || harness === "shell") return "terminal";
+  if (/\bbuild|fix|implement|patch|generate code\b/.test(normalized)) return "build";
+  return "ideate";
+}
+
+function compactResearchContext(value: string, max = 120): string {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  return normalized.length <= max ? normalized : `${normalized.slice(0, max - 1).trimEnd()}...`;
+}
+
 function defaultStudioHTML(runtimeUrl: string): string {
   return `<!doctype html>
 <html lang="en">
@@ -678,10 +1796,11 @@ function defaultStudioHTML(runtimeUrl: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mémoire Studio</title>
   <style>
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #000; color: #fff; font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; }
-    main { max-width: 560px; border: 1px solid rgba(255,255,255,.12); border-radius: 6px; padding: 16px; background: #0b0b0b; }
-    h1 { margin: 0 0 12px; font: 400 28px Inter, ui-sans-serif, system-ui; }
-    code { color: #007eed; }
+    :root { color-scheme: dark; --font-studio: "Geist Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; --font-size-sm: 14px; --font-size-md: 28px; --font-weight-regular: 400; --space-0: 0; --space-3: 12px; --space-4: 16px; --fallback-width: 560px; --studio-color-surface-bg-dark: Canvas; --studio-color-surface-dark: Canvas; --studio-color-ink-dark: CanvasText; --studio-color-agentic-accent: LinkText; --radius-panel: 6px; }
+    body { margin: var(--space-0); min-height: 100vh; display: grid; place-items: center; background: var(--studio-color-surface-bg-dark); color: var(--studio-color-ink-dark); font-family: var(--font-studio); font-size: var(--font-size-sm); font-weight: var(--font-weight-regular); }
+    main { max-width: var(--fallback-width); border: 1px solid color-mix(in srgb, var(--studio-color-ink-dark) 12%, transparent); border-radius: var(--radius-panel); padding: var(--space-4); background: var(--studio-color-surface-dark); }
+    h1 { margin: var(--space-0) var(--space-0) var(--space-3); font-size: var(--font-size-md); font-weight: var(--font-weight-regular); }
+    code { color: var(--studio-color-agentic-accent); }
   </style>
 </head>
 <body><main><h1>Mémoire Studio runtime</h1><p>The desktop shell is not built yet. Runtime API is available at <code>${runtimeUrl}/api/status</code>.</p></main></body>

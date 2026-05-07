@@ -28,6 +28,38 @@ describe("studio video workflows and Figma launcher", () => {
         adapter: "remotion",
       });
       expect(await readFile(join(created.projectDir, "README.md"), "utf-8")).toContain("npx remotion studio");
+      expect(await readFile(join(created.projectDir, "package.json"), "utf-8")).toContain("@remotion/cli");
+      expect(await readFile(join(created.projectDir, "src", "Root.tsx"), "utf-8")).toContain("Composition");
+      expect(await readFile(join(created.projectDir, "src", "index.ts"), "utf-8")).toContain("registerRoot");
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("creates Hyperframes projects with renderable HTML, config, and current CLI commands", async () => {
+    const root = await mkdtemp(join(tmpdir(), "memoire-video-hyperframes-"));
+    try {
+      const created = await createVideoProject(root, {
+        title: "Hyperframes launch",
+        prompt: "Make a kinetic launch card",
+        adapter: "hyperframes",
+      });
+
+      expect(created.files).toEqual(expect.arrayContaining(["index.html", "hyperframes.json"]));
+      expect(await readFile(join(created.projectDir, "index.html"), "utf-8")).toContain("Make a kinetic launch card");
+      expect(await readFile(join(created.projectDir, "hyperframes.json"), "utf-8")).toContain("hyperframes-launch");
+
+      const preview = await previewVideoProject(root, created.id, {
+        resolveCommand: (command) => command === "npx" ? "/usr/bin/npx" : null,
+        resolvePackage: () => null,
+      });
+      const render = await renderVideoProject(root, created.id, {
+        resolveCommand: (command) => command === "npx" ? "/usr/bin/npx" : null,
+        resolvePackage: () => null,
+      });
+
+      expect(preview.command).toEqual(["npx", "hyperframes", "preview", created.projectDir]);
+      expect(render.command).toEqual(["npx", "hyperframes", "render", created.projectDir, "--output", join(created.projectDir, "dist", "hyperframes-launch.mp4")]);
     } finally {
       await rm(root, { recursive: true, force: true });
     }
@@ -114,6 +146,11 @@ function createBridge(): StudioFigmaBridgeLike {
     async getPageTree() { return {}; },
     async getWidgetSnapshot() { return {}; },
     async captureScreenshot() { return {}; },
+    async createNode() { return {}; },
+    async updateNode() { return {}; },
+    async deleteNode() { return {}; },
+    async setSelection() { return {}; },
+    async navigateTo() { return {}; },
     async pushTokens() {},
   };
 }

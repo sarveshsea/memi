@@ -1,10 +1,19 @@
-import { mkdtemp, rm, writeFile, mkdir, chmod } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile, mkdir, chmod } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { describe, expect, it } from "vitest";
-import { buildHarnessCommand, listHarnesses } from "../harnesses.js";
+import { beforeEach, describe, expect, it } from "vitest";
+import { buildHarnessCommand, clearHarnessProbeCaches, listHarnesses } from "../harnesses.js";
 import { defaultStudioConfig } from "../config.js";
-import type { StudioAgentContext } from "../types.js";
+import type { StudioAgentContext, StudioConfig, StudioHarnessId } from "../types.js";
+
+function enableHarness(config: StudioConfig, harnessId: StudioHarnessId): StudioConfig {
+  return {
+    ...config,
+    harnesses: config.harnesses.map((harness) => (
+      harness.id === harnessId ? { ...harness, enabled: true } : harness
+    )),
+  };
+}
 
 function agentContext(root: string, prompt = "Audit the design system"): StudioAgentContext {
   return {
@@ -12,6 +21,9 @@ function agentContext(root: string, prompt = "Audit the design system"): StudioA
     projectRoot: root,
     action: "audit",
     harness: "codex",
+    mode: "delegate",
+    chatMode: "ideate",
+    permissionMode: "guarded",
     prompt,
     memory: {
       counts: { home: 1, research: 0, spec: 4, system: 7, monitor: 1, changelog: 0 },
@@ -27,9 +39,13 @@ function agentContext(root: string, prompt = "Audit the design system"): StudioA
 }
 
 describe("studio harnesses", () => {
+  beforeEach(() => {
+    clearHarnessProbeCaches();
+  });
+
   it("builds Memoire native compose command with JSON output", () => {
     const root = "/tmp/project";
-    const config = defaultStudioConfig(root);
+    const config = enableHarness(defaultStudioConfig(root), "memoire");
 
     const command = buildHarnessCommand(config, {
       harnessId: "memoire",
@@ -49,7 +65,7 @@ describe("studio harnesses", () => {
       await writeFile(join(root, "src", "index.ts"), "console.log('local memoire')\n");
       await writeFile(join(root, "node_modules", ".bin", "tsx"), "#!/bin/sh\n");
       await chmod(join(root, "node_modules", ".bin", "tsx"), 0o755);
-      const config = defaultStudioConfig(root);
+      const config = enableHarness(defaultStudioConfig(root), "memoire");
 
       const command = buildHarnessCommand(config, {
         harnessId: "memoire",
@@ -76,7 +92,7 @@ describe("studio harnesses", () => {
       agentContext: agentContext(root, "audit the app"),
     })).toMatchObject({
       command: "codex",
-      args: expect.arrayContaining(["exec", "--json", "--sandbox", "workspace-write", "--skip-git-repo-check"]),
+      args: expect.arrayContaining(["--search", "exec", "--json", "--model", "gpt-5.5", "-c", 'model_reasoning_effort="xhigh"', "-c", 'approval_policy="never"', "--sandbox", "workspace-write", "--skip-git-repo-check"]),
       cwd: root,
       outputParser: "codex-jsonl",
     });
@@ -88,7 +104,16 @@ describe("studio harnesses", () => {
       agentContext: agentContext(root, "audit the app"),
     });
     expect(codex.args.at(-1)).toContain("# Mémoire Studio Agent Task");
+    expect(codex.args.at(-1)).toContain("Codex GPT-5.5 design workspace");
+    expect(codex.args.at(-1)).toContain("acceptance criteria");
+    expect(codex.args.at(-1)).toContain("repo creation");
     expect(codex.args.at(-1)).toContain("UX research");
+    expect(codex.args.at(-1)).toContain("Codex + Mémoire command ladder");
+    expect(codex.args.at(-1)).toContain("memi research report --json");
+    expect(codex.args.at(-1)).toContain("codex login status");
+    expect(codex.args.at(-1)).toContain("model_reasoning_effort");
+    expect(codex.args.at(-1)).toContain("- Chat mode: ideate");
+    expect(codex.args.at(-1)).toContain("- Permission mode: guarded");
 
     expect(buildHarnessCommand(config, {
       harnessId: "claude-code",
@@ -98,7 +123,7 @@ describe("studio harnesses", () => {
       agentContext: agentContext(root, "fix layout"),
     })).toMatchObject({
       command: "claude",
-      args: expect.arrayContaining(["--print", "--output-format", "stream-json", "--permission-mode", "default", "--append-system-prompt"]),
+      args: expect.arrayContaining(["-p", "--verbose", "--output-format", "stream-json", "--include-partial-messages", "--permission-mode", "default", "--append-system-prompt"]),
       cwd: root,
       outputParser: "claude-stream-json",
     });
@@ -109,8 +134,87 @@ describe("studio harnesses", () => {
       action: "compose",
       agentContext: agentContext(root, "fix layout"),
     });
+    expect(claude.args).toContain("--verbose");
     expect(claude.args.at(-1)).toContain("# Mémoire Studio Agent Task");
     expect(claude.args[claude.args.indexOf("--append-system-prompt") + 1]).toContain("Mémoire Studio design harness");
+    expect(claude.args[claude.args.indexOf("--append-system-prompt") + 1]).toContain("Chat mode: ideate");
+  });
+
+  it("maps Codex permission modes to explicit sandbox power levels", () => {
+    const root = "/tmp/project";
+    const config = defaultStudioConfig(root);
+    const commandForMode = (permissionMode: "plan" | "guarded" | "full_access") => buildHarnessCommand(config, {
+      harnessId: "codex",
+      cwd: root,
+      prompt: "audit the app",
+      action: "audit",
+      permissionMode,
+      agentContext: { ...agentContext(root, "audit the app"), permissionMode },
+    }).args;
+
+    expect(commandForMode("plan")).toEqual(expect.arrayContaining(["--sandbox", "read-only"]));
+    expect(commandForMode("guarded")).toEqual(expect.arrayContaining(["--sandbox", "workspace-write"]));
+    expect(commandForMode("full_access")).toContain("--dangerously-bypass-approvals-and-sandbox");
+    expect(commandForMode("full_access")).not.toContain("--sandbox");
+  });
+
+  it("applies Codex research settings without placing global flags after exec", () => {
+    const root = "/tmp/project";
+    const config: StudioConfig = {
+      ...defaultStudioConfig(root),
+      codex: {
+        ...defaultStudioConfig(root).codex,
+        model: "gpt-5.4",
+        reasoningEffort: "high",
+        approvalPolicy: "on-request",
+        webSearch: true,
+      },
+    };
+
+    const args = buildHarnessCommand(config, {
+      harnessId: "codex",
+      cwd: root,
+      prompt: "research the onboarding market",
+      action: "research",
+      agentContext: {
+        ...agentContext(root, "research the onboarding market"),
+        action: "research",
+        codex: config.codex,
+      },
+    }).args;
+
+    expect(args.slice(0, 2)).toEqual(["--search", "exec"]);
+    expect(args).toEqual(expect.arrayContaining([
+      "--model",
+      "gpt-5.4",
+      "-c",
+      'model_reasoning_effort="high"',
+      "-c",
+      'approval_policy="on-request"',
+    ]));
+    expect(args.indexOf("--search")).toBeLessThan(args.indexOf("exec"));
+  });
+
+  it("does not add Codex web search when research search is disabled", () => {
+    const root = "/tmp/project";
+    const config: StudioConfig = {
+      ...defaultStudioConfig(root),
+      codex: {
+        ...defaultStudioConfig(root).codex,
+        webSearch: false,
+      },
+    };
+
+    const args = buildHarnessCommand(config, {
+      harnessId: "codex",
+      cwd: root,
+      prompt: "research the onboarding market",
+      action: "research",
+      agentContext: { ...agentContext(root), action: "research", codex: config.codex },
+    }).args;
+
+    expect(args).not.toContain("--search");
+    expect(args[0]).toBe("exec");
   });
 
   it("enables Hermes toolsets for memory, skills, terminal, and file-backed design work", () => {
@@ -174,5 +278,26 @@ describe("studio harnesses", () => {
     });
     expect(harnesses.find((harness) => harness.id === "claude-code")?.installed).toBe(true);
     expect(harnesses.find((harness) => harness.id === "hermes")?.installed).toBe(true);
+  });
+
+  it("caches CLI auth probes inside the harness probe TTL", async () => {
+    const root = await mkdtemp(join(tmpdir(), "memoire-studio-auth-cache-"));
+    try {
+      const probeLog = join(root, "probe-count.txt");
+      const codexProbe = join(root, "codex");
+      await writeFile(codexProbe, `#!/bin/sh\nprintf x >> "${probeLog}"\necho "logged in"\n`);
+      await chmod(codexProbe, 0o755);
+      const config = defaultStudioConfig(root);
+      const resolveCommand = (command: string) => command === "codex" ? codexProbe : null;
+
+      const first = listHarnesses(config, { resolveCommand });
+      const second = listHarnesses(config, { resolveCommand });
+
+      expect(first.find((harness) => harness.id === "codex")?.authStatus).toBe("signed_in");
+      expect(second.find((harness) => harness.id === "codex")?.authStatus).toBe("signed_in");
+      expect(await readFile(probeLog, "utf-8")).toBe("x");
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
   });
 });

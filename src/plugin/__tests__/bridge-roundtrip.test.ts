@@ -134,6 +134,31 @@ describe("bridge round-trip", () => {
     expect(normalizeBridgeMessage({ type: "event" })).toBeNull(); // missing message
   });
 
+  it("keeps v2 identify metadata on the wire for plugin adoption", () => {
+    const wire = serializeBridgeEnvelope({
+      channel: BRIDGE_V2_CHANNEL,
+      source: "server",
+      type: "identify",
+      name: "Mémoire Terminal",
+      port: 9223,
+    }, "v2");
+
+    expect(wire).toMatchObject({
+      channel: BRIDGE_V2_CHANNEL,
+      source: "server",
+      type: "identify",
+      name: "Mémoire Terminal",
+      port: 9223,
+    });
+    expect(normalizeBridgeMessage(wire)).toMatchObject({
+      channel: BRIDGE_V2_CHANNEL,
+      source: "server",
+      type: "identify",
+      name: "Mémoire Terminal",
+      port: 9223,
+    });
+  });
+
   it("resolveBridgeResponse ignores mismatched command names", () => {
     const pending = new Map<string, PendingBridgeRequest>();
     trackBridgeRequest(pending, "r1", createBridgeCommandEnvelope("bridge-1", "getSelection", {}));

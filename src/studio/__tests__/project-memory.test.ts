@@ -13,6 +13,7 @@ describe("project memory index", () => {
       await mkdir(join(root, "specs", "components"), { recursive: true });
       await mkdir(join(root, ".memoire", "dashboard"), { recursive: true });
       await mkdir(join(root, ".memoire", "studio"), { recursive: true });
+      await mkdir(join(root, ".memoire", "project-memory", "changelog"), { recursive: true });
       await mkdir(join(root, "preview"), { recursive: true });
 
       await writeFile(join(root, "research", "Interview Notes.md"), "# Interview Notes\n\nA research summary.");
@@ -32,6 +33,24 @@ describe("project memory index", () => {
       }));
       await writeFile(join(root, "preview", "design-system.html"), "<title>memoire / systems</title>");
       await writeFile(join(root, "CHANGELOG.md"), "# Changelog\n\n## 0.14.4\n\n- Trust patch.");
+      await writeFile(join(root, ".memoire", "project-memory", "changelog", "studio-spacing.json"), JSON.stringify({
+        schemaVersion: 1,
+        id: "studio-spacing",
+        title: "Studio spacing pass",
+        summary: "Captured design memory for the Studio sidebar spacing.",
+        bodyMarkdown: "## Decision\n\nUse compact sidebar spacing.",
+        status: "active",
+        tags: ["studio", "spacing"],
+        createdAt: "2026-05-07T00:00:00.000Z",
+        updatedAt: "2026-05-07T00:00:00.000Z",
+        authoredBy: "agent",
+        harness: "codex",
+        action: "self-design",
+        sessionId: "studio-spacing-session",
+        eventIds: ["design_decision-spacing"],
+        fileRefs: [{ path: "apps/studio/src/styles.css", kind: "style", status: "M", insertions: 8, deletions: 2, designSystem: true }],
+        captureWarnings: [],
+      }));
 
       const index = await refreshProjectMemory(root);
 
@@ -41,7 +60,7 @@ describe("project memory index", () => {
         spec: 1,
         system: 2,
         monitor: 1,
-        changelog: 1,
+        changelog: 2,
       });
       expect(index.items.map((item) => item.kind)).toEqual(expect.arrayContaining([
         "research",
@@ -54,6 +73,12 @@ describe("project memory index", () => {
         kind: "spec",
         status: "molecule",
         tags: ["dashboard"],
+      });
+      expect(index.items.find((item) => item.title === "Studio spacing pass")).toMatchObject({
+        kind: "changelog",
+        status: "active",
+        sourcePath: ".memoire/project-memory/changelog/studio-spacing.json",
+        tags: expect.arrayContaining(["design-changelog", "studio"]),
       });
 
       const persisted = JSON.parse(await readFile(projectMemoryIndexPath(root), "utf-8"));

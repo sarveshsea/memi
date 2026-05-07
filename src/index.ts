@@ -8,6 +8,7 @@
  *    memoire connect           Connect to Figma Desktop Bridge
  *    memoire pull              Pull design system from Figma
  *    memoire research <sub>    Run research pipeline
+ *    memoire simulate <sub>    Run product scenario simulations from research
  *    memoire spec <type> <n>   Create or edit a spec
  *    memoire generate <spec>   Generate code from spec
  *    memoire preview           Start HTML preview server
@@ -60,6 +61,7 @@ const [
   { registerConnectCommand },
   { registerPullCommand },
   { registerResearchCommand },
+  { registerSimulateCommand },
   { registerSpecCommand },
   { registerGenerateCommand },
   { registerPreviewCommand },
@@ -84,6 +86,7 @@ const [
   { registerValidateCommand },
   { registerDesignDocCommand },
   { registerSetupCommand },
+  { registerSuiteCommand },
   { registerAuditCommand },
   { registerDiffCommand },
   { registerAddCommand },
@@ -105,6 +108,7 @@ const [
   import("./commands/connect.js"),
   import("./commands/pull.js"),
   import("./commands/research.js"),
+  import("./commands/simulate.js"),
   import("./commands/spec.js"),
   import("./commands/generate.js"),
   import("./commands/preview.js"),
@@ -129,6 +133,7 @@ const [
   import("./commands/validate.js"),
   import("./commands/design-doc.js"),
   import("./commands/setup.js"),
+  import("./commands/suite.js"),
   import("./commands/audit.js"),
   import("./commands/diff.js"),
   import("./commands/add.js"),
@@ -198,6 +203,8 @@ registerViewCommand(program, engine);
 registerDesignDocCommand(program, engine);
 registerMcpCommand(program, engine);
 registerSetupCommand(program, engine);
+registerSuiteCommand(program, engine);
+registerSimulateCommand(program, engine);
 registerConnectCommand(program, engine);
 registerPullCommand(program, engine);
 registerSyncCommand(program, engine);
@@ -295,8 +302,8 @@ function printFastHelp(version: string): void {
   const lines = [
     "Usage: memoire [options] [command]",
     "",
-    "Shadcn-native Design CI for Tailwind apps.",
-    "Diagnose UI debt, export shadcn registries, and install them with shadcn/v0/memi.",
+    "AI-native design tooling for agents.",
+    "Diagnose UI debt, export shadcn registries, and install design memory into AI agents.",
     "",
     "Options:",
     "  -V, --version           output the version number",
@@ -320,17 +327,22 @@ function printFastHelp(version: string): void {
     "  generate                Generate shadcn/Tailwind code from specs",
     "  preview                 Start the local preview and registry server",
     "  studio                  Run the desktop/web agent design shell runtime",
+    "  daemon                  Start the shared native runtime daemon",
+    "  suite                   Manage product-team agent recipes",
     "  mermaid-jam             Open Mermaid Jam for Mermaid/markdown to FigJam",
     "  video                   Create, preview, and render motion/video projects",
     "  status                  Show workspace status",
     "",
     "Figma, agents, and advanced:",
     "  setup                   Full guided onboarding",
+    "  setup plugin            Explicitly install the packaged Figma plugin",
     "  connect                 Start the Figma bridge",
     "  pull                    Pull design system data from Figma or REST",
     "  sync                    Pull and regenerate code",
     "  mcp                     Configure or start the MCP server",
+    "  agent install [target]  Install Memoire kits for Hermes, OpenClaw, Claude, Codex, Codex plugin, Cursor, or OpenCode",
     "  research                Run the research pipeline",
+    "  simulate                Run product scenario simulations from research",
     "  notes                   Manage Memoire Notes",
     "  doctor                  Check local install health",
     "  audit                   Run accessibility audits",

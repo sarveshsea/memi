@@ -124,6 +124,50 @@ describe("daemon status --json", () => {
 
     await expect(stat(join(projectRoot, ".memoire", "daemon.json"))).rejects.toThrow();
   });
+
+  it("stops a live daemon and removes state", async () => {
+    const logs = captureLogs();
+    const program = new Command();
+    const startedAt = "2026-03-27T18:00:00.000Z";
+
+    await writeFile(
+      join(projectRoot, ".memoire", "daemon.json"),
+      JSON.stringify({
+        pid: 54321,
+        port: 5173,
+        figmaPort: 9223,
+        dashboardPort: 0,
+        runtimeUrl: "http://localhost:5173",
+        projectRoot,
+        startedAt,
+      }, null, 2),
+      "utf-8",
+    );
+
+    const kill = vi.spyOn(process, "kill").mockImplementation(((pid: number, signal?: number | NodeJS.Signals) => {
+      if (pid === 54321 && signal === "SIGTERM") return true;
+      if (pid === 54321 && signal === 0) return true;
+      throw new Error("unexpected kill");
+    }) as typeof process.kill);
+
+    registerDaemonCommand(program, makeDaemonEngine(projectRoot) as never);
+    await program.parseAsync(["daemon", "stop", "--json"], { from: "user" });
+
+    const payload = JSON.parse(lastLog(logs));
+    expect(payload).toMatchObject({
+      action: "stop",
+      status: "stopped",
+      cleanup: { performed: true },
+      daemon: {
+        pid: 54321,
+        alive: true,
+        runtimeUrl: "http://localhost:5173",
+        projectRoot,
+      },
+    });
+    expect(kill).toHaveBeenCalledWith(54321, "SIGTERM");
+    await expect(stat(join(projectRoot, ".memoire", "daemon.json"))).rejects.toThrow();
+  });
 });
 
 function makeDaemonEngine(projectRootPath: string, connectedClients = 0) {

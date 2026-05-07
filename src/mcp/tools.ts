@@ -17,35 +17,32 @@ import { fetchPageAssets, parseCSSTokens } from "../research/css-extractor.js";
 import { buildShadcnRegistry, toShadcnItemName } from "../shadcn/index.js";
 import { diagnoseAppQuality } from "../app-quality/engine.js";
 import { buildUiFixPlan } from "../app-quality/fix-plan.js";
+import { resolveMermaidJamIntegration } from "../integrations/mermaid-jam.js";
+import {
+  buildResearchDesignPackage,
+  saveResearchDesignSpecs,
+  writeMermaidJamArtifacts,
+} from "../research/design-package.js";
+import {
+  compareSimulationRuns,
+  FileSimulationStore,
+  LocalSimulationAdapter,
+  ModelSwarmSimulationAdapter,
+  SimulationModelRouter,
+  buildProductSimulationScenarioFromResearch,
+  exportProductSpecFromRun,
+  simulationCosts,
+  type SimulationAdapter,
+  type SimulationAdapterKind,
+  type SimulationBudget,
+  type SimulationReport,
+} from "../simulation/index.js";
+import type { ResearchStore } from "../research/engine.js";
 
 function requireFigma(engine: MemoireEngine): void {
   if (!engine.figma.isConnected) {
     throw new Error("Figma not connected. Start the daemon (`memi daemon start`) or connect (`memi connect`) first.");
   }
-}
-
-/**
- * Lightweight pre-execution validator for figma_execute.
- * Blocks patterns that would terminate the bridge, destroy document
- * structure, or attempt code-in-code execution. The Figma plugin sandbox
- * has no Node.js access so fs/process/require cannot actually run, but
- * blocking them here makes the intent explicit.
- * Returns an error reason string, or null if the code looks safe.
- */
-function validateFigmaCode(code: string): string | null {
-  const BLOCKED: Array<{ pattern: RegExp; reason: string }> = [
-    { pattern: /figma\s*\.\s*closePlugin\s*\(/, reason: "figma.closePlugin() terminates the bridge connection" },
-    { pattern: /figma\s*\.\s*root\s*\.\s*remove\s*\(/, reason: "Removing document root is not allowed" },
-    { pattern: /\beval\s*\(/, reason: "eval() is not allowed inside figma_execute" },
-    { pattern: /new\s+Function\s*\(/, reason: "new Function() is not allowed inside figma_execute" },
-    { pattern: /\bprocess\s*\./, reason: "process object is not available in the Figma plugin sandbox" },
-    { pattern: /\brequire\s*\(/, reason: "require() is not available in the Figma plugin sandbox" },
-    { pattern: /\bimportScripts\s*\(/, reason: "importScripts() is not allowed" },
-  ];
-  for (const { pattern, reason } of BLOCKED) {
-    if (pattern.test(code)) return reason;
-  }
-  return null;
 }
 
 export function registerTools(server: McpServer, engine: MemoireEngine): void {
@@ -431,7 +428,7 @@ Returns on success: Array of node objects. Each node includes: { id: string (nod
 
 Error behavior: Throws "Figma not connected" if no plugin is connected.
 
-Use this tool: to retrieve node IDs for use in capture_screenshot, figma_execute, or analyze_design; to inspect layout properties of a selected component; or to read variant properties before writing a spec.`,
+Use this tool: to retrieve node IDs for use in capture_screenshot or analyze_design; to inspect layout properties of a selected component; or to read variant properties before writing a spec.`,
     {},
     async () => {
       requireFigma(engine);
@@ -520,37 +517,297 @@ Use this tool: before running compose with a research-driven intent (e.g. "gener
     },
   );
 
-  // ── figma_execute ───────────────────────────────────────
+  // ── research.design_package ─────────────────────────────
   server.tool(
-    "figma_execute",
-    `Execute arbitrary JavaScript in the Figma Plugin API sandbox. Powerful and direct — use with care.
+    "research.design_package",
+    `Preview a research-backed vibe design package from ResearchStore V2 plus an optional simulation run.
 
-Prerequisites: Requires Figma bridge running and plugin connected. The code runs inside the Figma plugin context (not Node.js), so Node APIs (fs, path, etc.) are not available. Only the Figma Plugin API and standard browser globals are accessible.
+Returns on success: { package } with brief, Atomic Design specs, evidence ids, Mermaid Jam-ready source artifacts, and warnings. This tool is non-mutating; call research.generate_specs to write specs or mermaid_jam.export to write FigJam source files.`,
+    {
+      intent: z.string().optional().describe("Design intent for the package."),
+      hypothesis: z.string().optional().describe("Product/design hypothesis to ground generated specs."),
+      runId: z.string().optional().describe("Optional simulation run id to fold report recommendations and timeline into the package."),
+      research: z.string().optional().describe("Optional ResearchStore JSON string. Omit to load workspace research."),
+    },
+    async ({ intent, hypothesis, runId, research }) => {
+      const store = research ? JSON.parse(research) as ResearchStore : await loadMcpResearchStore(engine);
+      const simulationReport = runId ? await loadMcpSimulationReport(engine.config.projectRoot, runId) : null;
+      const designPackage = buildResearchDesignPackage(store, { intent, hypothesis, simulationReport });
+      return { content: [{ type: "text" as const, text: JSON.stringify({ package: designPackage }, null, 2) }] };
+    },
+  );
 
-Returns on success: The return value of the last expression in the code, JSON-serialized. Non-serializable values (functions, DOM nodes) are omitted.
+  server.tool(
+    "research.generate_specs",
+    `Write research-backed Atomic Design specs generated from ResearchStore V2.
 
-Error behavior: Throws "Figma not connected" if no plugin is connected. Runtime errors in the plugin sandbox are caught and returned as { error: string, stack: string }.
-
-IMPORTANT — this tool is powerful and can cause destructive mutations to the Figma file:
-- Safe read operations: node.getSharedPluginData(), figma.currentPage.selection, node.name, node.type, getting fills/effects
-- Safe targeted mutations: renaming nodes, updating a fill color, setting a variable binding on a single node
-- Do NOT use for full component creation — use create_spec + generate_code instead, which produces versioned, spec-traceable components
-- Do NOT replace entire frames or delete page-level frames with this tool
-- Do NOT call figma.closePlugin() — this terminates the bridge connection
-
-Example safe reads:
-- \`figma.currentPage.selection.map(n => ({ id: n.id, name: n.name }))\`
-- \`figma.getNodeById('123:456')?.name\`
-- \`figma.currentPage.children.map(n => n.name)\``,
-    { code: z.string().describe("JavaScript to execute in the Figma Plugin API sandbox. Must be a valid JS expression or statement block. The return value (last expression result) is JSON-serialized and returned. Has access to the full Figma Plugin API (figma.*, PageNode, FrameNode, etc.) but not Node.js APIs.") },
-    async ({ code }) => {
-      requireFigma(engine);
-      const violation = validateFigmaCode(code);
-      if (violation) {
-        return { isError: true, content: [{ type: "text" as const, text: `Blocked: ${violation}` }] };
+Prerequisites: Call research.design_package first to preview. This tool requires approved=true to make the write explicit. Writes DesignSpec, IASpec, PageSpec, ComponentSpec, and DataVizSpec objects through the Memoire registry.`,
+    {
+      intent: z.string().optional(),
+      hypothesis: z.string().optional(),
+      runId: z.string().optional(),
+      research: z.string().optional().describe("Optional ResearchStore JSON string. Omit to load workspace research."),
+      approved: z.boolean().default(false).describe("Must be true to write generated specs."),
+    },
+    async ({ intent, hypothesis, runId, research, approved }) => {
+      if (!approved) {
+        return { isError: true, content: [{ type: "text" as const, text: "Approval required: pass approved=true to write generated research specs." }] };
       }
-      const result = await engine.figma.execute(code);
-      return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+      const store = research ? JSON.parse(research) as ResearchStore : await loadMcpResearchStore(engine);
+      const simulationReport = runId ? await loadMcpSimulationReport(engine.config.projectRoot, runId) : null;
+      const designPackage = buildResearchDesignPackage(store, { intent, hypothesis, simulationReport });
+      const specWrite = await saveResearchDesignSpecs(designPackage, engine.registry);
+      return { content: [{ type: "text" as const, text: JSON.stringify({ package: designPackage, specWrite }, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    "mermaid_jam.export",
+    `Write Mermaid Jam-ready FigJam source artifacts from research or a simulation run.
+
+This is source + open friendly: it writes .mmd/.md files under .memoire/mermaid-jam and returns next steps. It does not attempt clipboard or direct paste automation.`,
+    {
+      source: z.string().default("research").describe("Use 'research' or a simulation run id."),
+      intent: z.string().optional(),
+      hypothesis: z.string().optional(),
+      research: z.string().optional().describe("Optional ResearchStore JSON string. Omit to load workspace research."),
+    },
+    async ({ source, intent, hypothesis, research }) => {
+      const store = research ? JSON.parse(research) as ResearchStore : await loadMcpResearchStore(engine);
+      const simulationReport = source && source !== "research"
+        ? await loadMcpSimulationReport(engine.config.projectRoot, source)
+        : null;
+      const designPackage = buildResearchDesignPackage(store, { intent, hypothesis, simulationReport });
+      const integration = await resolveMermaidJamIntegration({ projectRoot: engine.config.projectRoot });
+      const exports = await writeMermaidJamArtifacts(designPackage, { projectRoot: engine.config.projectRoot, integration });
+      return { content: [{ type: "text" as const, text: JSON.stringify({ package: designPackage, exports, integration }, null, 2) }] };
+    },
+  );
+
+  // ── simulation.models ───────────────────────────────────
+  server.tool(
+    "simulation.models",
+    `List Codex-first model profiles available to Memoire model-swarm simulations. Live model execution is opt-in; unavailable providers automatically fall back to deterministic clean-room simulation.`,
+    {},
+    async () => {
+      const profiles = new SimulationModelRouter().listProfiles();
+      return { content: [{ type: "text" as const, text: JSON.stringify({ profiles }, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    "simulation.generate_agents",
+    `Generate a 20-60 agent model-swarm cohort from Memoire research evidence without starting a run.`,
+    {
+      count: z.number().int().min(1).max(60).optional().describe("Target agent count. Model-swarm defaults to 24."),
+      adapter: z.enum(["local", "model-swarm"]).optional().describe("Adapter mode. Defaults to model-swarm."),
+      research: z.string().optional().describe("Optional ResearchStore JSON string. Omit to load workspace research."),
+    },
+    async ({ count, adapter, research }) => {
+      const store = research ? JSON.parse(research) as ResearchStore : await loadMcpResearchStore(engine);
+      const scenario = buildProductSimulationScenarioFromResearch(store, {
+        adapter: adapter ?? "model-swarm",
+        agentCount: count ?? (adapter === "local" ? undefined : 24),
+      });
+      return { content: [{ type: "text" as const, text: JSON.stringify({ agents: scenario.agents, graph: scenario.graph, budget: scenario.metadata.budget }, null, 2) }] };
+    },
+  );
+
+  // ── simulation.plan ─────────────────────────────────────
+  server.tool(
+    "simulation.plan",
+    `Create a clean-room product simulation scenario from Memoire research evidence.
+
+Prerequisites: Research data should exist in research/store.v2.json, or pass a full ResearchStore JSON string. This tool does not call or vendor MiroFish; it uses Memoire's local TypeScript simulation core. Use adapter=model-swarm for Codex-first model profile planning with deterministic fallback unless live models are explicitly allowed during run.
+
+Returns on success: { scenario, warnings } where scenario includes agents, variables, graph nodes/edges, and evidenceFindingIds.`,
+    {
+      name: z.string().optional().describe("Scenario name. Defaults to the top research theme."),
+      hypothesis: z.string().optional().describe("Product hypothesis to pressure-test."),
+      research: z.string().optional().describe("Optional ResearchStore JSON string. Omit to load the current workspace research store."),
+      adapter: z.enum(["local", "model-swarm"]).optional().describe("Adapter mode. Defaults to local."),
+      agentCount: z.number().int().min(1).max(60).optional().describe("Target model-swarm agent count."),
+      maxAgents: z.number().int().min(1).max(60).optional().describe("Run budget max agents."),
+      rounds: z.number().int().min(1).max(12).optional().describe("Run budget max rounds."),
+    },
+    async ({ name, hypothesis, research, adapter, agentCount, maxAgents, rounds }) => {
+      const store = research ? JSON.parse(research) as ResearchStore : await loadMcpResearchStore(engine);
+      const adapterKind = adapter ?? "local";
+      const budget = budgetFromMcp({ maxAgents, rounds });
+      const scenario = buildProductSimulationScenarioFromResearch(store, {
+        name,
+        hypothesis,
+        adapter: adapterKind,
+        agentCount: agentCount ?? (adapterKind === "model-swarm" ? 24 : undefined),
+        budget,
+        modelProfiles: adapterKind === "model-swarm" ? new SimulationModelRouter().listProfiles() : [],
+      });
+      const simulationAdapter = createMcpSimulationAdapter(engine.config.projectRoot, adapterKind, budget);
+      const prepared = await simulationAdapter.prepare(scenario);
+      return { content: [{ type: "text" as const, text: JSON.stringify(prepared, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    "simulation.run",
+    `Run a prepared local or model-swarm product simulation scenario.
+
+Prerequisites: Call simulation.plan first and pass the returned scenario.id.
+
+Returns on success: SimulationRun with status, events, eventCount, and persisted run id.`,
+    {
+      scenarioId: z.string().describe("Scenario id returned by simulation.plan."),
+      adapter: z.enum(["local", "model-swarm"]).optional().describe("Adapter mode. Defaults to the scenario adapter."),
+      maxAgents: z.number().int().min(1).max(60).optional(),
+      rounds: z.number().int().min(1).max(12).optional(),
+      allowLiveModels: z.boolean().optional().describe("Opt into live provider calls. Defaults to false."),
+    },
+    async ({ scenarioId, adapter, maxAgents, rounds, allowLiveModels }) => {
+      const store = new FileSimulationStore(engine.config.projectRoot);
+      const scenario = await store.loadScenario(scenarioId);
+      const adapterKind = adapter ?? scenario?.adapter ?? "local";
+      const run = await createMcpSimulationAdapter(engine.config.projectRoot, adapterKind, budgetFromMcp({ maxAgents, rounds, allowLiveModels })).start(scenarioId);
+      return { content: [{ type: "text" as const, text: JSON.stringify({ run }, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    "simulation.run_matrix",
+    `Plan and run multiple model-swarm hypotheses, then compare outcomes for product-spec decision work.`,
+    {
+      hypotheses: z.array(z.string()).min(1).describe("Hypotheses to run."),
+      maxAgents: z.number().int().min(1).max(60).optional(),
+      rounds: z.number().int().min(1).max(12).optional(),
+      research: z.string().optional().describe("Optional ResearchStore JSON string."),
+    },
+    async ({ hypotheses, maxAgents, rounds, research }) => {
+      const store = research ? JSON.parse(research) as ResearchStore : await loadMcpResearchStore(engine);
+      const budget = budgetFromMcp({ maxAgents, rounds });
+      const adapter = createMcpSimulationAdapter(engine.config.projectRoot, "model-swarm", budget);
+      const runs = [];
+      for (let index = 0; index < hypotheses.length; index += 1) {
+        const scenario = buildProductSimulationScenarioFromResearch(store, {
+          adapter: "model-swarm",
+          name: `MCP simulation matrix ${index + 1}`,
+          hypothesis: hypotheses[index],
+          agentCount: maxAgents ?? 24,
+          budget,
+          modelProfiles: new SimulationModelRouter().listProfiles(),
+        });
+        const prepared = await adapter.prepare(scenario);
+        const run = await adapter.start(prepared.scenario.id);
+        runs.push({ hypothesis: hypotheses[index], scenario: prepared.scenario, run });
+      }
+      const comparison = compareSimulationRuns(runs.map((entry) => entry.run));
+      return { content: [{ type: "text" as const, text: JSON.stringify({ runs, comparison }, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    "simulation.stream",
+    `Read persisted simulation events in stream order.`,
+    { runId: z.string().describe("Simulation run id.") },
+    async ({ runId }) => {
+      const adapter = await createMcpAdapterForRun(engine.config.projectRoot, runId);
+      const events = [];
+      for await (const event of adapter.stream(runId)) events.push(event);
+      return { content: [{ type: "text" as const, text: JSON.stringify({ events }, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    "simulation.status",
+    `Read a local simulation run status from .memoire/simulations/runs.`,
+    {
+      runId: z.string().describe("Simulation run id."),
+    },
+    async ({ runId }) => {
+      const store = new FileSimulationStore(engine.config.projectRoot);
+      const run = await store.loadRun(runId);
+      if (!run) return { isError: true, content: [{ type: "text" as const, text: `Unknown simulation run: ${runId}` }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ run }, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    "simulation.interview",
+    `Interview a simulated product stakeholder from a completed local or model-swarm run.`,
+    {
+      runId: z.string().describe("Simulation run id."),
+      agentId: z.string().describe("Agent id from the scenario."),
+      prompt: z.string().describe("Question to ask the simulated agent."),
+    },
+    async ({ runId, agentId, prompt }) => {
+      const adapter = await createMcpAdapterForRun(engine.config.projectRoot, runId);
+      const interview = await adapter.interview(runId, { agentId, prompt });
+      return { content: [{ type: "text" as const, text: JSON.stringify({ interview }, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    "simulation.transcript",
+    `Read model-swarm transcript memory for a run.`,
+    { runId: z.string().describe("Simulation run id.") },
+    async ({ runId }) => {
+      const store = new FileSimulationStore(engine.config.projectRoot);
+      const run = await store.loadRun(runId);
+      if (!run) return { isError: true, content: [{ type: "text" as const, text: `Unknown simulation run: ${runId}` }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ transcripts: run.transcripts }, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    "simulation.compare",
+    `Compare completed simulation runs by adoption, confidence, evidence coverage, risk, and cost.`,
+    { runIds: z.array(z.string()).min(1).describe("Simulation run ids.") },
+    async ({ runIds }) => {
+      const store = new FileSimulationStore(engine.config.projectRoot);
+      const runs = await Promise.all(runIds.map(async (runId) => {
+        const run = await store.loadRun(runId);
+        if (!run) throw new Error(`Unknown simulation run: ${runId}`);
+        return run;
+      }));
+      const comparison = compareSimulationRuns(runs);
+      return { content: [{ type: "text" as const, text: JSON.stringify({ comparison }, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    "simulation.costs",
+    `Summarize token and cost usage for a simulation run.`,
+    { runId: z.string().describe("Simulation run id.") },
+    async ({ runId }) => {
+      const store = new FileSimulationStore(engine.config.projectRoot);
+      const run = await store.loadRun(runId);
+      if (!run) return { isError: true, content: [{ type: "text" as const, text: `Unknown simulation run: ${runId}` }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ costs: simulationCosts(run) }, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    "simulation.report",
+    `Export a simulation report with recommendations, risks, assumptions, events, interviews, and evidenceFindingIds.`,
+    {
+      runId: z.string().describe("Simulation run id."),
+    },
+    async ({ runId }) => {
+      const adapter = await createMcpAdapterForRun(engine.config.projectRoot, runId);
+      const report = await adapter.exportReport(runId);
+      return { content: [{ type: "text" as const, text: JSON.stringify({ report }, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    "simulation.export_spec",
+    `Convert a simulation report into a product-spec impact artifact that agents can paste into specs or handoff docs.`,
+    {
+      runId: z.string().describe("Simulation run id."),
+    },
+    async ({ runId }) => {
+      const adapter = await createMcpAdapterForRun(engine.config.projectRoot, runId);
+      const report = await adapter.exportReport(runId);
+      const spec = exportProductSpecFromRun(report);
+      return { content: [{ type: "text" as const, text: JSON.stringify({ spec }, null, 2) }] };
     },
   );
 
@@ -620,7 +877,7 @@ This tool is best used as part of the self-heal loop: create → capture_screens
 
 Prerequisites: Requires Figma bridge running and plugin connected.
 
-Returns on success: Nested tree structure — top level is an array of page objects, each with { id, name, type: "PAGE", children: [] }. Children are frames, components, groups, and other nodes. Each node has { id, name, type, children? }. Node IDs from this tree can be passed directly to capture_screenshot or figma_execute.
+Returns on success: Nested tree structure — top level is an array of page objects, each with { id, name, type: "PAGE", children: [] }. Children are frames, components, groups, and other nodes. Each node has { id, name, type, children? }. Node IDs from this tree can be passed directly to capture_screenshot or analyze_design.
 
 Error behavior: Throws "Figma not connected" if no plugin is connected. Very high depth values may time out for large files.
 
@@ -765,7 +1022,7 @@ Returns on success: Health object with shape { status: "healthy"|"degraded"|"dow
 
 Error behavior: Never throws — returns { status: "down", error: string } if the bridge server is not running or unreachable.
 
-Use this tool: as the first diagnostic step before calling any Figma-dependent tool (pull_design_system, capture_screenshot, get_selection, figma_execute), to verify bridge connectivity after running \`memi connect\`, or to detect stale connections (clientCount=0 despite expecting a connected plugin).`,
+Use this tool: as the first diagnostic step before calling any Figma-dependent tool (pull_design_system, capture_screenshot, get_selection), to verify bridge connectivity after running \`memi connect\`, or to detect stale connections (clientCount=0 despite expecting a connected plugin).`,
     {},
     async () => {
       const health = await engine.figma.wsServer.checkHealth();
@@ -885,4 +1142,42 @@ Use this tool: to monitor token spend during a session involving analyze_design,
       };
     },
   );
+}
+
+async function loadMcpResearchStore(engine: MemoireEngine): Promise<ResearchStore> {
+  await engine.research.load();
+  return engine.research.getStore();
+}
+
+async function loadMcpSimulationReport(projectRoot: string, runId: string): Promise<SimulationReport | null> {
+  const store = new FileSimulationStore(projectRoot);
+  const run = await store.loadRun(runId);
+  if (!run) return null;
+  const adapter = createMcpSimulationAdapter(projectRoot, run.adapter);
+  return adapter.exportReport(runId);
+}
+
+function createMcpSimulationAdapter(projectRoot: string, adapter: SimulationAdapterKind, budget?: Partial<SimulationBudget>): SimulationAdapter {
+  if (adapter === "model-swarm") {
+    return new ModelSwarmSimulationAdapter({ store: new FileSimulationStore(projectRoot), defaultBudget: budget });
+  }
+  return new LocalSimulationAdapter({ store: new FileSimulationStore(projectRoot) });
+}
+
+async function createMcpAdapterForRun(projectRoot: string, runId: string): Promise<SimulationAdapter> {
+  const store = new FileSimulationStore(projectRoot);
+  const run = await store.loadRun(runId);
+  return createMcpSimulationAdapter(projectRoot, run?.adapter ?? "local");
+}
+
+function budgetFromMcp(input: {
+  maxAgents?: number;
+  rounds?: number;
+  allowLiveModels?: boolean;
+}): Partial<SimulationBudget> | undefined {
+  const budget: Partial<SimulationBudget> = {};
+  if (input.maxAgents !== undefined) budget.maxAgents = input.maxAgents;
+  if (input.rounds !== undefined) budget.maxRounds = input.rounds;
+  if (input.allowLiveModels !== undefined) budget.allowLiveModels = input.allowLiveModels;
+  return Object.keys(budget).length ? budget : undefined;
 }

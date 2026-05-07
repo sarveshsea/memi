@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Command } from "commander";
-import { mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { registerMermaidJamCommand } from "../mermaid-jam.js";
@@ -61,11 +61,85 @@ describe("mermaid-jam command", () => {
       href: "https://www.figma.com/community/plugin/1631708567749401678",
     });
   });
+
+  it("exports research-backed Mermaid Jam source artifacts in JSON mode", async () => {
+    const logs = captureLogs();
+    const program = new Command();
+
+    registerMermaidJamCommand(program, makeEngine(projectRoot, {
+      research: {
+        async load() {},
+        getStore() {
+          return makeResearchStore();
+        },
+      },
+    }) as never);
+    await program.parseAsync([
+      "mermaid-jam",
+      "export",
+      "--from",
+      "research",
+      "--intent",
+      "Design an evidence-backed planning board",
+      "--json",
+    ], { from: "user" });
+
+    const payload = JSON.parse(lastLog(logs));
+    expect(payload).toMatchObject({
+      status: "exported",
+      source: "research",
+      exports: expect.arrayContaining([expect.objectContaining({
+        kind: "journey-map",
+        outputPath: expect.stringContaining(".memoire/mermaid-jam"),
+        source: expect.stringContaining("journey"),
+      })]),
+    });
+    const written = await readFile(payload.exports[0].outputPath, "utf-8");
+    expect(written).toContain("journey");
+    expect(payload.exports[0].nextSteps.join(" ")).not.toMatch(/clipboard|paste automation/i);
+  });
 });
 
-function makeEngine(root: string) {
+function makeEngine(root: string, extra: Record<string, unknown> = {}) {
   return {
     config: { projectRoot: root },
     async init() {},
+    ...extra,
+  };
+}
+
+function makeResearchStore() {
+  return {
+    version: 2,
+    sources: [],
+    observations: [],
+    highlights: [],
+    codebook: [],
+    findings: [{
+      id: "finding-evidence",
+      statement: "Planning boards need visible evidence links.",
+      category: "planning",
+      confidence: "high",
+      themeIds: ["theme-evidence"],
+      evidenceObservationIds: [],
+      evidenceSourceIds: [],
+      sourceTypeCount: 1,
+      method: "qualitative",
+      caveats: [],
+      tags: [],
+      entities: [],
+      signalTags: [],
+      createdAt: "2026-05-07T00:00:00.000Z",
+    }],
+    themes: [{ id: "theme-evidence", name: "Evidence", description: "Visible proof", findingIds: ["finding-evidence"], frequency: 1, sourceCount: 1, sourceTypeCount: 1, confidence: "high", signalTags: [], positiveCount: 1, negativeCount: 0 }],
+    evidenceLinks: [],
+    personas: [{ name: "PM", role: "Product manager", goals: ["Ship a spec"], painPoints: ["Missing evidence"], behaviors: ["Reviews a planning board"], source: "manual", evidenceFindingIds: ["finding-evidence"] }],
+    quantitativeMetrics: [],
+    opportunities: [],
+    risks: [],
+    contradictions: [],
+    reports: [],
+    quality: { overallScore: 80, sampleSize: 3, completenessScore: 80, sourceDiversityScore: 60, triangulationScore: 70, structureScore: 80, notes: [], generatedAt: "2026-05-07T00:00:00.000Z" },
+    methods: { analysisMode: "decision-grade", quantitativeApproach: "", qualitativeApproach: "", limitations: [] },
   };
 }

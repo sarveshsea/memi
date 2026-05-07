@@ -34,6 +34,11 @@ function fakeBridge(): StudioFigmaBridgeLike {
     async getPageTree() { return { fileKey: "abc", fileName: "Design System", pages: [] }; },
     async getWidgetSnapshot() { return { protocol: "memoire.widget.v2" }; },
     async captureScreenshot() { return { base64: "abc", format: "PNG", scale: 2, byteLength: 3 }; },
+    async createNode() { return { id: "node-1" }; },
+    async updateNode(nodeId) { return { id: nodeId }; },
+    async deleteNode(nodeId) { return { deleted: nodeId }; },
+    async setSelection(nodeIds) { return { selected: nodeIds.length }; },
+    async navigateTo(nodeId) { return { navigated: nodeId }; },
     async pushTokens() {},
   };
 }

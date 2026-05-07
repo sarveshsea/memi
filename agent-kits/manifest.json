@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "name": "memoire-agent-kits",
+  "description": "Installable agent kits that teach AI agents to use Memoire as daemon-aware design memory, MCP tooling, and product-team suite recipes.",
+  "suiteManifest": "memoire.agent.yaml",
+  "daemon": {
+    "start": "memi daemon start --project . --port auto",
+    "status": "memi daemon status --json"
+  },
+  "mirrorRepository": "sarveshsea/memoire-agent-skills",
+  "targets": [
+    {
+      "id": "hermes",
+      "kind": "skill",
+      "source": "hermes/memoire-design-tooling",
+      "defaultDestination": "~/.hermes/skills/memoire/memoire-design-tooling"
+    },
+    {
+      "id": "openclaw",
+      "kind": "skill",
+      "source": "openclaw/memoire-design-tooling",
+      "defaultDestination": "<workspace>/skills/memoire/memoire-design-tooling"
+    },
+    {
+      "id": "claude-code",
+      "kind": "mcp-config",
+      "source": "mcp/claude-code/mcp.json",
+      "defaultDestination": "<project>/.mcp.json"
+    },
+    {
+      "id": "cursor",
+      "kind": "mcp-config",
+      "source": "mcp/cursor/mcp.json",
+      "defaultDestination": "<project>/.cursor/mcp.json"
+    },
+    {
+      "id": "codex",
+      "kind": "skill",
+      "source": "codex/memoire-design-tooling",
+      "defaultDestination": "~/.codex/skills/memoire/memoire-design-tooling"
+    },
+    {
+      "id": "opencode",
+      "kind": "skill",
+      "source": "opencode/memoire-design-tooling",
+      "defaultDestination": "<project>/.opencode/skills/memoire/memoire-design-tooling"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 import { accessSync, constants, existsSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { delimiter, join, resolve } from "node:path";
 import type {
@@ -31,6 +31,7 @@ export interface StudioVideoOperationResult {
   command: string[];
   message: string;
   events: StudioEvent[];
+  outputPath?: string | null;
 }
 
 const require = createRequire(import.meta.url);
@@ -54,13 +55,25 @@ export async function createVideoProject(
     status: "created",
     createdAt,
     updatedAt: createdAt,
-    files: ["video.json", "README.md", "src/Storyboard.tsx"],
+    files: adapter === "remotion"
+      ? ["video.json", "README.md", "package.json", "remotion.config.ts", "src/index.ts", "src/Root.tsx", "src/Storyboard.tsx"]
+      : ["video.json", "README.md", "index.html", "hyperframes.json"],
   };
 
-  await mkdir(join(projectDir, "src"), { recursive: true });
+  await mkdir(projectDir, { recursive: true });
+  if (adapter === "remotion") await mkdir(join(projectDir, "src"), { recursive: true });
   await writeFile(join(projectDir, "video.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf-8");
   await writeFile(join(projectDir, "README.md"), readmeFor(manifest), "utf-8");
-  await writeFile(join(projectDir, "src", "Storyboard.tsx"), storyboardFor(manifest), "utf-8");
+  if (adapter === "remotion") {
+    await writeFile(join(projectDir, "package.json"), remotionPackageFor(manifest), "utf-8");
+    await writeFile(join(projectDir, "remotion.config.ts"), remotionConfigFor(), "utf-8");
+    await writeFile(join(projectDir, "src", "index.ts"), remotionIndexFor(), "utf-8");
+    await writeFile(join(projectDir, "src", "Root.tsx"), remotionRootFor(manifest), "utf-8");
+    await writeFile(join(projectDir, "src", "Storyboard.tsx"), storyboardFor(manifest), "utf-8");
+  } else {
+    await writeFile(join(projectDir, "index.html"), hyperframesHtmlFor(manifest), "utf-8");
+    await writeFile(join(projectDir, "hyperframes.json"), hyperframesConfigFor(manifest), "utf-8");
+  }
 
   return {
     ...manifest,
@@ -73,19 +86,19 @@ export function getVideoAdapterStatus(options: VideoResolverOptions = {}): Studi
   const resolveCommand = options.resolveCommand ?? resolveCommandFromPath;
   const resolvePackage = options.resolvePackage ?? resolvePackageDefault;
   const npx = resolveCommand("npx");
-  const remotion = resolveCommand("remotion") ?? (npx ? `${npx} remotion` : null);
-  const hyperframes = resolveCommand("hyperframes") ?? resolvePackage("hyperframes") ?? resolvePackage("@hyperframes/core");
+  const remotion = resolveCommand("remotion") ?? (npx ? `${npx} remotion` : resolvePackage("@remotion/cli"));
+  const hyperframes = resolveCommand("hyperframes") ?? (npx ? `${npx} hyperframes` : null) ?? resolvePackage("hyperframes") ?? resolvePackage("@hyperframes/core");
 
   return {
     remotion: {
       available: Boolean(remotion),
       command: remotion,
-      message: remotion ? "Remotion available" : "Install remotion or use npx remotion",
+      message: remotion ? "Remotion available" : "Install @remotion/cli or use npx remotion",
     },
     hyperframes: {
       available: Boolean(hyperframes),
       command: hyperframes,
-      message: hyperframes ? "HyperFrames available" : "Install hyperframes or @hyperframes/core",
+      message: hyperframes ? "Hyperframes available" : "Install hyperframes or @hyperframes/core",
     },
   };
 }
@@ -99,8 +112,8 @@ export async function previewVideoProject(
   const status = getVideoAdapterStatus(options)[manifest.adapter];
   if (!status.available) return missingAdapterResult(manifest, "preview");
   const command = manifest.adapter === "remotion"
-    ? ["npx", "remotion", "studio", videoProjectDir(projectRoot, id)]
-    : ["hyperframes", "dev", videoProjectDir(projectRoot, id)];
+    ? ["npx", "remotion", "studio", join(videoProjectDir(projectRoot, id), "src", "index.ts")]
+    : ["npx", "hyperframes", "preview", videoProjectDir(projectRoot, id)];
   return {
     id,
     adapter: manifest.adapter,
@@ -120,18 +133,47 @@ export async function renderVideoProject(
   const status = getVideoAdapterStatus(options)[manifest.adapter];
   if (!status.available) return missingAdapterResult(manifest, "render");
   const command = manifest.adapter === "remotion"
-    ? ["npx", "remotion", "render", videoProjectDir(projectRoot, id)]
-    : ["hyperframes", "render", videoProjectDir(projectRoot, id)];
+    ? ["npx", "remotion", "render", join(videoProjectDir(projectRoot, id), "src", "index.ts"), "MemoireVideo", videoOutputPath(projectRoot, id, manifest)]
+    : ["npx", "hyperframes", "render", videoProjectDir(projectRoot, id), "--output", videoOutputPath(projectRoot, id, manifest)];
   return {
     id,
     adapter: manifest.adapter,
     status: "ready",
     command,
+    outputPath: videoOutputPath(projectRoot, id, manifest),
     message: `Render command ready for ${manifest.title}`,
     events: [
       videoEvent(id, "video_render_started", `Render ready for ${id}`, { command }),
       videoEvent(id, "video_render_completed", `Render command prepared for ${id}`, { command }),
     ],
+  };
+}
+
+export async function listVideoProjects(projectRoot: string): Promise<StudioVideoManifest[]> {
+  const root = join(resolve(projectRoot), ".memoire", "videos");
+  try {
+    const entries = await readdir(root, { withFileTypes: true });
+    const manifests: StudioVideoManifest[] = [];
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      const manifest = await readVideoManifest(projectRoot, entry.name).catch(() => null);
+      if (manifest) manifests.push(manifest);
+    }
+    return manifests.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+  } catch {
+    return [];
+  }
+}
+
+export async function videoDownloadArtifact(projectRoot: string, id: string): Promise<{ path: string; mimeType: string; bytes: Buffer }> {
+  const manifest = await readVideoManifest(projectRoot, id);
+  const output = videoOutputPath(projectRoot, id, manifest);
+  const outputStat = await stat(output).catch(() => null);
+  const path = outputStat?.isFile() ? output : join(videoProjectDir(projectRoot, id), "video.json");
+  return {
+    path,
+    mimeType: path.endsWith(".mp4") ? "video/mp4" : "application/json; charset=utf-8",
+    bytes: await readFile(path),
   };
 }
 
@@ -168,11 +210,11 @@ function videoEvent(sessionId: string, type: StudioEventType, message: string, d
 
 function readmeFor(manifest: StudioVideoManifest): string {
   const preview = manifest.adapter === "remotion"
-    ? "npx remotion studio"
-    : "npx hyperframes dev";
+    ? "npx remotion studio src/index.ts"
+    : "npx hyperframes preview .";
   const render = manifest.adapter === "remotion"
-    ? "npx remotion render"
-    : "npx hyperframes render";
+    ? "npx remotion render src/index.ts MemoireVideo dist/video.mp4"
+    : "npx hyperframes render . --output dist/video.mp4";
   return [
     `# ${manifest.title}`,
     "",
@@ -191,6 +233,72 @@ function readmeFor(manifest: StudioVideoManifest): string {
   ].join("\n");
 }
 
+function remotionPackageFor(manifest: StudioVideoManifest): string {
+  return `${JSON.stringify({
+    type: "module",
+    scripts: {
+      studio: "remotion studio src/index.ts",
+      render: "remotion render src/index.ts MemoireVideo dist/video.mp4",
+    },
+    dependencies: {
+      "@remotion/cli": "^4.0.0",
+      "remotion": "^4.0.0",
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1",
+    },
+    devDependencies: {
+      typescript: "^5.6.0",
+    },
+    memoire: {
+      videoId: manifest.id,
+      adapter: manifest.adapter,
+    },
+  }, null, 2)}\n`;
+}
+
+function remotionConfigFor(): string {
+  return [
+    "import { Config } from '@remotion/cli/config';",
+    "",
+    "Config.setVideoImageFormat('jpeg');",
+    "Config.setOverwriteOutput(true);",
+    "",
+  ].join("\n");
+}
+
+function remotionIndexFor(): string {
+  return [
+    "import { registerRoot } from 'remotion';",
+    "import { RemotionRoot } from './Root';",
+    "",
+    "registerRoot(RemotionRoot);",
+    "",
+  ].join("\n");
+}
+
+function remotionRootFor(manifest: StudioVideoManifest): string {
+  return [
+    "import React from 'react';",
+    "import { AbsoluteFill, Composition, interpolate, useCurrentFrame } from 'remotion';",
+    "",
+    "function MemoireVideo() {",
+    "  const frame = useCurrentFrame();",
+    "  const opacity = interpolate(frame, [0, 24, 150], [0, 1, 1], { extrapolateRight: 'clamp' });",
+    "  return (",
+    "    <AbsoluteFill style={{ background: '#0f1115', color: 'white', fontFamily: 'Inter, system-ui, sans-serif', justifyContent: 'center', padding: 80 }}>",
+    `      <h1 style={{ fontSize: 72, lineHeight: 1, opacity }}>${escapeJsx(manifest.title)}</h1>`,
+    `      <p style={{ fontSize: 28, maxWidth: 920, opacity }}>${escapeJsx(manifest.prompt)}</p>`,
+    "    </AbsoluteFill>",
+    "  );",
+    "}",
+    "",
+    "export function RemotionRoot() {",
+    "  return <Composition id=\"MemoireVideo\" component={MemoireVideo} durationInFrames={240} fps={30} width={1920} height={1080} />;",
+    "}",
+    "",
+  ].join("\n");
+}
+
 function storyboardFor(manifest: StudioVideoManifest): string {
   return [
     "export const storyboard = {",
@@ -205,6 +313,56 @@ function storyboardFor(manifest: StudioVideoManifest): string {
     "};",
     "",
   ].join("\n");
+}
+
+function hyperframesHtmlFor(manifest: StudioVideoManifest): string {
+  return [
+    "<!doctype html>",
+    "<html lang=\"en\">",
+    "<head>",
+    "  <meta charset=\"utf-8\" />",
+    "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />",
+    `  <title>${escapeHtml(manifest.title)}</title>`,
+    "  <style>",
+    "    body { margin: 0; width: 100vw; height: 100vh; display: grid; place-items: center; background: #101418; color: white; font-family: Inter, system-ui, sans-serif; }",
+    "    main { width: min(86vw, 1100px); }",
+    "    h1 { font-size: 78px; line-height: 0.94; margin: 0 0 24px; }",
+    "    p { font-size: 30px; line-height: 1.3; color: #d9e1e8; }",
+    "  </style>",
+    "</head>",
+    "<body>",
+    "  <main>",
+    `    <h1>${escapeHtml(manifest.title)}</h1>`,
+    `    <p>${escapeHtml(manifest.prompt)}</p>`,
+    "  </main>",
+    "</body>",
+    "</html>",
+    "",
+  ].join("\n");
+}
+
+function hyperframesConfigFor(manifest: StudioVideoManifest): string {
+  return `${JSON.stringify({
+    id: manifest.id,
+    entry: "index.html",
+    output: `dist/${manifest.id}.mp4`,
+    width: 1920,
+    height: 1080,
+    fps: 30,
+    duration: 8,
+  }, null, 2)}\n`;
+}
+
+function videoOutputPath(projectRoot: string, id: string, manifest: StudioVideoManifest): string {
+  return join(videoProjectDir(projectRoot, id), "dist", `${manifest.id}.mp4`);
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function escapeJsx(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/`/g, "\\`").replace(/\$/g, "\\$").replace(/[{}]/g, "");
 }
 
 function slugify(value: string): string {

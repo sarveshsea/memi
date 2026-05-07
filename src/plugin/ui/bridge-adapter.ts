@@ -12,6 +12,7 @@ import type {
   BridgeComponentChangedEnvelope,
   BridgeConnectionStateEnvelope,
   BridgeDocumentChangedEnvelope,
+  BridgeHelloEnvelope,
   BridgeJobStatusEnvelope,
   BridgePageChangedEnvelope,
   BridgeResponseEnvelope,
@@ -60,6 +61,17 @@ export function resolveBridgeResponse(
   }
   pending.delete(message.requestId);
   return createBridgeResponseEnvelope(matched.bridgeId, message.result, message.error);
+}
+
+export function createBridgeHelloMessage(connection: WidgetConnectionState): BridgeHelloEnvelope {
+  return {
+    channel: BRIDGE_V2_CHANNEL,
+    source: "plugin",
+    type: "bridge-hello",
+    file: connection.fileName || "unknown",
+    fileKey: connection.fileKey || "",
+    editor: connection.editorType || "figma",
+  };
 }
 
 export function createBridgeSelectionMessage(

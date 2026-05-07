@@ -12,8 +12,8 @@ function context(overrides: Partial<StudioAgentContext> = {}): StudioAgentContex
     memory: {
       counts: { home: 1, research: 2, spec: 3, system: 4, monitor: 1, changelog: 0 },
       recent: [
-        { kind: "research", title: "Interview themes", summary: "Screenwriter users need faster capture." },
-        { kind: "spec", title: "NoteCard", summary: "Molecule for note previews." },
+        { kind: "research", title: "Interview themes", summary: "Screenwriter users need faster capture.", sourcePath: "research/interviews.md" },
+        { kind: "spec", title: "NoteCard", summary: "Molecule for note previews.", sourcePath: "specs/components/NoteCard.json" },
       ],
     },
     figma: {
@@ -38,9 +38,64 @@ describe("studio design agent envelope", () => {
     expect(envelope).toContain("Specs: 3");
     expect(envelope).toContain("Figma bridge: connected");
     expect(envelope).toContain("Design a new onboarding flow");
+    expect(envelope).toContain("acceptance criteria");
+    expect(envelope).toContain("repo creation");
     expect(envelope).toContain("research_note");
     expect(envelope).toContain("design_decision");
+    expect(envelope).toContain("Knowledge capture");
+    expect(envelope).toContain("/api/knowledge");
+    expect(envelope).toContain("Design changelog capture");
+    expect(envelope).toContain(".memoire/project-memory/changelog");
+    expect(envelope).toContain("design_system_artifact");
+    expect(envelope).toContain("markdown and YAML");
+    expect(envelope).toContain("@sarveshsea/memoire@0.16.3");
+    expect(envelope).toContain("https://www.npmjs.com/package/@sarveshsea/memoire");
+    expect(envelope).toContain("specs/components/NoteCard.json");
+    expect(envelope).toContain("Codex + Mémoire command ladder");
+    expect(envelope).toContain("memi status --json");
+    expect(envelope).toContain("memi research report --json");
+    expect(envelope).toContain("codex login status");
+    expect(envelope).toContain("model_reasoning_effort");
+    expect(envelope).toContain("Agentic design-system contract");
+    expect(envelope).toContain("Agentic UI public reference: https://agenticui.net/");
+    expect(envelope).toContain("message_composer");
+    expect(envelope).toContain("tool_trace");
+    expect(envelope).toContain("artifact_review");
+    expect(envelope).toContain("Open-source pattern references");
+    expect(envelope).toContain("GAIA UI");
+    expect(envelope).toContain("assistant-ui");
+    expect(envelope).toContain("tool-ui");
+    expect(envelope).toContain("AG-UI");
+    expect(envelope).toContain("OpenGenerativeUI");
+    expect(envelope).toContain("Magentic-UI");
+    expect(envelope).toContain("composer_agent_state");
+    expect(envelope).toContain("auditable_tool_trace_cards");
+    expect(envelope).toContain("artifact_acceptance_state");
     expect(envelope).not.toMatch(/\bark\b/i);
+  });
+
+  it("makes Codex plan mode explicit for research-scale read-only runs", () => {
+    const envelope = createDesignAgentEnvelope(context({
+      action: "research",
+      chatMode: "research",
+      permissionMode: "plan",
+      codex: {
+        model: "gpt-5.4",
+        reasoningEffort: "high",
+        approvalPolicy: "on-request",
+        webSearch: true,
+        skipGitRepoCheck: true,
+        includeMemoireCommands: true,
+        includeCodexCommands: true,
+        planModeDefault: true,
+      },
+    }));
+
+    expect(envelope).toContain("Plan mode");
+    expect(envelope).toContain("read-only");
+    expect(envelope).toContain("Codex model: gpt-5.4");
+    expect(envelope).toContain("Codex reasoning: high");
+    expect(envelope).toContain("Codex approval policy: on-request");
   });
 
   it("summarizes context compactly for run blocks", () => {
@@ -53,5 +108,37 @@ describe("studio design agent envelope", () => {
       memory: "home 1 / research 2 / spec 3 / system 4 / monitor 1 / changelog 0",
       figma: "connected on 9223 with 1 client",
     });
+  });
+
+  it("gives Hermes a native Memoire skill and CLI activation path", () => {
+    const envelope = createDesignAgentEnvelope(context({ harness: "hermes" }));
+
+    expect(envelope).toContain("memoire-design-tooling");
+    expect(envelope).toContain("memi agent install hermes");
+    expect(envelope).toContain("memi status");
+    expect(envelope).toContain("memi compose");
+    expect(envelope).toContain("Figma bridge");
+  });
+
+  it("injects compact research-design context and FigJam tool suggestions", () => {
+    const envelope = createDesignAgentEnvelope(context({
+      action: "self-design",
+      chatMode: "research",
+      researchDesign: {
+        personas: ["Product manager"],
+        findings: ["finding-evidence: PMs need visible evidence links."],
+        risks: ["Risk review skipped"],
+        metrics: ["Decision confidence"],
+        latestSimulationRunId: "run-swarm",
+        suggestedTools: ["research.design_package", "research.generate_specs", "mermaid_jam.export"],
+      },
+    }));
+
+    expect(envelope).toContain("Research-backed vibe design");
+    expect(envelope).toContain("Product manager");
+    expect(envelope).toContain("finding-evidence");
+    expect(envelope).toContain("run-swarm");
+    expect(envelope).toContain("research.design_package");
+    expect(envelope).toContain("mermaid_jam.export");
   });
 });

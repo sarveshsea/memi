@@ -13,6 +13,13 @@ import { execFile, type ExecFileOptions } from "child_process";
 import { createLogger } from "../engine/logger.js";
 import { NoteManifestSchema, type NoteCategory, type NoteManifest } from "./types.js";
 import { buildWorkspaceSkillManifest, parseSkillMarkdown } from "./frontmatter.js";
+import {
+  findCatalogNote,
+  installCatalogNote,
+  isSafeNoteName,
+  loadNotesCatalog,
+  type InstallCatalogNoteOptions,
+} from "./catalog.js";
 
 const log = createLogger("notes-installer");
 const GITHUB_REPO_PATTERN = /^([A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?)\/([A-Za-z0-9._-]{1,100})$/;
@@ -35,12 +42,25 @@ function assertSafeName(name: string): void {
 export async function installNote(
   source: string,
   projectRoot: string,
+  options: InstallCatalogNoteOptions = {},
 ): Promise<NoteManifest> {
   const dest = notesDir(projectRoot);
   await mkdir(dest, { recursive: true });
 
   if (source.startsWith("github:")) {
     return installFromGithub(source.slice(7), dest);
+  }
+
+  if (isSafeNoteName(source) && !looksLikePath(source)) {
+    try {
+      const catalog = await loadNotesCatalog(options);
+      const entry = findCatalogNote(catalog, source);
+      if (entry) return installCatalogNote(projectRoot, entry, options);
+      if (options.catalogUrl) throw new Error(`Note "${source}" was not found in catalog ${options.catalogUrl}`);
+    } catch (error) {
+      if (options.catalogUrl) throw error;
+      log.warn({ err: error, source }, "Remote note catalog unavailable; falling back to local path install");
+    }
   }
 
   // Treat as local path
@@ -163,6 +183,14 @@ function execFileChecked(command: string, args: string[], options: ExecFileOptio
   });
 }
 
+function looksLikePath(source: string): boolean {
+  return source.startsWith(".")
+    || source.startsWith("/")
+    || source.includes("/")
+    || source.includes("\\")
+    || source.startsWith("file:");
+}
+
 async function readManifestFromSource(sourcePath: string, fallbackName: string): Promise<{ manifest: NoteManifest; generated: boolean }> {
   const noteJsonPath = join(sourcePath, "note.json");
   try {
@@ -224,6 +252,7 @@ export async function scaffoldNote(
     description: `${name} — a Mémoire Note`,
     category,
     tags: [],
+    sourceUrls: [],
     skills: [{
       file: `${name}.md`,
       name: name.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" "),

@@ -9,6 +9,7 @@ import type { MemoireEngine } from "../engine/core.js";
 import { access, readdir, constants } from "fs/promises";
 import { join } from "path";
 import { resolvePluginHealth } from "../plugin/install-info.js";
+import { installPluginToHome } from "../plugin/installer.js";
 import { BRIDGE_PORT_START, BRIDGE_PORT_END } from "../figma/port-scanner.js";
 import { formatElapsed } from "../utils/format.js";
 
@@ -56,7 +57,8 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
     .command("doctor")
     .description("Run self-diagnostic checks on the Memoire engine")
     .option("--json", "Output doctor results as JSON")
-    .action(async (opts: { json?: boolean }) => {
+    .option("--repair-plugin", "Explicitly copy the packaged Figma plugin to ~/.memoire/plugin when stale or missing")
+    .action(async (opts: { json?: boolean; repairPlugin?: boolean }) => {
       const start = Date.now();
       const results: CheckResult[] = [];
       const push = (
@@ -188,7 +190,15 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
 
       // 5. Plugin bundle
       try {
-        const plugin = await resolvePluginHealth(engine.config.projectRoot);
+        let plugin = await resolvePluginHealth(engine.config.projectRoot);
+        if (opts.repairPlugin && plugin.localBundle.ready && plugin.health !== "current") {
+          const repair = await installPluginToHome(engine.config.projectRoot);
+          plugin = await resolvePluginHealth(engine.config.projectRoot);
+          push("plugin.repair", "plugin", plugin.health === "current" ? "pass" : "warn", "Plugin repair", `copied plugin to ${repair.destination}`, {
+            manifestPath: repair.manifestPath,
+            health: plugin.health,
+          });
+        }
         const missing = [
           !plugin.localBundle.meta?.manifest.exists ? "manifest.json" : "",
           !plugin.localBundle.meta?.code.exists ? "code.js" : "",

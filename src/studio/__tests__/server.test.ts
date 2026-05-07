@@ -23,7 +23,10 @@ describe("studio runtime server", () => {
 
       expect(status.status).toBe("running");
       expect(status.projectRoot).toBe(root);
-      expect(status.config.defaultHarness).toBe("memoire");
+      expect(status.config.defaultHarness).toBe("codex");
+      expect(status.sessions).toBeUndefined();
+      expect(status.indexedSessions).toBeUndefined();
+      expect(status.metrics.indexedSessions).toEqual(expect.any(Number));
       expect(harnesses.harnesses.map((harness: { id: string }) => harness.id)).toContain("codex");
     } finally {
       await rm(root, { recursive: true, force: true });
@@ -49,6 +52,39 @@ describe("studio runtime server", () => {
 
       expect(response.status).toBe(403);
       expect(await response.json()).toMatchObject({ error: expect.stringMatching(/workspace/i) });
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("serves agent kit install plans and dry-run installer results", async () => {
+    const root = await mkdtemp(join(tmpdir(), "memoire-studio-agent-kits-"));
+    try {
+      const server = new StudioRuntimeServer({ projectRoot: root, port: 0 });
+      servers.push(server);
+      const runtime = await server.start();
+
+      const planned = await fetch(`${runtime.url}/api/agents/kits?target=openclaw`).then((res) => res.json());
+      const installed = await fetch(`${runtime.url}/api/agents/kits/install`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ target: "openclaw", dryRun: true }),
+      }).then((res) => res.json());
+
+      expect(planned.targets).toContain("openclaw");
+      expect(planned.plans).toEqual([
+        expect.objectContaining({
+          target: "openclaw",
+          kind: "skill",
+          destination: join(root, "skills", "memoire", "memoire-design-tooling"),
+        }),
+      ]);
+      expect(installed).toMatchObject({
+        action: "install",
+        status: "planned",
+        target: "openclaw",
+        dryRun: true,
+      });
     } finally {
       await rm(root, { recursive: true, force: true });
     }

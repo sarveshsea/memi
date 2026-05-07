@@ -40,9 +40,9 @@ export interface ResearchConfig {
 
 export type ResearchConfidence = "high" | "medium" | "low";
 export type ResearchSentiment = "positive" | "negative" | "neutral" | "mixed";
-export type ResearchMethod = "qualitative" | "quantitative" | "mixed";
-export type ResearchObservationKind = "survey-response" | "transcript-segment" | "sticky" | "web-finding";
-export type ResearchSourceKind = "qualitative" | "quantitative" | "mixed";
+export type ResearchMethod = "qualitative" | "quantitative" | "mixed" | "netnography" | "desk";
+export type ResearchObservationKind = "survey-response" | "transcript-segment" | "sticky" | "web-finding" | "netnography-observation";
+export type ResearchSourceKind = "qualitative" | "quantitative" | "mixed" | "netnography" | "desk";
 
 export interface ResearchObservation {
   id: string;
@@ -91,6 +91,49 @@ export interface ResearchTheme {
   signalTags: string[];
   positiveCount: number;
   negativeCount: number;
+}
+
+export interface ResearchHighlight {
+  id: string;
+  sourceId: string;
+  observationId?: string;
+  text: string;
+  note?: string;
+  tags: string[];
+  codeIds: string[];
+  sentiment: ResearchSentiment;
+  createdAt: string;
+}
+
+export interface ResearchCodebookEntry {
+  id: string;
+  label: string;
+  description: string;
+  color?: string;
+  parentId?: string;
+  highlightIds: string[];
+  createdAt: string;
+}
+
+export interface ResearchEvidenceLink {
+  id: string;
+  sourceId: string;
+  findingId?: string;
+  highlightId?: string;
+  label: string;
+  href?: string;
+  sourcePath?: string;
+  createdAt: string;
+}
+
+export interface ResearchReportArtifact {
+  id: string;
+  title: string;
+  kind: "opportunity-map" | "theme-matrix" | "evidence-table" | "quote-reel" | "journey-map" | "recommendations";
+  summary: string;
+  artifactPath?: string;
+  evidenceFindingIds: string[];
+  createdAt: string;
 }
 
 export interface ResearchSourceRecord {
@@ -235,13 +278,17 @@ export interface ResearchStore {
   version: 2;
   sources: ResearchSourceRecord[];
   observations: ResearchObservation[];
+  highlights: ResearchHighlight[];
+  codebook: ResearchCodebookEntry[];
   findings: ResearchFinding[];
   themes: ResearchTheme[];
+  evidenceLinks: ResearchEvidenceLink[];
   personas: ResearchPersona[];
   quantitativeMetrics: ResearchQuantitativeMetric[];
   opportunities: ResearchOpportunity[];
   risks: ResearchRisk[];
   contradictions: ResearchContradiction[];
+  reports: ResearchReportArtifact[];
   quality: ResearchDataQualitySnapshot;
   summary?: ResearchSummarySnapshot;
   methods: ResearchMethods;
@@ -1066,13 +1113,17 @@ function createEmptyStore(): ResearchStore {
     version: 2,
     sources: [],
     observations: [],
+    highlights: [],
+    codebook: [],
     findings: [],
     themes: [],
+    evidenceLinks: [],
     personas: [],
     quantitativeMetrics: [],
     opportunities: [],
     risks: [],
     contradictions: [],
+    reports: [],
     quality: {
       overallScore: 0,
       sampleSize: 0,
@@ -1098,13 +1149,17 @@ function normalizeResearchStore(input: unknown): ResearchStore {
     version: 2,
     sources: Array.isArray(value.sources) ? value.sources.map(normalizeSource) : [],
     observations: Array.isArray(value.observations) ? value.observations.map(normalizeObservation) : [],
+    highlights: Array.isArray(value.highlights) ? value.highlights.map(normalizeHighlight) : [],
+    codebook: Array.isArray(value.codebook) ? value.codebook.map(normalizeCodebookEntry) : [],
     findings: Array.isArray(value.findings) ? value.findings.map(normalizeFinding) : [],
     themes: Array.isArray(value.themes) ? value.themes.map(normalizeTheme) : [],
+    evidenceLinks: Array.isArray(value.evidenceLinks) ? value.evidenceLinks.map(normalizeEvidenceLink) : [],
     personas: Array.isArray(value.personas) ? value.personas.map(normalizePersona) : [],
     quantitativeMetrics: Array.isArray(value.quantitativeMetrics) ? value.quantitativeMetrics.map(normalizeMetric) : [],
     opportunities: Array.isArray(value.opportunities) ? value.opportunities.map(normalizeOpportunity) : [],
     risks: Array.isArray(value.risks) ? value.risks.map(normalizeRisk) : [],
     contradictions: Array.isArray(value.contradictions) ? value.contradictions.map(normalizeContradiction) : [],
+    reports: Array.isArray(value.reports) ? value.reports.map(normalizeReportArtifact) : [],
     quality: normalizeQuality(value.quality),
     summary: normalizeSummary(value.summary),
     methods: normalizeMethods(value.methods),
@@ -1278,6 +1333,50 @@ function normalizeTheme(input: unknown): ResearchTheme {
   };
 }
 
+function normalizeHighlight(input: unknown): ResearchHighlight {
+  const value = input && typeof input === "object" ? input as Record<string, unknown> : {};
+  const text = typeof value.text === "string" ? value.text : "";
+  return {
+    id: typeof value.id === "string" ? value.id : `highlight-${Date.now().toString(36)}`,
+    sourceId: typeof value.sourceId === "string" ? value.sourceId : "source-unknown",
+    observationId: typeof value.observationId === "string" ? value.observationId : undefined,
+    text,
+    note: typeof value.note === "string" ? value.note : undefined,
+    tags: Array.isArray(value.tags) ? value.tags.map(String) : extractResearchSignals(text, ["highlight"], extractResearchEntities(text)),
+    codeIds: Array.isArray(value.codeIds) ? value.codeIds.map(String) : [],
+    sentiment: isSentiment(value.sentiment) ? value.sentiment : detectResearchSentiment(text),
+    createdAt: typeof value.createdAt === "string" ? value.createdAt : new Date().toISOString(),
+  };
+}
+
+function normalizeCodebookEntry(input: unknown): ResearchCodebookEntry {
+  const value = input && typeof input === "object" ? input as Record<string, unknown> : {};
+  const label = typeof value.label === "string" ? value.label : "Code";
+  return {
+    id: typeof value.id === "string" ? value.id : `code-${slugify(label)}`,
+    label,
+    description: typeof value.description === "string" ? value.description : "",
+    color: typeof value.color === "string" ? value.color : undefined,
+    parentId: typeof value.parentId === "string" ? value.parentId : undefined,
+    highlightIds: Array.isArray(value.highlightIds) ? value.highlightIds.map(String) : [],
+    createdAt: typeof value.createdAt === "string" ? value.createdAt : new Date().toISOString(),
+  };
+}
+
+function normalizeEvidenceLink(input: unknown): ResearchEvidenceLink {
+  const value = input && typeof input === "object" ? input as Record<string, unknown> : {};
+  return {
+    id: typeof value.id === "string" ? value.id : `evidence-${Date.now().toString(36)}`,
+    sourceId: typeof value.sourceId === "string" ? value.sourceId : "source-unknown",
+    findingId: typeof value.findingId === "string" ? value.findingId : undefined,
+    highlightId: typeof value.highlightId === "string" ? value.highlightId : undefined,
+    label: typeof value.label === "string" ? value.label : "Evidence",
+    href: typeof value.href === "string" ? value.href : undefined,
+    sourcePath: typeof value.sourcePath === "string" ? value.sourcePath : undefined,
+    createdAt: typeof value.createdAt === "string" ? value.createdAt : new Date().toISOString(),
+  };
+}
+
 function normalizeSource(input: unknown): ResearchSourceRecord {
   const value = input && typeof input === "object" ? input as Record<string, unknown> : {};
   return {
@@ -1317,6 +1416,19 @@ function normalizeMetric(input: unknown): ResearchQuantitativeMetric {
     nps: normalizeNps(value.nps),
     outlierCount: typeof value.outlierCount === "number" ? value.outlierCount : 0,
     cohortComparisons: Array.isArray(value.cohortComparisons) ? value.cohortComparisons.map(normalizeCohortComparison) : [],
+  };
+}
+
+function normalizeReportArtifact(input: unknown): ResearchReportArtifact {
+  const value = input && typeof input === "object" ? input as Record<string, unknown> : {};
+  return {
+    id: typeof value.id === "string" ? value.id : `report-${Date.now().toString(36)}`,
+    title: typeof value.title === "string" ? value.title : "Research report",
+    kind: isReportArtifactKind(value.kind) ? value.kind : "recommendations",
+    summary: typeof value.summary === "string" ? value.summary : "",
+    artifactPath: typeof value.artifactPath === "string" ? value.artifactPath : undefined,
+    evidenceFindingIds: Array.isArray(value.evidenceFindingIds) ? value.evidenceFindingIds.map(String) : [],
+    createdAt: typeof value.createdAt === "string" ? value.createdAt : new Date().toISOString(),
   };
 }
 
@@ -1523,6 +1635,8 @@ function buildMethods(store: ResearchStore): ResearchMethods {
 function inferLegacySourceKind(source: Record<string, unknown>): ResearchSourceKind {
   if (typeof source.sourceKind === "string" && isSourceKind(source.sourceKind)) return source.sourceKind;
   const type = String(source.type ?? "").toLowerCase();
+  if (type.includes("community") || type.includes("social") || type.includes("forum")) return "netnography";
+  if (type.includes("web") || type.includes("document")) return "desk";
   if (type.includes("csv") || type.includes("excel")) return "mixed";
   return "qualitative";
 }
@@ -1536,6 +1650,7 @@ function inferLegacyObservationKind(value: Record<string, unknown>, sourceType: 
 
 function inferLegacyMethod(value: Record<string, unknown>, sourceKind: ResearchSourceKind | undefined): ResearchMethod {
   if (isMethod(value.method)) return value.method;
+  if (sourceKind === "netnography" || sourceKind === "desk") return sourceKind;
   if (sourceKind === "mixed") return "mixed";
   if (sourceKind === "quantitative") return "quantitative";
   return "qualitative";
@@ -1731,15 +1846,24 @@ function isSentiment(value: unknown): value is ResearchSentiment {
 }
 
 function isMethod(value: unknown): value is ResearchMethod {
-  return value === "qualitative" || value === "quantitative" || value === "mixed";
+  return value === "qualitative" || value === "quantitative" || value === "mixed" || value === "netnography" || value === "desk";
 }
 
 function isObservationKind(value: unknown): value is ResearchObservationKind {
-  return value === "survey-response" || value === "transcript-segment" || value === "sticky" || value === "web-finding";
+  return value === "survey-response" || value === "transcript-segment" || value === "sticky" || value === "web-finding" || value === "netnography-observation";
 }
 
 function isSourceKind(value: unknown): value is ResearchSourceKind {
-  return value === "qualitative" || value === "quantitative" || value === "mixed";
+  return value === "qualitative" || value === "quantitative" || value === "mixed" || value === "netnography" || value === "desk";
+}
+
+function isReportArtifactKind(value: unknown): value is ResearchReportArtifact["kind"] {
+  return value === "opportunity-map"
+    || value === "theme-matrix"
+    || value === "evidence-table"
+    || value === "quote-reel"
+    || value === "journey-map"
+    || value === "recommendations";
 }
 
 function isPriority(value: unknown): value is "high" | "medium" | "low" {

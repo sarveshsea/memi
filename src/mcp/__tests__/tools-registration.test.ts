@@ -54,4 +54,11 @@ describe("MCP tools registration", () => {
     const src = await readToolsSrc();
     expect(src).toContain('"check_bridge_health"');
   });
+
+  it("registers research design and Mermaid Jam export tools", async () => {
+    const src = await readToolsSrc();
+    expect(src).toContain('"research.design_package"');
+    expect(src).toContain('"research.generate_specs"');
+    expect(src).toContain('"mermaid_jam.export"');
+  });
 });

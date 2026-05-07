@@ -240,7 +240,9 @@ function normalizeBridgeMessage(value) {
           source: "server",
           type,
           name: message.name,
-          port: typeof message.port === "number" ? message.port : void 0
+          port: typeof message.port === "number" ? message.port : void 0,
+          studioUrl: asString(message.studioUrl),
+          runtimeUrl: asString(message.runtimeUrl)
         };
       }
       return null;
@@ -437,7 +439,9 @@ function serializeBridgeEnvelope(envelope, mode = "legacy") {
       return {
         type: "identify",
         name: envelope.name,
-        port: envelope.port
+        port: envelope.port,
+        studioUrl: envelope.studioUrl,
+        runtimeUrl: envelope.runtimeUrl
       };
     case "bridge-hello":
       return {
@@ -551,6 +555,16 @@ function resolveBridgeResponse(pending, message) {
   }
   pending.delete(message.requestId);
   return createBridgeResponseEnvelope(matched.bridgeId, message.result, message.error);
+}
+function createBridgeHelloMessage(connection) {
+  return {
+    channel: BRIDGE_V2_CHANNEL,
+    source: "plugin",
+    type: "bridge-hello",
+    file: connection.fileName || "unknown",
+    fileKey: connection.fileKey || "",
+    editor: connection.editorType || "figma"
+  };
 }
 function createBridgeSelectionMessage(selection) {
   return {
@@ -901,6 +915,8 @@ const state = {
     name: "",
     reconnectDelayMs: 2e3,
     latencyMs: null,
+    studioUrl: "http://127.0.0.1:1420",
+    runtimeUrl: "http://127.0.0.1:8765",
     lastPingSentAt: 0,
     scanTimer: null,
     offlineSince: Date.now(),
@@ -959,6 +975,7 @@ function bindPluginMessages() {
         state.connection = message.connection;
         state.selection = message.selection;
         state.jobs = message.initialJobs;
+        announceBridgeHello();
         addLog("success", "Plugin ready", {
           file: message.connection.fileName,
           page: message.connection.pageName
@@ -971,12 +988,13 @@ function bindPluginMessages() {
         break;
       case "connection":
         state.connection = message.connection;
-        forwardToBridge(serializeBridgeEnvelope(createBridgeConnectionStateMessage(message.connection)));
+        announceBridgeHello();
+        forwardToBridge(serializeBridgeEnvelope(createBridgeConnectionStateMessage(message.connection), "v2"));
         scheduleRender();
         break;
       case "selection":
         state.selection = message.selection;
-        forwardToBridge(serializeBridgeEnvelope(createBridgeSelectionMessage(message.selection)));
+        forwardToBridge(serializeBridgeEnvelope(createBridgeSelectionMessage(message.selection), "v2"));
         scheduleRender();
         break;
       case "page":
@@ -989,7 +1007,7 @@ function bindPluginMessages() {
           message.pageName,
           message.pageId,
           message.updatedAt
-        )));
+        ), "v2"));
         scheduleRender();
         break;
       case "changes":
@@ -1001,21 +1019,21 @@ function bindPluginMessages() {
           message.sessionId,
           (_b = message.runId) != null ? _b : null,
           message.updatedAt
-        )));
+        ), "v2"));
         scheduleRender();
         break;
       case "job":
         upsertJob(message.job);
-        forwardToBridge(serializeBridgeEnvelope(createBridgeJobStatusMessage(message.job)));
+        forwardToBridge(serializeBridgeEnvelope(createBridgeJobStatusMessage(message.job), "v2"));
         scheduleRender();
         break;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- granular-change is a plugin-internal message type not in the union
       case "granular-change": {
         const granular = message;
         if (granular.granularType === "variable-changed") {
-          forwardToBridge(serializeBridgeEnvelope(createBridgeVariableChangedMessage(granular.data)));
+          forwardToBridge(serializeBridgeEnvelope(createBridgeVariableChangedMessage(granular.data), "v2"));
         } else if (granular.granularType === "component-changed") {
-          forwardToBridge(serializeBridgeEnvelope(createBridgeComponentChangedMessage(granular.data)));
+          forwardToBridge(serializeBridgeEnvelope(createBridgeComponentChangedMessage(granular.data), "v2"));
         }
         break;
       }
@@ -1156,21 +1174,21 @@ function adoptBridge(ws, port, payload) {
   state.bridge.ws = ws;
   state.bridge.port = port;
   state.bridge.name = payload.name || "Mémoire";
+  state.bridge.studioUrl = payload.studioUrl || state.bridge.studioUrl;
+  state.bridge.runtimeUrl = payload.runtimeUrl || state.bridge.runtimeUrl;
   state.bridge.reconnectDelayMs = 2e3;
   state.bridge.reconnectAttempts = 0;
   writeCachedPort(port);
   setBridgeStage("connected");
   addLog("success", `Connected :${port}`);
-  forwardToBridge({
-    type: "bridge-hello",
-    file: state.connection.fileName || "unknown",
-    fileKey: state.connection.fileKey || "",
-    editor: state.connection.editorType || "figma"
-  });
+  forwardToBridge(serializeBridgeEnvelope(createBridgeHelloMessage(state.connection), "v2"));
   scheduleRender();
   window.setTimeout(() => {
     requestCommand("getSelection", {}, "Auto-inspect", "selection");
   }, 300);
+}
+function announceBridgeHello() {
+  forwardToBridge(serializeBridgeEnvelope(createBridgeHelloMessage(state.connection), "v2"));
 }
 const MAX_RECONNECT_ATTEMPTS = 20;
 function scheduleReconnect() {
@@ -1323,6 +1341,9 @@ function handleBridgeMessage(payload) {
       break;
     case "identify":
       state.bridge.name = message.name || state.bridge.name;
+      state.bridge.studioUrl = message.studioUrl || state.bridge.studioUrl;
+      state.bridge.runtimeUrl = message.runtimeUrl || state.bridge.runtimeUrl;
+      scheduleRender();
       break;
     case "event": {
       addLog(message.level, message.message || "Bridge event", message.data || null);
@@ -1360,7 +1381,8 @@ function handleBridgeMessage(payload) {
 function handleBridgeCommand(message) {
   if (!isWidgetCommandName(message.method)) {
     forwardToBridge(serializeBridgeEnvelope(
-      createBridgeResponseEnvelope(message.id, void 0, "Unknown bridge command: " + message.method)
+      createBridgeResponseEnvelope(message.id, void 0, "Unknown bridge command: " + message.method),
+      "v2"
     ));
     return;
   }
@@ -1381,7 +1403,8 @@ function handleBridgeCommand(message) {
             message: "Request timed out: " + dispatch.command + " after " + commandTimeout + "ms",
             retryable: true
           })
-        )
+        ),
+        "v2"
       ));
       addLog("warn", "Command timed out: " + dispatch.command, { afterMs: commandTimeout });
     }
@@ -1406,7 +1429,7 @@ function handleCommandResult(message) {
   releaseDedupe(message.requestId);
   var bridgeResponse = resolveBridgeResponse(pendingBridgeRequests, message);
   if (bridgeResponse) {
-    forwardToBridge(serializeBridgeEnvelope(bridgeResponse));
+    forwardToBridge(serializeBridgeEnvelope(bridgeResponse, "v2"));
   }
   if (message.error) {
     if (message.command === "getVariables") {
@@ -1438,21 +1461,21 @@ function handleCommandResult(message) {
   if (message.command === "getVariables") {
     const collections = (((_c = message.result) == null ? void 0 : _c.collections) || []).length;
     const syncMessage = createBridgeSyncResultMessage("tokens", message.result);
-    forwardToBridge(serializeBridgeEnvelope(syncMessage));
+    forwardToBridge(serializeBridgeEnvelope(syncMessage, "v2"));
     recordSyncSummary("tokens", message.result);
     addLog("success", `Synced tokens`, { collections });
   }
   if (message.command === "getComponents") {
     const count = Array.isArray(message.result) ? message.result.length : 0;
     const syncMessage = createBridgeSyncResultMessage("components", message.result);
-    forwardToBridge(serializeBridgeEnvelope(syncMessage));
+    forwardToBridge(serializeBridgeEnvelope(syncMessage, "v2"));
     recordSyncSummary("components", message.result);
     addLog("success", `Synced components`, { count });
   }
   if (message.command === "getStyles") {
     const count = Array.isArray(message.result) ? message.result.length : 0;
     const syncMessage = createBridgeSyncResultMessage("styles", message.result);
-    forwardToBridge(serializeBridgeEnvelope(syncMessage));
+    forwardToBridge(serializeBridgeEnvelope(syncMessage, "v2"));
     recordSyncSummary("styles", message.result);
     addLog("success", `Synced styles`, { count });
   }
@@ -1735,8 +1758,8 @@ function handleAction(action) {
       requestCommand("getStickies", {}, "Studio sticky pull", "sync");
       break;
     case "studio-open":
-      addLog("info", "Studio runtime: http://127.0.0.1:1422");
-      window.open("http://127.0.0.1:1422/", "_blank", "noopener,noreferrer");
+      addLog("info", "Studio runtime: " + state.bridge.runtimeUrl);
+      window.open(state.bridge.studioUrl + "/", "_blank", "noopener,noreferrer");
       scheduleRender();
       break;
     case "retry":
@@ -2038,7 +2061,7 @@ function renderSystem() {
 }
 function renderStudioCompanion() {
   var _a, _b, _c, _d;
-  const runtime = "http://127.0.0.1:1422";
+  const runtime = state.bridge.runtimeUrl;
   const selected = state.selection.count;
   const tokenCount = (_b = (_a = state.syncSummary) == null ? void 0 : _a.tokens) != null ? _b : 0;
   const componentCount = (_d = (_c = state.syncSummary) == null ? void 0 : _c.components) != null ? _d : 0;

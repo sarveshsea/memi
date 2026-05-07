@@ -13,16 +13,20 @@ import type { Command } from "commander";
 import { join } from "path";
 import type { MemoireEngine } from "../engine/core.js";
 import {
+  DEFAULT_NOTES_CATALOG_URL,
+  findCatalogNote,
   installNote,
+  loadNotesCatalog,
   removeNote,
   scaffoldNote,
   getNoteInfo,
   type NoteCategory,
 } from "../notes/index.js";
+import { validateCommunityNoteDir } from "../notes/community.js";
 import type { InstalledNote, NoteManifest } from "../notes/index.js";
 import { ui } from "../tui/format.js";
 
-type NoteMutationAction = "install" | "create" | "remove";
+type NoteMutationAction = "install" | "create" | "remove" | "update";
 type NoteMutationStatus = "completed" | "failed";
 
 interface NoteMutationPayload {
@@ -53,9 +57,10 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
 
   notes
     .command("install <source>")
-    .description("Install a note (local path or github:user/repo)")
+    .description("Install a note (catalog name, local path, or github:user/repo)")
+    .option("--catalog <url>", "Remote Notes catalog URL", DEFAULT_NOTES_CATALOG_URL)
     .option("--json", "Output install result as JSON")
-    .action(async (source: string, opts: { json?: boolean }) => {
+    .action(async (source: string, opts: { catalog?: string; json?: boolean }) => {
       const root = engine.config.projectRoot;
       const json = Boolean(opts.json);
       if (!json) {
@@ -63,7 +68,7 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
       }
 
       try {
-        const manifest = await installNote(source, root);
+        const manifest = await installNote(source, root, { catalogUrl: opts.catalog });
         if (json) {
           const payload: NoteMutationPayload = {
             action: "install",
@@ -164,6 +169,188 @@ export function registerNotesCommand(program: Command, engine: MemoireEngine) {
       const installed = allNotes.filter((n) => !n.builtIn).length;
       const builtIn = allNotes.filter((n) => n.builtIn).length;
       console.log(`  ${builtIn} built-in, ${installed} installed\n`);
+    });
+
+  // ── search ─────────────────────────────────────────────
+
+  notes
+    .command("search [query]")
+    .description("Search the remote Memoire Notes catalog")
+    .option("--catalog <url>", "Remote Notes catalog URL", DEFAULT_NOTES_CATALOG_URL)
+    .option("--json", "Output search result as JSON")
+    .action(async (query: string | undefined, opts: { catalog?: string; json?: boolean }) => {
+      try {
+        const normalized = (query ?? "").trim().toLowerCase();
+        const catalog = await loadNotesCatalog({ catalogUrl: opts.catalog });
+        const notes = catalog.notes
+          .filter((note) => !normalized || `${note.name} ${note.title} ${note.description} ${note.tags.join(" ")}`.toLowerCase().includes(normalized))
+          .map((note) => ({
+            name: note.name,
+            title: note.title,
+            version: note.version,
+            description: note.description,
+            category: note.category,
+            tags: note.tags,
+            sourceUrls: note.sourceUrls,
+            archiveUrl: note.archive.url,
+          }));
+        if (opts.json) {
+          console.log(JSON.stringify({ status: "completed", query: query ?? "", catalogUrl: opts.catalog, notes }, null, 2));
+          return;
+        }
+        for (const note of notes) console.log(`${note.name}@${note.version} — ${note.description}`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (opts.json) {
+          console.log(JSON.stringify({ status: "failed", query: query ?? "", catalogUrl: opts.catalog, error: { message } }, null, 2));
+          process.exitCode = 1;
+          return;
+        }
+        console.log(ui.fail(message));
+        process.exitCode = 1;
+      }
+    });
+
+  // ── outdated ───────────────────────────────────────────
+
+  notes
+    .command("outdated")
+    .description("Report Notes that are version-stale or research-stale")
+    .option("--catalog <url>", "Remote Notes catalog URL", DEFAULT_NOTES_CATALOG_URL)
+    .option("--json", "Output outdated result as JSON")
+    .action(async (opts: { catalog?: string; json?: boolean }) => {
+      if (!engine.notes.loaded) await engine.notes.loadAll();
+      const loadedNotes = engine.notes.notes;
+      const catalog = await loadNotesCatalog({ catalogUrl: opts.catalog }).catch(() => null);
+      const outdated = loadedNotes.flatMap((note) => {
+        const remote = catalog ? findCatalogNote(catalog, note.manifest.name) : null;
+        const reasons = outdatedReasons(note.manifest, remote);
+        if (reasons.length === 0) return [];
+        return [{
+          name: note.manifest.name,
+          installedVersion: note.manifest.version,
+          latestVersion: remote?.version ?? null,
+          builtIn: note.builtIn,
+          reason: reasons.join("; "),
+          lastResearchedAt: note.manifest.lastResearchedAt ?? null,
+          freshnessDays: note.manifest.freshnessDays ?? null,
+        }];
+      });
+      if (opts.json) {
+        console.log(JSON.stringify({
+          status: "completed",
+          catalogUrl: opts.catalog,
+          checked: loadedNotes.length,
+          outdated,
+        }, null, 2));
+        return;
+      }
+      if (outdated.length === 0) {
+        console.log("All notes are current.");
+        return;
+      }
+      for (const note of outdated) console.log(`${note.name}: ${note.reason}`);
+    });
+
+  // ── update ─────────────────────────────────────────────
+
+  notes
+    .command("update [name]")
+    .description("Update one Note or all Notes from the remote catalog")
+    .option("--all", "Update every outdated installed Note")
+    .option("--catalog <url>", "Remote Notes catalog URL", DEFAULT_NOTES_CATALOG_URL)
+    .option("--json", "Output update result as JSON")
+    .action(async (name: string | undefined, opts: { all?: boolean; catalog?: string; json?: boolean }) => {
+      if (!name && !opts.all) {
+        const message = "Pass a note name or --all";
+        if (opts.json) {
+          console.log(JSON.stringify({ action: "update", status: "failed", error: { message } }, null, 2));
+          process.exitCode = 1;
+          return;
+        }
+        console.log(ui.fail(message));
+        process.exitCode = 1;
+        return;
+      }
+      try {
+        if (!engine.notes.loaded) await engine.notes.loadAll();
+        const targets = opts.all ? engine.notes.notes.map((note) => note.manifest.name) : [name!];
+        const updated = [];
+        for (const target of Array.from(new Set(targets))) {
+          const manifest = await installNote(target, engine.config.projectRoot, { catalogUrl: opts.catalog });
+          updated.push(serializeManifest(manifest));
+        }
+        if (opts.json) {
+          console.log(JSON.stringify({ action: "update", status: "completed", updated }, null, 2));
+          return;
+        }
+        for (const note of updated) console.log(`Updated ${note.name}@${note.version}`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (opts.json) {
+          console.log(JSON.stringify({ action: "update", status: "failed", error: { message } }, null, 2));
+          process.exitCode = 1;
+          return;
+        }
+        console.log(ui.fail(message));
+        process.exitCode = 1;
+      }
+    });
+
+  // ── doctor ─────────────────────────────────────────────
+
+  notes
+    .command("doctor")
+    .description("Validate installed Note manifests and freshness metadata")
+    .option("--community", "Use strict community marketplace review rules")
+    .option("--path <path>", "Validate a specific Note directory")
+    .option("--json", "Output doctor result as JSON")
+    .action(async (opts: { community?: boolean; path?: string; json?: boolean }) => {
+      if (opts.path) {
+        const validation = await validateCommunityNoteDir(opts.path, { strictCommunity: Boolean(opts.community) });
+        const payload = {
+          status: validation.ok ? "completed" : "failed",
+          notesChecked: 1,
+          issues: validation.issues,
+          warnings: validation.warnings,
+        };
+        if (opts.json) {
+          console.log(JSON.stringify(payload, null, 2));
+        } else {
+          for (const issue of [...payload.issues, ...payload.warnings]) console.log(`${issue.level}: ${issue.path ?? validation.noteName ?? "note"}: ${issue.message}`);
+          if (payload.issues.length === 0 && payload.warnings.length === 0) console.log("Notes doctor passed.");
+        }
+        if (!validation.ok) process.exitCode = 1;
+        return;
+      }
+      if (!engine.notes.loaded) await engine.notes.loadAll();
+      const issues = engine.notes.notes.flatMap((note) => {
+        const noteIssues: Array<{ name: string; level: "warning" | "error"; message: string }> = [];
+        const missingLevel = opts.community ? "error" : "warning";
+        if ((note.manifest.sourceUrls ?? []).length === 0) {
+          noteIssues.push({ name: note.manifest.name, level: missingLevel, message: opts.community ? "sourceUrls metadata is required for community review" : "sourceUrls metadata is missing" });
+        }
+        if (!note.manifest.lastResearchedAt) {
+          noteIssues.push({ name: note.manifest.name, level: missingLevel, message: opts.community ? "lastResearchedAt metadata is required for community review" : "lastResearchedAt metadata is missing" });
+        }
+        if (opts.community && !note.manifest.freshnessDays) {
+          noteIssues.push({ name: note.manifest.name, level: "error", message: "freshnessDays metadata is required for community review" });
+        }
+        return noteIssues;
+      });
+      const payload = {
+        status: issues.some((issue) => issue.level === "error") ? "failed" : "completed",
+        notesChecked: engine.notes.notes.length,
+        issues: issues.filter((issue) => issue.level === "error"),
+        warnings: issues.filter((issue) => issue.level === "warning"),
+      };
+      if (opts.json) {
+        console.log(JSON.stringify(payload, null, 2));
+        return;
+      }
+      for (const issue of [...payload.issues, ...payload.warnings]) console.log(`${issue.level}: ${issue.name}: ${issue.message}`);
+      if (payload.issues.length === 0 && payload.warnings.length === 0) console.log("Notes doctor passed.");
+      if (payload.issues.length > 0) process.exitCode = 1;
     });
 
   // ── remove ─────────────────────────────────────────────
@@ -351,6 +538,9 @@ function serializeManifest(manifest: NoteManifest) {
     tags: manifest.tags,
     author: manifest.author ?? null,
     dependencies: manifest.dependencies,
+    sourceUrls: manifest.sourceUrls ?? [],
+    lastResearchedAt: manifest.lastResearchedAt ?? null,
+    freshnessDays: manifest.freshnessDays ?? null,
     skills: manifest.skills.map((skill) => ({
       file: skill.file,
       name: skill.name,
@@ -358,6 +548,22 @@ function serializeManifest(manifest: NoteManifest) {
       freedomLevel: skill.freedomLevel,
     })),
   };
+}
+
+function outdatedReasons(manifest: NoteManifest, remote: Awaited<ReturnType<typeof findCatalogNote>>): string[] {
+  const reasons: string[] = [];
+  if (remote && remote.version.localeCompare(manifest.version, undefined, { numeric: true }) > 0) {
+    reasons.push(`remote version ${remote.version} is newer`);
+  }
+  const researchedAt = manifest.lastResearchedAt ?? manifest.updatedAt;
+  const freshnessDays = manifest.freshnessDays ?? 90;
+  if (researchedAt) {
+    const ageMs = Date.now() - Date.parse(researchedAt);
+    if (Number.isFinite(ageMs) && ageMs > freshnessDays * 24 * 60 * 60 * 1000) {
+      reasons.push(`last researched ${Math.floor(ageMs / 86_400_000)} days ago`);
+    }
+  }
+  return reasons;
 }
 
 function buildNotesSummary(notes: InstalledNote[]) {

@@ -45,6 +45,8 @@ export interface BridgeIdentifyEnvelope {
   type: "identify";
   name: string;
   port?: number;
+  studioUrl?: string;
+  runtimeUrl?: string;
 }
 
 export interface BridgeHelloEnvelope {
@@ -313,6 +315,8 @@ export function normalizeBridgeMessage(value: unknown): BridgeEnvelope | null {
           type,
           name: message.name,
           port: typeof message.port === "number" ? message.port : undefined,
+          studioUrl: asString(message.studioUrl),
+          runtimeUrl: asString(message.runtimeUrl),
         };
       }
       return null;
@@ -515,6 +519,8 @@ export function serializeBridgeEnvelope(
         type: "identify",
         name: envelope.name,
         port: envelope.port,
+        studioUrl: envelope.studioUrl,
+        runtimeUrl: envelope.runtimeUrl,
       };
     case "bridge-hello":
       return {

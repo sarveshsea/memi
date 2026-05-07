@@ -33,7 +33,7 @@ export function registerMcpCommand(program: Command, engine: MemoireEngine): voi
     .action(async (opts: { target: string; global?: boolean; install?: boolean }) => {
       const useGlobal = opts.global !== false;
       const cmd = useGlobal ? "memi" : "npx";
-      const args = useGlobal ? ["mcp", "start"] : ["@sarveshsea/memoire", "mcp", "start"];
+      const args = useGlobal ? ["mcp", "start", "--no-figma"] : ["@sarveshsea/memoire", "mcp", "start", "--no-figma"];
 
       const serverConfig = {
         command: cmd,
@@ -142,7 +142,7 @@ export function registerMcpCommand(program: Command, engine: MemoireEngine): voi
         }
       }
 
-      console.log(ui.section("AVAILABLE TOOLS (20)"));
+      console.log(ui.section("AVAILABLE TOOLS"));
       console.log();
       const tools = [
         ["pull_design_system", "Pull tokens, components, styles from Figma"],
@@ -157,7 +157,6 @@ export function registerMcpCommand(program: Command, engine: MemoireEngine): voi
         ["compose", "Natural language design intent orchestration"],
         ["run_audit", "Design system quality audit"],
         ["get_research", "Research store (insights, personas)"],
-        ["figma_execute", "Run Plugin API code in Figma sandbox"],
         ["analyze_design", "AI vision analysis of Figma screenshots"],
         ["measure_text", "Server-side text measurement"],
         ["get_ai_usage", "Session token usage and cost"],

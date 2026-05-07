@@ -18,7 +18,7 @@ import type { MemoireEngine } from "../engine/core.js";
 import { readFile, writeFile, access } from "fs/promises";
 import { join, dirname } from "path";
 import { createInterface } from "readline";
-import { spawn, execFile, spawnSync } from "child_process";
+import { spawn, spawnSync } from "child_process";
 import { fileURLToPath } from "url";
 import chalk from "chalk";
 import {
@@ -27,6 +27,7 @@ import {
   FigmaConfigError,
 } from "../figma/rest-client.js";
 import { resolvePluginHealth } from "../plugin/install-info.js";
+import { installPluginToHome } from "../plugin/installer.js";
 import { ui } from "../tui/format.js";
 import { readEnvValueRaw } from "../utils/env.js";
 
@@ -117,9 +118,28 @@ function step(label: string): void {
 // ── Main command ──────────────────────────────────────────
 
 export function registerSetupCommand(program: Command, engine: MemoireEngine): void {
-  program
+  const setup = program
     .command("setup")
-    .description("Full Figma + Claude Code setup in one command — token, plugin, bridge, MCP config")
+    .description("Full Figma + Claude Code setup in one command — token, plugin, bridge, MCP config");
+
+  setup
+    .command("plugin")
+    .description("Copy the packaged Figma plugin to ~/.memoire/plugin explicitly")
+    .option("--json", "Output plugin install result as JSON")
+    .action(async (opts: { json?: boolean }) => {
+      const result = await installPluginToHome(engine.config.projectRoot);
+      if (opts.json) {
+        console.log(JSON.stringify(result, null, 2));
+        return;
+      }
+      console.log(ui.ok(`Figma plugin copied to ${result.destination}`));
+      console.log(ui.dots("Manifest", result.manifestPath));
+      if (result.sourcePackageVersion || result.widgetVersion) {
+        console.log(ui.dots("Bundle", `widget ${result.widgetVersion ?? "unknown"} / package ${result.sourcePackageVersion ?? "unknown"}`));
+      }
+    });
+
+  setup
     .option("--skip-pull", "Skip the final test pull")
     .option("--json", "Output final status as JSON")
     .action(async (opts: { skipPull?: boolean; json?: boolean }) => {
@@ -245,20 +265,22 @@ export function registerSetupCommand(program: Command, engine: MemoireEngine): v
       // ── 3. PLUGIN ─────────────────────────────────────────
       step("3 / 6  PLUGIN");
 
-      const plugin = await resolvePluginHealth(root);
+      let plugin = await resolvePluginHealth(root);
 
       if (plugin.health === "stale-home-copy") {
         console.log(ui.warn("Plugin is stale — reinstalling..."));
-        await new Promise<void>((resolve) => {
-          const postinstall = join(root, "node_modules", "@sarveshsea", "memoire", "scripts", "postinstall.mjs");
-          execFile(process.execPath, [postinstall], (err) => {
-            if (err) console.log(ui.warn(`Reinstall failed: ${err.message} — run manually: npm install -g @sarveshsea/memoire`));
-            else console.log(ui.ok("Plugin reinstalled"));
-            resolve();
-          });
-        });
+        const installed = await installPluginToHome(root);
+        console.log(ui.ok(`Plugin reinstalled at ${installed.destination}`));
+        plugin = await resolvePluginHealth(root);
       } else if (plugin.health === "missing") {
-        console.log(ui.warn("Plugin not found at ~/.memoire/plugin/ — install it with: npm install -g @sarveshsea/memoire"));
+        const installed = await installPluginToHome(root);
+        console.log(ui.ok(`Plugin installed at ${installed.destination}`));
+        plugin = await resolvePluginHealth(root);
+      } else if (plugin.health === "local-only") {
+        console.log(ui.warn("Plugin is only available from the package checkout — copying to ~/.memoire/plugin..."));
+        const installed = await installPluginToHome(root);
+        console.log(ui.ok(`Plugin installed at ${installed.destination}`));
+        plugin = await resolvePluginHealth(root);
       }
 
       const manifestPath = plugin.manifestPath;
@@ -420,7 +442,7 @@ export function registerSetupCommand(program: Command, engine: MemoireEngine): v
 function buildMcpEntry() {
   return {
     command: "memi",
-    args: ["mcp", "start"],
+    args: ["mcp", "start", "--no-figma"],
     env: {
       FIGMA_TOKEN: "${FIGMA_TOKEN}",
       FIGMA_FILE_KEY: "${FIGMA_FILE_KEY}",

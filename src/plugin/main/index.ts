@@ -17,7 +17,6 @@ import {
   type WidgetUiEnvelope,
   type WidgetCommandName,
 } from "../shared/contracts.js";
-import { stringIncludes } from "../shared/compat.js";
 import {
   createChangeBuffer,
   type ChangeBuffer,
@@ -31,8 +30,6 @@ import {
   validateScreenshotParams,
 } from "./exec/figma-validators.js";
 import { makeError } from "../shared/errors.js";
-import { guardExecCode, withExecTimeout } from "./exec/sandbox.js";
-import { parseAndGuard } from "./exec/ast-guard.js";
 import { createMetricsRegistry, type MetricsRegistry } from "./telemetry/metrics.js";
 import type { WidgetOperatorSnapshot } from "../shared/contracts.js";
 
@@ -87,10 +84,6 @@ async function safeLoadFont(
 }
 
 const FONT_TIMEOUT_MS = 5000;
-
-const BLOCKED_PATTERNS = [/figma\.closePlugin/i, /figma\.root\.remove/i, /while\s*\(\s*true\s*\)/i, /for\s*\(\s*;\s*;\s*\)/i];
-const BLOCKED_KEYWORDS = ["closeplugin", "removepage", "__proto__", "constructor", "prototype", "__defineGetter__", "__defineSetter__"];
-const BLOCKED_GLOBALS = [/\bFunction\s*\(/, /\bimport\s*\(/, /\brequire\s*\(/, /\bglobalThis\b/, /\bself\b/, /\bwindow\b/, /\beval\s*\(/];
 
 const state: PluginState = {
   sessionId: createRunId("widget"),
@@ -203,8 +196,9 @@ figma.showUI(__html__, {
 
 void bootstrap();
 
+let allPagesLoaded = false;
+
 async function bootstrap(): Promise<void> {
-  await figma.loadAllPagesAsync();
   refreshConnectionState();
   post({
     channel: WIDGET_V2_CHANNEL,
@@ -305,6 +299,13 @@ async function bootstrap(): Promise<void> {
       updatedAt: now,
     });
   });
+}
+
+async function ensureAllPagesLoaded(): Promise<void> {
+  if (allPagesLoaded) return;
+  await figma.loadAllPagesAsync();
+  allPagesLoaded = true;
+  refreshConnectionState();
 }
 
 figma.ui.onmessage = async (message: WidgetUiEnvelope) => {
@@ -435,6 +436,7 @@ async function handleCommand(command: WidgetCommandName, params: Record<string, 
     case "navigateTo":
       return navigateTo(String(params.nodeId ?? ""));
     case "getPageList":
+      await ensureAllPagesLoaded();
       return figma.root.children.map((page: any) => ({ id: page.id, name: page.name }));
     case "getPageTree":
       return getPageTree(Number(params.depth ?? 2));
@@ -585,63 +587,24 @@ function serializeCollection(collection: any) {
   };
 }
 
-function isCodeSafe(code: string): { safe: boolean; reason: string | null } {
-  for (const pattern of BLOCKED_PATTERNS) {
-    if (pattern.test(code)) {
-      return { safe: false, reason: `Matches restricted pattern: ${String(pattern)}` };
-    }
-  }
-  const normalized = code.toLowerCase().replace(/[\s'"`+\[\]]/g, "");
-  for (const keyword of BLOCKED_KEYWORDS) {
-    if (stringIncludes(normalized, keyword)) {
-      return { safe: false, reason: `Contains blocked keyword: ${keyword}` };
-    }
-  }
-  for (const pattern of BLOCKED_GLOBALS) {
-    if (pattern.test(code)) {
-      return { safe: false, reason: `Blocked global access: ${String(pattern)}` };
-    }
-  }
-  return { safe: true, reason: null };
-}
-
 async function executeCode(code: string): Promise<unknown> {
   if (typeof code !== "string" || code.trim().length === 0) {
     throw new Error(
       JSON.stringify({ code: "E_PARAM_INVALID", message: "Code must be a non-empty string", retryable: false }),
     );
   }
-  // Three-pass defense-in-depth:
-  //   1. Cheap regex/string normalization gate (sandbox.ts).
-  //   2. Real AST parse + structural guard (ast-guard.ts, acorn-backed).
-  //   3. Legacy regex denylist kept as a fourth belt-and-suspenders check.
-  // Anything that bypasses #1 or #2 still has to survive #3, and anything
-  // that parses ambiguously in #2 was probably already caught in #1.
-  const guard = guardExecCode(code);
-  if (!guard.ok && guard.error) {
-    const e = guard.error;
-    throw new Error(
-      JSON.stringify({ code: e.code, message: e.message, detail: e.detail, retryable: e.retryable }),
-    );
-  }
-  const ast = parseAndGuard(code);
-  if (!ast.ok && ast.error) {
-    const e = ast.error;
-    throw new Error(
-      JSON.stringify({ code: e.code, message: e.message, detail: e.detail, retryable: e.retryable }),
-    );
-  }
-  const legacy = isCodeSafe(code);
-  if (!legacy.safe) {
-    throw new Error(
-      JSON.stringify({ code: "E_EXEC_REJECTED", message: "Blocked: " + legacy.reason, retryable: false }),
-    );
-  }
-  const fn = new Function("figma", `"use strict"; return (async () => { ${code} })()`);
-  return await withExecTimeout(fn(figma) as Promise<unknown>);
+  throw new Error(
+    JSON.stringify({
+      code: "E_EXEC_DISABLED",
+      message: "Raw Figma JavaScript execution is disabled in the default Mémoire package. Use typed Figma actions instead.",
+      retryable: false,
+    }),
+  );
 }
 
-function getPageTree(maxDepth: number): unknown {
+async function getPageTree(maxDepth: number): Promise<unknown> {
+  await ensureAllPagesLoaded();
+
   function walkChildren(node: any, depth: number): Record<string, unknown> | null {
     if (depth > maxDepth) return null;
     const data: Record<string, unknown> = { id: node.id, name: node.name, type: node.type, visible: node.visible !== false };
@@ -708,7 +671,9 @@ async function getVariables(): Promise<unknown> {
   return { collections: result };
 }
 
-function getComponents(): unknown[] {
+async function getComponents(): Promise<unknown[]> {
+  await ensureAllPagesLoaded();
+
   const components = figma.root.findAll((node: any) => node.type === "COMPONENT" || node.type === "COMPONENT_SET");
   return components.map((component: any) => ({
     id: component.id,
@@ -1040,9 +1005,27 @@ async function captureScreenshot(params: Record<string, unknown>): Promise<unkno
  * then applies each token in O(1) instead of the previous O(T·C·V) nested
  * sequential awaits which stalled for O(seconds) on real design systems (#27).
  */
+const SCRATCH_TOKEN_COLLECTION = "Mémoire E2E Scratch";
+const SCRATCH_TOKEN_PREFIX = "memoire/e2e/";
+
 async function pushTokens(params: Record<string, unknown>): Promise<unknown> {
   const tokens = Array.isArray(params.tokens) ? params.tokens : [];
+  const createMissing = params.createMissing === true;
+  const collectionName = typeof params.collectionName === "string" && params.collectionName.trim()
+    ? params.collectionName.trim()
+    : null;
+  const canCreateMissing = createMissing && collectionName === SCRATCH_TOKEN_COLLECTION;
+  if (createMissing && !canCreateMissing) {
+    throw new Error(
+      JSON.stringify({
+        code: "E_UNSAFE_TOKEN_CREATE",
+        message: `pushTokens can only create missing variables in ${SCRATCH_TOKEN_COLLECTION}`,
+        retryable: false,
+      }),
+    );
+  }
   let updated = 0;
+  let created = 0;
   const notFound: string[] = [];
 
   const collections = await figma.variables.getLocalVariableCollectionsAsync();
@@ -1073,13 +1056,33 @@ async function pushTokens(params: Record<string, unknown>): Promise<unknown> {
     }
   }
 
+  let scratchCollection: VariableCollection | null = null;
+
   for (let i = 0; i < tokens.length; i += 1) {
     const token = tokens[i] as { name: string; values: Record<string, string | number> };
     if (!token || !token.name) continue;
-    const entry = index.get(token.name);
+    let entry = index.get(token.name);
     if (!entry || !token.values) {
-      notFound.push(token.name);
-      continue;
+      if (!canCreateMissing || !token.name.startsWith(SCRATCH_TOKEN_PREFIX) || !token.values) {
+        notFound.push(token.name);
+        continue;
+      }
+      const firstValueForType = Object.values(token.values)[0];
+      const resolvedType = inferVariableResolvedType(firstValueForType);
+      if (!resolvedType) {
+        notFound.push(token.name);
+        continue;
+      }
+      scratchCollection = scratchCollection ?? findOrCreateScratchCollection(collections, collectionName);
+      const modeId = scratchCollection.defaultModeId || scratchCollection.modes[0]?.modeId;
+      if (!modeId) {
+        notFound.push(token.name);
+        continue;
+      }
+      const variable = figma.variables.createVariable(token.name, scratchCollection, resolvedType);
+      entry = { variable, modeId };
+      index.set(token.name, entry);
+      created += 1;
     }
     const firstValue = Object.values(token.values)[0];
     const parsedColor = parseColorValue(firstValue);
@@ -1091,5 +1094,35 @@ async function pushTokens(params: Record<string, unknown>): Promise<unknown> {
     updated += 1;
   }
 
-  return { updated: updated, notFound: notFound, total: tokens.length };
+  return {
+    updated,
+    created,
+    notFound,
+    total: tokens.length,
+    collectionName: scratchCollection?.name ?? collectionName ?? undefined,
+  };
+}
+
+function findOrCreateScratchCollection(collections: VariableCollection[], collectionName: string): VariableCollection {
+  let collection: VariableCollection | null = null;
+  for (const candidate of collections) {
+    if (candidate.name === collectionName) {
+      collection = candidate;
+      break;
+    }
+  }
+  if (!collection) {
+    collection = figma.variables.createVariableCollection(collectionName);
+    collections.push(collection);
+  }
+  collection.hiddenFromPublishing = true;
+  return collection;
+}
+
+function inferVariableResolvedType(value: unknown): VariableResolvedDataType | null {
+  if (parseColorValue(value)) return "COLOR";
+  if (typeof value === "number") return "FLOAT";
+  if (typeof value === "string") return "STRING";
+  if (typeof value === "boolean") return "BOOLEAN";
+  return null;
 }

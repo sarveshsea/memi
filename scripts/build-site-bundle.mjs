@@ -2,6 +2,7 @@
 
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -12,19 +13,58 @@ const catalog = JSON.parse(await readFile(join(root, "examples", "marketplace-ca
 await rm(outDir, { recursive: true, force: true });
 await mkdir(join(outDir, "items"), { recursive: true });
 await mkdir(join(outDir, "screenshots"), { recursive: true });
+await mkdir(join(outDir, "assets"), { recursive: true });
+await mkdir(join(outDir, "codex-plugin"), { recursive: true });
+await mkdir(join(outDir, "privacy"), { recursive: true });
+await mkdir(join(outDir, "terms"), { recursive: true });
 
 const bundleCatalog = {
   ...catalog,
   entries: [],
 };
-const sitemapUrls = ["https://www.memoire.cv/components"];
-const seoPages = [];
+const codexPluginUrl = "https://www.memoire.cv/codex-plugin";
+const codexPluginInstallCommand = "codex plugin marketplace add sarveshsea/m-moire --ref main --sparse .agents/plugins --sparse plugins/memoire";
+const privacyUrl = "https://www.memoire.cv/privacy";
+const termsUrl = "https://www.memoire.cv/terms";
+const sitemapUrls = ["https://www.memoire.cv/components", codexPluginUrl, privacyUrl, termsUrl];
+const seoPages = [{
+  slug: "codex-plugin",
+  title: "Memoire Codex plugin | Design memory for Codex",
+  description: "Install Memoire as a Codex plugin with design-system memory, MCP tools, Tailwind and shadcn diagnostics, and Atomic Design guidance.",
+  canonicalUrl: codexPluginUrl,
+  keywords: [
+    "Codex plugin",
+    "Codex marketplace",
+    "design memory",
+    "MCP tools",
+    "Tailwind diagnostics",
+    "shadcn",
+    "Figma",
+  ],
+  ogImage: "https://www.memoire.cv/plugin/memoire/assets/screenshot-plugin-overview.png",
+}, {
+  slug: "privacy",
+  title: "Memoire privacy policy",
+  description: "Privacy policy for Memoire CLI, MCP server, Codex plugin, and design tooling.",
+  canonicalUrl: privacyUrl,
+  keywords: ["Memoire privacy", "Codex plugin privacy", "MCP privacy"],
+  ogImage: "https://www.memoire.cv/plugin/memoire/assets/screenshot-plugin-overview.png",
+}, {
+  slug: "terms",
+  title: "Memoire terms of service",
+  description: "Terms of service for Memoire CLI, MCP server, Codex plugin, and design tooling.",
+  canonicalUrl: termsUrl,
+  keywords: ["Memoire terms", "Codex plugin terms", "MCP terms"],
+  ogImage: "https://www.memoire.cv/plugin/memoire/assets/screenshot-plugin-overview.png",
+}];
 const snippets = [
   "# Memoire Site Copy Snippets",
   "",
   "Hero: Shadcn-native Design CI for Tailwind apps.",
   "Subhead: Turn an existing app into a registry that works with shadcn, v0, AI editors, npm, and Memoire.",
   "Primary CTA: https://www.npmjs.com/package/@sarveshsea/memoire",
+  "Codex plugin: https://www.memoire.cv/codex-plugin",
+  `Codex marketplace install: ${codexPluginInstallCommand}`,
   "",
   "## Registry Cards",
   "",
@@ -106,6 +146,38 @@ await writeFile(join(outDir, "catalog.json"), `${JSON.stringify(bundleCatalog, n
 await writeFile(join(outDir, "seo.json"), `${JSON.stringify({ pages: seoPages }, null, 2)}\n`);
 await writeFile(join(outDir, "sitemap.xml"), renderSitemap(sitemapUrls));
 await writeFile(join(outDir, "copy-snippets.md"), `${snippets.join("\n")}\n`);
+await cp(join(root, "assets", "marketplace-catalog.v1.json"), join(outDir, "assets", "marketplace-catalog.v1.json"));
+await writeFile(join(outDir, "codex-plugin", "index.html"), renderCodexPluginPage(codexPluginInstallCommand));
+await writeFile(join(outDir, "privacy", "index.html"), renderPolicyPage({
+  title: "Memoire privacy policy",
+  canonicalUrl: privacyUrl,
+  body: [
+    "Memoire runs locally by default. The CLI, MCP server, and Codex plugin read project files only when a user or agent invokes local commands.",
+    "Memoire does not add npm install-time lifecycle scripts to the public package and does not transmit project code to a Memoire-hosted service by default.",
+    "External services such as Figma, npm, GitHub, Codex, or MCP clients are used only when the user configures credentials or runs the related command.",
+  ],
+}));
+await writeFile(join(outDir, "terms", "index.html"), renderPolicyPage({
+  title: "Memoire terms of service",
+  canonicalUrl: termsUrl,
+  body: [
+    "Memoire is provided under the MIT license as local design memory, UI quality tooling, MCP server support, and Codex plugin packaging.",
+    "Users are responsible for reviewing generated code, command output, external service credentials, and design-system changes before publishing or deploying.",
+    "The Codex plugin starts Memoire through the Figma-independent MCP path by default; Figma and network-backed workflows require explicit user configuration.",
+  ],
+}));
+
+const notesResult = spawnSync(process.execPath, [join(root, "scripts", "build-notes-catalog.mjs")], {
+  cwd: root,
+  stdio: "inherit",
+});
+if (notesResult.status !== 0) process.exit(notesResult.status ?? 1);
+
+const communityNotesResult = spawnSync(process.execPath, [join(root, "scripts", "build-community-notes-catalog.mjs")], {
+  cwd: root,
+  stdio: "inherit",
+});
+if (communityNotesResult.status !== 0) process.exit(communityNotesResult.status ?? 1);
 
 console.log(`wrote ${outDir}`);
 
@@ -156,4 +228,97 @@ function renderSitemap(urls) {
     '</urlset>',
     '',
   ].join("\n");
+}
+
+function renderCodexPluginPage(installCommand) {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Memoire Codex plugin | Design memory for Codex</title>
+  <meta name="description" content="Install Memoire as a Codex plugin with design-system memory, MCP tools, Tailwind and shadcn diagnostics, and Atomic Design guidance.">
+  <link rel="canonical" href="https://www.memoire.cv/codex-plugin">
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f0f10; color: #f7f7f3; }
+    body { margin: 0; background: #0f0f10; }
+    main { max-width: 960px; margin: 0 auto; padding: 72px 24px 96px; }
+    .eyebrow { color: #a7a7a2; font-size: 14px; text-transform: uppercase; letter-spacing: .08em; }
+    h1 { font-size: clamp(44px, 7vw, 76px); line-height: .96; margin: 18px 0; letter-spacing: 0; }
+    p { color: #d8d8d2; font-size: 20px; line-height: 1.6; max-width: 760px; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    pre { background: #050505; border: 1px solid #343438; border-radius: 12px; color: #f6f6f2; overflow-x: auto; padding: 18px; }
+    section { border-top: 1px solid #2a2a2d; margin-top: 42px; padding-top: 30px; }
+    h2 { font-size: 26px; margin: 0 0 16px; }
+    ul { color: #d8d8d2; font-size: 18px; line-height: 1.7; padding-left: 22px; }
+    a { color: #ffffff; text-underline-offset: 4px; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">Codex plugin</div>
+    <h1>Memoire Codex plugin</h1>
+    <p>Give Codex the same design-system memory, MCP tools, Tailwind and shadcn diagnostics, Figma context, and Atomic Design workflow that Memoire already ships for local agents.</p>
+
+    <section>
+      <h2>Install from the Git-backed marketplace</h2>
+      <pre><code>${escapeHtml(installCommand)}</code></pre>
+      <p>Then open <code>/plugins</code> in Codex and install Memoire from the marketplace list.</p>
+    </section>
+
+    <section>
+      <h2>Install through npm</h2>
+      <pre><code>npm i -g @sarveshsea/memoire
+memi agent install codex-plugin</code></pre>
+    </section>
+
+    <section>
+      <h2>What Codex gets</h2>
+      <ul>
+        <li>Memoire skill context for UI design, Figma, design systems, shadcn/ui, Tailwind, and Atomic Design.</li>
+        <li>MCP server wiring for <code>memi mcp start --no-figma</code>, safe for headless discovery.</li>
+        <li>Evidence from <code>memi diagnose</code>, tokens, specs, shadcn registries, and suite recipes before broad frontend edits.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
+`;
+}
+
+function escapeHtml(value) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function renderPolicyPage({ title, canonicalUrl, body }) {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(title)}</title>
+  <meta name="description" content="${escapeHtml(body[0])}">
+  <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f0f10; color: #f7f7f3; }
+    body { margin: 0; background: #0f0f10; }
+    main { max-width: 820px; margin: 0 auto; padding: 72px 24px 96px; }
+    h1 { font-size: clamp(40px, 6vw, 64px); line-height: 1; margin: 0 0 28px; letter-spacing: 0; }
+    p { color: #d8d8d2; font-size: 20px; line-height: 1.65; }
+    a { color: #ffffff; text-underline-offset: 4px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>${escapeHtml(title)}</h1>
+    ${body.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("\n    ")}
+    <p>Contact: <a href="https://github.com/sarveshsea/m-moire">github.com/sarveshsea/m-moire</a></p>
+  </main>
+</body>
+</html>
+`;
 }

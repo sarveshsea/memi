@@ -48,10 +48,23 @@ export const NoteManifestSchema = z.object({
   author: z.string().optional(),
   category: NoteCategorySchema,
   tags: z.array(z.string()).default([]),
+  sourceUrls: z.array(z.string().url()).default([]),
+  lastResearchedAt: z.string().datetime().optional(),
+  freshnessDays: z.number().int().positive().optional(),
   skills: z.array(NoteSkillSchema).min(1),
   dependencies: z.array(z.string()).default([]),  // other note names
   engines: z.object({
     memoire: z.string().optional(),               // semver range compatibility
+  }).optional(),
+  memoire: z.object({
+    harnessExtensions: z.array(z.unknown()).default([]),
+  }).optional(),
+  reviewStatus: z.enum(["draft", "submitted", "approved", "rejected"]).optional(),
+  forkOf: z.object({
+    name: z.string().regex(/^[a-z][a-z0-9-]*$/),
+    version: z.string().regex(/^\d+\.\d+\.\d+$/),
+    sourceRepo: z.string().url().optional(),
+    sourcePath: z.string().optional(),
   }).optional(),
   createdAt: z.string().default(() => new Date().toISOString()),
   updatedAt: z.string().default(() => new Date().toISOString()),

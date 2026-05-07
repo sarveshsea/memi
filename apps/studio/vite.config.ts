@@ -8,5 +8,11 @@ export default defineConfig({
     host: "127.0.0.1",
     port: 1420,
     strictPort: false,
+    proxy: {
+      "/api": {
+        target: process.env.VITE_MEMOIRE_STUDIO_RUNTIME ?? "http://127.0.0.1:8765",
+        changeOrigin: true,
+      },
+    },
   },
 });

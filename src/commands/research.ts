@@ -3,6 +3,17 @@ import type { Command } from "commander";
 import { join } from "path";
 import type { MemoireEngine } from "../engine/core.js";
 import { ui } from "../tui/format.js";
+import {
+  buildResearchDesignPackage,
+  saveResearchDesignSpecs,
+  writeMermaidJamArtifacts,
+  type MermaidJamExport,
+  type ResearchDesignPackage,
+  type ResearchDesignSpecWriteResult,
+} from "../research/design-package.js";
+import { openMermaidJamTarget, resolveMermaidJamIntegration } from "../integrations/mermaid-jam.js";
+import { FileSimulationStore, LocalSimulationAdapter, ModelSwarmSimulationAdapter } from "../simulation/index.js";
+import type { SimulationReport } from "../simulation/types.js";
 
 type ResearchAction =
   | "from-file"
@@ -11,7 +22,8 @@ type ResearchAction =
   | "web"
   | "synthesize"
   | "report"
-  | "quality";
+  | "quality"
+  | "design";
 
 interface ResearchArtifacts {
   researchDir: string;
@@ -92,6 +104,16 @@ interface ResearchCommandPayload {
     jsonPath: string;
     markdownBytes: number;
     markdownLines: number;
+  };
+  package?: ResearchDesignPackage;
+  specWrite?: ResearchDesignSpecWriteResult;
+  mermaidJam?: {
+    exports: MermaidJamExport[];
+  };
+  opened?: {
+    target: string;
+    opened: string;
+    openedAt: string;
   };
 }
 
@@ -486,6 +508,76 @@ export function registerResearchCommand(program: Command, engine: MemoireEngine)
       }
       console.log("");
     });
+
+  research
+    .command("design")
+    .description("Generate research-backed Atomic Design specs and Mermaid Jam-ready FigJam source")
+    .option("--intent <text>", "Design intent for the generated package")
+    .option("--hypothesis <text>", "Product/design hypothesis to ground the package")
+    .option("--run-id <id>", "Optional simulation run id to fold into the design package")
+    .option("--write-specs", "Write generated specs through the Memoire registry")
+    .option("--mermaid-jam", "Write Mermaid Jam source artifacts under .memoire/mermaid-jam")
+    .option("--open", "Open Mermaid Jam after writing source artifacts")
+    .option("--json", "Output design package as JSON")
+    .action(async (opts: {
+      intent?: string;
+      hypothesis?: string;
+      runId?: string;
+      writeSpecs?: boolean;
+      mermaidJam?: boolean;
+      open?: boolean;
+      json?: boolean;
+    }) => {
+      const json = Boolean(opts.json);
+      await engine.init();
+      await engine.research.load();
+
+      const report = opts.runId ? await loadSimulationReport(engine.config.projectRoot, opts.runId) : null;
+      const designPackage = buildResearchDesignPackage(engine.research.getStore(), {
+        intent: opts.intent,
+        hypothesis: opts.hypothesis,
+        simulationReport: report,
+      });
+      const payload: ResearchCommandPayload = {
+        action: "design",
+        status: "completed",
+        options: { json },
+        summary: buildResearchSummary(engine),
+        artifacts: buildResearchArtifacts(engine),
+        package: designPackage,
+      };
+
+      if (opts.writeSpecs) {
+        payload.specWrite = await saveResearchDesignSpecs(designPackage, engine.registry);
+      }
+
+      if (opts.mermaidJam || opts.open) {
+        const integration = await resolveMermaidJamIntegration({ projectRoot: engine.config.projectRoot });
+        payload.mermaidJam = {
+          exports: await writeMermaidJamArtifacts(designPackage, {
+            projectRoot: engine.config.projectRoot,
+            integration,
+          }),
+        };
+        if (opts.open) {
+          const target = integration.local.ready ? "local-manifest" : "community";
+          payload.opened = await openMermaidJamTarget(integration, target);
+        }
+      }
+
+      if (json) {
+        console.log(JSON.stringify(payload, null, 2));
+        return;
+      }
+
+      console.log("\n  Research design package");
+      console.log(ui.dots("Package", designPackage.id));
+      console.log(ui.dots("Evidence", `${designPackage.evidenceIds.length} finding ids`));
+      console.log(ui.dots("Specs", String(payload.specWrite?.count ?? Object.values(designPackage.specs).flat().length)));
+      if (payload.mermaidJam) console.log(ui.dots("Mermaid Jam artifacts", String(payload.mermaidJam.exports.length)));
+      for (const warning of designPackage.warnings) console.log(`  ${ui.promptPrefix()} ${warning}`);
+      console.log("");
+    });
 }
 
 function buildResearchArtifacts(engine: MemoireEngine): ResearchArtifacts {
@@ -509,4 +601,14 @@ function buildResearchSummary(engine: MemoireEngine): ResearchSummary {
     sources: store.sources.length,
     quantitativeMetrics: store.quantitativeMetrics.length,
   };
+}
+
+async function loadSimulationReport(projectRoot: string, runId: string): Promise<SimulationReport | null> {
+  const store = new FileSimulationStore(projectRoot);
+  const run = await store.loadRun(runId);
+  if (!run) return null;
+  const adapter = run.adapter === "model-swarm"
+    ? new ModelSwarmSimulationAdapter({ store })
+    : new LocalSimulationAdapter({ store });
+  return adapter.exportReport(runId);
 }

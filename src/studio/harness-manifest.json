@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "hardlineBlockedPatterns": [
     {
       "pattern": "\\brm\\s+(-[^\\s]*\\s+)*(\\/|\\/\\*|~|\\$HOME)(\\s|$)",
@@ -26,15 +26,22 @@
       "provider": "memoire",
       "command": "memi",
       "description": "Run the current Mémoire design intelligence engine.",
-      "enabledByDefault": true,
+      "enabledByDefault": false,
       "installProbe": ["memi", "memoire"],
-      "capabilities": ["compose", "design-doc", "audit", "references", "video", "raw"],
+      "capabilities": ["compose", "design-doc", "audit", "references", "video", "raw", "app-build", "self-design", "research", "simulate", "fix", "browser-audit", "handoff"],
       "commandTemplates": {
         "compose": ["compose", "{{prompt}}", "--json", "--no-figma"],
         "design-doc": ["design-doc", "{{prompt}}", "--json"],
         "audit": ["audit", "{{prompt}}", "--json"],
         "references": ["references", "search", "{{prompt}}", "--json"],
         "video": ["video", "create", "{{prompt}}", "--prompt", "{{prompt}}", "--json"],
+        "app-build": ["compose", "{{prompt}}", "--json", "--no-figma"],
+        "self-design": ["compose", "{{prompt}}", "--json", "--no-figma"],
+        "research": ["compose", "{{prompt}}", "--json", "--no-figma"],
+        "simulate": ["simulate", "plan", "--hypothesis", "{{prompt}}", "--json"],
+        "fix": ["compose", "{{prompt}}", "--json", "--no-figma"],
+        "browser-audit": ["compose", "{{prompt}}", "--json", "--no-figma"],
+        "handoff": ["compose", "{{prompt}}", "--json", "--no-figma"],
         "raw": ["compose", "{{prompt}}", "--json", "--no-figma"]
       },
       "envPolicy": "provider",
@@ -50,13 +57,53 @@
       "provider": "anthropic",
       "command": "claude",
       "description": "Delegate to Claude Code when installed.",
+      "docsUrl": "https://code.claude.com/docs/en/cli-reference",
       "enabledByDefault": true,
       "installProbe": ["claude"],
-      "capabilities": ["compose", "audit", "raw"],
+      "setup": [
+        {
+          "id": "install-claude-code",
+          "label": "Install Claude Code CLI",
+          "command": "npm install -g @anthropic-ai/claude-code",
+          "url": "https://code.claude.com/docs/en/cli-reference",
+          "required": true
+        },
+        {
+          "id": "claude-auth",
+          "label": "Authenticate Claude Code",
+          "command": "claude auth login",
+          "url": "https://code.claude.com/docs/en/cli-reference",
+          "required": true
+        },
+        {
+          "id": "claude-plugins",
+          "label": "Enable Claude Code plugins and skills",
+          "command": "claude plugin list",
+          "url": "https://code.claude.com/docs/en/plugins",
+          "required": false
+        }
+      ],
+      "authProbe": { "command": "claude", "args": ["auth", "status"] },
+      "pluginDirs": ["~/.claude/plugins", ".claude/plugins"],
+      "supportsSkills": true,
+      "supportsMcp": true,
+      "knownFailurePatterns": [
+        {
+          "pattern": "not authenticated|login required|auth",
+          "message": "Claude Code needs login before Studio can delegate sessions.",
+          "setupStepId": "claude-auth"
+        },
+        {
+          "pattern": "permission|not allowed",
+          "message": "Claude Code permission mode blocked the requested action.",
+          "setupStepId": "claude-auth"
+        }
+      ],
+      "capabilities": ["compose", "audit", "raw", "app-build", "self-design", "research", "simulate", "fix", "browser-audit", "handoff"],
       "commandTemplates": {
-        "compose": ["--print", "--output-format", "stream-json", "--permission-mode", "default", "--append-system-prompt", "{{agentSystemPrompt}}", "{{promptEnvelope}}"],
-        "audit": ["--print", "--output-format", "stream-json", "--permission-mode", "default", "--append-system-prompt", "{{agentSystemPrompt}}", "{{promptEnvelope}}"],
-        "raw": ["--print", "--output-format", "stream-json", "--permission-mode", "default", "--append-system-prompt", "{{agentSystemPrompt}}", "{{promptEnvelope}}"]
+        "compose": ["-p", "--verbose", "--output-format", "stream-json", "--include-partial-messages", "--permission-mode", "default", "--append-system-prompt", "{{agentSystemPrompt}}", "{{promptEnvelope}}"],
+        "audit": ["-p", "--verbose", "--output-format", "stream-json", "--include-partial-messages", "--permission-mode", "default", "--append-system-prompt", "{{agentSystemPrompt}}", "{{promptEnvelope}}"],
+        "raw": ["-p", "--verbose", "--output-format", "stream-json", "--include-partial-messages", "--permission-mode", "default", "--append-system-prompt", "{{agentSystemPrompt}}", "{{promptEnvelope}}"]
       },
       "envPolicy": "provider",
       "workspacePolicy": "workspace-required",
@@ -70,20 +117,61 @@
       "kind": "external-cli",
       "provider": "openai",
       "command": "codex",
-      "description": "Delegate to OpenAI Codex when installed.",
+      "description": "Run OpenAI Codex as the primary GPT-5.5 design-oriented repository agent.",
+      "docsUrl": "https://developers.openai.com/codex/cli",
       "enabledByDefault": true,
       "installProbe": ["codex"],
-      "capabilities": ["compose", "audit", "raw"],
+      "setup": [
+        {
+          "id": "install-codex-cli",
+          "label": "Install Codex CLI",
+          "command": "npm install -g @openai/codex",
+          "url": "https://developers.openai.com/codex/cli",
+          "required": true
+        },
+        {
+          "id": "codex-sign-in",
+          "label": "Sign in to Codex",
+          "command": "codex login",
+          "url": "https://developers.openai.com/codex/cli",
+          "required": true
+        },
+        {
+          "id": "codex-skills",
+          "label": "Install or verify Codex skills",
+          "command": "codex skills list",
+          "url": "https://developers.openai.com/codex/use-cases",
+          "required": false
+        }
+      ],
+      "authProbe": { "command": "codex", "args": ["login", "status"] },
+      "pluginDirs": ["~/.codex/plugins", ".codex/plugins"],
+      "supportsSkills": true,
+      "supportsMcp": true,
+      "knownFailurePatterns": [
+        {
+          "pattern": "not logged in|login|unauthorized",
+          "message": "Codex CLI needs sign-in before Studio can start delegated sessions.",
+          "setupStepId": "codex-sign-in"
+        },
+        {
+          "pattern": "sandbox|approval|read-only",
+          "message": "Codex sandbox or approval policy blocked this workspace action.",
+          "setupStepId": "install-codex-cli"
+        }
+      ],
+      "capabilities": ["compose", "audit", "raw", "app-build", "self-design", "research", "simulate", "fix", "browser-audit", "handoff"],
       "commandTemplates": {
-        "compose": ["exec", "--json", "--sandbox", "workspace-write", "--skip-git-repo-check", "{{promptEnvelope}}"],
-        "audit": ["exec", "--json", "--sandbox", "workspace-write", "--skip-git-repo-check", "{{promptEnvelope}}"],
-        "raw": ["exec", "--json", "--sandbox", "workspace-write", "--skip-git-repo-check", "{{promptEnvelope}}"]
+        "compose": ["exec", "--json", "--model", "gpt-5.5", "--sandbox", "workspace-write", "--skip-git-repo-check", "{{promptEnvelope}}"],
+        "audit": ["exec", "--json", "--model", "gpt-5.5", "--sandbox", "workspace-write", "--skip-git-repo-check", "{{promptEnvelope}}"],
+        "raw": ["exec", "--json", "--model", "gpt-5.5", "--sandbox", "workspace-write", "--skip-git-repo-check", "{{promptEnvelope}}"]
       },
       "envPolicy": "provider",
       "workspacePolicy": "workspace-required",
       "supportsStreaming": true,
       "supportsCancel": true,
-      "outputParser": "codex-jsonl"
+      "outputParser": "codex-jsonl",
+      "defaultModel": "GPT-5.5 Design"
     },
     {
       "id": "opencode",
@@ -92,9 +180,9 @@
       "provider": "openai",
       "command": "opencode",
       "description": "Delegate to OpenCode when installed.",
-      "enabledByDefault": true,
+      "enabledByDefault": false,
       "installProbe": ["opencode"],
-      "capabilities": ["compose", "audit", "raw"],
+      "capabilities": ["compose", "audit", "raw", "app-build", "self-design", "research", "simulate", "fix", "browser-audit", "handoff"],
       "commandTemplates": {
         "compose": ["run", "{{promptEnvelope}}"],
         "audit": ["run", "{{promptEnvelope}}"],
@@ -113,9 +201,9 @@
       "provider": "google",
       "command": "gemini",
       "description": "Delegate to Gemini CLI when installed.",
-      "enabledByDefault": true,
+      "enabledByDefault": false,
       "installProbe": ["gemini"],
-      "capabilities": ["compose", "audit", "raw"],
+      "capabilities": ["compose", "audit", "raw", "app-build", "self-design", "research", "simulate", "fix", "browser-audit", "handoff"],
       "commandTemplates": {
         "compose": ["-p", "{{promptEnvelope}}"],
         "audit": ["-p", "{{promptEnvelope}}"],
@@ -134,9 +222,9 @@
       "provider": "local",
       "command": "ollama",
       "description": "Run a local Ollama model as an agent harness.",
-      "enabledByDefault": true,
+      "enabledByDefault": false,
       "installProbe": ["ollama"],
-      "capabilities": ["compose", "raw"],
+      "capabilities": ["compose", "raw", "app-build", "self-design", "research", "simulate", "fix", "browser-audit", "handoff"],
       "commandTemplates": {
         "compose": ["run", "{{ollamaModel}}", "{{promptEnvelope}}"],
         "raw": ["run", "{{ollamaModel}}", "{{promptEnvelope}}"]
@@ -157,7 +245,7 @@
       "description": "Run Hermes Agent in one-shot mode with local workspace context.",
       "enabledByDefault": true,
       "installProbe": ["hermes"],
-      "capabilities": ["compose", "audit", "raw"],
+      "capabilities": ["compose", "audit", "raw", "app-build", "self-design", "research", "simulate", "fix", "browser-audit", "handoff"],
       "commandTemplates": {
         "compose": ["--toolsets", "terminal,file,memory,skills,todo,session_search,clarify", "--oneshot", "{{promptEnvelope}}"],
         "audit": ["--toolsets", "terminal,file,memory,skills,todo,session_search,clarify", "--oneshot", "{{promptEnvelope}}"],

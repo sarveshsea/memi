@@ -1799,7 +1799,7 @@ ${CSS}
       </div>
       <div class="decision">
         <div class="decision-icon">&raquo;</div>
-        <div class="decision-text"><strong>MCP Tool Decision Tree.</strong> <code style="color:var(--accent);background:var(--accent-dim);padding:1px 4px;border-radius:2px">use_figma</code> (Official MCP) for design-system-aware operations. <code style="color:var(--accent);background:var(--accent-dim);padding:1px 4px;border-radius:2px">figma_execute</code> (Console MCP) for raw Plugin API. Check Code Connect BEFORE creating anything.</div>
+        <div class="decision-text"><strong>MCP Tool Decision Tree.</strong> Use typed Memoire Figma tools for design-system-aware operations. Raw Figma JavaScript execution is disabled in the public package; check Code Connect BEFORE creating anything.</div>
       </div>
       <div class="decision">
         <div class="decision-icon">&raquo;</div>

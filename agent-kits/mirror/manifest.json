@@ -1,0 +1,20 @@
+{
+  "name": "memoire-agent-skills",
+  "version": "1.0.0",
+  "package": "@sarveshsea/memoire",
+  "suiteManifest": "memoire.agent.yaml",
+  "daemon": {
+    "start": "memi daemon start --project . --port auto",
+    "status": "memi daemon status --json"
+  },
+  "skills": [
+    {
+      "target": "hermes",
+      "path": "hermes/memoire-design-tooling/SKILL.md"
+    },
+    {
+      "target": "openclaw",
+      "path": "openclaw/memoire-design-tooling/SKILL.md"
+    }
+  ]
+}

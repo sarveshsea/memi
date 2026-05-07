@@ -16,6 +16,9 @@ import type { PreparedText } from "@chenglou/pretext";
 import { createLogger } from "./logger.js";
 
 const log = createLogger("text-measurer");
+const MAX_PRETEXT_INPUT_CHARS = 20_000;
+const MAX_REPEATED_PUNCTUATION_RUN = 2_000;
+const RISKY_PUNCTUATION = new Set("()[]{}#@!%^~<>:;'\"`.,/\\|+=_*?".split(""));
 
 // ── OffscreenCanvas Polyfill ────────────────────────────
 // @napi-rs/canvas is an optional native dependency. When unavailable
@@ -151,7 +154,9 @@ export class TextMeasurer {
   measure(text: string, opts: MeasureOptions): MeasureResult {
     const font = opts.font ?? "16px sans-serif";
     const lineHeight = opts.lineHeight ?? parseFontSize(font) * 1.5;
-    if (!polyfillInstalled) return approximateLayout(text, font, opts.maxWidth, lineHeight);
+    if (!polyfillInstalled || shouldUseApproximateMeasurement(text)) {
+      return approximateLayout(text, font, opts.maxWidth, lineHeight);
+    }
     const prepared = this.getPrepared(text, font);
     return layout(prepared, opts.maxWidth, lineHeight);
   }
@@ -160,7 +165,7 @@ export class TextMeasurer {
   measureDetailed(text: string, opts: MeasureOptions): DetailedMeasureResult {
     const font = opts.font ?? "16px sans-serif";
     const lineHeight = opts.lineHeight ?? parseFontSize(font) * 1.5;
-    if (!polyfillInstalled) {
+    if (!polyfillInstalled || shouldUseApproximateMeasurement(text)) {
       const approx = approximateLayout(text, font, opts.maxWidth, lineHeight);
       return { ...approx, lines: [] };
     }
@@ -245,6 +250,9 @@ export class TextMeasurer {
   // ── Internal ─────────────────────────────────────────
 
   private getPrepared(text: string, font: string): PreparedText {
+    if (shouldUseApproximateMeasurement(text)) {
+      throw new Error("Pretext measurement refused unsafe text input");
+    }
     const key = `${font}\0${text}`;
     let prepared = this.cache.get(key);
     if (!prepared) {
@@ -268,6 +276,29 @@ export class TextMeasurer {
 function parseFontSize(font: string): number {
   const match = font.match(/(\d+(?:\.\d+)?)\s*px/);
   return match ? parseFloat(match[1]) : 16;
+}
+
+function shouldUseApproximateMeasurement(text: string): boolean {
+  return text.length > MAX_PRETEXT_INPUT_CHARS || hasLongRepeatedPunctuationRun(text);
+}
+
+function hasLongRepeatedPunctuationRun(text: string): boolean {
+  let previous = "";
+  let runLength = 0;
+  for (const char of text) {
+    if (char === previous && isRiskyPunctuation(char)) {
+      runLength += 1;
+      if (runLength >= MAX_REPEATED_PUNCTUATION_RUN) return true;
+      continue;
+    }
+    previous = char;
+    runLength = isRiskyPunctuation(char) ? 1 : 0;
+  }
+  return false;
+}
+
+function isRiskyPunctuation(char: string): boolean {
+  return RISKY_PUNCTUATION.has(char);
 }
 
 // ── Singleton ──────────────────────────────────────────────

@@ -4,11 +4,18 @@ import { join } from "node:path";
 import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import { loadStudioConfig } from "../studio/config.js";
+import { StudioBrowserAdapter } from "../studio/browser-adapter.js";
+import {
+  StudioAutomationStore,
+  installScheduler,
+  schedulerStatus,
+  uninstallScheduler,
+} from "../studio/automations.js";
 import { listHarnesses } from "../studio/harnesses.js";
 import { StudioRuntimeServer } from "../studio/server.js";
 import { StudioSessionStore } from "../studio/session-store.js";
 import { renderStudioTuiSnapshot } from "../studio/tui.js";
-import type { StudioEvent, StudioHarnessId, StudioRunAction, StudioSession } from "../studio/types.js";
+import type { StudioEvent, StudioHarnessId, StudioRunAction, StudioSession, StudioSessionMode } from "../studio/types.js";
 import { ui } from "../tui/format.js";
 
 export function registerStudioCommand(program: Command, engine: MemoireEngine): void {
@@ -87,10 +94,11 @@ export function registerStudioCommand(program: Command, engine: MemoireEngine): 
     .description("Run a Studio harness once and stream normalized events")
     .requiredOption("--prompt <text>", "Prompt for the harness")
     .option("--harness <id>", "Harness id")
-    .option("--action <action>", "Studio action: compose, design-doc, audit, references, video, raw", "compose")
+    .option("--action <action>", "Studio action: compose, design-doc, audit, references, video, raw, app-build, self-design, research, fix, browser-audit, handoff", "compose")
+    .option("--mode <mode>", "Execution mode: delegate or brokered", "delegate")
     .option("--cwd <path>", "Working directory")
     .option("--json", "Output final session as JSON")
-    .action(async (opts: { prompt: string; harness?: StudioHarnessId; action?: StudioRunAction; cwd?: string; json?: boolean }) => {
+    .action(async (opts: { prompt: string; harness?: StudioHarnessId; action?: StudioRunAction; mode?: StudioSessionMode; cwd?: string; json?: boolean }) => {
       await engine.init("minimal");
       const config = await loadStudioConfig(engine.config.projectRoot);
       const server = new StudioRuntimeServer({ projectRoot: engine.config.projectRoot, port: 0 });
@@ -102,6 +110,7 @@ export function registerStudioCommand(program: Command, engine: MemoireEngine): 
           cwd: opts.cwd ?? engine.config.projectRoot,
           prompt: opts.prompt,
           action: opts.action ?? "compose",
+          mode: opts.mode ?? "delegate",
         });
         const finalSession = await waitForSession(server, session.id);
         if (opts.json) {
@@ -116,6 +125,49 @@ export function registerStudioCommand(program: Command, engine: MemoireEngine): 
       } finally {
         await server.stop();
       }
+    });
+
+  const browser = studio
+    .command("browser")
+    .description("Browser automation commands for the Studio Autonomous Lab");
+
+  browser
+    .command("status")
+    .description("Show local Playwright browser adapter status")
+    .option("--json", "Output as JSON")
+    .action(async (opts: { json?: boolean }) => {
+      await engine.init("minimal");
+      const config = await loadStudioConfig(engine.config.projectRoot);
+      const adapter = new StudioBrowserAdapter({ projectRoot: engine.config.projectRoot });
+      const status = await adapter.status(config.enabledTools.browser);
+      if (opts.json) {
+        console.log(JSON.stringify(status, null, 2));
+        return;
+      }
+      console.log(ui.section("STUDIO BROWSER"));
+      console.log(ui.dots("Enabled", String(status.enabled)));
+      console.log(ui.dots("Playwright", status.installed ? "ready" : "missing"));
+      console.log(ui.dots("Sessions", String(status.activeSessions)));
+      console.log(ui.dim(status.message));
+    });
+
+  browser
+    .command("open <url>")
+    .description("Open a URL in a local Playwright browser session")
+    .option("--json", "Output as JSON")
+    .action(async (url: string, opts: { json?: boolean }) => {
+      await engine.init("minimal");
+      const config = await loadStudioConfig(engine.config.projectRoot);
+      if (!config.enabledTools.browser) throw new Error("Browser tools are disabled in Studio config");
+      const adapter = new StudioBrowserAdapter({ projectRoot: engine.config.projectRoot });
+      const session = await adapter.createSession({ url });
+      if (opts.json) {
+        console.log(JSON.stringify({ session }, null, 2));
+        return;
+      }
+      console.log(ui.ok(`Browser session ${session.id}`));
+      console.log(ui.dots("URL", session.url));
+      await adapter.closeAll();
     });
 
   studio
@@ -197,6 +249,138 @@ export function registerStudioCommand(program: Command, engine: MemoireEngine): 
           process.exit(0);
         }
       });
+    });
+
+  const automations = studio
+    .command("automations")
+    .description("Create and run Mémoire Studio design-harness automations");
+
+  automations
+    .command("list")
+    .description("List Studio automations")
+    .option("--project <path>", "Workspace root")
+    .option("--json", "Output as JSON")
+    .action(async (opts: { project?: string; json?: boolean }) => {
+      await engine.init("minimal");
+      const projectRoot = opts.project ?? engine.config.projectRoot;
+      const store = new StudioAutomationStore(projectRoot);
+      const automations = await store.list();
+      if (opts.json) {
+        console.log(JSON.stringify({ automations }, null, 2));
+        return;
+      }
+      console.log(ui.section("STUDIO AUTOMATIONS"));
+      if (automations.length === 0) {
+        console.log(ui.skip("No automations configured"));
+        return;
+      }
+      for (const automation of automations) {
+        console.log(ui.dots(`${automation.name} (${automation.status})`, `${automation.id} / next ${automation.nextRunAt ?? "none"}`));
+      }
+    });
+
+  automations
+    .command("run <id>")
+    .description("Run one Studio automation now")
+    .option("--project <path>", "Workspace root")
+    .option("--json", "Output as JSON")
+    .action(async (id: string, opts: { project?: string; json?: boolean }) => {
+      await engine.init("minimal");
+      const projectRoot = opts.project ?? engine.config.projectRoot;
+      const server = new StudioRuntimeServer({ projectRoot, port: 0 });
+      await server.start();
+      try {
+        const run = await server.runAutomation(id);
+        if (opts.json) {
+          console.log(JSON.stringify({ run }, null, 2));
+          return;
+        }
+        console.log(ui.ok(`Automation run ${run.status}`));
+        console.log(ui.dots("Automation", run.automationId));
+        console.log(ui.dots("Session", run.sessionId ?? "none"));
+      } finally {
+        await server.stop();
+      }
+    });
+
+  automations
+    .command("run-due")
+    .description("Run all due Studio automations once")
+    .option("--project <path>", "Workspace root")
+    .option("--now <iso>", "Override current time for deterministic checks")
+    .option("--json", "Output as JSON")
+    .action(async (opts: { project?: string; now?: string; json?: boolean }) => {
+      await engine.init("minimal");
+      const projectRoot = opts.project ?? engine.config.projectRoot;
+      const server = new StudioRuntimeServer({ projectRoot, port: 0 });
+      await server.start();
+      try {
+        const runs = await server.runDueAutomations(opts.now);
+        if (opts.json) {
+          console.log(JSON.stringify({ runs }, null, 2));
+          return;
+        }
+        console.log(ui.ok(`Ran ${runs.length} due automation${runs.length === 1 ? "" : "s"}`));
+        for (const run of runs) console.log(ui.dots(run.automationId, run.status));
+      } finally {
+        await server.stop();
+      }
+    });
+
+  const scheduler = automations
+    .command("scheduler")
+    .description("Manage the macOS user LaunchAgent for Studio automations");
+
+  scheduler
+    .command("status")
+    .description("Show Studio automation scheduler status")
+    .option("--project <path>", "Workspace root")
+    .option("--runtime <path>", "Runtime binary path")
+    .option("--json", "Output as JSON")
+    .action(async (opts: { project?: string; runtime?: string; json?: boolean }) => {
+      await engine.init("minimal");
+      const status = schedulerStatus(opts.project ?? engine.config.projectRoot, opts.runtime ?? process.execPath);
+      if (opts.json) {
+        console.log(JSON.stringify({ scheduler: status }, null, 2));
+        return;
+      }
+      console.log(ui.section("STUDIO AUTOMATION SCHEDULER"));
+      console.log(ui.dots("Label", status.label));
+      console.log(ui.dots("Installed", String(status.installed)));
+      console.log(ui.dots("Plist", status.plistPath));
+    });
+
+  scheduler
+    .command("install")
+    .description("Install the macOS user LaunchAgent for Studio automations")
+    .option("--project <path>", "Workspace root")
+    .option("--runtime <path>", "Runtime binary path")
+    .option("--json", "Output as JSON")
+    .action(async (opts: { project?: string; runtime?: string; json?: boolean }) => {
+      await engine.init("minimal");
+      const status = await installScheduler(opts.project ?? engine.config.projectRoot, opts.runtime ?? process.execPath);
+      if (opts.json) {
+        console.log(JSON.stringify({ scheduler: status }, null, 2));
+        return;
+      }
+      console.log(ui.ok(`Installed ${status.label}`));
+      console.log(ui.dots("Plist", status.plistPath));
+    });
+
+  scheduler
+    .command("uninstall")
+    .description("Uninstall the macOS user LaunchAgent for Studio automations")
+    .option("--project <path>", "Workspace root")
+    .option("--runtime <path>", "Runtime binary path")
+    .option("--json", "Output as JSON")
+    .action(async (opts: { project?: string; runtime?: string; json?: boolean }) => {
+      await engine.init("minimal");
+      const status = await uninstallScheduler(opts.project ?? engine.config.projectRoot, opts.runtime ?? process.execPath);
+      if (opts.json) {
+        console.log(JSON.stringify({ scheduler: status }, null, 2));
+        return;
+      }
+      console.log(ui.ok(`Uninstalled ${status.label}`));
     });
 
   studio

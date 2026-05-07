@@ -1,0 +1,221 @@
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+import { describe, expect, it } from "vitest";
+import { StudioBrowserAdapter } from "../browser-adapter.js";
+import { defaultStudioConfig } from "../config.js";
+import { StudioToolBroker } from "../tool-broker.js";
+
+describe("studio simulation tools", () => {
+  it("plans and runs local simulations through the tool broker", async () => {
+    const root = await mkdtemp(join(tmpdir(), "memoire-studio-sim-"));
+    try {
+      const broker = new StudioToolBroker({
+        projectRoot: root,
+        getConfig: async () => defaultStudioConfig(root),
+        browser: new StudioBrowserAdapter({ projectRoot: root }),
+      });
+
+      expect(broker.listTools().map((tool) => tool.id)).toEqual(expect.arrayContaining([
+        "simulation.models",
+        "simulation.generate_agents",
+        "simulation.plan",
+        "simulation.run",
+        "simulation.run_matrix",
+        "simulation.stream",
+        "simulation.transcript",
+        "simulation.compare",
+        "simulation.costs",
+        "simulation.interview",
+        "simulation.report",
+        "simulation.export_spec",
+        "research.design_package",
+        "research.generate_specs",
+        "mermaid_jam.export",
+      ]));
+
+      const planned = await broker.call({
+        toolId: "simulation.plan",
+        cwd: root,
+        input: {
+          name: "Agent-native PM lab",
+          hypothesis: "Product teams need scenario testing before specs ship.",
+          research: {
+            personas: [{ name: "PM", role: "Product manager", goals: ["Align roadmap"], painPoints: ["Weak evidence"], behaviors: ["Reviews insights"], source: "manual" }],
+            findings: [{ id: "finding", statement: "PMs need clearer evidence links.", category: "planning", confidence: "high", themeIds: [], evidenceObservationIds: [], evidenceSourceIds: [], sourceTypeCount: 1, method: "qualitative", caveats: [], tags: ["pm"], entities: [], signalTags: [], createdAt: "2026-05-07T00:00:00.000Z" }],
+            themes: [],
+            opportunities: [],
+            risks: [],
+            contradictions: [],
+            quantitativeMetrics: [],
+            sources: [],
+            observations: [],
+            evidenceLinks: [],
+            highlights: [],
+            codebook: [],
+            reports: [],
+            version: 2,
+            quality: { overallScore: 75, sampleSize: 1, completenessScore: 80, sourceDiversityScore: 50, triangulationScore: 60, structureScore: 85, notes: [], generatedAt: "2026-05-07T00:00:00.000Z" },
+            methods: { analysisMode: "decision-grade", quantitativeApproach: "", qualitativeApproach: "", limitations: [] },
+          },
+        },
+      });
+
+      expect(planned).toMatchObject({
+        status: "completed",
+        toolId: "simulation.plan",
+        data: { scenario: { name: "Agent-native PM lab" } },
+      });
+
+      const scenarioId = (planned.data as { scenario: { id: string } }).scenario.id;
+      await expect(broker.call({
+        toolId: "simulation.run",
+        cwd: root,
+        input: { scenarioId },
+      })).resolves.toMatchObject({
+        status: "completed",
+        toolId: "simulation.run",
+        data: { run: { status: "completed" } },
+      });
+
+      await expect(broker.call({
+        toolId: "simulation.models",
+        cwd: root,
+        input: {},
+      })).resolves.toMatchObject({
+        status: "completed",
+        data: { profiles: expect.arrayContaining([expect.objectContaining({ provider: "codex" })]) },
+      });
+
+      await expect(broker.call({
+        toolId: "simulation.generate_agents",
+        cwd: root,
+        input: {
+          adapter: "model-swarm",
+          agentCount: 24,
+          research: (planned.data as { scenario: unknown }).scenario,
+        },
+      })).resolves.toMatchObject({
+        status: "completed",
+        data: { agents: expect.any(Array) },
+      });
+
+      const swarmPlan = await broker.call({
+        toolId: "simulation.plan",
+        cwd: root,
+        input: {
+          adapter: "model-swarm",
+          agentCount: 20,
+          name: "Model swarm lab",
+          hypothesis: "Multi-model debate improves specs.",
+          research: (planned.data as { scenario: unknown }).scenario,
+        },
+      });
+      const swarmScenarioId = (swarmPlan.data as { scenario: { id: string } }).scenario.id;
+      const swarmRun = await broker.call({
+        toolId: "simulation.run",
+        cwd: root,
+        input: { scenarioId: swarmScenarioId, adapter: "model-swarm", maxAgents: 20, rounds: 2 },
+      });
+      const swarmRunId = (swarmRun.data as { run: { id: string } }).run.id;
+
+      await expect(broker.call({ toolId: "simulation.stream", cwd: root, input: { runId: swarmRunId } })).resolves.toMatchObject({
+        status: "completed",
+        data: { events: expect.arrayContaining([expect.objectContaining({ kind: "model-response" })]) },
+      });
+      await expect(broker.call({ toolId: "simulation.transcript", cwd: root, input: { runId: swarmRunId } })).resolves.toMatchObject({
+        status: "completed",
+        data: { transcripts: expect.arrayContaining([expect.objectContaining({ modelProfileId: expect.any(String) })]) },
+      });
+      await expect(broker.call({ toolId: "simulation.costs", cwd: root, input: { runId: swarmRunId } })).resolves.toMatchObject({
+        status: "completed",
+        data: { costs: expect.objectContaining({ estimatedCostUsd: 0 }) },
+      });
+      await expect(broker.call({ toolId: "simulation.compare", cwd: root, input: { runIds: [swarmRunId, swarmRunId] } })).resolves.toMatchObject({
+        status: "completed",
+        data: { comparison: expect.objectContaining({ winnerRunId: swarmRunId }) },
+      });
+      await expect(broker.call({
+        toolId: "simulation.run_matrix",
+        cwd: root,
+        input: { adapter: "model-swarm", hypotheses: ["A better spec", "A safer roadmap"], maxAgents: 20, rounds: 1 },
+      })).resolves.toMatchObject({
+        status: "completed",
+        data: { comparison: expect.objectContaining({ winnerRunId: expect.any(String) }) },
+      });
+
+      const research = makeResearchStore();
+      const designPackage = await broker.call({
+        toolId: "research.design_package",
+        cwd: root,
+        input: {
+          intent: "Design an evidence-backed planning board",
+          hypothesis: "Evidence-linked design improves planning confidence",
+          research,
+        },
+      });
+      expect(designPackage).toMatchObject({
+        status: "completed",
+        data: {
+          package: {
+            specs: { pages: [expect.objectContaining({ name: "ProductDecisionPage" })] },
+            mermaidArtifacts: expect.arrayContaining([expect.objectContaining({ kind: "journey-map" })]),
+          },
+        },
+      });
+
+      await expect(broker.call({
+        toolId: "research.generate_specs",
+        cwd: root,
+        input: { research },
+      })).resolves.toMatchObject({
+        status: "approval_required",
+      });
+
+      await expect(broker.call({
+        toolId: "research.generate_specs",
+        cwd: root,
+        approved: true,
+        input: { research },
+      })).resolves.toMatchObject({
+        status: "completed",
+        data: { specWrite: { written: expect.arrayContaining(["ResearchVibeDirection", "ProductDecisionPage"]) } },
+      });
+
+      const figjamExport = await broker.call({
+        toolId: "mermaid_jam.export",
+        cwd: root,
+        input: { source: "research", research },
+      });
+      expect(figjamExport).toMatchObject({
+        status: "completed",
+        data: { exports: expect.arrayContaining([expect.objectContaining({ outputPath: expect.stringContaining(".memoire/mermaid-jam") })]) },
+      });
+      const exportedPath = ((figjamExport.data as { exports: Array<{ outputPath: string }> }).exports[0].outputPath);
+      await expect(readFile(exportedPath, "utf-8")).resolves.toContain("journey");
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+});
+
+function makeResearchStore() {
+  return {
+    personas: [{ name: "PM", role: "Product manager", goals: ["Ship a clear plan"], painPoints: ["Missing evidence"], behaviors: ["Reviews research"], source: "manual", evidenceFindingIds: ["finding"] }],
+    findings: [{ id: "finding", statement: "PMs need research evidence visible in design planning.", category: "planning", confidence: "high", themeIds: [], evidenceObservationIds: [], evidenceSourceIds: [], sourceTypeCount: 1, method: "qualitative", caveats: [], tags: ["pm"], entities: [], signalTags: [], createdAt: "2026-05-07T00:00:00.000Z" }],
+    themes: [],
+    opportunities: [],
+    risks: [],
+    contradictions: [],
+    quantitativeMetrics: [],
+    sources: [],
+    observations: [],
+    evidenceLinks: [],
+    highlights: [],
+    codebook: [],
+    reports: [],
+    version: 2,
+    quality: { overallScore: 75, sampleSize: 1, completenessScore: 80, sourceDiversityScore: 50, triangulationScore: 60, structureScore: 85, notes: [], generatedAt: "2026-05-07T00:00:00.000Z" },
+    methods: { analysisMode: "decision-grade", quantitativeApproach: "", qualitativeApproach: "", limitations: [] },
+  };
+}

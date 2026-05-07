@@ -120,14 +120,85 @@ Use clipboard-first capture flows.
 
     await expect(stat(join(projectRoot, ".memoire", "notes", "temporary-note"))).rejects.toThrow();
   });
+
+  it("emits structured JSON for notes outdated and doctor", async () => {
+    const logs = captureLogs();
+    const program = new Command();
+    registerNotesCommand(program, makeNotesEngine(projectRoot, [{
+      manifest: {
+        name: "stale-motion",
+        version: "0.1.0",
+        description: "Old motion guidance.",
+        category: "craft",
+        tags: ["motion"],
+        skills: [{ file: "stale-motion.md", name: "Stale Motion", activateOn: "motion-video", freedomLevel: "high" }],
+        dependencies: [],
+        updatedAt: "2026-03-01T00:00:00.000Z",
+        lastResearchedAt: "2026-03-01T00:00:00.000Z",
+        freshnessDays: 30,
+      },
+      path: projectRoot,
+      builtIn: true,
+      enabled: true,
+    }]) as never);
+
+    await program.parseAsync(["notes", "outdated", "--json"], { from: "user" });
+    const outdated = JSON.parse(lastLog(logs));
+    expect(outdated.status).toBe("completed");
+    expect(outdated.outdated).toEqual(expect.arrayContaining([
+      expect.objectContaining({ name: "stale-motion", reason: expect.stringMatching(/researched/i) }),
+    ]));
+
+    logs.length = 0;
+    await program.parseAsync(["notes", "doctor", "--json"], { from: "user" });
+    const doctor = JSON.parse(lastLog(logs));
+    expect(doctor).toMatchObject({
+      status: "completed",
+      notesChecked: 1,
+      issues: [],
+    });
+  });
+
+  it("emits strict community doctor errors for missing review metadata", async () => {
+    await mkdir(join(projectRoot, "community-note"), { recursive: true });
+    await writeFile(join(projectRoot, "community-note", "note.json"), JSON.stringify({
+      name: "community-note",
+      version: "0.1.0",
+      description: "Community supplied workflow.",
+      category: "craft",
+      tags: [],
+      skills: [{
+        file: "community-note.md",
+        name: "Community Note",
+        activateOn: "always",
+        freedomLevel: "high",
+      }],
+      dependencies: [],
+    }, null, 2));
+    await writeFile(join(projectRoot, "community-note", "community-note.md"), "# Community Note\n");
+
+    const logs = captureLogs();
+    const program = new Command();
+    registerNotesCommand(program, makeNotesEngine(projectRoot) as never);
+
+    await program.parseAsync(["notes", "doctor", "--community", "--path", join(projectRoot, "community-note"), "--json"], { from: "user" });
+
+    const payload = JSON.parse(lastLog(logs));
+    expect(payload).toMatchObject({
+      status: "failed",
+      notesChecked: 1,
+    });
+    expect(payload.issues.map((issue: { message: string }) => issue.message).join("\n")).toMatch(/sourceUrls|lastResearchedAt|freshnessDays/i);
+    expect(process.exitCode).toBe(1);
+  });
 });
 
-function makeNotesEngine(projectRootPath: string) {
+function makeNotesEngine(projectRootPath: string, notes: unknown[] = []) {
   return {
     config: { projectRoot: projectRootPath },
     notes: {
       loaded: true,
-      notes: [],
+      notes,
       async loadAll() {},
       getNote() {
         return null;

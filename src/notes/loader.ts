@@ -84,6 +84,7 @@ function skillToManifest(skill: SkillRegistryEntry, registryVersion: string): No
     description: skill.description,
     category: inferCategory(skill),
     tags: [],
+    sourceUrls: [],
     skills: [{
       file: skill.file,
       name: skill.name,

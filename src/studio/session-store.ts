@@ -1,11 +1,14 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import type { StudioEvent, StudioRunAction, StudioSession } from "./types.js";
+import type { StudioChatMode, StudioEvent, StudioPermissionMode, StudioRunAction, StudioSession, StudioSessionMode } from "./types.js";
 
 export interface StudioSessionIndexEntry {
   id: string;
   harness: string;
   action: StudioRunAction;
+  mode?: StudioSessionMode;
+  chatMode?: StudioChatMode;
+  permissionMode?: StudioPermissionMode;
   cwd: string;
   prompt: string;
   status: StudioSession["status"];
@@ -53,6 +56,9 @@ export class StudioSessionStore {
       id: session.id,
       harness: session.harness,
       action: session.action,
+      mode: session.mode,
+      chatMode: session.chatMode,
+      permissionMode: session.permissionMode,
       cwd: session.cwd,
       prompt: session.prompt,
       status: session.status,

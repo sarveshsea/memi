@@ -28,7 +28,7 @@ describe("studio command JSON", () => {
     const payload = JSON.parse(lastLog(logs));
     expect(payload.status).toBe("ready");
     expect(payload.projectRoot).toBe(projectRoot);
-    expect(payload.config.defaultHarness).toBe("memoire");
+    expect(payload.config.defaultHarness).toBe("codex");
     expect(payload.harnesses.map((harness: { id: string }) => harness.id)).toContain("claude-code");
   });
 

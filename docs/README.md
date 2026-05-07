@@ -15,10 +15,17 @@ npm i -g @sarveshsea/memoire
 memi agent install claude-code --project .
 memi agent install cursor --project .
 memi agent install codex
+memi agent install codex-plugin
 memi agent install opencode --project .
 ```
 
 Use this before Codex, Claude Code, Cursor, OpenCode, Hermes, or OpenClaw edits UI code. More copy-paste agent workflows live in [`docs/AGENT_RECIPES.md`](./AGENT_RECIPES.md).
+
+Public Codex plugin marketplace:
+
+```bash
+codex plugin marketplace add sarveshsea/m-moire --ref main --sparse .agents/plugins --sparse plugins/memoire
+```
 
 ### Existing app to diagnosis
 

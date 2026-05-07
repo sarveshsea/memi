@@ -12,6 +12,7 @@ import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import type { AgentRole } from "../plugin/shared/contracts.js";
 import { AgentWorker } from "../agents/agent-worker.js";
+import { AGENT_INSTALL_TARGETS, installAgentKits, normalizeAgentInstallTarget } from "../agents/agent-kits.js";
 import { ui } from "../tui/format.js";
 
 const VALID_ROLES: AgentRole[] = [
@@ -30,6 +31,76 @@ export function registerAgentCommand(program: Command, engine: MemoireEngine): v
   const agent = program
     .command("agent")
     .description("Manage multi-Claude agent instances");
+
+  // ── agent install ───────────────────────────────────────
+  agent
+    .command("install [target]")
+    .description("Install Memoire agent kits for Hermes, OpenClaw, Claude Code, Cursor, Codex, Codex plugin, or OpenCode")
+    .option("--dry-run", "Show the install plan without writing files")
+    .option("--json", "Output install result as JSON")
+    .option("--force", "Overwrite an existing Memoire kit or MCP server entry")
+    .option("--project <path>", "Project/workspace root for project-scoped installs")
+    .option("--global", "Use global config location when a target supports global install")
+    .action(async (target: string | undefined, opts: {
+      dryRun?: boolean;
+      json?: boolean;
+      force?: boolean;
+      project?: string;
+      global?: boolean;
+    }) => {
+      const selectedTarget = normalizeAgentInstallTarget(target);
+      const projectRoot = opts.project ?? engine.config.projectRoot;
+
+      try {
+        const result = await installAgentKits({
+          target: selectedTarget,
+          projectRoot,
+          dryRun: opts.dryRun,
+          force: opts.force,
+          global: opts.global,
+        });
+
+        if (opts.json) {
+          console.log(JSON.stringify(result, null, 2));
+          return;
+        }
+
+        console.log();
+        console.log(result.status === "planned"
+          ? ui.section("AGENT KIT INSTALL PLAN")
+          : ui.ok("Memoire agent kits installed"));
+        console.log(ui.dots("suite manifest", result.suiteManifest.destination));
+        for (const plan of result.plans) {
+          const label = `${plan.target} (${plan.kind})`;
+          console.log(ui.dots(label, plan.destination));
+          if (result.status === "planned") {
+            console.log(`    ${ui.dim(plan.exists ? "exists" : "new")}  ${ui.dim(plan.note)}`);
+          }
+        }
+        if (result.status === "planned") {
+          console.log();
+          console.log(ui.dim(`  Write these files with: memi agent install ${selectedTarget}`));
+        }
+        console.log();
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        const payload = {
+          action: "install" as const,
+          status: "failed" as const,
+          target: selectedTarget,
+          dryRun: Boolean(opts.dryRun),
+          force: Boolean(opts.force),
+          validTargets: ["all", ...AGENT_INSTALL_TARGETS],
+          error: { message: msg },
+        };
+        if (opts.json) {
+          console.log(JSON.stringify(payload, null, 2));
+        } else {
+          console.log(ui.fail(msg));
+        }
+        process.exitCode = 1;
+      }
+    });
 
   // ── agent spawn ─────────────────────────────────────────
   agent

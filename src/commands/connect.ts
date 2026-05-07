@@ -160,7 +160,7 @@ function buildPluginNextSteps(plugin: PluginInstallHealth): string[] {
     steps.push("Import the Memoire Control Plane manifest in Figma from the reported manifest path");
   }
   if (plugin.health === "stale-home-copy") {
-    steps.push("Reinstall or rerun postinstall so ~/.memoire/plugin matches the current package bundle");
+    steps.push("Run `memi setup plugin` or `memi doctor --repair-plugin` so ~/.memoire/plugin matches the current package bundle");
   }
   if (plugin.health === "symlink-risk") {
     steps.push("Avoid symlinked manifests when importing into Figma; prefer ~/.memoire/plugin/manifest.json");

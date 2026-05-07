@@ -34,6 +34,8 @@ export interface BridgeClient {
 export interface MemoireWsServerConfig {
   port?: number;
   instanceName?: string;
+  studioUrl?: string;
+  runtimeUrl?: string;
   onCommand?: (method: string, params: Record<string, unknown>) => Promise<unknown>;
   onChat?: (text: string, fromPlugin: string) => void;
   onEvent?: (event: MemoireEvent) => void;
@@ -98,11 +100,15 @@ export class MemoireWsServer extends EventEmitter {
   private _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private _lastConnectedAt: Date | null = null;
   private _lastDisconnectedAt: Date | null = null;
+  private readonly studioUrl: string;
+  private readonly runtimeUrl: string;
 
   constructor(config: MemoireWsServerConfig = {}) {
     super();
     this.setMaxListeners(30);
     this.config = config;
+    this.studioUrl = config.studioUrl ?? "http://127.0.0.1:1420";
+    this.runtimeUrl = config.runtimeUrl ?? "http://127.0.0.1:8765";
   }
 
   get running(): boolean {
@@ -151,6 +157,10 @@ export class MemoireWsServer extends EventEmitter {
    * for an available one. Warns if a port in the range is bound by a foreign process.
    */
   async start(preferPort?: number): Promise<number> {
+    if (this._running && this.wss) {
+      return this.port;
+    }
+
     const startPort = preferPort ?? this.config.port ?? BRIDGE_PORT_START;
     const endPort = BRIDGE_PORT_END;
 
@@ -282,6 +292,7 @@ export class MemoireWsServer extends EventEmitter {
           JSON.stringify(
             serializeBridgeEnvelope(
               createBridgeCommandEnvelope(id, method as WidgetCommandName, params),
+              "v2",
             ),
           ),
         );
@@ -305,7 +316,7 @@ export class MemoireWsServer extends EventEmitter {
         type: "chat",
         text,
         from: this.config.instanceName ?? "memoire-terminal",
-      }),
+      }, "v2"),
     );
   }
 
@@ -321,7 +332,7 @@ export class MemoireWsServer extends EventEmitter {
         level: event.type,
         message: event.message,
         data: { source: event.source },
-      }),
+      }, "v2"),
     );
   }
 
@@ -335,7 +346,7 @@ export class MemoireWsServer extends EventEmitter {
         source: "plugin",
         type: "agent-status",
         data: status,
-      }),
+      }, "v2"),
     );
     this.emit("agent-status", status);
   }
@@ -362,7 +373,9 @@ export class MemoireWsServer extends EventEmitter {
   getStatus(): {
     running: boolean;
     port: number;
-    clients: { id: string; file: string; editor: string; connectedAt: string }[];
+    bridgeStatus: "stopped" | "running";
+    pluginStatus: "disconnected" | "connected";
+    clients: { id: string; file: string; fileKey: string; editor: string; connectedAt: string; lastPing: string }[];
     connectionState: ConnectionState;
     reconnectAttempts: number;
     lastConnectedAt: string | null;
@@ -371,11 +384,15 @@ export class MemoireWsServer extends EventEmitter {
     return {
       running: this._running,
       port: this.port,
+      bridgeStatus: this._running ? "running" : "stopped",
+      pluginStatus: this.clients.size > 0 ? "connected" : "disconnected",
       clients: this.connectedClients.map((c) => ({
         id: c.id,
         file: c.file,
+        fileKey: c.fileKey,
         editor: c.editor,
         connectedAt: c.connectedAt.toISOString(),
+        lastPing: c.lastPing.toISOString(),
       })),
       connectionState: this.getConnectionState(),
       reconnectAttempts: this._reconnectAttempts,
@@ -473,7 +490,9 @@ export class MemoireWsServer extends EventEmitter {
               type: "identify",
               name: this.config.instanceName ?? `Mémoire Terminal`,
               port: this.port,
-            }),
+              studioUrl: this.studioUrl,
+              runtimeUrl: this.runtimeUrl,
+            }, "v2"),
           ),
         );
       } catch (err) {
@@ -488,12 +507,22 @@ export class MemoireWsServer extends EventEmitter {
           // Basic size check — reject messages over 10MB
           if (raw.length > 10_000_000) {
             log.warn({ clientId, sizeMB: Math.round(raw.length / 1_000_000) }, "Oversized message, dropping");
-            ws.send(JSON.stringify({ type: "error", message: "Message too large (>10MB). Reduce payload size." }));
+            ws.send(JSON.stringify(serializeBridgeEnvelope({
+              channel: "memoire.bridge.v2",
+              source: "server",
+              type: "error",
+              message: "Message too large (>10MB). Reduce payload size.",
+            }, "v2")));
             return;
           }
           // Rate limiting
           if (!this.checkRateLimit(clientId, raw.length)) {
-            ws.send(JSON.stringify({ type: "error", message: "Rate limit exceeded. Slow down." }));
+            ws.send(JSON.stringify(serializeBridgeEnvelope({
+              channel: "memoire.bridge.v2",
+              source: "server",
+              type: "error",
+              message: "Rate limit exceeded. Slow down.",
+            }, "v2")));
             return;
           }
           const msg = normalizeBridgeMessage(JSON.parse(raw));
@@ -597,7 +626,7 @@ export class MemoireWsServer extends EventEmitter {
                 channel: "memoire.bridge.v2",
                 source: "server",
                 type: "pong",
-              }),
+              }, "v2"),
             ),
           );
         } catch {

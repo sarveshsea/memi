@@ -48,6 +48,13 @@ describe("TextMeasurer.measure", () => {
     measurer.measure(text, { maxWidth: 300 }); // same text+font, different width
     expect(measurer.cacheSize).toBe(1); // cache is by text+font, not width
   });
+
+  it("falls back before Pretext for algorithmically risky text", () => {
+    const result = measurer.measure("!".repeat(3000), { maxWidth: 120 });
+    expect(result.lineCount).toBeGreaterThan(0);
+    expect(result.height).toBeGreaterThan(0);
+    expect(measurer.cacheSize).toBe(0);
+  });
 });
 
 describe("TextMeasurer.measureDetailed", () => {

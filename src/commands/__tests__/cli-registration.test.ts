@@ -13,6 +13,7 @@ describe("CLI registration smoke test", () => {
 
     expect(source).toContain('registerDoctorCommand');
     expect(source).toContain('registerDaemonCommand');
+    expect(source).toContain('registerSuiteCommand');
     expect(source).toContain('registerHeartbeatCommand');
     expect(source).toContain('registerDesignDocCommand');
     expect(source).toContain("registerThemeCommand");
@@ -24,6 +25,7 @@ describe("CLI registration smoke test", () => {
 
     expect(source).toContain('registerDoctorCommand(program, engine);');
     expect(source).toContain('registerDaemonCommand(program, engine);');
+    expect(source).toContain('registerSuiteCommand(program, engine);');
     expect(source).toContain('registerHeartbeatCommand(program, engine);');
     expect(source).toContain('registerDesignDocCommand(program, engine);');
     expect(source).toContain("registerThemeCommand(program, engine);");

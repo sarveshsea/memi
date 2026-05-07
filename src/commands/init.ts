@@ -246,7 +246,7 @@ export function registerInitCommand(program: Command, engine: MemoireEngine) {
           mcpServers: {
             memoire: {
               command: "memi",
-              args: ["mcp", "start"],
+              args: ["mcp", "start", "--no-figma"],
               env: {
                 FIGMA_TOKEN: "${FIGMA_TOKEN}",
                 FIGMA_FILE_KEY: "${FIGMA_FILE_KEY}",
