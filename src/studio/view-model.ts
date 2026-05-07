@@ -208,6 +208,7 @@ export function deriveStudioTrace(input: {
 
   const hasSessionError = input.events.some((event) => event.type === "session_error") || input.session?.status === "failed";
   const isRunning = input.session?.status === "running";
+  const activities = deriveActivities(input.events, input.session);
   const phases = STUDIO_TRACE_PHASES.map<StudioTracePhase>((phase) => {
     const evidenceIds = phaseEvidence.get(phase.id) ?? [];
     return {
@@ -238,8 +239,8 @@ export function deriveStudioTrace(input: {
       session: input.session,
       events: input.events,
     }),
-    activities: deriveActivities(input.events),
-    activeProcesses: deriveActiveProcesses(input.events, input.session),
+    activities,
+    activeProcesses: deriveActiveProcesses(activities, input.session),
   };
 }
 
@@ -361,7 +362,10 @@ function deriveTraceResearchEvidence(events: StudioTraceEventLike[]): StudioTrac
     });
 }
 
-function deriveActivities(events: StudioTraceEventLike[]): StudioActivityItem[] {
+function deriveActivities(
+  events: StudioTraceEventLike[],
+  session: StudioTraceSessionLike | null = null,
+): StudioActivityItem[] {
   const activities: StudioActivityItem[] = [];
   const latestTerminalCommandIndex = latestTerminalCommandIndexes(events);
   const terminalOutputByExecutionId = terminalOutputsByExecutionId(events);
@@ -370,10 +374,11 @@ function deriveActivities(events: StudioTraceEventLike[]): StudioActivityItem[] 
   for (let index = 0; index < events.length; index += 1) {
     const event = events[index];
     if (event.type === "reasoning") {
+      const liveReasoning = isLiveReasoningEvent(events, index, session);
       activities.push(activityFromParts({
         event,
         kind: "thinking",
-        status: "completed",
+        status: liveReasoning ? "running" : "completed",
         label: "Thinking",
         summary: event.message,
       }));
@@ -467,11 +472,11 @@ function deriveActivities(events: StudioTraceEventLike[]): StudioActivityItem[] 
 }
 
 function deriveActiveProcesses(
-  events: StudioTraceEventLike[],
+  activities: StudioActivityItem[],
   session: StudioTraceSessionLike | null,
 ): StudioActiveProcess[] {
   if (!session || session.status !== "running") return [];
-  return deriveActivities(events)
+  return activities
     .filter((activity) => activity.status === "running" && activity.command)
     .map((activity) => ({
       id: `process:${activity.sourceEventIds[0]}`,
@@ -482,6 +487,15 @@ function deriveActiveProcesses(
       outputPreview: activity.outputPreview ?? "",
       sourceEventIds: activity.sourceEventIds,
     }));
+}
+
+function isLiveReasoningEvent(
+  events: StudioTraceEventLike[],
+  index: number,
+  session: StudioTraceSessionLike | null,
+): boolean {
+  if (!session || session.status !== "running") return false;
+  return !events.slice(index + 1).some((event) => event.type !== "reference_trace");
 }
 
 function activityFromTerminalCommand(

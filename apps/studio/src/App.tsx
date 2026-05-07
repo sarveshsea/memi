@@ -122,6 +122,7 @@ import {
   AttachmentShelf,
   AutomationCenter,
   ChangedFilesPanel,
+  ChatQualityLayer,
   CommandPalette,
   ContextRail,
   DesignChangelogPage,
@@ -134,6 +135,7 @@ import {
   buildTerminalBlocks,
   copyText,
   deriveSessionStatus,
+  filterTerminalBlocksByQuery,
   filterContextItems,
   filterKnowledgeItems,
   formatTime,
@@ -663,7 +665,6 @@ export function App() {
   }
 
   async function openSessionSummary(nextSession: SessionSummary) {
-    setMainSurface("workbench");
     setSession(nextSession);
     setServerTrace(null);
     setCollapsedBlockIds(new Set());
@@ -1053,7 +1054,6 @@ export function App() {
   }
 
   function startNewChat() {
-    setMainSurface("workbench");
     setSession(null);
     setEvents([]);
     setServerTrace(null);
