@@ -25,6 +25,10 @@ This minor cuts the bundled wave of Mermaid Jam, research-backed vibe design, th
 - Added public Git-backed Codex marketplace distribution docs, store-ready PNG plugin assets, screenshots, privacy/terms links, `/codex-plugin` site copy, and a `smoke:codex-plugin` gate.
 - Added 19 new agent and motion Notes covering memory profiles, messaging gateway, session checkpoints, skill migration, apple-desktop-automation, approval sandbox policies, browser-research-agent, cron workflows, gateway ops observability, hermes/openclaw bridges, mcp-server-studio, model-router-diagnostics, multi-agent-kanban, secure-secrets, hyperframes-video, remotion-video, motion-performance, and website-to-video.
 - Refreshed animation-craft to depend on the new motion-performance, remotion-video, and hyperframes-video Notes.
+- Added a macOS-first native Markdown Corpus path for Studio: reviewed GitHub markdown seeds download through the Rust/Tauri app into `.memoire/markdown-corpus`, with manifest hashes, license policy, and markdown-only allowlisting.
+- Added deep Markdown analysis for FigJam candidates, including Mermaid fences, headings, lists, tables, frontmatter, links, and checklist-to-flow conversion.
+- Added `memi mermaid-jam corpus status`, `memi mermaid-jam corpus sync --setup`, `memi mermaid-jam analyze`, and Studio `/api/markdown-corpus/*` endpoints for corpus setup, status, analysis, and FigJam sync.
+- Added a Studio Markdown Corpus setup card with repository status, source-path analysis, and direct "Sync to FigJam" handoff through the connected bridge.
 
 ### Fixed
 - Studio surface routing no longer snaps back to the workbench when opening a session summary or starting a new chat, so the user-selected surface persists across session changes.
@@ -36,6 +40,8 @@ This minor cuts the bundled wave of Mermaid Jam, research-backed vibe design, th
 ### Verification
 - Focused Mermaid Jam resolver, CLI, and Studio API tests passed.
 - Focused research design package, Mermaid Jam export, Studio tool, MCP registration, and Scenario Lab UI tests passed.
+- Focused Rust/Tauri Markdown Corpus tests passed.
+- Focused Markdown Corpus integration, CLI, and Studio API tests passed.
 - Packaged Note asset tests and Studio Marketplace tests passed.
 - `npm run typecheck` passed.
 - Focused simulation core, CLI, Studio tool, and license-boundary tests passed.
@@ -50,6 +56,8 @@ This minor cuts the bundled wave of Mermaid Jam, research-backed vibe design, th
 | `c1cbcd4f` | docs(0.17): refresh README, llms.txt, skills, site bundle, preset READMEs |
 | `079b8e15` | feat(0.17): ship Studio simulation, swarm v2, automations, codex plugin, vibe design, agent-kits |
 | `20a0d3b9` | feat(notes): add 19 agent/motion notes and refresh animation-craft + mermaid-jam |
+| `4561068b` | feat: add memoire codex marketplace plugin |
+| `70c9ced6` | feat: add native markdown corpus sync |
 | `87011ce5` | chore(release): harden 0.16.1 agent registry metadata |
 | `9f436086` | docs: sync mermaid jam changelog |
 | `49bbded2` | feat: add native mermaid jam integration |

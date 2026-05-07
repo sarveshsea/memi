@@ -390,7 +390,7 @@ a:hover { text-decoration: underline; }
       <a href="changelog.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>Changelog</a>
     </nav>
     <div class="hdr-stats">
-      <span><span class="n" id="stat-commits">240</span> commits</span>
+      <span><span class="n" id="stat-commits">242</span> commits</span>
       <span><span class="n" id="stat-versions">22</span> versions</span>
       <span><span class="n" id="stat-latest">2026-05-07</span> latest</span>
     </div>
@@ -408,7 +408,7 @@ a:hover { text-decoration: underline; }
           <div class="summary-card">
             <span class="summary-kicker">Current release</span>
             <strong class="summary-value">v0.17.0</strong>
-            <div class="summary-caption">7 commits tracked in v0.17.0 from CHANGELOG.md.</div>
+            <div class="summary-caption">9 commits tracked in v0.17.0 from CHANGELOG.md.</div>
           </div>
           <div class="summary-card">
             <span class="summary-kicker">Biggest theme</span>
@@ -461,6 +461,14 @@ const releases = [
         "feat(notes): add 19 agent/motion notes and refresh animation-craft + mermaid-jam"
       ],
       [
+        "4561068b",
+        "feat: add memoire codex marketplace plugin"
+      ],
+      [
+        "70c9ced6",
+        "feat: add native markdown corpus sync"
+      ],
+      [
         "87011ce5",
         "chore(release): harden 0.16.1 agent registry metadata"
       ],
@@ -486,11 +494,17 @@ const releases = [
       "Added public Git-backed Codex marketplace distribution docs, store-ready PNG plugin assets, screenshots, privacy/terms links, /codex-plugin site copy, and a smoke:codex-plugin gate.",
       "Added 19 new agent and motion Notes covering memory profiles, messaging gateway, session checkpoints, skill migration, apple-desktop-automation, approval sandbox policies, browser-research-agent, cron workflows, gateway ops observability, hermes/openclaw bridges, mcp-server-studio, model-router-diagnostics, multi-agent-kanban, secure-secrets, hyperframes-video, remotion-video, motion-performance, and website-to-video.",
       "Refreshed animation-craft to depend on the new motion-performance, remotion-video, and hyperframes-video Notes.",
+      "Added a macOS-first native Markdown Corpus path for Studio: reviewed GitHub markdown seeds download through the Rust/Tauri app into .memoire/markdown-corpus, with manifest hashes, license policy, and markdown-only allowlisting.",
+      "Added deep Markdown analysis for FigJam candidates, including Mermaid fences, headings, lists, tables, frontmatter, links, and checklist-to-flow conversion.",
+      "Added memi mermaid-jam corpus status, memi mermaid-jam corpus sync --setup, memi mermaid-jam analyze, and Studio /api/markdown-corpus/* endpoints for corpus setup, status, analysis, and FigJam sync.",
+      "Added a Studio Markdown Corpus setup card with repository status, source-path analysis, and direct \"Sync to FigJam\" handoff through the connected bridge.",
       "Studio surface routing no longer snaps back to the workbench when opening a session summary or starting a new chat, so the user-selected surface persists across session changes.",
       "Studio trace view-model derives activities once and reuses them for active-process inference, fixing the reasoning-live behavior covered by view-model.test.ts.",
       "Added a release gate and unit coverage that fail if packaged files contain copied MiroFish source markers while allowing written references and optional fork bridge documentation.",
       "Focused Mermaid Jam resolver, CLI, and Studio API tests passed.",
       "Focused research design package, Mermaid Jam export, Studio tool, MCP registration, and Scenario Lab UI tests passed.",
+      "Focused Rust/Tauri Markdown Corpus tests passed.",
+      "Focused Markdown Corpus integration, CLI, and Studio API tests passed.",
       "Packaged Note asset tests and Studio Marketplace tests passed.",
       "npm run typecheck passed.",
       "Focused simulation core, CLI, Studio tool, and license-boundary tests passed.",

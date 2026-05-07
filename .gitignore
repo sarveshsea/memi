@@ -10,7 +10,6 @@ apps/studio/src-tauri/gen/
 .codex/
 .noche/
 .astro/
-.agents/
 .DS_Store
 **/.DS_Store
 *.tsbuildinfo

@@ -2,6 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
 import { join, resolve } from "node:path";
 import { FigmaBridge } from "../figma/bridge.js";
+import type { MarkdownAnalysisReport, MarkdownDiagramCandidate } from "../integrations/markdown-corpus.js";
 import type {
   StudioEventType,
   StudioFigmaAction,
@@ -35,6 +36,7 @@ export interface StudioFigmaBridgeLike {
     tokens: NonNullable<StudioFigmaActionRequest["tokens"]>,
     options?: { createMissing?: boolean; collectionName?: string },
   ): Promise<unknown>;
+  execute?(code: string, timeout?: number): Promise<unknown>;
 }
 
 export interface StudioFigmaControllerEvent {
@@ -229,7 +231,7 @@ export class StudioFigmaController {
     return bridge;
   }
 
-  private async persistArtifact(action: StudioFigmaAction, result: unknown): Promise<string | null> {
+  private async persistArtifact(action: StudioFigmaAction | "syncMarkdownToFigJam", result: unknown): Promise<string | null> {
     const dir = join(this.projectRoot, ".memoire", "project-memory", "figma");
     await mkdir(dir, { recursive: true });
     const file = join(dir, `${new Date().toISOString().replace(/[:.]/g, "-")}-${action}.json`);
@@ -237,9 +239,99 @@ export class StudioFigmaController {
     return file;
   }
 
+  async syncMarkdownToFigJam(report: MarkdownAnalysisReport): Promise<{
+    bridgeState: "connected";
+    createdNodeCount: number;
+    artifactPath: string | null;
+    diagnostics: string[];
+  }> {
+    const bridge = this.ensureConnectedBridge();
+    if (!bridge.execute) {
+      throw Object.assign(new Error("Connected Figma bridge does not support direct FigJam execution"), { statusCode: 409 });
+    }
+
+    this.emit("figma_action_started", "Started syncMarkdownToFigJam", {
+      candidates: report.candidates.length,
+    });
+
+    try {
+      const result = await bridge.execute(buildMarkdownFigJamScript(report.candidates), 30000) as { createdNodeCount?: number } | null;
+      const payload = {
+        bridgeState: "connected" as const,
+        createdNodeCount: typeof result?.createdNodeCount === "number"
+          ? result.createdNodeCount
+          : Math.max(1, report.candidates.length),
+        artifactPath: null as string | null,
+        diagnostics: report.candidates.flatMap((candidate) => candidate.diagnostics),
+      };
+      payload.artifactPath = await this.persistArtifact("syncMarkdownToFigJam", {
+        ...payload,
+        candidates: report.candidates,
+        summary: report.summary,
+      });
+      this.emit("figma_action_completed", "Completed syncMarkdownToFigJam", payload);
+      return payload;
+    } catch (error) {
+      this.emit("figma_action_failed", "Failed syncMarkdownToFigJam", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
+  }
+
   private emit(type: StudioEventType, message: string, data?: unknown): void {
     this.onEvent?.({ type, message, timestamp: new Date().toISOString(), data });
   }
+}
+
+function buildMarkdownFigJamScript(candidates: MarkdownDiagramCandidate[]): string {
+  const payload = JSON.stringify(candidates.map((candidate) => ({
+    title: candidate.title,
+    kind: candidate.kind,
+    sourcePath: candidate.sourcePath,
+    confidence: candidate.confidence,
+    cleanSource: candidate.cleanSource,
+  })));
+
+  return `
+(() => {
+  const candidates = ${payload};
+  const created = [];
+  const x0 = (figma.viewport?.center?.x ?? 0) - 240;
+  let y = (figma.viewport?.center?.y ?? 0) - 160;
+  const title = "Memoire Markdown Sync";
+  const makeNode = (label, x, nodeY, width, height) => {
+    if (typeof figma.createShapeWithText === "function") {
+      const node = figma.createShapeWithText();
+      node.x = x;
+      node.y = nodeY;
+      node.resize(width, height);
+      node.text.characters = label;
+      created.push(node);
+      return node;
+    }
+    const sticky = figma.createSticky();
+    sticky.x = x;
+    sticky.y = nodeY;
+    sticky.text.characters = label;
+    created.push(sticky);
+    return sticky;
+  };
+  makeNode(title, x0, y, 360, 72);
+  y += 108;
+  for (const candidate of candidates) {
+    makeNode(candidate.title + "\\n" + candidate.kind + " / " + Math.round(candidate.confidence * 100) + "%", x0, y, 360, 88);
+    y += 112;
+    const lines = String(candidate.cleanSource || "").split(/\\n/).slice(0, 12).join("\\n");
+    makeNode(lines, x0 + 400, y - 112, 420, 120);
+  }
+  figma.currentPage.selection = created;
+  if (created.length > 0 && typeof figma.viewport?.scrollAndZoomIntoView === "function") {
+    figma.viewport.scrollAndZoomIntoView(created);
+  }
+  return { bridgeState: "connected", createdNodeCount: created.length };
+})();
+`.trim();
 }
 
 async function openFigmaApp(target: string): Promise<void> {

@@ -35,6 +35,19 @@ timelines before handing source to Mermaid Jam.
 4. Open the plugin from a FigJam board, not a Figma design file, then paste the
    Mermaid or markdown source into Mermaid Jam.
 
+For Mémoire Studio on macOS, prefer the native corpus path before falling back
+to manual plugin paste:
+
+```bash
+memi mermaid-jam corpus sync --setup --json
+memi mermaid-jam analyze ./docs/flow.md --json
+```
+
+Studio stores the reviewed markdown-only corpus in `.memoire/markdown-corpus`
+and can sync analyzed candidates through the connected FigJam bridge as editable
+FigJam nodes. The corpus downloader only stores `.md`, `.mdx`, `.markdown`, and
+`.mdoc` files from the allowlisted repos.
+
 The manifest may be importable from Figma and FigJam, but generation is
 FigJam-native because the renderer creates FigJam sections, shape cards, and
 dynamic connectors.
@@ -48,6 +61,8 @@ dynamic connectors.
 - Mermaid `mindmap`
 - Mermaid `timeline`
 - Markdown headings and bullets describing a user flow
+- Markdown tables, frontmatter titles, links, and section hierarchy as scoring
+  context for process, journey, timeline, API, architecture, and checklist flows
 
 ## Local Development
 

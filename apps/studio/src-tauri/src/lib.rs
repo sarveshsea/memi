@@ -1,3 +1,4 @@
+pub mod markdown_corpus;
 mod studio;
 
 use serde::Serialize;
@@ -9,7 +10,10 @@ use std::{
     net::{SocketAddr, TcpStream},
     path::{Path, PathBuf},
     process::{Command, Stdio},
-    sync::{Arc, Mutex},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc, Mutex,
+    },
     thread,
     time::Duration,
 };
@@ -24,6 +28,7 @@ const STUDIO_RUNTIME_RESOURCE_DIR: &str = "resources/memoire-runtime";
 struct AppState {
     processes: Mutex<HashMap<String, Arc<Mutex<std::process::Child>>>>,
     runtime: Mutex<RuntimeProcessState>,
+    markdown_corpus_cancel: AtomicBool,
 }
 
 #[derive(Default)]
@@ -901,6 +906,44 @@ fn local_port_open(port: u16) -> bool {
     TcpStream::connect_timeout(&addr, Duration::from_millis(120)).is_ok()
 }
 
+#[tauri::command]
+fn setup_markdown_corpus(
+    app: AppHandle,
+    state: State<AppState>,
+    catalog: Option<Vec<markdown_corpus::CorpusRepo>>,
+) -> Result<markdown_corpus::CorpusStatus, String> {
+    let repos = catalog.unwrap_or_else(markdown_corpus::default_corpus_catalog);
+    let root = studio::current_dir();
+    state.markdown_corpus_cancel.store(false, Ordering::Relaxed);
+    let _ = app.emit(
+        "markdown-corpus-event",
+        serde_json::json!({ "status": "downloading", "repos": repos.len() }),
+    );
+    let status = markdown_corpus::setup_markdown_corpus_at_with_cancel(
+        &root,
+        &repos,
+        &state.markdown_corpus_cancel,
+    )?;
+    let _ = app.emit("markdown-corpus-event", &status);
+    Ok(status)
+}
+
+#[tauri::command]
+fn cancel_markdown_corpus_setup(state: State<AppState>) -> Result<bool, String> {
+    state.markdown_corpus_cancel.store(true, Ordering::Relaxed);
+    Ok(true)
+}
+
+#[tauri::command]
+fn get_markdown_corpus_status() -> Result<markdown_corpus::CorpusStatus, String> {
+    markdown_corpus::get_markdown_corpus_status_at(&studio::current_dir())
+}
+
+#[tauri::command]
+fn analyze_markdown_for_fig_jam(path: String) -> Result<markdown_corpus::MarkdownAnalysisReport, String> {
+    markdown_corpus::analyze_markdown_file(&PathBuf::from(path))
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -938,7 +981,11 @@ pub fn run() {
             select_workspace,
             agent_install,
             capture_attachment,
-            get_attachment
+            get_attachment,
+            setup_markdown_corpus,
+            cancel_markdown_corpus_setup,
+            get_markdown_corpus_status,
+            analyze_markdown_for_fig_jam
         ])
         .on_window_event(|window, event| {
             if matches!(event, WindowEvent::CloseRequested { .. }) {

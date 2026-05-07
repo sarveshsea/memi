@@ -136,6 +136,33 @@ describe("studio harness console UI", () => {
     expect(components).toContain("deriveVerificationSignals");
   });
 
+  it("renders the Studio topbar as an ultra-compact icon/status strip", async () => {
+    const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
+    const components = await readFile(join(process.cwd(), "apps", "studio", "src", "workbench-components.tsx"), "utf-8");
+    const headerStart = app.indexOf('<header className="console-topbar"');
+    const headerEnd = app.indexOf("</header>", headerStart);
+    const header = app.slice(headerStart, headerEnd);
+
+    expect(header).toContain('data-topbar-density="thirty-percent"');
+    expect(header).toContain('data-icon-topbar="memoire-compact"');
+    expect(header).not.toContain("memoire-wordmark");
+    expect(header).not.toContain(">Mémoire<");
+    expect(header).toContain('data-topbar-tags="left-compact"');
+    expect(header).toContain('<StudioControlIcon name="command" />');
+    expect(header).toContain('<StudioControlIcon name="details" />');
+    expect(header).toContain('<StudioControlIcon name="light" />');
+    expect(header).toContain('<StudioControlIcon name="dark" />');
+    expect(header).toContain('<StudioControlIcon name="settings" />');
+    expect(header).toContain('aria-label="Command"');
+    expect(header).toContain('aria-label="Details"');
+    expect(header).toContain('aria-label="Light mode"');
+    expect(header).toContain('aria-label="Dark mode"');
+    expect(header).toContain('aria-label="Settings"');
+    expect(header).toContain('title="Settings"');
+    expect(header).toContain('data-action-id="settings.open"');
+    expect(components).toContain('name: "attach" | "mode" | "access" | "plan" | "harness" | "action" | "command" | "details" | "light" | "dark" | "settings"');
+  });
+
   it("groups sessions in a collapsible project sidebar with settings pinned at the bottom", async () => {
     const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
     const components = await readFile(join(process.cwd(), "apps", "studio", "src", "workbench-components.tsx"), "utf-8");

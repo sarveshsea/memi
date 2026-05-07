@@ -5,6 +5,12 @@ import {
   resolveMermaidJamIntegration,
   type MermaidJamOpenTarget,
 } from "../integrations/mermaid-jam.js";
+import {
+  analyzeMarkdownForFigJam,
+  getMarkdownCorpusStatus,
+  setupMarkdownCorpus,
+  type MarkdownCorpusRepo,
+} from "../integrations/markdown-corpus.js";
 import { buildResearchDesignPackage, writeMermaidJamArtifacts } from "../research/design-package.js";
 import { FileSimulationStore, LocalSimulationAdapter, ModelSwarmSimulationAdapter } from "../simulation/index.js";
 import type { ResearchStore } from "../research/engine.js";
@@ -100,6 +106,86 @@ export function registerMermaidJamCommand(program: Command, engine: MemoireEngin
       console.log(ui.ok(`Opened ${result.opened}`));
       console.log();
     });
+
+  const corpus = mermaidJam
+    .command("corpus")
+    .description("Manage the local markdown-only corpus used by Mermaid Jam and FigJam sync");
+
+  corpus
+    .command("status")
+    .description("Show local markdown corpus size, freshness, and repository errors")
+    .option("--json", "Output as JSON")
+    .action(async (opts: { json?: boolean }) => {
+      await engine.init("minimal");
+      const payload = await getMarkdownCorpusStatus(engine.config.projectRoot);
+      if (opts.json) {
+        console.log(JSON.stringify(payload, null, 2));
+        return;
+      }
+
+      console.log();
+      console.log(ui.section("MARKDOWN CORPUS"));
+      console.log(ui.dots("Status", payload.status));
+      console.log(ui.dots("Repos", String(payload.repos.length)));
+      console.log(ui.dots("Files", String(payload.repos.reduce((sum, repo) => sum + repo.files, 0))));
+      console.log(ui.dots("Bytes", String(payload.repos.reduce((sum, repo) => sum + repo.bytes, 0))));
+      console.log();
+    });
+
+  corpus
+    .command("sync")
+    .description("Download and index the curated markdown corpus")
+    .option("--setup", "Download/index the corpus now")
+    .option("--json", "Output as JSON")
+    .option("--fixture-source <path>", "Test-only fixture source for deterministic corpus setup")
+    .action(async (opts: { setup?: boolean; json?: boolean; fixtureSource?: string }) => {
+      await engine.init("minimal");
+      const catalog = opts.fixtureSource ? fixtureCatalog(opts.fixtureSource) : undefined;
+      const payload = opts.setup
+        ? await setupMarkdownCorpus({ projectRoot: engine.config.projectRoot, catalog })
+        : await getMarkdownCorpusStatus(engine.config.projectRoot);
+      if (opts.json) {
+        console.log(JSON.stringify(payload, null, 2));
+        return;
+      }
+
+      console.log();
+      console.log(ui.section("MARKDOWN CORPUS"));
+      console.log(ui.dots("Status", payload.status));
+      for (const repo of payload.repos) {
+        console.log(`  ${ui.promptPrefix()} ${repo.repo}: ${repo.files} files / ${repo.skipped} skipped`);
+      }
+      console.log();
+    });
+
+  mermaidJam
+    .command("analyze")
+    .argument("<path>", "Markdown or MDX file to analyze for editable FigJam candidates")
+    .description("Analyze markdown and Mermaid source for FigJam-ready diagram candidates")
+    .option("--json", "Output as JSON")
+    .action(async (path: string, opts: { json?: boolean }) => {
+      await engine.init("minimal");
+      const report = await analyzeMarkdownForFigJam({ projectRoot: engine.config.projectRoot, sourcePath: path });
+      const payload = { status: report.status, candidates: report.candidates, summary: report.summary };
+      if (opts.json) {
+        console.log(JSON.stringify(payload, null, 2));
+        return;
+      }
+
+      console.log();
+      console.log(ui.section("MARKDOWN ANALYSIS"));
+      console.log(ui.dots("Candidates", String(payload.candidates.length)));
+      for (const candidate of payload.candidates) {
+        console.log(`  ${ui.promptPrefix()} ${candidate.kind}: ${candidate.title} (${candidate.confidence})`);
+      }
+      console.log();
+    });
+}
+
+function fixtureCatalog(source: string): MarkdownCorpusRepo[] {
+  return [
+    { owner: "fixture", repo: "docs", license: "MIT", branch: "main", policy: "download", localSource: source },
+  ];
 }
 
 function statusFor(integration: Awaited<ReturnType<typeof resolveMermaidJamIntegration>>): "ready" | "needs-build" | "available" {

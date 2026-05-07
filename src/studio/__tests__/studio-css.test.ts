@@ -128,6 +128,28 @@ describe("studio visual cleanup", () => {
     expect(app).not.toContain("const MODEL_LABEL");
   });
 
+  it("compresses the Studio topbar into a 30 percent icon-first strip", async () => {
+    const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
+    const topbarBlock = css.match(/\.console-topbar \{[\s\S]*?\n\}/)?.[0] ?? "";
+
+    expect(css).toContain("--topbar-compact-height: 20px");
+    expect(css).toContain(".console-topbar[data-topbar-density=\"thirty-percent\"]");
+    expect(topbarBlock).toContain("display: flex");
+    expect(topbarBlock).toContain("height: var(--topbar-compact-height)");
+    expect(topbarBlock).toContain("min-height: var(--topbar-compact-height)");
+    expect(topbarBlock).toContain("overflow: hidden");
+    expect(topbarBlock).not.toContain("grid-template-columns");
+    expect(css).toContain(".console-topbar .memoire-logo-mark");
+    expect(css).toContain("width: 12px");
+    expect(css).toContain("height: 12px");
+    expect(css).toContain(".harness-readiness-row[data-topbar-tags=\"left-compact\"]");
+    expect(css).toContain("flex-wrap: nowrap");
+    expect(css).toContain(".topbar-icon-button");
+    expect(css).toContain(".topbar-actions {");
+    expect(css).toContain("justify-content: flex-start");
+    expect(css).not.toContain(".memoire-wordmark");
+  });
+
   it("keeps project sidebar folder and session rows compactly aligned", async () => {
     const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
 

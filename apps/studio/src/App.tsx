@@ -2304,50 +2304,56 @@ export function App() {
       data-theme={themeMode}
     >
       <div className="harness-console-shell studio-frame" data-studio-workbench="memoire-project-memory">
-        <header className="console-topbar" data-top-status-bar="studio-status">
-          <div className="wordmark-row">
+        <header className="console-topbar" data-top-status-bar="studio-status" data-topbar-density="thirty-percent" data-icon-topbar="memoire-compact">
+          <div className="wordmark-row" aria-label="Mémoire">
             <MemoireLogoMark />
-            <span className="memoire-wordmark">Mémoire</span>
           </div>
-          <div className="harness-readiness-row" data-harness-readiness="compact" data-harness-readiness-contract="compact" aria-label="Runtime and harness status">
+          <div className="harness-readiness-row" data-harness-readiness="compact" data-harness-readiness-contract="compact" data-topbar-tags="left-compact" aria-label="Runtime and harness status">
             <span><i className="status-dot" /> Runtime {status?.status ?? "offline"}</span>
             <span>{currentHarness?.label ?? selectedHarness} · {harnessStatusCopy}</span>
             <span>Run {visibleSessionStatus}</span>
             <span title={lastFailure?.message ?? "Clean"}>{lastFailure ? "Failure" : "Clean"}</span>
           </div>
           <div className="topbar-actions">
-            <button data-action-id="command-palette.open" type="button" onClick={() => openCommandPalette()}>
-              Command
+            <button className="topbar-icon-button" aria-label="Command" title="Command" data-action-id="command-palette.open" type="button" onClick={() => openCommandPalette()}>
+              <StudioControlIcon name="command" />
             </button>
-            <button data-action-id="details.open" type="button" onClick={() => openDetailsDrawer("run")}>
-              Details
+            <button className="topbar-icon-button" aria-label="Details" title="Details" data-action-id="details.open" type="button" onClick={() => openDetailsDrawer("run")}>
+              <StudioControlIcon name="details" />
             </button>
             <div className="theme-toggle" data-theme-toggle aria-label="Theme">
               <button
+                aria-label="Light mode"
                 aria-pressed={themeMode === "light"}
                 className={themeMode === "light" ? "active" : ""}
                 data-action-id="theme.light"
+                title="Light mode"
                 type="button"
                 onClick={() => setThemeMode("light")}
               >
-                Light
+                <StudioControlIcon name="light" />
               </button>
               <button
+                aria-label="Dark mode"
                 aria-pressed={themeMode === "dark"}
                 className={themeMode === "dark" ? "active" : ""}
                 data-action-id="theme.dark"
+                title="Dark mode"
                 type="button"
                 onClick={() => setThemeMode("dark")}
               >
-                Dark
+                <StudioControlIcon name="dark" />
               </button>
             </div>
             <button
+              aria-label="Settings"
+              className="topbar-icon-button"
               data-action-id="settings.open"
+              title="Settings"
               type="button"
               onClick={() => openSettingsPanel()}
             >
-              Settings
+              <StudioControlIcon name="settings" />
             </button>
           </div>
         </header>

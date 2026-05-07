@@ -885,13 +885,18 @@ function StudioLineIcon({ children }: { children: ReactNode }) {
   );
 }
 
-export function StudioControlIcon({ name }: { name: "attach" | "mode" | "access" | "plan" | "harness" | "action" }) {
+export function StudioControlIcon({ name }: { name: "attach" | "mode" | "access" | "plan" | "harness" | "action" | "command" | "details" | "light" | "dark" | "settings" }) {
   const className = "control-icon";
   if (name === "attach") return <svg className={className} data-icon-pack="memoire-line" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" /></svg>;
   if (name === "mode") return <svg className={className} data-icon-pack="memoire-line" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M7 12h10M10 17h4" /></svg>;
   if (name === "access") return <svg className={className} data-icon-pack="memoire-line" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 11V8a5 5 0 0 1 10 0v3" /><rect x="5" y="11" width="14" height="9" rx="2" /></svg>;
   if (name === "plan") return <svg className={className} data-icon-pack="memoire-line" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 4h9l3 3v13H6V4Z" /><path d="M9 11h6M9 15h4" /></svg>;
   if (name === "harness") return <svg className={className} data-icon-pack="memoire-line" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4h8l2 4v7a6 6 0 0 1-12 0V8l2-4Z" /><path d="M9 12h6M10 16h4" /></svg>;
+  if (name === "command") return <svg className={className} data-icon-pack="memoire-line" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="5" width="16" height="14" rx="3" /><path d="m9 9 3 3-3 3M14 15h2" /></svg>;
+  if (name === "details") return <svg className={className} data-icon-pack="memoire-line" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8" /><path d="M12 11v5M12 8h.01" /></svg>;
+  if (name === "light") return <svg className={className} data-icon-pack="memoire-line" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" /><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" /></svg>;
+  if (name === "dark") return <svg className={className} data-icon-pack="memoire-line" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 15.5A7 7 0 0 1 8.5 6a7.5 7.5 0 1 0 9.5 9.5Z" /></svg>;
+  if (name === "settings") return <svg className={className} data-icon-pack="memoire-line" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3" /><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.4 1a8 8 0 0 0-1.7-1L14.5 3h-5l-.3 3a8 8 0 0 0-1.7 1L5.1 6l-2 3.5 2 1.5A7 7 0 0 0 5 12c0 .3 0 .7.1 1l-2 1.5 2 3.5 2.4-1a8 8 0 0 0 1.7 1l.3 3h5l.3-3a8 8 0 0 0 1.7-1l2.4 1 2-3.5-2-1.5c.1-.3.1-.7.1-1Z" /></svg>;
   return <svg className={className} data-icon-pack="memoire-line" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16" /><path d="m15 9 3 3-3 3" /></svg>;
 }
 
