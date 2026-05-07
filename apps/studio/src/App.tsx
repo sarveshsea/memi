@@ -1484,8 +1484,16 @@ export function App() {
     setUserPinnedToBottom((current) => current === pinned ? current : pinned);
   }
 
-  function scrollConversationToLatest(behavior: ScrollBehavior = "smooth") {
+  function scrollConversationToLatest(behavior: ScrollBehavior = "auto") {
     setUserPinnedToBottom(true);
+    const element = scrollRegionRef.current;
+    if (element) {
+      element.scrollTo({ top: element.scrollHeight, behavior });
+      window.requestAnimationFrame(() => {
+        element.scrollTop = element.scrollHeight;
+        setUserPinnedToBottom(true);
+      });
+    }
     bottomAnchorRef.current?.scrollIntoView({ block: "end", behavior });
   }
 
@@ -1966,23 +1974,24 @@ export function App() {
               </div>
             ) : null}
           </section>
-          <div className="agent-live-status" data-agent-thinking-state={agentThinkingState}>
-            <span className="status-dot" aria-hidden="true" />
-            <strong>{agentLiveLabel}</strong>
-            <small title={agentLiveSummary}>{trimText(agentLiveSummary, 88)}</small>
-            {!userPinnedToBottom ? (
-              <button
-                className="scroll-latest-button"
-                data-action-id="conversation.scroll-latest"
-                type="button"
-                onClick={() => scrollConversationToLatest()}
-              >
-                Latest
-              </button>
-            ) : null}
-          </div>
           <div aria-hidden="true" data-latest-anchor ref={bottomAnchorRef} />
         </section>
+
+        <div className="agent-live-status" data-agent-thinking-state={agentThinkingState}>
+          <span className="status-dot" aria-hidden="true" />
+          <strong>{agentLiveLabel}</strong>
+          <small title={agentLiveSummary}>{trimText(agentLiveSummary, 88)}</small>
+          {!userPinnedToBottom ? (
+            <button
+              className="scroll-latest-button"
+              data-action-id="conversation.scroll-latest"
+              type="button"
+              onClick={() => scrollConversationToLatest("auto")}
+            >
+              Latest
+            </button>
+          ) : null}
+        </div>
 
         <CommandBar data-command-editor="bottom-pinned">
           <div

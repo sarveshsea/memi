@@ -915,6 +915,7 @@ export function ChangedFilesPanel(props: {
   trace: StudioDesignSystemTrace | null;
   onReview: () => void;
 }) {
+  const [showFiles, setShowFiles] = useState(false);
   const files = props.trace?.files ?? [];
   const totalInsertions = props.trace?.insertions ?? 0;
   const totalDeletions = props.trace?.deletions ?? 0;
@@ -930,22 +931,24 @@ export function ChangedFilesPanel(props: {
         <span>+{totalInsertions}</span>
         <span>-{totalDeletions}</span>
       </div>
-      <details className="changed-file-disclosure">
+      <details className="changed-file-disclosure" open={showFiles} onToggle={(event) => setShowFiles(event.currentTarget.open)}>
         <summary>{files.length > 0 ? `Show ${previewFiles.length} changed files` : "No changed files"}</summary>
-        <div className="changed-file-list">
-          {previewFiles.map((file) => (
-            <details className="changed-file-row" data-file-kind={file.kind} key={file.path}>
-              <summary>
-                <span title={file.path}>{displaySourceLabel(file.path)}</span>
-                <small>+{file.insertions} -{file.deletions}</small>
-              </summary>
-              <p>{file.kind} / {file.status}{file.designSystem ? " / design-system" : ""}</p>
-              <button data-action-id={`changed-file.copy.${file.path}`} type="button" onClick={() => void copyText(file.path)}>Copy path</button>
-            </details>
-          ))}
-          {props.trace && files.length === 0 ? <p className="empty">Working tree clean.</p> : null}
-          {props.trace?.error ? <p className="error">{props.trace.error}</p> : null}
-        </div>
+        {showFiles ? (
+          <div className="changed-file-list">
+            {previewFiles.map((file) => (
+              <details className="changed-file-row" data-file-kind={file.kind} key={file.path}>
+                <summary>
+                  <span title={file.path}>{displaySourceLabel(file.path)}</span>
+                  <small>+{file.insertions} -{file.deletions}</small>
+                </summary>
+                <p>{file.kind} / {file.status}{file.designSystem ? " / design-system" : ""}</p>
+                <button data-action-id={`changed-file.copy.${file.path}`} type="button" onClick={() => void copyText(file.path)}>Copy path</button>
+              </details>
+            ))}
+            {props.trace && files.length === 0 ? <p className="empty">Working tree clean.</p> : null}
+            {props.trace?.error ? <p className="error">{props.trace.error}</p> : null}
+          </div>
+        ) : null}
       </details>
     </section>
   );
