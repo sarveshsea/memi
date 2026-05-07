@@ -16,7 +16,8 @@ describe("studio workbench E2E contract", () => {
       "composer",
       "activity",
       "artifact",
-      "details",
+      "cockpit",
+      "mermaid-board",
       "settings",
     ]));
     expect(plan.requiredAssertions).toEqual(expect.arrayContaining([

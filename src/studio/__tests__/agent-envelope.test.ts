@@ -141,4 +141,21 @@ describe("studio design agent envelope", () => {
     expect(envelope).toContain("research.design_package");
     expect(envelope).toContain("mermaid_jam.export");
   });
+
+  it("injects Mermaid Board context and board tool suggestions", () => {
+    const envelope = createDesignAgentEnvelope(context({
+      action: "compose",
+      mermaidBoard: {
+        latestBoardId: "studio-mermaid-board",
+        nodeCount: 4,
+        suggestedTools: ["board.create", "board.add_node", "board.layout", "board.export_mermaid_jam"],
+      },
+    }));
+
+    expect(envelope).toContain("Mermaid Board sandbox");
+    expect(envelope).toContain("studio-mermaid-board");
+    expect(envelope).toContain("Board nodes: 4");
+    expect(envelope).toContain("board.create");
+    expect(envelope).toContain("board.export_mermaid_jam");
+  });
 });

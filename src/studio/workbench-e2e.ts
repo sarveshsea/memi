@@ -25,12 +25,13 @@ export interface WorkbenchE2EPlan {
 }
 
 export const CORE_WORKBENCH_E2E_SURFACES: WorkbenchE2ESurface[] = [
-  { id: "topbar", label: "Topbar", requiredActionIds: ["command-palette.open", "details.open", "theme.light", "theme.dark", "settings.open"] },
+  { id: "topbar", label: "Topbar", requiredActionIds: ["command-palette.open", "theme.light", "theme.dark", "settings.open"] },
   { id: "sidebar", label: "Project/session sidebar", requiredActionIds: ["sidebar.collapse", "sidebar.new-chat", "plugins.open.sidebar", "figma.open.sidebar", "automations.open.sidebar"] },
   { id: "composer", label: "Message composer", requiredActionIds: ["attachment.add", "session.run", "session.cancel", "workspace.change"] },
   { id: "activity", label: "Agent activity and terminal trace", requiredActionIds: ["activity.copy-path.*", "activity.copy-command.*", "changed-files.review"] },
   { id: "artifact", label: "Design-system artifact canvas", requiredActionIds: ["artifact.use-system", "artifact.section.*", "right-pane.tab.*"] },
-  { id: "details", label: "Run details drawer", requiredActionIds: ["details.section.*", "block.copy.*", "block.context.*", "block.toggle.*"] },
+  { id: "cockpit", label: "Agent Cockpit right pane", requiredActionIds: ["right-pane.tab.*", "block.copy.*", "block.context.*", "block.toggle.*"] },
+  { id: "mermaid-board", label: "Mermaid Board sandbox", requiredActionIds: ["board.create", "board.add_node.*", "board.layout", "board.export_mermaid_jam"] },
   { id: "settings", label: "Settings and setup", requiredActionIds: ["settings.section.*", "settings.save", "runtime.refresh"] },
 ];
 

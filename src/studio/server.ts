@@ -71,6 +71,7 @@ import {
   validateCommunityNoteDir,
 } from "../notes/community.js";
 import { StudioDownloadStore } from "./downloads.js";
+import { listMermaidBoards } from "./mermaid-board.js";
 import { StudioToolBroker } from "./tool-broker.js";
 import { buildSessionReferenceTrace } from "./reference-trace.js";
 import { createStudioTraceSnapshot } from "./view-model.js";
@@ -1655,11 +1656,12 @@ export class StudioRuntimeServer {
     prompt: string;
     config: StudioConfig;
   }): Promise<StudioAgentContext> {
-    const [memory, knowledge, figmaStatus, researchDesign] = await Promise.all([
+    const [memory, knowledge, figmaStatus, researchDesign, boards] = await Promise.all([
       indexProjectMemory(this.projectRoot).catch(() => null),
       listKnowledgeStore(this.projectRoot).catch(() => null),
       this.figma.status().catch(() => null),
       this.buildResearchDesignAgentContext().catch(() => null),
+      listMermaidBoards(this.projectRoot).catch(() => []),
     ]);
     return {
       workspaceLabel: "Memoire workspace",
@@ -1702,6 +1704,11 @@ export class StudioRuntimeServer {
         metrics: [],
         latestSimulationRunId: null,
         suggestedTools: ["research.design_package", "research.generate_specs", "mermaid_jam.export"],
+      },
+      mermaidBoard: {
+        latestBoardId: boards[0]?.id ?? null,
+        nodeCount: boards[0]?.nodes.length ?? 0,
+        suggestedTools: ["board.create", "board.add_node", "board.update_node", "board.connect", "board.layout", "board.export_mermaid_jam"],
       },
     };
   }

@@ -348,6 +348,71 @@ export interface DesignChangelogCaptureResult {
   warnings: string[];
 }
 
+export type MermaidBoardNodeKind = "mermaid" | "sticky" | "evidence" | "persona" | "risk" | "metric" | "spec" | "comment";
+export type MermaidBoardAuthor = "human" | "agent";
+
+export interface MermaidBoardPosition {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface MermaidBoardNode {
+  id: string;
+  kind: MermaidBoardNodeKind;
+  title: string;
+  body: string;
+  mermaidSource?: string;
+  researchBacking: string[];
+  sourceEventIds: string[];
+  author: MermaidBoardAuthor;
+  position: MermaidBoardPosition;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MermaidBoardEdge {
+  id: string;
+  fromNodeId: string;
+  toNodeId: string;
+  label: string;
+  sourceEventIds: string[];
+  author: MermaidBoardAuthor;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MermaidBoardFrame {
+  id: string;
+  title: string;
+  nodeIds: string[];
+  position: MermaidBoardPosition;
+}
+
+export interface MermaidBoard {
+  schemaVersion: 1;
+  id: string;
+  title: string;
+  description: string;
+  nodes: MermaidBoardNode[];
+  edges: MermaidBoardEdge[];
+  frames: MermaidBoardFrame[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MermaidBoardExport {
+  id: string;
+  title: string;
+  format: "mermaid" | "markdown" | "json";
+  kind: "board-source" | "board-summary" | "board-json";
+  source: string;
+  outputPath: string;
+  integration: string;
+  nextSteps: string[];
+}
+
 export interface SessionSummary {
   id: string;
   harness: HarnessId;
@@ -405,7 +470,7 @@ export interface StudioEvent {
 export interface StudioToolDefinition {
   id: string;
   label: string;
-  category: "workspace" | "shell" | "git" | "browser" | "figma" | "mcp" | "knowledge" | "research" | "simulation";
+  category: "workspace" | "shell" | "git" | "browser" | "figma" | "mcp" | "knowledge" | "research" | "simulation" | "board";
   description: string;
   requiresApproval: boolean;
   enabled: boolean;
@@ -1270,6 +1335,14 @@ export async function callStudioTool(input: StudioToolCallRequest): Promise<Stud
     body: JSON.stringify(input),
   });
   return payload.call;
+}
+
+export async function openMermaidJamIntegration(target: "community" | "repository" | "local-manifest" = "community"): Promise<unknown> {
+  return fetchJSON("/api/integrations/mermaid-jam/open", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ target }),
+  });
 }
 
 export async function getBrowserStatus(): Promise<StudioBrowserStatus> {

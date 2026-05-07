@@ -479,7 +479,8 @@ export type StudioToolCategory =
   | "mcp"
   | "knowledge"
   | "research"
-  | "simulation";
+  | "simulation"
+  | "board";
 
 export interface StudioToolDefinition {
   id: string;
@@ -713,6 +714,11 @@ export interface StudioAgentContext {
     latestSimulationRunId: string | null;
     suggestedTools: string[];
   };
+  mermaidBoard?: {
+    latestBoardId: string | null;
+    nodeCount: number;
+    suggestedTools: string[];
+  };
 }
 
 export interface StudioRuntimeInfo {
@@ -795,6 +801,71 @@ export interface DesignChangelogCaptureRequest {
   events?: StudioEvent[];
   event?: StudioEvent;
   trace?: StudioDesignSystemTrace | null;
+}
+
+export type MermaidBoardNodeKind = "mermaid" | "sticky" | "evidence" | "persona" | "risk" | "metric" | "spec" | "comment";
+export type MermaidBoardAuthor = "human" | "agent";
+
+export interface MermaidBoardPosition {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface MermaidBoardNode {
+  id: string;
+  kind: MermaidBoardNodeKind;
+  title: string;
+  body: string;
+  mermaidSource?: string;
+  researchBacking: string[];
+  sourceEventIds: string[];
+  author: MermaidBoardAuthor;
+  position: MermaidBoardPosition;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MermaidBoardEdge {
+  id: string;
+  fromNodeId: string;
+  toNodeId: string;
+  label: string;
+  sourceEventIds: string[];
+  author: MermaidBoardAuthor;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MermaidBoardFrame {
+  id: string;
+  title: string;
+  nodeIds: string[];
+  position: MermaidBoardPosition;
+}
+
+export interface MermaidBoard {
+  schemaVersion: 1;
+  id: string;
+  title: string;
+  description: string;
+  nodes: MermaidBoardNode[];
+  edges: MermaidBoardEdge[];
+  frames: MermaidBoardFrame[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MermaidBoardExport {
+  id: string;
+  title: string;
+  format: "mermaid" | "markdown" | "json";
+  kind: "board-source" | "board-summary" | "board-json";
+  source: string;
+  outputPath: string;
+  integration: string;
+  nextSteps: string[];
 }
 
 export type StudioDesignSystemArtifactReviewState = "unreviewed" | "looks_good" | "needs_work";

@@ -31,10 +31,61 @@ describe("studio tool broker", () => {
         "mcp.list",
         "knowledge.search",
         "knowledge.capture",
+        "board.create",
+        "board.add_node",
+        "board.update_node",
+        "board.connect",
+        "board.layout",
+        "board.export_mermaid_jam",
       ]));
       expect(broker.listTools().find((tool) => tool.id === "workspace.write")).toMatchObject({
         category: "workspace",
         requiresApproval: true,
+      });
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("creates and exports Mermaid Board artifacts through Studio tools", async () => {
+    const root = await mkdtemp(join(tmpdir(), "memoire-board-tools-"));
+    try {
+      const broker = new StudioToolBroker({
+        projectRoot: root,
+        getConfig: async () => defaultStudioConfig(root),
+        browser: new StudioBrowserAdapter({ projectRoot: root }),
+      });
+
+      const create = await broker.call({
+        toolId: "board.create",
+        cwd: root,
+        input: { id: "tool-board" },
+      });
+      expect(create).toMatchObject({
+        status: "completed",
+        toolId: "board.create",
+        data: { board: expect.objectContaining({ id: "tool-board" }) },
+      });
+
+      const add = await broker.call({
+        toolId: "board.add_node",
+        cwd: root,
+        input: { boardId: "tool-board", kind: "mermaid", title: "Flow", mermaidSource: "flowchart TD\n  A --> B" },
+      });
+      expect(add.status).toBe("completed");
+
+      const exported = await broker.call({
+        toolId: "board.export_mermaid_jam",
+        cwd: root,
+        input: { boardId: "tool-board" },
+      });
+      expect(exported).toMatchObject({
+        status: "completed",
+        data: {
+          exports: expect.arrayContaining([
+            expect.objectContaining({ format: "mermaid", outputPath: expect.stringContaining(".memoire/mermaid-jam/tool-board") }),
+          ]),
+        },
       });
     } finally {
       await rm(root, { recursive: true, force: true });

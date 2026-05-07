@@ -22,12 +22,14 @@ describe("studio click manifest", () => {
     expect(manifest.length).toBeGreaterThan(40);
     expect(manifest.map((target) => target.id)).toEqual(expect.arrayContaining([
       "command-palette.open",
-      "details.open",
+      "right-pane.tab.run",
       "settings.open",
       "sidebar.new-chat",
       "session.run",
       "session.cancel",
       "changed-files.review",
+      "board.create",
+      "board.export_mermaid_jam",
       "activity.copy-path.*",
       "artifact.use-system",
       "figma.connect",

@@ -93,13 +93,17 @@ describe("studio visual cleanup", () => {
     expect(css).toContain(".console-layout");
     expect(css).toContain("grid-template-columns: var(--project-sidebar-width) minmax(0, 1fr)");
     expect(css).toContain('data-sidebar-collapsed="true"');
-    expect(css).toContain(".run-details-drawer");
-    expect(css).toContain(".details-drawer-tabs");
-    expect(css).toContain(".details-drawer-body");
-    expect(css).toContain(".details-section-stack");
+    expect(css).toContain(".artifact-canvas");
+    expect(css).toContain(".artifact-pane-tabs");
+    expect(css).toContain(".artifact-pane-body");
+    expect(css).toContain(".agent-cockpit-pane");
+    expect(css).toContain(".agent-pane-intent");
+    expect(css).toContain(".mermaid-board-surface");
+    expect(css).toContain(".mermaid-board-canvas");
+    expect(css).toContain(".mermaid-board-inspector");
     expect(css).toContain(".agentic-design-system");
     expect(css).toContain(".agentic-role-card");
-    expect(css).toContain(".run-details-drawer {");
+    expect(css).toContain(".agent-cockpit-pane {");
     expect(css).toContain("grid-template-rows: auto auto minmax(0, 1fr)");
     expect(css).toContain(".console-panel {");
     expect(css).toContain("grid-template-rows: auto auto auto auto minmax(0, 1fr) auto");
@@ -124,6 +128,8 @@ describe("studio visual cleanup", () => {
     expect(css).not.toContain(".secondary-surface-nav");
     expect(css).not.toContain(".artifact-tabs");
     expect(css).not.toContain(".phase-tracker");
+    expect(css).not.toContain(".run-details-drawer");
+    expect(css).not.toContain(".details-drawer-tabs");
     expect(app).not.toContain('value="Design Ops"');
     expect(app).not.toContain("const MODEL_LABEL");
   });
@@ -169,10 +175,11 @@ describe("studio visual cleanup", () => {
 
   it("keeps composer controls readable and wraps them inside the composer", async () => {
     const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
+    const composerControls = css.match(/\.composer-controls \{[\s\S]*?\n\}/)?.[0] ?? "";
 
     expect(css).toContain(".composer-controls {");
     expect(css).toContain("flex-wrap: wrap");
-    expect(css).not.toContain("overflow-x: auto");
+    expect(composerControls).not.toContain("overflow-x: auto");
     expect(css).toContain(".composer-select");
     expect(css).toContain(".composer-control-label");
     expect(css).toContain(".composer-control-text");
@@ -203,7 +210,7 @@ describe("studio visual cleanup", () => {
     expect(css).toContain(".chat-agent-lanes");
     expect(css).toContain(".tool-trace-summary");
     expect(css).toContain("grid-template-rows: auto auto auto auto minmax(0, 1fr) auto");
-    expect(css).toContain("max-height: 148px");
+    expect(css).toContain("max-height: 132px");
     expect(css).toContain("overflow-y: auto");
   });
 

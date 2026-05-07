@@ -66,6 +66,7 @@ export function createDesignAgentEnvelope(context: StudioAgentContext): string {
       .join("\n")
     : "- No repository knowledge items loaded yet.";
   const researchDesign = researchDesignLines(context);
+  const mermaidBoard = mermaidBoardLines(context);
 
   return [
     "# Mémoire Studio Agent Task",
@@ -117,6 +118,9 @@ export function createDesignAgentEnvelope(context: StudioAgentContext): string {
     "",
     "## Research-backed vibe design",
     ...researchDesign,
+    "",
+    "## Mermaid Board sandbox",
+    ...mermaidBoard,
     "",
     "## Design changelog capture",
     "- Studio auto-captures design-system and design-related work under `.memoire/project-memory/changelog`; never write these project memory notes to repo CHANGELOG.md.",
@@ -209,6 +213,11 @@ export function basicAgentContext(input: {
       latestSimulationRunId: null,
       suggestedTools: ["research.design_package", "research.generate_specs", "mermaid_jam.export"],
     },
+    mermaidBoard: {
+      latestBoardId: null,
+      nodeCount: 0,
+      suggestedTools: ["board.create", "board.add_node", "board.update_node", "board.connect", "board.layout", "board.export_mermaid_jam"],
+    },
   };
 }
 
@@ -231,6 +240,22 @@ function researchDesignLines(context: StudioAgentContext): string[] {
     `- Metrics: ${formatContextList(design.metrics, "none indexed")}`,
     `- Latest simulation run: ${design.latestSimulationRunId ?? "none"}`,
     `- Suggested tools: ${formatContextList(design.suggestedTools, "research.design_package, research.generate_specs, mermaid_jam.export")}`,
+  ];
+}
+
+function mermaidBoardLines(context: StudioAgentContext): string[] {
+  const board = context.mermaidBoard;
+  if (!board) {
+    return [
+      "- No Mermaid Board context was indexed for this run.",
+      "- Suggested tools: board.create, board.add_node, board.update_node, board.connect, board.layout, board.export_mermaid_jam",
+    ];
+  }
+  return [
+    `- Latest board: ${board.latestBoardId ?? "none"}`,
+    `- Board nodes: ${board.nodeCount}`,
+    `- Suggested tools: ${formatContextList(board.suggestedTools, "board.create, board.add_node, board.update_node, board.connect, board.layout, board.export_mermaid_jam")}`,
+    "- Use board tools to turn research, simulation, product specs, and Mermaid snippets into a traceable visual workspace.",
   ];
 }
 

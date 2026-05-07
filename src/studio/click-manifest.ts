@@ -5,7 +5,8 @@ export type StudioClickSurface =
   | "activity"
   | "changes"
   | "artifact"
-  | "details"
+  | "cockpit"
+  | "board"
   | "settings"
   | "figma"
   | "automations"
@@ -143,13 +144,14 @@ export function validateStudioClickManifest(manifest: StudioClickTarget[]): Stud
 }
 
 function surfaceForAction(actionId: string): StudioClickSurface {
-  if (/^(command-palette\.open|details\.open|theme\..+|settings\.open|runtime\.refresh)$/u.test(actionId)) return "topbar";
+  if (/^(command-palette\.open|theme\..+|settings\.open|runtime\.refresh)$/u.test(actionId)) return "topbar";
   if (/^(sidebar\.|project\.toggle|session\.switch|plugins\.open\.sidebar|figma\.open\.sidebar|automations\.open\.sidebar|changelog\.open\.sidebar|command-palette\.open\.sidebar)$/u.test(actionId)) return "sidebar";
   if (/^(session\.run|session\.cancel|codex\.|workspace\.change|attachment\.|input-mode\.|chat-mode\.|starter\.prompt|harness\.select|harness\.action|command-palette\.action)/u.test(actionId)) return "composer";
   if (/^(activity\.|changed-file\.copy)/u.test(actionId)) return "activity";
   if (/^changed-files\./u.test(actionId)) return "changes";
-  if (/^(artifact\.|source-ref\.|right-pane\.|design-trace\.)/u.test(actionId)) return "artifact";
-  if (/^(details\.|block\.|memory\.|context\.)/u.test(actionId)) return "details";
+  if (/^(artifact\.|source-ref\.|design-trace\.)/u.test(actionId)) return "artifact";
+  if (/^(right-pane\.|block\.|memory\.|context\.)/u.test(actionId)) return "cockpit";
+  if (/^board\./u.test(actionId)) return "board";
   if (/^settings\./u.test(actionId)) return "settings";
   if (/^figma\./u.test(actionId)) return "figma";
   if (/^automations\./u.test(actionId)) return "automations";
@@ -173,6 +175,8 @@ function expectedResultForAction(actionId: string, surface: StudioClickSurface):
   if (actionId.startsWith("figma.")) return "Runs a visible Figma bridge action or opens Figma setup.";
   if (actionId.startsWith("automations.run")) return "Starts an auditable automation run.";
   if (actionId.startsWith("artifact.")) return "Updates or opens the design-system artifact review surface.";
+  if (actionId.startsWith("board.")) return "Updates or exports the Studio Mermaid Board sandbox.";
+  if (actionId.startsWith("right-pane.")) return "Switches the Agent Cockpit pane.";
   if (actionId.startsWith("settings.")) return "Opens, updates, or copies Studio settings state.";
   if (actionId.startsWith("computer.")) return "Prepares an auditable macOS Computer action.";
   if (actionId.startsWith("command-palette")) return "Opens or executes a command-palette navigation action.";
@@ -180,7 +184,7 @@ function expectedResultForAction(actionId: string, surface: StudioClickSurface):
 }
 
 function mutatesForAction(actionId: string): boolean {
-  if (/^(theme\.|command-palette\.open|details\.open|settings\.open|sidebar\.collapse|project\.toggle|session\.switch|starter\.prompt|block\.|activity\.copy|source-ref\.copy|changed-file\.copy|knowledge\.filter|context\.filter|right-pane\.tab)/u.test(actionId)) {
+  if (/^(theme\.|command-palette\.open|settings\.open|sidebar\.collapse|project\.toggle|session\.switch|starter\.prompt|block\.|activity\.copy|source-ref\.copy|changed-file\.copy|knowledge\.filter|context\.filter|right-pane\.tab)/u.test(actionId)) {
     return false;
   }
   return /(run|cancel|new|save|connect|disconnect|install|uninstall|remove|delete|archive|restore|pause|create|finish|action|review|refresh|open|change|copy|capture|select|filter)/u.test(actionId);
@@ -194,7 +198,7 @@ function permissionForAction(actionId: string): StudioClickPermission {
   if (/^figma\./u.test(actionId)) return "figma";
   if (/^computer\./u.test(actionId)) return "computer";
   if (/^download\./u.test(actionId)) return "download";
-  if (/^(session\.run|workspace\.change|changed-files\.review)/u.test(actionId)) return "workspace";
+  if (/^(session\.run|workspace\.change|changed-files\.review|board\.)/u.test(actionId)) return "workspace";
   return "none";
 }
 

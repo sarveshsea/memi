@@ -51,6 +51,7 @@ import {
   listStudioTools,
   openComputerTarget,
   openFigma,
+  openMermaidJamIntegration,
   refreshKnowledgeIndex,
   refreshProjectMemory,
   removeMarketplaceNote,
@@ -78,6 +79,9 @@ import {
   type FigmaStatus,
   type Harness,
   type HarnessId,
+  type MermaidBoard,
+  type MermaidBoardExport,
+  type MermaidBoardNodeKind,
   type MarketplaceNotesPayload,
   type NoteForkDiff,
   type NoteForkFile,
@@ -106,6 +110,7 @@ import {
   type StudioPermissionMode,
   type StudioStatus,
   type StudioToolDefinition,
+  type StudioToolCallResult,
   type StudioTraceSnapshot,
   type StudioAttachment,
   type StudioAttachmentSource,
@@ -128,6 +133,7 @@ import {
   DesignChangelogPage,
   DesignSystemReviewSurface,
   FigmaDriver,
+  MermaidBoardSurface,
   MemoireLogoMark,
   ProjectSidebar,
   SettingsPanel,
@@ -180,9 +186,16 @@ const PERMISSION_MODES: Array<{ id: StudioPermissionMode; label: string }> = [
   { id: "full_access", label: "Full access" },
 ];
 
-type DetailsSection = "run" | "changes" | "figma" | "memory";
-type RightPaneTab = "design-system" | "mirofish-research" | "design-changelog";
+type RightPaneTab = "run" | "changes" | "design-system" | "mirofish-research" | "mermaid-board" | "design-changelog" | "figma" | "memory";
 type ScenarioLabNodeKind = "agent" | "finding" | "variable" | "outcome";
+
+interface PaneIntent {
+  tab: RightPaneTab;
+  reason: string;
+  confidence: number;
+  sourceEventId?: string;
+  highlightIds?: string[];
+}
 
 interface ScenarioModelProfile {
   id: string;
@@ -256,17 +269,15 @@ interface PositionedScenarioLabNode extends ScenarioLabNode {
   y: number;
 }
 
-const DETAILS_DRAWER_SECTIONS: Array<{ id: DetailsSection; label: string; description: string }> = [
-  { id: "run", label: "Run", description: "Harness / runtime" },
-  { id: "changes", label: "Changes", description: "Trace / diff" },
-  { id: "figma", label: "Figma", description: "Bridge" },
-  { id: "memory", label: "Memory", description: "Memory / refs" },
-];
-
 const RIGHT_PANE_TABS: Array<{ id: RightPaneTab; label: string }> = [
+  { id: "run", label: "Run" },
+  { id: "changes", label: "Changes" },
   { id: "design-system", label: "Design System" },
   { id: "mirofish-research", label: "Mirofish Research" },
+  { id: "mermaid-board", label: "Mermaid Board" },
   { id: "design-changelog", label: "Changelog" },
+  { id: "figma", label: "Figma" },
+  { id: "memory", label: "Memory" },
 ];
 
 const SCENARIO_TOOL_IDS = ["simulation.models", "simulation.run_matrix", "simulation.transcript", "research.design_package", "mermaid_jam.export"] as const;
@@ -288,7 +299,7 @@ interface StudioActionRegistryItem {
   id: string;
   label: string;
   kind: "local" | "runtime";
-  surface: "topbar" | "command" | "details" | "context" | "figma" | "settings" | "computer" | "changelog";
+  surface: "topbar" | "command" | "cockpit" | "context" | "figma" | "settings" | "computer" | "changelog" | "board";
 }
 
 const STUDIO_ACTION_REGISTRY: StudioActionRegistryItem[] = [
@@ -296,14 +307,13 @@ const STUDIO_ACTION_REGISTRY: StudioActionRegistryItem[] = [
   { id: "theme.dark", label: "Dark", kind: "local", surface: "topbar" },
   { id: "settings.open", label: "Settings", kind: "local", surface: "settings" },
   { id: "command-palette.open", label: "Palette", kind: "local", surface: "command" },
-  { id: "details.open", label: "Details", kind: "local", surface: "details" },
   { id: "input-mode.agent", label: "Agent", kind: "local", surface: "command" },
   { id: "input-mode.terminal", label: "Terminal", kind: "local", surface: "command" },
   { id: "input-mode.auto", label: "Auto", kind: "local", surface: "command" },
   { id: "conversation.scroll-latest", label: "Latest", kind: "local", surface: "command" },
   { id: "session.run", label: "Run", kind: "runtime", surface: "command" },
   { id: "session.cancel", label: "Stop", kind: "runtime", surface: "command" },
-  { id: "session.open", label: "Open", kind: "runtime", surface: "details" },
+  { id: "session.open", label: "Open", kind: "runtime", surface: "cockpit" },
   { id: "runtime.refresh", label: "Refresh", kind: "runtime", surface: "topbar" },
   { id: "memory.refresh", label: "Memory", kind: "runtime", surface: "context" },
   { id: "context.open", label: "Context", kind: "runtime", surface: "context" },
@@ -312,9 +322,17 @@ const STUDIO_ACTION_REGISTRY: StudioActionRegistryItem[] = [
   { id: "changelog.open.sidebar", label: "Changelog", kind: "local", surface: "changelog" },
   { id: "design-changelog.new", label: "New", kind: "runtime", surface: "changelog" },
   { id: "design-changelog.export", label: "Export", kind: "runtime", surface: "changelog" },
-  { id: "right-pane.tab.design-system", label: "System", kind: "local", surface: "details" },
-  { id: "right-pane.tab.mirofish-research", label: "Research", kind: "local", surface: "details" },
+  { id: "right-pane.tab.run", label: "Run", kind: "local", surface: "cockpit" },
+  { id: "right-pane.tab.changes", label: "Changes", kind: "local", surface: "cockpit" },
+  { id: "right-pane.tab.design-system", label: "System", kind: "local", surface: "cockpit" },
+  { id: "right-pane.tab.mirofish-research", label: "Research", kind: "local", surface: "cockpit" },
+  { id: "right-pane.tab.mermaid-board", label: "Board", kind: "local", surface: "board" },
   { id: "right-pane.tab.design-changelog", label: "Changelog", kind: "local", surface: "changelog" },
+  { id: "right-pane.tab.figma", label: "Figma", kind: "local", surface: "figma" },
+  { id: "right-pane.tab.memory", label: "Memory", kind: "local", surface: "context" },
+  { id: "board.create", label: "Board", kind: "runtime", surface: "board" },
+  { id: "board.add_node", label: "Node", kind: "runtime", surface: "board" },
+  { id: "board.export_mermaid_jam", label: "Export", kind: "runtime", surface: "board" },
   { id: "figma.connect", label: "Start", kind: "runtime", surface: "figma" },
   { id: "figma.disconnect", label: "Stop", kind: "runtime", surface: "figma" },
   { id: "figma.open", label: "Open Figma", kind: "runtime", surface: "figma" },
@@ -339,8 +357,6 @@ export function App() {
   const [permissionMode, setPermissionMode] = useState<StudioPermissionMode>("guarded");
   const [themeMode, setThemeMode] = useState<"light" | "dark">("dark");
   const [inputMode, setInputMode] = useState<StudioInputMode>("agent");
-  const [detailsOpen, setDetailsOpen] = useState(false);
-  const [detailsSection, setDetailsSection] = useState<DetailsSection>("run");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsSection, setSettingsSection] = useState("Setup");
   const [automationsOpen, setAutomationsOpen] = useState(false);
@@ -396,6 +412,11 @@ export function App() {
   const [scenarioFigJamExports, setScenarioFigJamExports] = useState<ScenarioFigJamExport[]>([]);
   const [scenarioRunning, setScenarioRunning] = useState(false);
   const [rightPaneTab, setRightPaneTab] = useState<RightPaneTab>("design-system");
+  const [paneIntent, setPaneIntent] = useState<PaneIntent | null>(null);
+  const [mermaidBoard, setMermaidBoard] = useState<MermaidBoard | null>(null);
+  const [mermaidBoardExports, setMermaidBoardExports] = useState<MermaidBoardExport[]>([]);
+  const [mermaidBoardLoading, setMermaidBoardLoading] = useState(false);
+  const [mermaidBoardError, setMermaidBoardError] = useState<string | null>(null);
   const [knowledgeQuery, setKnowledgeQuery] = useState("");
   const [knowledgeFilter, setKnowledgeFilter] = useState("all");
   const [figmaStatus, setFigmaStatus] = useState<FigmaStatus | null>(null);
@@ -555,8 +576,21 @@ export function App() {
     setExpandedProjectIds((current) => current.includes(activeSidebarProjectId) ? current : [activeSidebarProjectId, ...current]);
   }, [activeSidebarProjectId]);
   useEffect(() => {
-    setRightPaneTab(effectiveAction === "simulate" ? "mirofish-research" : "design-system");
+    const intent = paneIntentForAction(effectiveAction);
+    if (!intent) return;
+    setPaneIntent(intent);
+    setRightPaneTab(intent.tab);
   }, [effectiveAction]);
+  useEffect(() => {
+    const intent = paneIntentForEvents(events, effectiveAction, lastFailure);
+    if (!intent || intent.confidence < 0.75) return;
+    setPaneIntent(intent);
+    setRightPaneTab(intent.tab);
+  }, [effectiveAction, events, lastFailure]);
+  useEffect(() => {
+    if (rightPaneTab !== "mermaid-board" || !status?.projectRoot || mermaidBoard || mermaidBoardLoading) return;
+    void handleCreateMermaidBoard();
+  }, [mermaidBoard, mermaidBoardLoading, rightPaneTab, status?.projectRoot]);
   const contextItems = useMemo(
     () => filterContextItems(memoryItems, contextQuery, contextFilter).slice(0, 8),
     [contextFilter, contextQuery, memoryItems],
@@ -1092,9 +1126,9 @@ export function App() {
     }
   }
 
-  function openDetailsDrawer(section: DetailsSection = "run") {
-    setDetailsSection(section);
-    setDetailsOpen(true);
+  function chooseRightPane(tab: RightPaneTab, reason = "User selected pane") {
+    setRightPaneTab(tab);
+    setPaneIntent({ tab, reason, confidence: 1 });
   }
 
   function openPluginsSurface() {
@@ -1103,7 +1137,7 @@ export function App() {
   }
 
   function openFigmaSurface() {
-    openDetailsDrawer("figma");
+    chooseRightPane("figma", "Figma bridge opened");
     void getFigmaStatus().then(setFigmaStatus).catch(() => undefined);
   }
 
@@ -1113,7 +1147,7 @@ export function App() {
   }
 
   function openChangelogSurface() {
-    setRightPaneTab("design-changelog");
+    chooseRightPane("design-changelog", "Design memory opened");
     void refreshDesignChangelog();
   }
 
@@ -1678,6 +1712,116 @@ export function App() {
     }
   }
 
+  async function handleCreateMermaidBoard() {
+    if (!status?.projectRoot) return;
+    setMermaidBoardLoading(true);
+    setMermaidBoardError(null);
+    try {
+      const call = await callStudioTool({
+        toolId: "board.create",
+        cwd: status.projectRoot,
+        input: {
+          id: mermaidBoard?.id ?? "studio-mermaid-board",
+          title: "Studio Mermaid Board",
+          description: "FigJam-style product board with Mermaid nodes, evidence cards, and agent updates.",
+        },
+      });
+      assertToolCallCompleted(call);
+      const board = (call.data as { board?: MermaidBoard } | undefined)?.board;
+      if (!board) throw new Error("Board create did not return a board.");
+      setMermaidBoard(board);
+      chooseRightPane("mermaid-board", "Mermaid Board ready");
+      setError(null);
+    } catch (nextError) {
+      const message = nextError instanceof Error ? nextError.message : String(nextError);
+      setMermaidBoardError(message);
+      setError(message);
+    } finally {
+      setMermaidBoardLoading(false);
+    }
+  }
+
+  async function handleAddMermaidBoardNode(kind: MermaidBoardNodeKind) {
+    if (!status?.projectRoot) return;
+    setMermaidBoardLoading(true);
+    setMermaidBoardError(null);
+    try {
+      const nodeDefaults = mermaidBoardNodeDefaults(kind, mermaidBoard?.nodes.length ?? 0, prompt, latestRun?.prompt);
+      const call = await callStudioTool({
+        toolId: "board.add_node",
+        cwd: status.projectRoot,
+        input: {
+          boardId: mermaidBoard?.id ?? "studio-mermaid-board",
+          ...nodeDefaults,
+        },
+      });
+      assertToolCallCompleted(call);
+      const board = (call.data as { board?: MermaidBoard } | undefined)?.board;
+      if (!board) throw new Error("Board add node did not return a board.");
+      setMermaidBoard(board);
+      chooseRightPane("mermaid-board", `${nodeDefaults.title} added`);
+      setError(null);
+    } catch (nextError) {
+      const message = nextError instanceof Error ? nextError.message : String(nextError);
+      setMermaidBoardError(message);
+      setError(message);
+    } finally {
+      setMermaidBoardLoading(false);
+    }
+  }
+
+  async function handleLayoutMermaidBoard() {
+    if (!status?.projectRoot) return;
+    setMermaidBoardLoading(true);
+    setMermaidBoardError(null);
+    try {
+      const call = await callStudioTool({
+        toolId: "board.layout",
+        cwd: status.projectRoot,
+        input: { boardId: mermaidBoard?.id ?? "studio-mermaid-board" },
+      });
+      assertToolCallCompleted(call);
+      const board = (call.data as { board?: MermaidBoard } | undefined)?.board;
+      if (!board) throw new Error("Board layout did not return a board.");
+      setMermaidBoard(board);
+      chooseRightPane("mermaid-board", "Agent arranged Mermaid Board");
+      setError(null);
+    } catch (nextError) {
+      const message = nextError instanceof Error ? nextError.message : String(nextError);
+      setMermaidBoardError(message);
+      setError(message);
+    } finally {
+      setMermaidBoardLoading(false);
+    }
+  }
+
+  async function handleExportMermaidBoard() {
+    if (!status?.projectRoot) return;
+    setMermaidBoardLoading(true);
+    setMermaidBoardError(null);
+    try {
+      const call = await callStudioTool({
+        toolId: "board.export_mermaid_jam",
+        cwd: status.projectRoot,
+        input: { boardId: mermaidBoard?.id ?? "studio-mermaid-board" },
+      });
+      assertToolCallCompleted(call);
+      const payload = call.data as { board?: MermaidBoard; exports?: MermaidBoardExport[] } | undefined;
+      if (payload?.board) setMermaidBoard(payload.board);
+      setMermaidBoardExports(payload?.exports ?? []);
+      const source = payload?.exports?.[0]?.integration;
+      await openMermaidJamIntegration(source === "local-manifest" ? "local-manifest" : "community").catch(() => undefined);
+      chooseRightPane("mermaid-board", "Exported Mermaid Jam source");
+      setError(null);
+    } catch (nextError) {
+      const message = nextError instanceof Error ? nextError.message : String(nextError);
+      setMermaidBoardError(message);
+      setError(message);
+    } finally {
+      setMermaidBoardLoading(false);
+    }
+  }
+
   function renderScenarioLab() {
     const latestMatrixRun = scenarioMatrix?.runs?.[0]?.run;
     const winnerRunId = scenarioMatrix?.comparison?.winnerRunId ?? latestMatrixRun?.id ?? null;
@@ -1887,12 +2031,15 @@ export function App() {
       >
         <header className="panel-head">
           <div>
-            <p className="eyebrow">Harness</p>
-            <h2>{latestRun ? trimText(latestRun.prompt, 72) : "Console"}</h2>
+            <h2>{latestRun ? trimText(latestRun.prompt, 72) : "Run"}</h2>
           </div>
           <div className="inline-actions">
-            <button data-action-id="details.open" type="button" onClick={() => openDetailsDrawer("run")}>Details</button>
-            <button data-action-id="memory.refresh" type="button" onClick={refresh}>Refresh</button>
+            <button aria-label="Run pane" className="icon-button" data-action-id="right-pane.tab.run" title="Run" type="button" onClick={() => chooseRightPane("run", "Run pane opened")}>
+              <StudioControlIcon name="details" />
+            </button>
+            <button aria-label="Refresh" className="icon-button" data-action-id="memory.refresh" title="Refresh" type="button" onClick={refresh}>
+              <StudioControlIcon name="refresh" />
+            </button>
           </div>
         </header>
 
@@ -1908,7 +2055,7 @@ export function App() {
             kind="access"
             icon="access"
             label="Access"
-            value={permissionModePowerLabel(permissionMode)}
+            value={compactPermissionModePowerLabel(permissionMode)}
             title={permissionModePowerDetail(permissionMode)}
           />
           <HarnessChip
@@ -1916,7 +2063,7 @@ export function App() {
             icon="plan"
             label="Reasoning"
             value={codexReasoningLabel(settingsDraft?.codex?.reasoningEffort ?? "xhigh")}
-            title="Codex model_reasoning_effort"
+            title={`Codex reasoning: ${codexReasoningDetail(settingsDraft?.codex?.reasoningEffort ?? "xhigh")}`}
           />
           <HarnessChip
             kind="action"
@@ -1928,11 +2075,11 @@ export function App() {
             kind="status"
             icon="mode"
             label="Status"
-            value={visibleSessionStatus}
+            value={compactSessionStatusLabel(visibleSessionStatus)}
           />
         </section>
 
-        <ChangedFilesPanel trace={designTrace} onReview={() => openDetailsDrawer("changes")} />
+        <ChangedFilesPanel trace={designTrace} onReview={() => chooseRightPane("changes", "Changed files review")} />
 
         <ChatQualityLayer
           session={session}
@@ -1983,10 +2130,14 @@ export function App() {
                   </div>
                   <div className="blockActions">
                     {block.timestamp ? <time dateTime={block.timestamp}>{formatTime(block.timestamp)}</time> : null}
-                    <button data-action-id={`block.copy.${block.id}`} type="button" onClick={() => void copyText(block.messages.join(""))}>Copy</button>
-                    <button data-action-id={`block.context.${block.id}`} type="button" onClick={() => attachBlock(block)}>Context</button>
-                    <button data-action-id={`block.toggle.${block.id}`} type="button" onClick={() => toggleBlock(block.id)}>
-                      {collapsedBlockIds.has(block.id) ? "Expand" : "Collapse"}
+                    <button aria-label={`Copy ${block.title}`} data-action-id={`block.copy.${block.id}`} title="Copy" type="button" onClick={() => void copyText(block.messages.join(""))}>
+                      <StudioControlIcon name="copy" />
+                    </button>
+                    <button aria-label={`Use ${block.title} as context`} data-action-id={`block.context.${block.id}`} title="Context" type="button" onClick={() => attachBlock(block)}>
+                      <StudioControlIcon name="context" />
+                    </button>
+                    <button aria-label={collapsedBlockIds.has(block.id) ? `Expand ${block.title}` : `Collapse ${block.title}`} data-action-id={`block.toggle.${block.id}`} title={collapsedBlockIds.has(block.id) ? "Expand" : "Collapse"} type="button" onClick={() => toggleBlock(block.id)}>
+                      <StudioControlIcon name={collapsedBlockIds.has(block.id) ? "expand" : "collapse"} />
                     </button>
                   </div>
                 </header>
@@ -2127,7 +2278,7 @@ export function App() {
             <button data-action-id="workspace.change" type="button" onClick={() => void changeWorkspace()}>
               Change
             </button>
-            <button className="review-chip" data-action-id="design-trace.review" type="button" onClick={() => openDetailsDrawer("changes")}>
+            <button className="review-chip" data-action-id="design-trace.review" type="button" onClick={() => chooseRightPane("changes", "Changed files review")}>
               {designTrace?.reviewLabel ?? "Review"}
             </button>
           </div>
@@ -2136,162 +2287,190 @@ export function App() {
     );
   }
 
-  function renderDetailsDrawer() {
-    if (!detailsOpen) return null;
-    const activeDetailsSection = DETAILS_DRAWER_SECTIONS.find((section) => section.id === detailsSection) ?? DETAILS_DRAWER_SECTIONS[0];
+  function renderRunCockpitPane() {
     return (
-      <div className="drawer-backdrop" data-run-details-backdrop>
-        <aside className="run-details-drawer" data-run-details-drawer="hidden-power-surfaces" data-details-drawer-layout="sectioned" aria-label="Run details">
-          <header className="drawer-head">
-            <div>
-              <p className="eyebrow">Details</p>
-              <h2>{activeDetailsSection.label}</h2>
-            </div>
-            <button data-action-id="details.close" type="button" onClick={() => setDetailsOpen(false)}>Close</button>
-          </header>
+      <section className="agent-cockpit-pane" data-agent-cockpit="run" data-pane-intent-surface="run">
+        <section className="harness-detail-grid" data-harness-readiness="cockpit">
+          <article>
+            <span>Harness</span>
+            <strong>{currentHarness?.label ?? selectedHarness}</strong>
+            <small>{currentHarness?.installed ? currentHarness.authStatus : "missing"}</small>
+          </article>
+          <article>
+            <span>Runtime</span>
+            <strong>{status?.status ?? "offline"}</strong>
+            <small>{status?.projectRoot ?? "offline"}</small>
+          </article>
+          <article>
+            <span>Active run</span>
+            <strong>{visibleSessionStatus}</strong>
+            <small>{session?.id ?? "none"}</small>
+          </article>
+          <article>
+            <span>Last failure</span>
+            <strong>{lastFailure ? formatEventName(lastFailure.type) : "clean"}</strong>
+            <small>{lastFailure ? trimText(lastFailure.message, 80) : "clean"}</small>
+          </article>
+        </section>
 
-          <nav className="details-drawer-tabs" data-details-section-nav aria-label="Details sections">
-            {DETAILS_DRAWER_SECTIONS.map((section) => (
-              <button
-                aria-pressed={detailsSection === section.id}
-                className={detailsSection === section.id ? "active" : ""}
-                data-action-id={`details.section.${section.id}`}
-                key={section.id}
-                title={section.description}
-                type="button"
-                onClick={() => setDetailsSection(section.id)}
-              >
-                {section.label}
+        <section className="cockpit-card" data-recent-runs>
+          <div className="drawer-section-head">
+            <span>Recent sessions</span>
+            <small>{visibleRecentSessions.length}</small>
+          </div>
+          <div className="recent-session-list">
+            {visibleRecentSessions.slice(0, 6).map((recent) => (
+              <button data-action-id={`session.open.${recent.id}`} key={recent.id} type="button" onClick={() => void openSessionSummary(recent)}>
+                <span>{trimText(recent.prompt, 48)}</span>
+                <small>{recent.harness} / {recent.status}</small>
               </button>
             ))}
-          </nav>
-
-          <div className="details-drawer-body" data-details-active-section={detailsSection}>
-            {detailsSection === "run" ? (
-              <section className="details-section-stack" data-details-section="run">
-                <section className="harness-detail-grid" data-harness-readiness="details">
-                  <article>
-                    <span>Harness</span>
-                    <strong>{currentHarness?.label ?? selectedHarness}</strong>
-                    <small>{currentHarness?.installed ? currentHarness.authStatus : "missing"}</small>
-                  </article>
-                  <article>
-                    <span>Runtime</span>
-                    <strong>{status?.status ?? "offline"}</strong>
-                    <small>{status?.projectRoot ?? "offline"}</small>
-                  </article>
-                  <article>
-                    <span>Active run</span>
-                    <strong>{visibleSessionStatus}</strong>
-                    <small>{session?.id ?? "none"}</small>
-                  </article>
-                  <article>
-                    <span>Last failure</span>
-                    <strong>{lastFailure ? formatEventName(lastFailure.type) : "clean"}</strong>
-                    <small>{lastFailure ? trimText(lastFailure.message, 80) : "clean"}</small>
-                  </article>
-                </section>
-
-                <section className="recent-runs-drawer" data-recent-runs>
-                  <div className="drawer-section-head">
-                    <span>Recent sessions</span>
-                    <small>{visibleRecentSessions.length}</small>
-                  </div>
-                  <div className="recent-session-list">
-                    {visibleRecentSessions.slice(0, 6).map((recent) => (
-                      <button data-action-id={`session.open.${recent.id}`} key={recent.id} type="button" onClick={() => void openSessionSummary(recent)}>
-                        <span>{trimText(recent.prompt, 48)}</span>
-                        <small>{recent.harness} / {recent.status}</small>
-                      </button>
-                    ))}
-                    {visibleRecentSessions.length === 0 ? <span className="empty">No sessions</span> : null}
-                  </div>
-                </section>
-                <ActivityTimeline
-                  activities={traceModel.activities}
-                  activeProcesses={traceModel.activeProcesses}
-                  onCopyPath={(path) => void copyText(path)}
-                />
-              </section>
-            ) : null}
-
-            {detailsSection === "changes" ? (
-              <section className="details-section-stack" data-details-section="changes">
-                <section className="design-system-trace-panel" data-design-system-trace="backend-review">
-                  <div className="drawer-section-head">
-                    <span>Design system trace</span>
-                    <button data-action-id="design-trace.refresh" type="button" onClick={refresh}>Refresh</button>
-                  </div>
-                  <div className="change-summary">
-                    <strong>{designTrace?.reviewLabel ?? "No trace"}</strong>
-                    <small>{designTrace?.status ?? "checking"}</small>
-                  </div>
-                  <div className="trace-file-list">
-                    {(designTrace?.designSystemFiles.length ? designTrace.designSystemFiles : designTrace?.files ?? []).slice(0, 8).map((file) => (
-                      <article key={file.path}>
-                        <span>{file.path}</span>
-                        <small>{file.kind} · {file.status} · +{file.insertions} -{file.deletions}</small>
-                      </article>
-                    ))}
-                    {designTrace && designTrace.files.length === 0 ? <span className="empty">Clean</span> : null}
-                    {designTrace?.error ? <span className="error">{designTrace.error}</span> : null}
-                  </div>
-                </section>
-              </section>
-            ) : null}
-
-            {detailsSection === "figma" ? (
-              <section className="details-section-stack" data-details-section="figma">
-                <FigmaDriver
-                  figmaStatus={figmaStatus}
-                  figmaActionResult={figmaActionResult}
-                  figmaConnecting={figmaConnecting}
-                  figmaActionRunning={figmaActionRunning}
-                  figmaError={figmaError}
-                  settingsDraft={settingsDraft}
-                  onConnect={handleFigmaConnect}
-                  onDisconnect={handleFigmaDisconnect}
-                  onOpen={handleFigmaOpen}
-                  onAction={handleFigmaAction}
-                  onPatchSettings={patchSettings}
-                  onSaveSettings={saveSettings}
-                  settingsSavedAt={settingsSavedAt}
-                />
-              </section>
-            ) : null}
-
-            {detailsSection === "memory" ? (
-              <section className="details-section-stack" data-details-section="memory">
-                <ContextRail
-                  contextItemDetail={contextItemDetail}
-                  contextFilter={contextFilter}
-                  contextItems={contextItems}
-                  contextQuery={contextQuery}
-                  events={events}
-                  knowledgeFilter={knowledgeFilter}
-                  knowledgeItemDetail={knowledgeItemDetail}
-                  knowledgeItems={visibleKnowledgeItems}
-                  knowledgeQuery={knowledgeQuery}
-                  memoryItems={memoryItems}
-                  selectedContextItem={selectedContextItem}
-                  selectedKnowledgeItem={selectedKnowledgeItem}
-                  session={session}
-                  traceModel={traceModel}
-                  onFilterChange={setContextFilter}
-                  onKnowledgeFilterChange={setKnowledgeFilter}
-                  onKnowledgeQueryChange={setKnowledgeQuery}
-                  onOpenKnowledgeItem={openKnowledgeItem}
-                  onOpenItem={openContextItem}
-                  onQueryChange={setContextQuery}
-                  onRefreshKnowledge={refreshKnowledge}
-                  onRefreshMemory={refreshMemory}
-                />
-              </section>
-            ) : null}
+            {visibleRecentSessions.length === 0 ? <span className="empty">No sessions</span> : null}
           </div>
-        </aside>
-      </div>
+        </section>
+
+        <section className="cockpit-card" data-agent-cockpit-card="activity-trace">
+          <div className="drawer-section-head">
+            <span>Activity trace</span>
+            <button data-action-id="runtime.refresh" type="button" onClick={refresh}>Refresh</button>
+          </div>
+          <ActivityTimeline
+            activities={traceModel.activities}
+            activeProcesses={traceModel.activeProcesses}
+            onCopyPath={(path) => void copyText(path)}
+          />
+        </section>
+      </section>
     );
+  }
+
+  function renderChangesCockpitPane() {
+    return (
+      <section className="agent-cockpit-pane" data-agent-cockpit="changes" data-pane-intent-surface="changes">
+        <section className="design-system-trace-panel cockpit-card" data-design-system-trace="backend-review">
+          <div className="drawer-section-head">
+            <span>Design system trace</span>
+            <button data-action-id="design-trace.refresh" type="button" onClick={refresh}>Refresh</button>
+          </div>
+          <div className="change-summary">
+            <strong>{designTrace?.reviewLabel ?? "No trace"}</strong>
+            <small>{designTrace?.status ?? "checking"}</small>
+          </div>
+          <div className="trace-file-list">
+            {(designTrace?.designSystemFiles.length ? designTrace.designSystemFiles : designTrace?.files ?? []).slice(0, 12).map((file) => (
+              <article key={file.path}>
+                <span>{file.path}</span>
+                <small>{file.kind} · {file.status} · +{file.insertions} -{file.deletions}</small>
+              </article>
+            ))}
+            {designTrace && designTrace.files.length === 0 ? <span className="empty">Clean</span> : null}
+            {designTrace?.error ? <span className="error">{designTrace.error}</span> : null}
+          </div>
+        </section>
+      </section>
+    );
+  }
+
+  function renderFigmaCockpitPane() {
+    return (
+      <section className="agent-cockpit-pane" data-agent-cockpit="figma" data-pane-intent-surface="figma">
+        <FigmaDriver
+          figmaStatus={figmaStatus}
+          figmaActionResult={figmaActionResult}
+          figmaConnecting={figmaConnecting}
+          figmaActionRunning={figmaActionRunning}
+          figmaError={figmaError}
+          settingsDraft={settingsDraft}
+          onConnect={handleFigmaConnect}
+          onDisconnect={handleFigmaDisconnect}
+          onOpen={handleFigmaOpen}
+          onAction={handleFigmaAction}
+          onPatchSettings={patchSettings}
+          onSaveSettings={saveSettings}
+          settingsSavedAt={settingsSavedAt}
+        />
+      </section>
+    );
+  }
+
+  function renderMemoryCockpitPane() {
+    return (
+      <section className="agent-cockpit-pane" data-agent-cockpit="memory" data-pane-intent-surface="memory">
+        <ContextRail
+          contextItemDetail={contextItemDetail}
+          contextFilter={contextFilter}
+          contextItems={contextItems}
+          contextQuery={contextQuery}
+          events={events}
+          knowledgeFilter={knowledgeFilter}
+          knowledgeItemDetail={knowledgeItemDetail}
+          knowledgeItems={visibleKnowledgeItems}
+          knowledgeQuery={knowledgeQuery}
+          memoryItems={memoryItems}
+          selectedContextItem={selectedContextItem}
+          selectedKnowledgeItem={selectedKnowledgeItem}
+          session={session}
+          traceModel={traceModel}
+          onFilterChange={setContextFilter}
+          onKnowledgeFilterChange={setKnowledgeFilter}
+          onKnowledgeQueryChange={setKnowledgeQuery}
+          onOpenKnowledgeItem={openKnowledgeItem}
+          onOpenItem={openContextItem}
+          onQueryChange={setContextQuery}
+          onRefreshKnowledge={refreshKnowledge}
+          onRefreshMemory={refreshMemory}
+        />
+      </section>
+    );
+  }
+
+  function renderMermaidBoardPane() {
+    return (
+      <MermaidBoardSurface
+        board={mermaidBoard}
+        exports={mermaidBoardExports}
+        loading={mermaidBoardLoading}
+        error={mermaidBoardError}
+        onCreate={handleCreateMermaidBoard}
+        onAddNode={handleAddMermaidBoardNode}
+        onLayout={handleLayoutMermaidBoard}
+        onExport={handleExportMermaidBoard}
+      />
+    );
+  }
+
+  function renderRightPaneBody() {
+    if (rightPaneTab === "run") return renderRunCockpitPane();
+    if (rightPaneTab === "changes") return renderChangesCockpitPane();
+    if (rightPaneTab === "design-system") {
+      return (
+        <DesignSystemReviewSurface
+          artifact={activeDesignArtifact}
+          figmaStatus={figmaStatus}
+          onReviewSection={reviewArtifactSection}
+          onUseSystem={useDesignSystemArtifact}
+        />
+      );
+    }
+    if (rightPaneTab === "mirofish-research") return renderScenarioLab();
+    if (rightPaneTab === "mermaid-board") return renderMermaidBoardPane();
+    if (rightPaneTab === "design-changelog") {
+      return (
+        <DesignChangelogPage
+          entries={designChangelogEntries}
+          loading={designChangelogLoading}
+          error={designChangelogError}
+          onRefresh={refreshDesignChangelog}
+          onCreate={handleCreateDesignChangelogEntry}
+          onUpdate={handleUpdateDesignChangelogEntry}
+          onArchive={handleArchiveDesignChangelogEntry}
+          onRestore={handleRestoreDesignChangelogEntry}
+          onExport={handleExportDesignChangelog}
+        />
+      );
+    }
+    if (rightPaneTab === "figma") return renderFigmaCockpitPane();
+    return renderMemoryCockpitPane();
   }
 
   return (
@@ -2317,9 +2496,6 @@ export function App() {
           <div className="topbar-actions">
             <button className="topbar-icon-button" aria-label="Command" title="Command" data-action-id="command-palette.open" type="button" onClick={() => openCommandPalette()}>
               <StudioControlIcon name="command" />
-            </button>
-            <button className="topbar-icon-button" aria-label="Details" title="Details" data-action-id="details.open" type="button" onClick={() => openDetailsDrawer("run")}>
-              <StudioControlIcon name="details" />
             </button>
             <div className="theme-toggle" data-theme-toggle aria-label="Theme">
               <button
@@ -2407,15 +2583,15 @@ export function App() {
                   tabIndex={0}
                   title="Resize"
                 />
-                <section className="artifact-canvas" data-artifact-canvas={rightPaneTab}>
-                  <div className="artifact-pane-tabs" data-right-pane-tabs="design-system-research-changelog" role="tablist" aria-label="Right pane">
+                <section className="artifact-canvas" data-artifact-canvas={rightPaneTab} data-agent-cockpit-shell="right-pane">
+                  <div className="artifact-pane-tabs" data-right-pane-tabs="agent-cockpit-mermaid-board" role="tablist" aria-label="Agent Cockpit">
                     {RIGHT_PANE_TABS.map((tab) => (
                       <button
                         aria-selected={rightPaneTab === tab.id}
                         className={rightPaneTab === tab.id ? "active" : ""}
                         data-action-id={`right-pane.tab.${tab.id}`}
                         key={tab.id}
-                        onClick={() => setRightPaneTab(tab.id)}
+                        onClick={() => chooseRightPane(tab.id)}
                         role="tab"
                         type="button"
                       >
@@ -2423,29 +2599,15 @@ export function App() {
                       </button>
                     ))}
                   </div>
+                  {paneIntent ? (
+                    <div className="agent-pane-intent" data-agent-pane-intent="suggested-switch">
+                      <span>Agent Cockpit</span>
+                      <strong>{RIGHT_PANE_TABS.find((tab) => tab.id === paneIntent.tab)?.label ?? paneIntent.tab}</strong>
+                      <small>{paneIntent.reason} · {Math.round(paneIntent.confidence * 100)}%</small>
+                    </div>
+                  ) : null}
                   <section className="artifact-pane-body" data-artifact-pane-body={rightPaneTab}>
-                    {rightPaneTab === "design-system" ? (
-                      <DesignSystemReviewSurface
-                        artifact={activeDesignArtifact}
-                        figmaStatus={figmaStatus}
-                        onReviewSection={reviewArtifactSection}
-                        onUseSystem={useDesignSystemArtifact}
-                      />
-                    ) : null}
-                    {rightPaneTab === "mirofish-research" ? renderScenarioLab() : null}
-                    {rightPaneTab === "design-changelog" ? (
-                      <DesignChangelogPage
-                        entries={designChangelogEntries}
-                        loading={designChangelogLoading}
-                        error={designChangelogError}
-                        onRefresh={refreshDesignChangelog}
-                        onCreate={handleCreateDesignChangelogEntry}
-                        onUpdate={handleUpdateDesignChangelogEntry}
-                        onArchive={handleArchiveDesignChangelogEntry}
-                        onRestore={handleRestoreDesignChangelogEntry}
-                        onExport={handleExportDesignChangelog}
-                      />
-                    ) : null}
+                    {renderRightPaneBody()}
                   </section>
                 </section>
               </section>
@@ -2453,7 +2615,6 @@ export function App() {
           </section>
         </section>
       </div>
-      {renderDetailsDrawer()}
       <CommandPalette
         open={commandPaletteOpen}
         query={commandPaletteQuery}
@@ -2493,12 +2654,12 @@ export function App() {
         }}
         onOpenSession={(nextSession) => {
           setCommandPaletteOpen(false);
-          openDetailsDrawer("run");
+          chooseRightPane("run", "Session opened");
           void openSessionSummary(nextSession);
         }}
         onOpenKnowledgeItem={(item) => {
           setCommandPaletteOpen(false);
-          openDetailsDrawer("memory");
+          chooseRightPane("memory", "Knowledge item opened");
           void openKnowledgeItem(item);
         }}
       />
@@ -2570,6 +2731,84 @@ export function App() {
       />
     </main>
   );
+}
+
+function paneIntentForAction(action: StudioAction): PaneIntent | null {
+  if (action === "simulate") {
+    return { tab: "mirofish-research", reason: "Simulation action selected", confidence: 0.9 };
+  }
+  if (action === "research") {
+    return { tab: "mirofish-research", reason: "Research action selected", confidence: 0.84 };
+  }
+  if (action === "self-design" || action === "design-doc") {
+    return { tab: "design-system", reason: "Design action selected", confidence: 0.82 };
+  }
+  if (action === "audit" || action === "fix" || action === "app-build" || action === "browser-audit") {
+    return { tab: "run", reason: "Run trace is most relevant", confidence: 0.78 };
+  }
+  return null;
+}
+
+function paneIntentForEvents(events: StudioEvent[], action: StudioAction, lastFailure: StudioEvent | null): PaneIntent | null {
+  if (lastFailure) {
+    return {
+      tab: "run",
+      reason: "Run needs attention",
+      confidence: 0.95,
+      sourceEventId: lastFailure.id,
+    };
+  }
+
+  const event = events.at(-1);
+  if (!event) return paneIntentForAction(action);
+  const type = event.type.toLowerCase();
+  if (type.startsWith("board_") || type.startsWith("board.") || type.includes("mermaid")) {
+    return { tab: "mermaid-board", reason: "Board update received", confidence: 0.9, sourceEventId: event.id };
+  }
+  if (type.startsWith("simulation_") || type.includes("simulation")) {
+    return { tab: "mirofish-research", reason: "Simulation event received", confidence: 0.88, sourceEventId: event.id };
+  }
+  if (type.startsWith("research_") || type.includes("research")) {
+    return { tab: "mirofish-research", reason: "Research event received", confidence: 0.82, sourceEventId: event.id };
+  }
+  if (type.startsWith("figma_") || type.includes("figma")) {
+    return { tab: "figma", reason: "Figma bridge event received", confidence: 0.86, sourceEventId: event.id };
+  }
+  if (type.includes("design_system") || type.includes("design_artifact") || type === "artifact") {
+    return { tab: "design-system", reason: "Design artifact received", confidence: 0.84, sourceEventId: event.id };
+  }
+  if (type.includes("git") || type.includes("file") || type.includes("diff")) {
+    return { tab: "changes", reason: "Changed files updated", confidence: 0.8, sourceEventId: event.id };
+  }
+  return null;
+}
+
+function assertToolCallCompleted(call: StudioToolCallResult): void {
+  if (call.status !== "completed") {
+    throw new Error(call.error ?? `${call.toolId} failed`);
+  }
+}
+
+function mermaidBoardNodeDefaults(kind: MermaidBoardNodeKind, index: number, prompt: string, latestPrompt?: string | null): Record<string, unknown> {
+  const position = { x: 96 + (index % 3) * 300, y: 120 + Math.floor(index / 3) * 220, width: kind === "mermaid" ? 360 : 280, height: kind === "mermaid" ? 220 : 170 };
+  const context = trimText((prompt || latestPrompt || "Current product work").trim(), 160);
+  if (kind === "mermaid") {
+    return {
+      kind,
+      title: "Mermaid flow",
+      body: "Agent-authored Mermaid source for Mermaid Jam.",
+      mermaidSource: "flowchart TD\n  Evidence[Research evidence] --> Decision[Product decision]\n  Decision --> Spec[Atomic spec]\n  Spec --> Board[Mermaid Jam source]",
+      author: "agent",
+      position,
+    };
+  }
+  if (kind === "evidence") {
+    return { kind, title: "Evidence card", body: context, author: "agent", researchBacking: [], position };
+  }
+  if (kind === "comment") {
+    return { kind, title: "Comment", body: context, author: "agent", position };
+  }
+  return { kind, title: kind === "sticky" ? "Sticky note" : `${kind.charAt(0).toUpperCase()}${kind.slice(1)} node`, body: context, author: "agent", position };
 }
 
 function macOSSettingsUrl(permission: string): string {
@@ -2669,17 +2908,36 @@ function HarnessChip(props: {
   title?: string;
 }) {
   return (
-    <span className="harness-chip" data-harness-chip={props.kind} title={props.title ?? `${props.label}: ${props.value}`}>
+    <span className="harness-chip" data-harness-chip={props.kind} aria-label={`${props.label}: ${props.value}`} title={props.title ?? `${props.label}: ${props.value}`}>
       <StudioControlIcon name={props.icon} />
-      <small>{props.label}</small>
       <strong>{props.value}</strong>
     </span>
   );
 }
 
 function codexReasoningLabel(reasoning: StudioCodexReasoningEffort): string {
+  if (reasoning === "xhigh") return "X-High";
+  return reasoning.charAt(0).toUpperCase() + reasoning.slice(1);
+}
+
+function codexReasoningDetail(reasoning: StudioCodexReasoningEffort): string {
   if (reasoning === "xhigh") return "Extra High";
   return reasoning.charAt(0).toUpperCase() + reasoning.slice(1);
+}
+
+function compactPermissionModePowerLabel(mode: StudioPermissionMode): string {
+  if (mode === "plan") return "Read";
+  if (mode === "full_access") return "Full";
+  return "Write";
+}
+
+function compactSessionStatusLabel(status: string): string {
+  if (status === "completed") return "Done";
+  if (status === "running") return "Run";
+  if (status === "cancelled") return "Stop";
+  if (status === "failed") return "Failed";
+  if (status === "idle") return "Idle";
+  return status;
 }
 
 function readFileAsText(file: File): Promise<string> {

@@ -61,6 +61,14 @@ describe("studio harness console UI", () => {
     expect(app).toContain('kind="action"');
     expect(app).toContain('kind="status"');
     expect(app).toContain("<StudioControlIcon name={props.icon}");
+    expect(app).toContain("compactPermissionModePowerLabel(permissionMode)");
+    expect(app).toContain("compactSessionStatusLabel(visibleSessionStatus)");
+    expect(app).toContain('aria-label="Run pane"');
+    expect(app).not.toContain('data-action-id="details.open"');
+    expect(app).toContain('aria-label="Refresh"');
+    expect(app).toContain('<StudioControlIcon name="refresh" />');
+    expect(app).not.toContain('<p className="eyebrow">Harness</p>');
+    expect(app).not.toContain('<small>{props.label}</small>');
     expect(app).toContain('data-harness-readiness-contract="compact"');
     expect(app).toContain('data-composer-agent-state="codex-workbench"');
     expect(app).toContain("ProjectSidebar");
@@ -130,6 +138,11 @@ describe("studio harness console UI", () => {
     expect(ui).toContain('data-action-id="chat.branch-current"');
     expect(ui).toContain('data-action-id="chat.pin-memory"');
     expect(ui).toContain('data-action-id="chat.copy-verification"');
+    expect(ui).toContain('placeholder="Find"');
+    expect(ui).toContain("compactStatusLabel(props.sessionStatus)");
+    expect(ui).toContain('<StudioControlIcon name="search" />');
+    expect(ui).toContain('<StudioControlIcon name="pin" />');
+    expect(ui).not.toContain("No pinned decisions");
     expect(components).toContain("export function ChatQualityLayer");
     expect(components).toContain("export function filterTerminalBlocksByQuery");
     expect(components).toContain("deriveChatFollowUps");
@@ -149,18 +162,16 @@ describe("studio harness console UI", () => {
     expect(header).not.toContain(">Mémoire<");
     expect(header).toContain('data-topbar-tags="left-compact"');
     expect(header).toContain('<StudioControlIcon name="command" />');
-    expect(header).toContain('<StudioControlIcon name="details" />');
     expect(header).toContain('<StudioControlIcon name="light" />');
     expect(header).toContain('<StudioControlIcon name="dark" />');
     expect(header).toContain('<StudioControlIcon name="settings" />');
     expect(header).toContain('aria-label="Command"');
-    expect(header).toContain('aria-label="Details"');
     expect(header).toContain('aria-label="Light mode"');
     expect(header).toContain('aria-label="Dark mode"');
     expect(header).toContain('aria-label="Settings"');
     expect(header).toContain('title="Settings"');
     expect(header).toContain('data-action-id="settings.open"');
-    expect(components).toContain('name: "attach" | "mode" | "access" | "plan" | "harness" | "action" | "command" | "details" | "light" | "dark" | "settings"');
+    expect(components).toContain('"refresh" | "search" | "pin" | "branch" | "copy" | "context" | "collapse" | "expand"');
   });
 
   it("groups sessions in a collapsible project sidebar with settings pinned at the bottom", async () => {
@@ -205,7 +216,7 @@ describe("studio harness console UI", () => {
     expect(app).toContain("onOpenFigma={openFigmaSurface}");
     expect(app).toContain("onOpenAutomations={openAutomationsSurface}");
     expect(app).toContain("onOpenChangelog={openChangelogSurface}");
-    expect(app).toContain('openDetailsDrawer("figma")');
+    expect(app).toContain('chooseRightPane("figma"');
     expect(app).toContain("const [automationsOpen, setAutomationsOpen]");
     expect(app).toContain("listAutomations");
     expect(app).toContain("getAutomationTemplates");
@@ -319,26 +330,29 @@ describe("studio harness console UI", () => {
     expect(css).not.toContain(".phase-tracker");
   });
 
-  it("keeps Figma, memory, knowledge, reference trace, trace, and logs available in a hidden details drawer", async () => {
+  it("keeps Figma, memory, knowledge, reference trace, trace, and logs available in the agent cockpit", async () => {
     const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
     const components = await readFile(join(process.cwd(), "apps", "studio", "src", "workbench-components.tsx"), "utf-8");
     const ui = `${app}\n${components}`;
 
-    expect(app).toContain('data-run-details-drawer="hidden-power-surfaces"');
-    expect(app).toContain('data-details-drawer-layout="sectioned"');
-    expect(app).toContain('data-details-section-nav');
-    expect(app).toContain('data-details-active-section={detailsSection}');
-    expect(app).toContain("DETAILS_DRAWER_SECTIONS");
+    expect(app).toContain('data-agent-cockpit-shell="right-pane"');
+    expect(app).toContain('data-agent-cockpit="run"');
+    expect(app).toContain('data-agent-cockpit="changes"');
+    expect(app).toContain('data-agent-cockpit="figma"');
+    expect(app).toContain('data-agent-cockpit="memory"');
+    expect(app).toContain('data-agent-pane-intent="suggested-switch"');
+    expect(app).toContain('data-right-pane-tabs="agent-cockpit-mermaid-board"');
     expect(app).toContain('id: "run", label: "Run"');
     expect(app).toContain('id: "changes", label: "Changes"');
+    expect(app).toContain('id: "mermaid-board", label: "Mermaid Board"');
     expect(app).toContain('id: "figma", label: "Figma"');
     expect(app).toContain('id: "memory", label: "Memory"');
-    expect(app).toContain('data-action-id={`details.section.${section.id}`}');
-    expect(app).toContain('detailsSection === "run"');
-    expect(app).toContain('detailsSection === "changes"');
-    expect(app).toContain('detailsSection === "figma"');
-    expect(app).toContain('detailsSection === "memory"');
-    expect(app).toContain('data-action-id="details.open"');
+    expect(app).toContain('data-action-id={`right-pane.tab.${tab.id}`}');
+    expect(app).toContain('rightPaneTab === "run"');
+    expect(app).toContain('rightPaneTab === "changes"');
+    expect(app).toContain('rightPaneTab === "mermaid-board"');
+    expect(app).toContain('rightPaneTab === "figma"');
+    expect(app).not.toContain('data-action-id="details.open"');
     expect(app).toContain('data-recent-runs');
     expect(app).toContain("FigmaDriver");
     expect(app).toContain("ContextRail");
@@ -356,6 +370,11 @@ describe("studio harness console UI", () => {
     expect(app).toContain('data-design-system-trace="backend-review"');
     expect(app).toContain('data-action-id="design-trace.review"');
     expect(app).toContain('data-action-id="design-trace.refresh"');
+    expect(ui).toContain('data-mermaid-board="studio-sandbox"');
+    expect(ui).toContain('data-mermaid-board-canvas="tldraw-mermaid"');
+    expect(ui).toContain('data-mermaid-board-export="source-open"');
+    expect(ui).toContain('data-action-id="board.create"');
+    expect(ui).toContain('data-action-id="board.export_mermaid_jam"');
     expect(ui).toContain('data-agentic-design-system="role-contract"');
     expect(ui).toContain('data-agentic-role-card');
     expect(ui).toContain('data-agentic-pattern-source');
@@ -582,16 +601,18 @@ describe("studio harness console UI", () => {
 
     expect(app).toContain('data-agent-workbench="design-system"');
     expect(app).toContain('data-agent-chat-rail="model-reasoning"');
-    expect(app).toContain('data-right-pane-tabs="design-system-research-changelog"');
+    expect(app).toContain('data-right-pane-tabs="agent-cockpit-mermaid-board"');
     expect(app).toContain('role="tablist"');
     expect(app).toContain('data-action-id={`right-pane.tab.${tab.id}`}');
     expect(app).toContain("RIGHT_PANE_TABS");
     expect(app).toContain('id: "design-system", label: "Design System"');
     expect(app).toContain('id: "mirofish-research", label: "Mirofish Research"');
+    expect(app).toContain('id: "mermaid-board", label: "Mermaid Board"');
     expect(app).toContain('id: "design-changelog", label: "Changelog"');
     expect(app).toContain('data-artifact-canvas={rightPaneTab}');
     expect(app).toContain('rightPaneTab === "design-system"');
     expect(app).toContain('rightPaneTab === "mirofish-research"');
+    expect(app).toContain('rightPaneTab === "mermaid-board"');
     expect(app).toContain('rightPaneTab === "design-changelog"');
     expect(app).toContain("DesignSystemReviewSurface");
     expect(app).toContain("renderScenarioLab()");
@@ -647,7 +668,7 @@ describe("studio harness console UI", () => {
     expect(app).toContain("archiveDesignChangelogEntry");
     expect(app).toContain("restoreDesignChangelogEntry");
     expect(app).toContain("exportDesignChangelogMarkdown");
-    expect(app).toContain('setRightPaneTab("design-changelog")');
+    expect(app).toContain('chooseRightPane("design-changelog"');
     expect(app).toContain('rightPaneTab === "design-changelog"');
     expect(app).toContain('data-artifact-canvas={rightPaneTab}');
     expect(app).not.toContain('mainSurface === "changelog"');

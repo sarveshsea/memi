@@ -77,11 +77,11 @@ function scopedRanges(source: string, file: string): Array<[number, number]> {
   const isApp = file.endsWith("App.tsx");
   const markers = isApp ? [
     ["const STARTER_PROMPTS", "const ACTIONS"],
-    ["const DETAILS_DRAWER_SECTIONS", "const RIGHT_PANE_TABS"],
+    ["const RIGHT_PANE_TABS", "const SCENARIO_TOOL_IDS"],
     ["const STUDIO_ACTION_REGISTRY", "export function App"],
     ["function renderScenarioLab()", "function renderConsolePanel()"],
-    ["function renderConsolePanel()", "function renderDetailsDrawer()"],
-    ["function renderDetailsDrawer()", "return ("],
+    ["function renderConsolePanel()", "function renderRunCockpitPane()"],
+    ["function renderRunCockpitPane()", "  return (\n    <main"],
     ["data-agent-workbench=\"resizable-conversation-artifacts\"", "<CommandPalette"],
   ] : [
     ["export function ContextRail", "export function TraceTaskRow"],

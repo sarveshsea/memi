@@ -21,6 +21,7 @@ describe("studio autonomous lab routes", () => {
 
       const tools = await fetch(`${runtime.url}/api/tools`).then((res) => res.json());
       expect(tools.tools.map((tool: { id: string }) => tool.id)).toContain("workspace.read");
+      expect(tools.tools.map((tool: { id: string }) => tool.id)).toContain("board.create");
 
       const result = await fetch(`${runtime.url}/api/tools/call`, {
         method: "POST",
@@ -36,6 +37,18 @@ describe("studio autonomous lab routes", () => {
 
       const stored = await fetch(`${runtime.url}/api/tools/calls/${result.call.id}`).then((res) => res.json());
       expect(stored.call.id).toBe(result.call.id);
+
+      const boardResult = await fetch(`${runtime.url}/api/tools/call`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ toolId: "board.create", cwd: root, input: { id: "server-board" } }),
+      }).then((res) => res.json());
+
+      expect(boardResult.call).toMatchObject({
+        status: "completed",
+        toolId: "board.create",
+        data: { board: expect.objectContaining({ id: "server-board" }) },
+      });
     } finally {
       await rm(root, { recursive: true, force: true });
     }

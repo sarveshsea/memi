@@ -6,6 +6,14 @@ import { randomUUID } from "node:crypto";
 import type { StudioBrowserAdapter } from "./browser-adapter.js";
 import { getHarnessManifest } from "./harnesses.js";
 import { captureKnowledgeEvent, getKnowledgeItem, listKnowledgeStore } from "./knowledge-store.js";
+import {
+  addMermaidBoardNode,
+  connectMermaidBoardNodes,
+  createMermaidBoard,
+  exportMermaidBoardForJam,
+  layoutMermaidBoard,
+  updateMermaidBoardNode,
+} from "./mermaid-board.js";
 import { Registry } from "../engine/registry.js";
 import { resolveMermaidJamIntegration } from "../integrations/mermaid-jam.js";
 import {
@@ -97,6 +105,12 @@ export class StudioToolBroker {
       tool("simulation.interview", "Simulation interview", "simulation", "Interview a simulated stakeholder agent from a run.", false),
       tool("simulation.report", "Simulation report", "simulation", "Export a simulation report with recommendations and evidence.", false),
       tool("simulation.export_spec", "Simulation spec", "simulation", "Export a product spec impact report from a simulation run.", false),
+      tool("board.create", "Board create", "board", "Create or load a Studio Mermaid Board sandbox.", false),
+      tool("board.add_node", "Board node", "board", "Add a Mermaid Board node with evidence or Mermaid source.", false),
+      tool("board.update_node", "Board update", "board", "Update a Mermaid Board node.", false),
+      tool("board.connect", "Board connect", "board", "Connect two Mermaid Board nodes.", false),
+      tool("board.layout", "Board layout", "board", "Apply a deterministic layout to Mermaid Board nodes.", false),
+      tool("board.export_mermaid_jam", "Board export", "board", "Write Mermaid Board source artifacts for Mermaid Jam.", false),
     ];
   }
 
@@ -214,6 +228,18 @@ export class StudioToolBroker {
         return this.reportSimulation(input);
       case "simulation.export_spec":
         return this.exportSimulationSpec(input);
+      case "board.create":
+        return this.createBoard(cwd, input);
+      case "board.add_node":
+        return this.addBoardNode(cwd, input);
+      case "board.update_node":
+        return this.updateBoardNode(cwd, input);
+      case "board.connect":
+        return this.connectBoard(cwd, input);
+      case "board.layout":
+        return this.layoutBoard(cwd, input);
+      case "board.export_mermaid_jam":
+        return this.exportBoard(cwd, input);
       default:
         throw new Error(`Unhandled Studio tool: ${request.toolId}`);
     }
@@ -328,6 +354,30 @@ export class StudioToolBroker {
     const integration = await resolveMermaidJamIntegration({ projectRoot: this.projectRoot });
     const exports = await writeMermaidJamArtifacts(designPackage, { projectRoot: this.projectRoot, integration });
     return { package: designPackage, exports, integration };
+  }
+
+  private async createBoard(cwd: string, input: Record<string, unknown>): Promise<unknown> {
+    return { board: await createMermaidBoard(cwd, input) };
+  }
+
+  private async addBoardNode(cwd: string, input: Record<string, unknown>): Promise<unknown> {
+    return { board: await addMermaidBoardNode(cwd, input) };
+  }
+
+  private async updateBoardNode(cwd: string, input: Record<string, unknown>): Promise<unknown> {
+    return { board: await updateMermaidBoardNode(cwd, input) };
+  }
+
+  private async connectBoard(cwd: string, input: Record<string, unknown>): Promise<unknown> {
+    return { board: await connectMermaidBoardNodes(cwd, input) };
+  }
+
+  private async layoutBoard(cwd: string, input: Record<string, unknown>): Promise<unknown> {
+    return { board: await layoutMermaidBoard(cwd, input) };
+  }
+
+  private async exportBoard(cwd: string, input: Record<string, unknown>): Promise<unknown> {
+    return exportMermaidBoardForJam(cwd, input);
   }
 
   private async buildResearchDesignPackageFromInput(input: Record<string, unknown>) {
@@ -551,6 +601,12 @@ const MEMOIRE_MCP_TOOL_NAMES = [
   "simulation.interview",
   "simulation.report",
   "simulation.export_spec",
+  "board.create",
+  "board.add_node",
+  "board.update_node",
+  "board.connect",
+  "board.layout",
+  "board.export_mermaid_jam",
 ];
 
 function tool(id: string, label: string, category: StudioToolDefinition["category"], description: string, requiresApproval: boolean): StudioToolDefinition {

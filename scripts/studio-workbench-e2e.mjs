@@ -158,10 +158,18 @@ async function runBrowserWorkbenchAudit() {
         };
       });
       const scrollAudit = await auditConversationScroll(page);
-      summary.browser.push({ viewport: viewport.name, ...audit, scrollAudit });
+      const readabilityAudit = await auditWorkbenchReadability(page);
+      summary.browser.push({ viewport: viewport.name, ...audit, scrollAudit, readabilityAudit });
       if (audit.buttonMissingActionId.length > 0) summary.failures.push(`${viewport.name}: enabled buttons without data-action-id: ${audit.buttonMissingActionId.join(", ")}`);
       if (audit.textOverflow.length > 0) summary.failures.push(`${viewport.name}: controls with clipped text: ${audit.textOverflow.join(", ")}`);
       if (audit.overlaps.length > 0) summary.failures.push(`${viewport.name}: overlapping controls: ${audit.overlaps.join("; ")}`);
+      if (readabilityAudit.visibleHarnessChrome) summary.failures.push(`${viewport.name}: visible HARNESS chrome still present`);
+      if (readabilityAudit.emptyChangedDisclosure) summary.failures.push(`${viewport.name}: empty changed-file disclosure is visible`);
+      if (!readabilityAudit.compactStatusRail) summary.failures.push(`${viewport.name}: compact status rail missing`);
+      if (!readabilityAudit.statusRailSingleLine) summary.failures.push(`${viewport.name}: status rail wraps vertically`);
+      if (!readabilityAudit.blockActionsIconOnly) summary.failures.push(`${viewport.name}: block actions are not icon-only`);
+      if (!readabilityAudit.searchIsCompact) summary.failures.push(`${viewport.name}: compact search row missing`);
+      if (!readabilityAudit.pinsAreCompact) summary.failures.push(`${viewport.name}: empty pins copy is visible`);
       if (!scrollAudit.hasRegion) summary.failures.push(`${viewport.name}: missing conversation scroll region`);
       if (!scrollAudit.hasAnchor) summary.failures.push(`${viewport.name}: missing latest anchor`);
       if (scrollAudit.scrollable && scrollAudit.pausedState !== "paused") summary.failures.push(`${viewport.name}: manual scroll did not pause auto-scroll`);
@@ -189,6 +197,32 @@ async function runBrowserWorkbenchAudit() {
   } finally {
     await browser.close();
   }
+}
+
+async function auditWorkbenchReadability(page) {
+  return page.evaluate(() => {
+    const panel = document.querySelector(".console-panel");
+    const panelHead = document.querySelector(".panel-head");
+    const runInfo = document.querySelector(".console-run-info");
+    const chips = [...document.querySelectorAll(".console-run-info [data-harness-chip]")];
+    const chipRects = chips.map((chip) => chip.getBoundingClientRect());
+    const railText = runInfo?.textContent?.trim() ?? "";
+    const changedText = document.querySelector('[data-changed-files-panel="inline-review"]')?.textContent ?? "";
+    const blockButtons = [...document.querySelectorAll(".blockActions button")];
+    const search = document.querySelector('[data-chat-search="conversation"] input');
+    const pinsText = document.querySelector('[data-memory-pins="session"]')?.textContent ?? "";
+    const railLabels = ["Harness", "Access", "Reasoning", "Action", "Status"];
+    return {
+      visibleHarnessChrome: /(^|\s)HARNESS(\s|$)/i.test(panelHead?.textContent ?? ""),
+      compactStatusRail: chips.length === 5 && !railLabels.some((label) => railText.includes(label)),
+      statusRailSingleLine: chipRects.length > 0 && Math.max(...chipRects.map((rect) => rect.top)) - Math.min(...chipRects.map((rect) => rect.top)) <= 4,
+      emptyChangedDisclosure: /Show 0|No changed files/u.test(changedText),
+      blockActionsIconOnly: blockButtons.every((button) => (button.textContent ?? "").trim() === "" && Boolean(button.getAttribute("aria-label"))),
+      searchIsCompact: search?.getAttribute("placeholder") === "Find",
+      pinsAreCompact: !pinsText.includes("No pinned decisions"),
+      hasPanel: Boolean(panel),
+    };
+  });
 }
 
 async function auditConversationScroll(page) {
