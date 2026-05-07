@@ -53,6 +53,14 @@ describe("studio harness console UI", () => {
     expect(app).toContain('data-latest-anchor');
     expect(app).toContain('data-action-id="conversation.scroll-latest"');
     expect(app).toContain('data-codex-power-strip="sandbox"');
+    expect(app).toContain("function HarnessChip");
+    expect(app).toContain("data-harness-chip={props.kind}");
+    expect(app).toContain('kind="harness"');
+    expect(app).toContain('kind="access"');
+    expect(app).toContain('kind="reasoning"');
+    expect(app).toContain('kind="action"');
+    expect(app).toContain('kind="status"');
+    expect(app).toContain("<StudioControlIcon name={props.icon}");
     expect(app).toContain('data-harness-readiness-contract="compact"');
     expect(app).toContain('data-composer-agent-state="codex-workbench"');
     expect(app).toContain("ProjectSidebar");
@@ -392,6 +400,12 @@ describe("studio harness console UI", () => {
     expect(app).toContain('event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)');
     expect(ui).toContain('data-command-palette="warp-style"');
     expect(ui).toContain('data-command-nav="studio-surfaces"');
+    expect(ui).toContain("type CommandPaletteRow");
+    expect(ui).toContain("const commandPaletteRows: CommandPaletteRow[]");
+    expect(ui).toContain('data-command-palette-search="actions"');
+    expect(ui).toContain('data-command-palette-row={row.kind}');
+    expect(ui).toContain('data-command-palette-icon={row.icon}');
+    expect(ui).toContain('data-command-palette-empty={row.kind === "empty" ? "true" : undefined}');
     expect(ui).toContain('id: "command.open.figma"');
     expect(ui).toContain('id: "command.open.plugins"');
     expect(ui).toContain('id: "command.open.automations"');

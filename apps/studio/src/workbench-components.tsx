@@ -323,12 +323,6 @@ export function ChatQualityLayer(props: {
   );
 }
 
-export function filterTerminalBlocksByQuery(blocks: TerminalBlock[], query: string): TerminalBlock[] {
-  const normalized = query.trim().toLowerCase();
-  if (!normalized) return blocks;
-  return blocks.filter((block) => `${block.title} ${block.meta} ${block.messages.join(" ")}`.toLowerCase().includes(normalized));
-}
-
 function deriveChatFollowUps(props: {
   designTrace: StudioDesignSystemTrace | null;
   lastFailure: StudioEvent | null;
@@ -358,6 +352,12 @@ function deriveVerificationSignals(props: {
   if (props.sessionStatus === "completed") return { status: "Verified", summary: `${files} files / ${evidence} evidence` };
   if (props.sessionStatus === "running") return { status: "Collecting", summary: `${files} files / ${evidence} evidence` };
   return { status: "Ready", summary: `${files} files / ${evidence} evidence` };
+}
+
+export function filterTerminalBlocksByQuery(blocks: TerminalBlock[], query: string): TerminalBlock[] {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return blocks;
+  return blocks.filter((block) => `${block.title} ${block.meta} ${block.messages.join(" ")}`.toLowerCase().includes(normalized));
 }
 
 export function MemoireLogoMark() {
@@ -1796,6 +1796,18 @@ function matchesDesignChangelogFilter(entry: DesignChangelogEntry, filter: Desig
   return true;
 }
 
+type CommandPaletteRowKind = "navigation" | "harness" | "session" | "knowledge" | "empty";
+type CommandPaletteIcon = "settings" | "figma" | "plugins" | "automations" | "changelog" | "advanced" | "claude" | "codex" | "hermes" | "session" | "knowledge" | "search" | "close";
+type CommandPaletteRow = {
+  id: string;
+  kind: CommandPaletteRowKind;
+  icon: CommandPaletteIcon;
+  label: string;
+  detail: string;
+  run: () => void;
+  disabled?: boolean;
+};
+
 export function CommandPalette(props: {
   open: boolean;
   query: string;
@@ -1816,60 +1828,115 @@ export function CommandPalette(props: {
 }) {
   if (!props.open) return null;
   const query = props.query.toLowerCase();
-  const harnessActions = (props.compatibility?.harnesses ?? [])
+  const harnessRows: CommandPaletteRow[] = (props.compatibility?.harnesses ?? [])
     .filter((harness) => isCoreHarness(harness.id))
     .filter((harness) => `${harness.label} ${harness.provider} ${harness.authStatus}`.toLowerCase().includes(query))
-    .slice(0, 8);
-  const sessionActions = props.sessions
+    .slice(0, 8)
+    .map((harness) => ({
+      id: `harness.select.${harness.id}`,
+      kind: "harness",
+      icon: harnessIcon(harness.id),
+      label: harness.label,
+      detail: `${harness.authStatus} · ${harness.requiredSetup[0] ?? "ready"}`,
+      run: () => props.onSelectHarness(harness.id),
+    }));
+  const sessionRows: CommandPaletteRow[] = props.sessions
     .filter((session) => `${session.prompt} ${session.harness} ${session.status}`.toLowerCase().includes(query))
-    .slice(0, 5);
-  const knowledgeActions = props.knowledgeItems
+    .slice(0, 5)
+    .map((session) => ({
+      id: `session.open.${session.id}`,
+      kind: "session",
+      icon: "session",
+      label: trimText(session.prompt, 64),
+      detail: `${session.harness} · ${session.status}`,
+      run: () => props.onOpenSession(session),
+    }));
+  const knowledgeRows: CommandPaletteRow[] = props.knowledgeItems
     .filter((item) => `${item.title} ${item.summary} ${item.tags.join(" ")}`.toLowerCase().includes(query))
-    .slice(0, 5);
-  const navigationActions = [
-    { id: "settings.open", label: "Settings", detail: "Open Studio settings", run: props.onOpenSettings },
-    { id: "command.open.figma", label: "Figma Bridge", detail: "Open bridge status and plugin actions", run: props.onOpenFigma },
-    { id: "command.open.plugins", label: "Plugins", detail: "Open Mémoire Notes marketplace", run: props.onOpenPlugins },
-    { id: "command.open.automations", label: "Automations", detail: "Open scheduled Studio work", run: props.onOpenAutomations },
-    { id: "command.open.changelog", label: "Changelog", detail: "Open local design memory entries", run: props.onOpenChangelog },
-    { id: "command.open.advanced", label: "Advanced Tools", detail: "Open tools, browser, and runtime diagnostics", run: () => props.onOpenSettingsSection("Advanced") },
+    .slice(0, 5)
+    .map((item) => ({
+      id: `knowledge.open.${item.id}`,
+      kind: "knowledge",
+      icon: "knowledge",
+      label: item.title,
+      detail: `${knowledgeKindLabel(item.kind)} · ${displaySourceLabel(item.sourcePath)}`,
+      run: () => props.onOpenKnowledgeItem(item),
+    }));
+  const navigationRows: CommandPaletteRow[] = [
+    { id: "settings.open", kind: "navigation" as const, icon: "settings" as const, label: "Settings", detail: "Open Studio settings", run: props.onOpenSettings },
+    { id: "command.open.figma", kind: "navigation" as const, icon: "figma" as const, label: "Figma Bridge", detail: "Open bridge status and plugin actions", run: props.onOpenFigma },
+    { id: "command.open.plugins", kind: "navigation" as const, icon: "plugins" as const, label: "Plugins", detail: "Open Mémoire Notes marketplace", run: props.onOpenPlugins },
+    { id: "command.open.automations", kind: "navigation" as const, icon: "automations" as const, label: "Automations", detail: "Open scheduled Studio work", run: props.onOpenAutomations },
+    { id: "command.open.changelog", kind: "navigation" as const, icon: "changelog" as const, label: "Changelog", detail: "Open local design memory entries", run: props.onOpenChangelog },
+    { id: "command.open.advanced", kind: "navigation" as const, icon: "advanced" as const, label: "Advanced Tools", detail: "Open tools, browser, and runtime diagnostics", run: () => props.onOpenSettingsSection("Advanced") },
   ].filter((item) => `${item.label} ${item.detail}`.toLowerCase().includes(query));
+  const commandPaletteRows: CommandPaletteRow[] = [...navigationRows, ...harnessRows, ...sessionRows, ...knowledgeRows];
+  const rows = commandPaletteRows.length > 0 ? commandPaletteRows : [{
+    id: "command-palette.empty",
+    kind: "empty" as const,
+    icon: "search" as const,
+    label: "No matching actions",
+    detail: "Try searching settings, harnesses, sessions, notes, or files.",
+    run: () => undefined,
+    disabled: true,
+  }];
   return (
     <div className="modal-backdrop command-palette-backdrop" data-command-palette="warp-style" role="dialog" aria-modal="true" aria-label="Command palette">
       <section className="command-palette-panel">
         <header>
-          <input autoFocus value={props.query} onChange={(event) => props.onQueryChange(event.target.value)} placeholder="Search actions, sessions, notes, files..." />
-          <button data-action-id="command-palette.close" type="button" onClick={props.onClose}>Close</button>
+          <label className="command-palette-search" data-command-palette-search="actions">
+            <span className="command-palette-icon" data-command-palette-icon="search"><CommandPaletteIconGlyph name="search" /></span>
+            <input autoFocus value={props.query} onChange={(event) => props.onQueryChange(event.target.value)} placeholder="Search actions, sessions, notes, files..." />
+          </label>
+          <button className="command-palette-close" data-action-id="command-palette.close" type="button" onClick={props.onClose}>
+            <span className="command-palette-icon" data-command-palette-icon="close"><CommandPaletteIconGlyph name="close" /></span>
+            <span>Close</span>
+          </button>
         </header>
         <div className="command-palette-list" data-command-nav="studio-surfaces">
-          {navigationActions.map((action) => (
-            <button data-action-id={action.id} key={action.id} type="button" onClick={action.run}>
-              <strong>{action.label}</strong>
-              <span>{action.detail}</span>
-            </button>
-          ))}
-          {harnessActions.map((harness) => (
-            <button data-action-id={`harness.select.${harness.id}`} key={harness.id} type="button" onClick={() => props.onSelectHarness(harness.id)}>
-              <strong>{harness.label}</strong>
-              <span>{harness.authStatus} · {harness.requiredSetup[0] ?? "ready"}</span>
-            </button>
-          ))}
-          {sessionActions.map((session) => (
-            <button data-action-id={`session.open.${session.id}`} key={session.id} type="button" onClick={() => props.onOpenSession(session)}>
-              <strong>{trimText(session.prompt, 64)}</strong>
-              <span>{session.harness} · {session.status}</span>
-            </button>
-          ))}
-          {knowledgeActions.map((item) => (
-            <button data-action-id={`knowledge.open.${item.id}`} key={item.id} type="button" onClick={() => props.onOpenKnowledgeItem(item)}>
-              <strong>{item.title}</strong>
-              <span>{knowledgeKindLabel(item.kind)} · {displaySourceLabel(item.sourcePath)}</span>
+          {rows.map((row) => (
+            <button
+              data-action-id={row.id}
+              data-command-palette-empty={row.kind === "empty" ? "true" : undefined}
+              data-command-palette-row={row.kind}
+              disabled={row.disabled}
+              key={row.id}
+              type="button"
+              onClick={row.run}
+            >
+              <span className="command-palette-icon" data-command-palette-icon={row.icon}><CommandPaletteIconGlyph name={row.icon} /></span>
+              <span>
+                <strong>{row.label}</strong>
+                <small>{row.detail}</small>
+              </span>
             </button>
           ))}
         </div>
       </section>
     </div>
   );
+}
+
+function harnessIcon(id: Harness["id"]): CommandPaletteIcon {
+  if (id === "claude-code") return "claude";
+  if (id === "hermes") return "hermes";
+  return "codex";
+}
+
+function CommandPaletteIconGlyph({ name }: { name: CommandPaletteIcon }) {
+  if (name === "settings") return <StudioLineIcon><circle cx="12" cy="12" r="3" /><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.4 1a8 8 0 0 0-1.7-1L14.5 3h-5l-.3 3a8 8 0 0 0-1.7 1L5.1 6l-2 3.5 2 1.5A7 7 0 0 0 5 12c0 .3 0 .7.1 1l-2 1.5 2 3.5 2.4-1a8 8 0 0 0 1.7 1l.3 3h5l.3-3a8 8 0 0 0 1.7-1l2.4 1 2-3.5-2-1.5c.1-.3.1-.7.1-1Z" /></StudioLineIcon>;
+  if (name === "figma") return <StudioLineIcon><circle cx="9" cy="6" r="3" /><circle cx="15" cy="6" r="3" /><circle cx="9" cy="12" r="3" /><circle cx="15" cy="12" r="3" /><circle cx="9" cy="18" r="3" /></StudioLineIcon>;
+  if (name === "plugins") return <StudioLineIcon><path d="M8 4h8v5h4v8h-5v3H7v-5H4V7h4V4Z" /></StudioLineIcon>;
+  if (name === "automations") return <StudioLineIcon><circle cx="12" cy="12" r="8" /><path d="M12 8v5l3 2" /></StudioLineIcon>;
+  if (name === "changelog") return <StudioLineIcon><path d="M7 4h10v16H7V4Z" /><path d="M10 8h4M10 12h4M10 16h3" /></StudioLineIcon>;
+  if (name === "advanced") return <StudioLineIcon><path d="M4 7h16M4 17h16" /><circle cx="9" cy="7" r="2" /><circle cx="15" cy="17" r="2" /></StudioLineIcon>;
+  if (name === "claude") return <StudioLineIcon><path d="M12 4 5 20M12 4l7 16M8 13h8" /></StudioLineIcon>;
+  if (name === "codex") return <StudioLineIcon><rect x="5" y="5" width="14" height="14" rx="3" /><path d="M9 9h6v6H9z" /></StudioLineIcon>;
+  if (name === "hermes") return <StudioLineIcon><path d="M5 18 12 4l7 14M8 13h8" /><path d="M9 20h6" /></StudioLineIcon>;
+  if (name === "session") return <StudioLineIcon><path d="M5 6h14v12H5z" /><path d="M8 10h8M8 14h5" /></StudioLineIcon>;
+  if (name === "knowledge") return <StudioLineIcon><path d="M6 5h9l3 3v11H6V5Z" /><path d="M9 12h6M9 16h4" /></StudioLineIcon>;
+  if (name === "close") return <StudioLineIcon><path d="m7 7 10 10M17 7 7 17" /></StudioLineIcon>;
+  return <StudioLineIcon><circle cx="11" cy="11" r="7" /><path d="m16 16 4 4" /></StudioLineIcon>;
 }
 
 export function AutomationCenter(props: {
@@ -3273,20 +3340,6 @@ export function buildTerminalBlocks(input: {
   }
 
   return ensureUniqueTerminalBlockIds(blocks);
-}
-
-export function filterTerminalBlocksByQuery(blocks: TerminalBlock[], query: string): TerminalBlock[] {
-  const normalizedQuery = query.trim().toLowerCase();
-  if (!normalizedQuery) return blocks;
-  return blocks.filter((block) => {
-    const haystack = [
-      block.title,
-      block.meta,
-      ...block.messages,
-      ...block.events.map((event) => `${event.type} ${event.message}`),
-    ].join("\n").toLowerCase();
-    return haystack.includes(normalizedQuery);
-  });
 }
 
 function ensureUniqueTerminalBlockIds(blocks: TerminalBlock[]): TerminalBlock[] {

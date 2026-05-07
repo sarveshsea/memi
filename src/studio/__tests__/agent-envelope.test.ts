@@ -48,7 +48,7 @@ describe("studio design agent envelope", () => {
     expect(envelope).toContain(".memoire/project-memory/changelog");
     expect(envelope).toContain("design_system_artifact");
     expect(envelope).toContain("markdown and YAML");
-    expect(envelope).toContain("@sarveshsea/memoire@0.16.3");
+    expect(envelope).toContain("@sarveshsea/memoire@0.17.0");
     expect(envelope).toContain("https://www.npmjs.com/package/@sarveshsea/memoire");
     expect(envelope).toContain("specs/components/NoteCard.json");
     expect(envelope).toContain("Codex + Mémoire command ladder");

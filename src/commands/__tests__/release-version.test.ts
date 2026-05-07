@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-describe("0.16.3 release metadata", () => {
+describe("0.17.0 release metadata", () => {
   it("aligns package, MCP, widget, and changelog versions", async () => {
     const root = process.cwd();
     const pkg = JSON.parse(await readFile(join(root, "package.json"), "utf-8"));
@@ -19,21 +19,21 @@ describe("0.16.3 release metadata", () => {
     const changelog = await readFile(join(root, "CHANGELOG.md"), "utf-8");
     const npmPackageEntry = server.packages.find((entry: { registryType?: string }) => entry.registryType === "npm");
 
-    expect(pkg.version).toBe("0.16.3");
-    expect(lock.version).toBe("0.16.3");
-    expect(lock.packages[""].version).toBe("0.16.3");
-    expect(server.version).toBe("0.16.3");
-    expect(npmPackageEntry?.version).toBe("0.16.3");
+    expect(pkg.version).toBe("0.17.0");
+    expect(lock.version).toBe("0.17.0");
+    expect(lock.packages[""].version).toBe("0.17.0");
+    expect(server.version).toBe("0.17.0");
+    expect(npmPackageEntry?.version).toBe("0.17.0");
     expect(npmPackageEntry?.packageArguments.map((arg: { value: string }) => arg.value)).toEqual(["mcp", "start", "--no-figma"]);
-    expect(widget.packageVersion).toBe("0.16.3");
-    expect(studioPkg.version).toBe("0.16.3");
-    expect(studioLock.version).toBe("0.16.3");
-    expect(studioLock.packages[""].version).toBe("0.16.3");
-    expect(studioTauri.version).toBe("0.16.3");
+    expect(widget.packageVersion).toBe("0.17.0");
+    expect(studioPkg.version).toBe("0.17.0");
+    expect(studioLock.version).toBe("0.17.0");
+    expect(studioLock.packages[""].version).toBe("0.17.0");
+    expect(studioTauri.version).toBe("0.17.0");
     expect(studioTauri.bundle?.targets).toContain("dmg");
-    expect(studioCargo).toMatch(/^version = "0\.16\.3"$/m);
-    expect(studioPackageInfo).toContain('MEMOIRE_PACKAGE_VERSION = "0.16.3"');
-    expect(changelog).toMatch(/^## v0\.16\.3\b/m);
+    expect(studioCargo).toMatch(/^version = "0\.17\.0"$/m);
+    expect(studioPackageInfo).toContain('MEMOIRE_PACKAGE_VERSION = "0.17.0"');
+    expect(changelog).toMatch(/^## v0\.17\.0\b/m);
     expect(changelog).toContain("npm lifecycle scripts");
     expect(changelog).toContain("memoire.agent.yaml");
     expect(changelog).toContain("daemon start|status|stop");

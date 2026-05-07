@@ -60,10 +60,10 @@ describe("studio trace view model", () => {
             {
               id: "package:@sarveshsea/memoire",
               kind: "package",
-              label: "@sarveshsea/memoire@0.16.3",
+              label: "@sarveshsea/memoire@0.17.0",
               summary: "Runtime package",
               packageName: "@sarveshsea/memoire",
-              packageVersion: "0.16.3",
+              packageVersion: "0.17.0",
               url: "https://www.npmjs.com/package/@sarveshsea/memoire",
               eventIds: [],
             },
@@ -86,7 +86,7 @@ describe("studio trace view model", () => {
       expect.objectContaining({
         kind: "package",
         packageName: "@sarveshsea/memoire",
-        packageVersion: "0.16.3",
+        packageVersion: "0.17.0",
         eventIds: ["reference_trace-1"],
       }),
       expect.objectContaining({

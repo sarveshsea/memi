@@ -512,6 +512,7 @@ export function App() {
 
   const harnessActions = useMemo(() => actionsForHarness(currentHarness), [currentHarness]);
   const effectiveAction: StudioAction = resolveHarnessAction(selectedAction, currentHarness);
+  const effectiveActionLabel = harnessActions.find((action) => action.id === effectiveAction)?.label ?? effectiveAction;
   const sessionStatus = deriveSessionStatus(session, events);
   const visibleSessionStatus = isStartingSession ? "starting" : sessionStatus;
   const isSessionActive = isStartingSession || sessionStatus === "running";
@@ -1849,11 +1850,40 @@ export function App() {
           </div>
         </header>
 
-        <section className="console-run-info" data-codex-power-strip="sandbox">
-          <span>{currentHarness?.label ?? selectedHarness}</span>
-          <span>{permissionModePowerLabel(permissionMode)}</span>
-          <span title="Codex model_reasoning_effort">{codexReasoningLabel(settingsDraft?.codex?.reasoningEffort ?? "xhigh")}</span>
-          <small>{permissionModePowerDetail(permissionMode)}</small>
+        <section className="console-run-info" data-codex-power-strip="sandbox" aria-label="Harness run configuration">
+          <HarnessChip
+            kind="harness"
+            icon="harness"
+            label="Harness"
+            value={currentHarness?.label ?? selectedHarness}
+            title={currentHarness?.authMessage ?? harnessStatusCopy}
+          />
+          <HarnessChip
+            kind="access"
+            icon="access"
+            label="Access"
+            value={permissionModePowerLabel(permissionMode)}
+            title={permissionModePowerDetail(permissionMode)}
+          />
+          <HarnessChip
+            kind="reasoning"
+            icon="plan"
+            label="Reasoning"
+            value={codexReasoningLabel(settingsDraft?.codex?.reasoningEffort ?? "xhigh")}
+            title="Codex model_reasoning_effort"
+          />
+          <HarnessChip
+            kind="action"
+            icon="action"
+            label="Action"
+            value={effectiveActionLabel}
+          />
+          <HarnessChip
+            kind="status"
+            icon="mode"
+            label="Status"
+            value={visibleSessionStatus}
+          />
         </section>
 
         <ChangedFilesPanel trace={designTrace} onReview={() => openDetailsDrawer("changes")} />
@@ -2576,6 +2606,22 @@ function resolveHarnessAction(action: StudioAction, harness: Harness | undefined
   if (actions.includes(action)) return action;
   if (actions.includes("compose")) return "compose";
   return actions[0] ?? "raw";
+}
+
+function HarnessChip(props: {
+  kind: "harness" | "access" | "reasoning" | "action" | "status";
+  icon: "harness" | "access" | "plan" | "action" | "mode";
+  label: string;
+  value: string;
+  title?: string;
+}) {
+  return (
+    <span className="harness-chip" data-harness-chip={props.kind} title={props.title ?? `${props.label}: ${props.value}`}>
+      <StudioControlIcon name={props.icon} />
+      <small>{props.label}</small>
+      <strong>{props.value}</strong>
+    </span>
+  );
 }
 
 function codexReasoningLabel(reasoning: StudioCodexReasoningEffort): string {
