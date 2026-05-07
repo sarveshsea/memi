@@ -237,6 +237,123 @@ function formatAttachmentSize(size: number): string {
   return `${size} B`;
 }
 
+export function ChatQualityLayer(props: {
+  action: StudioAction;
+  artifacts: DesignSystemArtifact[];
+  designTrace: StudioDesignSystemTrace | null;
+  events: StudioEvent[];
+  lastFailure: StudioEvent | null;
+  memoryPins: string[];
+  searchQuery: string;
+  session: SessionSummary | null;
+  sessionStatus: string;
+  terminalBlocks: TerminalBlock[];
+  traceModel: StudioTraceModel;
+  onBranch: () => void;
+  onCopyVerification: () => void;
+  onFollowUp: (prompt: string) => void;
+  onPinMemory: () => void;
+  onSearchChange: (query: string) => void;
+}) {
+  const followUps = deriveChatFollowUps(props);
+  const verification = deriveVerificationSignals(props);
+  const approvalRequests = props.events.filter((event) => event.type === "approval_request");
+  const activeTasks = props.traceModel.tasks.filter((task) => task.status === "running").slice(0, 4);
+  const nextTask = props.traceModel.tasks.find((task) => task.status !== "completed");
+  const latestArtifact = props.artifacts[0] ?? null;
+  return (
+    <section className="chat-quality-layer" data-chat-qol="codex-antigravity" aria-label="Chat quality controls">
+      <section className="chat-live-plan" data-chat-live-plan="current-run">
+        <div>
+          <span>Plan</span>
+          <strong>{props.session ? trimText(props.session.prompt, 72) : "Draft prompt"}</strong>
+        </div>
+        <div>
+          <span>Now</span>
+          <strong>{props.sessionStatus}</strong>
+        </div>
+        <div>
+          <span>Next</span>
+          <strong>{nextTask?.label ?? props.action}</strong>
+        </div>
+        <button data-action-id="chat.branch-current" type="button" onClick={props.onBranch}>Branch</button>
+      </section>
+      <div className="chat-qol-grid">
+        <label className="chat-search-row" data-chat-search="conversation">
+          <span>Search</span>
+          <input value={props.searchQuery} onChange={(event) => props.onSearchChange(event.target.value)} placeholder="Find output, files, errors" />
+        </label>
+        <section className="chat-follow-up-row" data-follow-up-chips="contextual">
+          {followUps.map((followUp) => (
+            <button data-action-id={`chat.follow-up.${followUp.id}`} key={followUp.id} type="button" onClick={() => props.onFollowUp(followUp.prompt)}>
+              {followUp.label}
+            </button>
+          ))}
+        </section>
+        <section className="chat-memory-pins" data-memory-pins="session">
+          <div>
+            <span>Pins</span>
+            <button data-action-id="chat.pin-memory" type="button" onClick={props.onPinMemory}>Pin</button>
+          </div>
+          <p>{props.memoryPins.length ? props.memoryPins.slice(0, 2).join(" / ") : "No pinned decisions"}</p>
+        </section>
+        <section className="chat-artifact-shelf" data-artifact-shelf="chat-evidence">
+          <span>Artifacts</span>
+          <strong>{latestArtifact?.title ?? "No artifacts yet"}</strong>
+          <small>{props.artifacts.length} evidence items</small>
+        </section>
+        <section className="chat-verification-receipt" data-verification-receipt="run">
+          <span>Receipt</span>
+          <strong>{verification.status}</strong>
+          <small>{verification.summary}</small>
+          <button data-action-id="chat.copy-verification" type="button" onClick={props.onCopyVerification}>Copy</button>
+        </section>
+        <section className="chat-approval-queue" data-approval-queue="inline">
+          <span>Approvals</span>
+          <strong>{approvalRequests.length ? `${approvalRequests.length} pending` : "Clear"}</strong>
+        </section>
+        <section className="chat-agent-lanes" data-parallel-agent-lanes="mini">
+          {(activeTasks.length ? activeTasks : props.traceModel.tasks.slice(0, 3)).map((task) => (
+            <span data-task-status={task.status} key={task.id}>{task.label}</span>
+          ))}
+          {props.traceModel.tasks.length === 0 ? <span data-task-status="idle">No lanes</span> : null}
+        </section>
+      </div>
+    </section>
+  );
+}
+
+function deriveChatFollowUps(props: {
+  designTrace: StudioDesignSystemTrace | null;
+  lastFailure: StudioEvent | null;
+  sessionStatus: string;
+  terminalBlocks: TerminalBlock[];
+}): Array<{ id: string; label: string; prompt: string }> {
+  if (props.lastFailure) return [{ id: "fix-failure", label: "Fix failure", prompt: `Fix this failure:\n${props.lastFailure.message}` }];
+  if (props.designTrace?.files.length) return [
+    { id: "review-diff", label: "Review diff", prompt: "Review the changed files and summarize risk, tests, and cleanup." },
+    { id: "changelog", label: "Changelog", prompt: "Capture the design-related changes in the local design changelog." },
+  ];
+  if (props.sessionStatus === "completed") return [{ id: "next-step", label: "Next step", prompt: "Continue from the verification receipt and handle the next highest-value improvement." }];
+  if (props.terminalBlocks.length) return [{ id: "explain", label: "Explain", prompt: "Explain the latest output and identify the next action." }];
+  return [{ id: "sharpen", label: "Sharpen", prompt: "Turn this prompt into a precise implementation task with acceptance criteria." }];
+}
+
+function deriveVerificationSignals(props: {
+  artifacts: DesignSystemArtifact[];
+  designTrace: StudioDesignSystemTrace | null;
+  events: StudioEvent[];
+  lastFailure: StudioEvent | null;
+  sessionStatus: string;
+}): { status: string; summary: string } {
+  if (props.lastFailure) return { status: "Needs attention", summary: trimText(props.lastFailure.message, 96) };
+  const files = props.designTrace?.files.length ?? 0;
+  const evidence = props.artifacts.length + props.events.filter((event) => ["session_done", "artifact", "design_system_artifact", "browser_snapshot", "screenshot"].includes(event.type)).length;
+  if (props.sessionStatus === "completed") return { status: "Verified", summary: `${files} files / ${evidence} evidence` };
+  if (props.sessionStatus === "running") return { status: "Collecting", summary: `${files} files / ${evidence} evidence` };
+  return { status: "Ready", summary: `${files} files / ${evidence} evidence` };
+}
+
 export function MemoireLogoMark() {
   return (
     <svg className="memoire-logo-mark" viewBox="0 0 512 512" width="24" height="24" aria-hidden="true">
@@ -835,8 +952,14 @@ export function ActivityTimeline(props: {
 }) {
   const visibleActivities = props.activities.slice(-16);
   if (visibleActivities.length === 0 && props.activeProcesses.length === 0) return null;
+  const traceGroups = deriveToolTraceGroups(visibleActivities, props.activeProcesses);
   return (
     <section className="activity-timeline" data-agent-activity="timeline" aria-label="Agent activity">
+      <section className="tool-trace-summary" data-tool-trace-summary="intent-groups">
+        {traceGroups.map((group) => (
+          <span key={group.id}>{group.label} {group.count}</span>
+        ))}
+      </section>
       {props.activeProcesses.length > 0 ? (
         <details className="running-terminals-strip" data-running-terminals="active-processes" open>
           <summary>
@@ -899,6 +1022,25 @@ export function ActivityTimeline(props: {
       </div>
     </section>
   );
+}
+
+function deriveToolTraceGroups(activities: StudioActivityItem[], activeProcesses: StudioActiveProcess[]): Array<{ id: string; label: string; count: number }> {
+  const groups = new Map<string, { id: string; label: string; count: number }>();
+  const add = (id: string, label: string) => {
+    const current = groups.get(id) ?? { id, label, count: 0 };
+    current.count += 1;
+    groups.set(id, current);
+  };
+  for (const activity of activities) {
+    if (activity.kind === "reading_file") add("read", "Read");
+    else if (activity.kind === "searching") add("search", "Search");
+    else if (activity.kind === "running_command") add("run", "Run");
+    else if (activity.kind === "browser_action") add("browser", "Browser");
+    else if (activity.kind === "figma_action") add("figma", "Figma");
+    else add("other", "Other");
+  }
+  if (activeProcesses.length > 0) add("active", "Active");
+  return Array.from(groups.values()).slice(0, 6);
 }
 
 export function KnowledgeReader(props: {

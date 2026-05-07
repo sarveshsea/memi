@@ -279,6 +279,7 @@ const TRACE_REFRESH_DELAY_MS = 350;
 const PROJECT_SIDEBAR_COLLAPSED_KEY = "memoire.studio.projectSidebarCollapsed";
 const PROJECT_SIDEBAR_EXPANDED_KEY = "memoire.studio.expandedProjectIds";
 const CHAT_RAIL_WIDTH_KEY = "memoire.studio.chatRailWidthPercent";
+const CHAT_MEMORY_PINS_KEY = "memoire.studio.chatMemoryPins";
 const DEFAULT_CHAT_RAIL_WIDTH_PERCENT = 48;
 const MIN_CHAT_RAIL_WIDTH_PERCENT = 36;
 const MAX_CHAT_RAIL_WIDTH_PERCENT = 68;
@@ -299,6 +300,7 @@ const STUDIO_ACTION_REGISTRY: StudioActionRegistryItem[] = [
   { id: "input-mode.agent", label: "Agent", kind: "local", surface: "command" },
   { id: "input-mode.terminal", label: "Terminal", kind: "local", surface: "command" },
   { id: "input-mode.auto", label: "Auto", kind: "local", surface: "command" },
+  { id: "conversation.scroll-latest", label: "Latest", kind: "local", surface: "command" },
   { id: "session.run", label: "Run", kind: "runtime", surface: "command" },
   { id: "session.cancel", label: "Stop", kind: "runtime", surface: "command" },
   { id: "session.open", label: "Open", kind: "runtime", surface: "details" },
@@ -322,7 +324,8 @@ const STUDIO_ACTION_REGISTRY: StudioActionRegistryItem[] = [
 ];
 
 export function App() {
-  const feedRef = useRef<HTMLElement | null>(null);
+  const scrollRegionRef = useRef<HTMLElement | null>(null);
+  const bottomAnchorRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const traceRefreshTimerRef = useRef<number | null>(null);
   const pendingTraceSessionIdRef = useRef<string | null>(null);
@@ -363,6 +366,8 @@ export function App() {
   const [browserStatus, setBrowserStatus] = useState<StudioBrowserStatus | null>(null);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [commandPaletteQuery, setCommandPaletteQuery] = useState("");
+  const [chatSearchQuery, setChatSearchQuery] = useState("");
+  const [chatMemoryPins, setChatMemoryPins] = useState<string[]>(() => readStringArrayPreference(CHAT_MEMORY_PINS_KEY).slice(0, 6));
   const [contextQuery, setContextQuery] = useState("");
   const [contextFilter, setContextFilter] = useState("all");
   const [prompt, setPrompt] = useState(STARTER_PROMPTS[0].prompt);
@@ -403,6 +408,7 @@ export function App() {
   const [selectedKnowledgeItem, setSelectedKnowledgeItem] = useState<StudioKnowledgeItem | null>(null);
   const [knowledgeItemDetail, setKnowledgeItemDetail] = useState<StudioKnowledgeItem | null>(null);
   const [collapsedBlockIds, setCollapsedBlockIds] = useState<Set<string>>(new Set());
+  const [userPinnedToBottom, setUserPinnedToBottom] = useState(true);
   const [attachments, setAttachments] = useState<StudioAttachment[]>([]);
   const [projectSidebarCollapsed, setProjectSidebarCollapsed] = useState(() =>
     readBooleanPreference(PROJECT_SIDEBAR_COLLAPSED_KEY, typeof window !== "undefined" && window.matchMedia("(max-width: 900px)").matches),
@@ -450,6 +456,10 @@ export function App() {
   }, [chatRailWidthPercent]);
 
   useEffect(() => {
+    window.localStorage.setItem(CHAT_MEMORY_PINS_KEY, JSON.stringify(chatMemoryPins.slice(0, 6)));
+  }, [chatMemoryPins]);
+
+  useEffect(() => {
     if (!isFigmaBridgeRunning(figmaStatus)) return;
     const timer = window.setInterval(() => {
       void getFigmaStatus()
@@ -493,10 +503,6 @@ export function App() {
       }
     });
   }, [session]);
-
-  useEffect(() => {
-    feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight });
-  }, [events.length, session?.id]);
 
   const currentHarness = useMemo(
     () => harnesses.find((harness) => harness.id === selectedHarness),
@@ -570,6 +576,59 @@ export function App() {
     }),
     [currentHarness?.label, effectiveAction, events, prompt, selectedHarness, session],
   );
+  const visibleTerminalBlocks = useMemo(
+    () => filterTerminalBlocksByQuery(terminalBlocks, chatSearchQuery),
+    [chatSearchQuery, terminalBlocks],
+  );
+  const latestActivity = traceModel.activities.at(-1) ?? null;
+  const latestThinkingActivity = [...traceModel.activities].reverse().find((activity) => activity.kind === "thinking") ?? null;
+  const latestRunningActivity = [...traceModel.activities].reverse().find((activity) => activity.status === "running") ?? null;
+  const hasRunningWork = traceModel.activeProcesses.length > 0
+    || traceModel.activities.some((activity) => activity.status === "running" && activity.kind !== "thinking");
+  const agentThinkingState: "thinking" | "running" | "idle" | "failed" = lastFailure
+    ? "failed"
+    : hasRunningWork
+      ? "running"
+      : isSessionActive
+        ? "thinking"
+        : "idle";
+  const agentLiveLabel = agentThinkingState === "failed"
+    ? "Failed"
+    : agentThinkingState === "running"
+      ? "Running"
+      : agentThinkingState === "thinking"
+        ? "Thinking"
+        : sessionStatus === "completed"
+          ? "Done"
+          : sessionStatus === "cancelled"
+            ? "Stopped"
+            : "Idle";
+  const agentLiveSummary = lastFailure?.message
+    ?? traceModel.activeProcesses[0]?.command
+    ?? latestRunningActivity?.summary
+    ?? latestThinkingActivity?.summary
+    ?? latestActivity?.summary
+    ?? visibleSessionStatus;
+
+  useEffect(() => {
+    setUserPinnedToBottom(true);
+    window.requestAnimationFrame(() => scrollConversationToLatest("auto"));
+  }, [session?.id]);
+
+  useEffect(() => {
+    if (!userPinnedToBottom) return;
+    bottomAnchorRef.current?.scrollIntoView({
+      block: "end",
+      behavior: isSessionActive ? "smooth" : "auto",
+    });
+  }, [
+    events.length,
+    isSessionActive,
+    terminalBlocks.length,
+    traceModel.activeProcesses.length,
+    traceModel.activities.length,
+    userPinnedToBottom,
+  ]);
 
   async function refresh() {
     try {
@@ -1417,6 +1476,53 @@ export function App() {
     setPrompt((current) => `${current.trim()}\n\nUse this Studio context:\n${contextLines.join("\n")}`.trim());
   }
 
+  function handleConversationScroll() {
+    const element = scrollRegionRef.current;
+    if (!element) return;
+    const pinned = isNearScrollBottom(element);
+    setUserPinnedToBottom((current) => current === pinned ? current : pinned);
+  }
+
+  function scrollConversationToLatest(behavior: ScrollBehavior = "smooth") {
+    setUserPinnedToBottom(true);
+    bottomAnchorRef.current?.scrollIntoView({ block: "end", behavior });
+  }
+
+  function handleChatFollowUp(text: string) {
+    setPrompt((current) => `${current.trim()}\n\n${text}`.trim());
+  }
+
+  function pinCurrentChatMemory() {
+    const nextPin = [
+      activeDesignArtifact?.title,
+      designTrace?.reviewLabel,
+      latestRun?.prompt,
+      prompt,
+    ].find((value): value is string => Boolean(value?.trim())) ?? "Current chat context";
+    setChatMemoryPins((current) => [trimText(nextPin, 96), ...current.filter((pin) => pin !== nextPin)].slice(0, 6));
+  }
+
+  function branchCurrentChat() {
+    setSession(null);
+    setEvents([]);
+    setServerTrace(null);
+    setPrompt(`Branch from ${latestRun ? trimText(latestRun.prompt, 120) : "current chat"}:\n${prompt}`.trim());
+    setChatSearchQuery("");
+    scrollConversationToLatest("auto");
+  }
+
+  function copyCurrentVerificationReceipt() {
+    const receipt = [
+      `Session: ${session?.id ?? "draft"}`,
+      `Status: ${visibleSessionStatus}`,
+      `Files: ${designTrace?.files.length ?? 0}`,
+      `Artifacts: ${(traceModel.artifacts?.length ?? 0) + designArtifacts.length}`,
+      `Events: ${events.length}`,
+      lastFailure ? `Failure: ${lastFailure.message}` : "Failures: none",
+    ].join("\n");
+    void copyText(receipt);
+  }
+
   function handleAttachmentPick(event: ChangeEvent<HTMLInputElement>) {
     void addFilesToComposer(event.target.files ?? [], "file");
     event.currentTarget.value = "";
@@ -1752,7 +1858,34 @@ export function App() {
 
         <ChangedFilesPanel trace={designTrace} onReview={() => openDetailsDrawer("changes")} />
 
-        <section className="conversation-scroll-region" data-conversation-scroll="activity-output" aria-label="Conversation activity and output">
+        <ChatQualityLayer
+          session={session}
+          sessionStatus={visibleSessionStatus}
+          action={effectiveAction}
+          traceModel={traceModel}
+          events={events}
+          terminalBlocks={terminalBlocks}
+          artifacts={[...designArtifacts, ...((traceModel.artifacts ?? []) as DesignSystemArtifact[])]}
+          designTrace={designTrace}
+          memoryPins={chatMemoryPins}
+          searchQuery={chatSearchQuery}
+          lastFailure={lastFailure}
+          onSearchChange={setChatSearchQuery}
+          onFollowUp={handleChatFollowUp}
+          onPinMemory={pinCurrentChatMemory}
+          onBranch={branchCurrentChat}
+          onCopyVerification={copyCurrentVerificationReceipt}
+        />
+
+        <section
+          className="conversation-scroll-region"
+          data-auto-scroll-state={userPinnedToBottom ? "pinned" : "paused"}
+          data-agent-thinking-state={agentThinkingState}
+          data-conversation-scroll="activity-output"
+          aria-label="Conversation activity and output"
+          onScroll={handleConversationScroll}
+          ref={scrollRegionRef}
+        >
           <ActivityTimeline
             activities={traceModel.activities}
             activeProcesses={traceModel.activeProcesses}
@@ -1764,9 +1897,8 @@ export function App() {
             data-output-renderer="inline"
             data-message-feed="chat-output"
             aria-label="Conversation output"
-            ref={feedRef}
           >
-            {terminalBlocks.map((block) => (
+            {visibleTerminalBlocks.map((block) => (
               <TerminalBlockSurface kind={block.kind} key={block.id}>
                 <header>
                   <div>
@@ -1798,7 +1930,28 @@ export function App() {
                 </div>
               </div>
             ) : null}
+            {terminalBlocks.length > 0 && visibleTerminalBlocks.length === 0 ? (
+              <div className="empty-state">
+                <h2>No matching output.</h2>
+              </div>
+            ) : null}
           </section>
+          <div className="agent-live-status" data-agent-thinking-state={agentThinkingState}>
+            <span className="status-dot" aria-hidden="true" />
+            <strong>{agentLiveLabel}</strong>
+            <small title={agentLiveSummary}>{trimText(agentLiveSummary, 88)}</small>
+            {!userPinnedToBottom ? (
+              <button
+                className="scroll-latest-button"
+                data-action-id="conversation.scroll-latest"
+                type="button"
+                onClick={() => scrollConversationToLatest()}
+              >
+                Latest
+              </button>
+            ) : null}
+          </div>
+          <div aria-hidden="true" data-latest-anchor ref={bottomAnchorRef} />
         </section>
 
         <CommandBar data-command-editor="bottom-pinned">
@@ -2487,6 +2640,10 @@ function permissionModePowerDetail(mode: StudioPermissionMode): string {
   if (mode === "plan") return "--sandbox read-only";
   if (mode === "full_access") return "--dangerously-bypass-approvals-and-sandbox";
   return "--sandbox workspace-write";
+}
+
+function isNearScrollBottom(element: HTMLElement, threshold = 96): boolean {
+  return element.scrollHeight - element.scrollTop - element.clientHeight <= threshold;
 }
 
 function clampNumber(value: number, min: number, max: number): number {

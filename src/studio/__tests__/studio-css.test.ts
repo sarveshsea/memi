@@ -102,7 +102,7 @@ describe("studio visual cleanup", () => {
     expect(css).toContain(".run-details-drawer {");
     expect(css).toContain("grid-template-rows: auto auto minmax(0, 1fr)");
     expect(css).toContain(".console-panel {");
-    expect(css).toContain("grid-template-rows: auto auto auto minmax(0, 1fr) auto");
+    expect(css).toContain("grid-template-rows: auto auto auto auto minmax(0, 1fr) auto");
     expect(css).toContain(".conversation-scroll-region");
     expect(css).toContain(".agent-live-status");
     expect(css).toContain(".scroll-latest-button");
@@ -199,7 +199,7 @@ describe("studio visual cleanup", () => {
     expect(css).toContain(".chat-resize-handle { display: none; }");
   });
 
-  it("styles the tabbed artifact canvas states for design review and research", async () => {
+  it("styles the tabbed artifact canvas states for design review, research, and changelog", async () => {
     const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
 
     expect(css).toContain(".artifact-canvas { min-width: 0; min-height: 0; display: grid");
@@ -210,12 +210,14 @@ describe("studio visual cleanup", () => {
     expect(css).toContain(".scenario-lab { min-height: 100%; display: grid");
     expect(css).toContain(".artifact-canvas[data-artifact-canvas=\"design-system\"]");
     expect(css).toContain(".artifact-canvas[data-artifact-canvas=\"mirofish-research\"]");
+    expect(css).toContain(".artifact-canvas[data-artifact-canvas=\"design-changelog\"]");
   });
 
-  it("styles the dedicated design changelog page with timeline filters and editor", async () => {
+  it("styles the design changelog pane with timeline filters and editor", async () => {
     const css = await readFile(join(process.cwd(), "apps", "studio", "src", "styles.css"), "utf-8");
 
     expect(css).toContain(".design-changelog-page");
+    expect(css).toContain(".artifact-canvas[data-artifact-canvas=\"design-changelog\"] .design-changelog-page");
     expect(css).toContain(".design-changelog-header");
     expect(css).toContain(".design-changelog-filters");
     expect(css).toContain(".design-changelog-layout");

@@ -157,10 +157,16 @@ async function runBrowserWorkbenchAudit() {
           overlaps: overlaps.slice(0, 20),
         };
       });
-      summary.browser.push({ viewport: viewport.name, ...audit });
+      const scrollAudit = await auditConversationScroll(page);
+      summary.browser.push({ viewport: viewport.name, ...audit, scrollAudit });
       if (audit.buttonMissingActionId.length > 0) summary.failures.push(`${viewport.name}: enabled buttons without data-action-id: ${audit.buttonMissingActionId.join(", ")}`);
       if (audit.textOverflow.length > 0) summary.failures.push(`${viewport.name}: controls with clipped text: ${audit.textOverflow.join(", ")}`);
       if (audit.overlaps.length > 0) summary.failures.push(`${viewport.name}: overlapping controls: ${audit.overlaps.join("; ")}`);
+      if (!scrollAudit.hasRegion) summary.failures.push(`${viewport.name}: missing conversation scroll region`);
+      if (!scrollAudit.hasAnchor) summary.failures.push(`${viewport.name}: missing latest anchor`);
+      if (scrollAudit.scrollable && scrollAudit.pausedState !== "paused") summary.failures.push(`${viewport.name}: manual scroll did not pause auto-scroll`);
+      if (scrollAudit.scrollable && !scrollAudit.latestVisible) summary.failures.push(`${viewport.name}: Latest control missing after manual scroll`);
+      if (scrollAudit.scrollable && scrollAudit.resumedState !== "pinned") summary.failures.push(`${viewport.name}: Latest control did not resume pinned scroll`);
     }
 
     await page.setViewportSize({ width: 1440, height: 980 });
@@ -183,6 +189,56 @@ async function runBrowserWorkbenchAudit() {
   } finally {
     await browser.close();
   }
+}
+
+async function auditConversationScroll(page) {
+  const initial = await page.evaluate(() => {
+    const region = document.querySelector('[data-conversation-scroll="activity-output"]');
+    return {
+      hasRegion: Boolean(region),
+      hasAnchor: Boolean(document.querySelector("[data-latest-anchor]")),
+      state: region?.getAttribute("data-auto-scroll-state") ?? null,
+      thinkingState: region?.getAttribute("data-agent-thinking-state") ?? null,
+      scrollable: region ? region.scrollHeight > region.clientHeight + 8 : false,
+    };
+  });
+  if (!initial.hasRegion || !initial.scrollable) {
+    return {
+      ...initial,
+      pausedState: null,
+      latestVisible: false,
+      resumedState: initial.state,
+    };
+  }
+  await page.evaluate(() => {
+    const region = document.querySelector('[data-conversation-scroll="activity-output"]');
+    if (!(region instanceof HTMLElement)) return;
+    region.scrollTop = 0;
+    region.dispatchEvent(new Event("scroll", { bubbles: true }));
+  });
+  await page.waitForTimeout(80);
+  const paused = await page.evaluate(() => {
+    const region = document.querySelector('[data-conversation-scroll="activity-output"]');
+    return {
+      state: region?.getAttribute("data-auto-scroll-state") ?? null,
+      latestVisible: Boolean(document.querySelector('[data-action-id="conversation.scroll-latest"]')),
+    };
+  });
+  const latest = page.locator('[data-action-id="conversation.scroll-latest"]').first();
+  if (paused.latestVisible && await latest.isEnabled().catch(() => false)) {
+    await latest.click();
+    await page.waitForTimeout(80);
+  }
+  const resumedState = await page.evaluate(() => {
+    const region = document.querySelector('[data-conversation-scroll="activity-output"]');
+    return region?.getAttribute("data-auto-scroll-state") ?? null;
+  });
+  return {
+    ...initial,
+    pausedState: paused.state,
+    latestVisible: paused.latestVisible,
+    resumedState,
+  };
 }
 
 async function launchBrowser() {

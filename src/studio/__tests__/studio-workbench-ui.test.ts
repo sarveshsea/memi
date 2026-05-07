@@ -541,15 +541,17 @@ describe("studio harness console UI", () => {
 
     expect(app).toContain('data-agent-workbench="design-system"');
     expect(app).toContain('data-agent-chat-rail="model-reasoning"');
-    expect(app).toContain('data-right-pane-tabs="design-system-research"');
+    expect(app).toContain('data-right-pane-tabs="design-system-research-changelog"');
     expect(app).toContain('role="tablist"');
     expect(app).toContain('data-action-id={`right-pane.tab.${tab.id}`}');
     expect(app).toContain("RIGHT_PANE_TABS");
     expect(app).toContain('id: "design-system", label: "Design System"');
     expect(app).toContain('id: "mirofish-research", label: "Mirofish Research"');
+    expect(app).toContain('id: "design-changelog", label: "Changelog"');
     expect(app).toContain('data-artifact-canvas={rightPaneTab}');
     expect(app).toContain('rightPaneTab === "design-system"');
     expect(app).toContain('rightPaneTab === "mirofish-research"');
+    expect(app).toContain('rightPaneTab === "design-changelog"');
     expect(app).toContain("DesignSystemReviewSurface");
     expect(app).toContain("renderScenarioLab()");
     expect(app).toContain("listDesignSystemArtifacts");
@@ -590,7 +592,7 @@ describe("studio harness console UI", () => {
     expect(css).toContain(".component-reference");
   });
 
-  it("renders a dedicated design changelog page with editor, filters, and export actions", async () => {
+  it("renders design changelog in the right pane with editor, filters, and export actions", async () => {
     const app = await readFile(join(process.cwd(), "apps", "studio", "src", "App.tsx"), "utf-8");
     const components = await readFile(join(process.cwd(), "apps", "studio", "src", "workbench-components.tsx"), "utf-8");
     const api = await readFile(join(process.cwd(), "apps", "studio", "src", "studio-api.ts"), "utf-8");
@@ -604,7 +606,10 @@ describe("studio harness console UI", () => {
     expect(app).toContain("archiveDesignChangelogEntry");
     expect(app).toContain("restoreDesignChangelogEntry");
     expect(app).toContain("exportDesignChangelogMarkdown");
-    expect(app).toContain('mainSurface === "changelog"');
+    expect(app).toContain('setRightPaneTab("design-changelog")');
+    expect(app).toContain('rightPaneTab === "design-changelog"');
+    expect(app).toContain('data-artifact-canvas={rightPaneTab}');
+    expect(app).not.toContain('mainSurface === "changelog"');
     expect(ui).toContain('data-design-changelog-page="design-memory"');
     expect(ui).toContain('data-design-changelog-filter="all"');
     expect(ui).toContain('data-design-changelog-filter="agent"');
