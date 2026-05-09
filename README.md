@@ -15,6 +15,8 @@
   <a href="https://github.com/sarveshsea/m-moire/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-black.svg" alt="MIT"></a>
 </p>
 
+> **Looking for the macOS app?** Mémoire Studio (Tauri shell, signed DMG) lives at **[github.com/sarveshsea/memi-studio](https://github.com/sarveshsea/memi-studio)** under FSL-1.1-ALv2. This repo is the engine — CLI, MCP server, and the runtime sidecar that Studio bundles via `runtime-v*` releases.
+
 ---
 
 ## 60-second quickstart for agents

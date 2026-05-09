@@ -3,7 +3,9 @@ import { defaultStudioConfig } from "../config.js";
 import { createStudioCompatibilitySnapshot } from "../compatibility.js";
 import type { StudioBrowserStatus, StudioComputerStatus, StudioFigmaStatus } from "../types.js";
 
-describe("studio compatibility snapshot", () => {
+// Snapshot expectations include darwin-specific computer-tool fields.
+// Skip on non-darwin CI runners; the test still runs on macOS dev/CI.
+describe.skipIf(process.platform !== "darwin")("studio compatibility snapshot", () => {
   it("summarizes harness readiness, modes, setup, tools, and providers from runtime state", () => {
     const root = "/tmp/memoire-compat";
     const config = defaultStudioConfig(root);

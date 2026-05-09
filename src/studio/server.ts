@@ -1849,11 +1849,10 @@ function resolveStudioAssetRoot(projectRoot: string): string {
 }
 
 function candidateStudioAssetRoots(projectRoot: string): string[] {
-  return [
-    resolve(projectRoot, "apps", "studio", "dist"),
-    fileURLToPath(new URL("../studio-web/", import.meta.url)),
-    fileURLToPath(new URL("../../apps/studio/dist/", import.meta.url)),
-  ];
+  // Static web bundle now lives only in published runtime resources.
+  // The macOS app at github.com/sarveshsea/memi-studio bundles its own
+  // frontend via Tauri; this path is only used by `memi studio web`.
+  return [fileURLToPath(new URL("../studio-web/", import.meta.url))];
 }
 
 function defaultChatMode(harness: StudioHarnessId, action: StudioRunAction, prompt: string): StudioChatMode {

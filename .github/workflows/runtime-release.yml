@@ -1,0 +1,143 @@
+name: Runtime release
+
+# Publishes the Mémoire Studio runtime sidecar binary + resources tarball as
+# GitHub Release assets. Triggered on tag push `runtime-vX.Y.Z`.
+#
+# Studio (github.com/sarveshsea/memi-studio) consumes these via its
+# scripts/fetch-runtime.mjs at build time, pinned via the `memoireRuntime`
+# block in its package.json.
+#
+# Release assets produced:
+#   memi-studio-runtime-aarch64-apple-darwin
+#   memi-studio-runtime-x86_64-apple-darwin
+#   memoire-runtime-resources-<version>.tar.gz
+#   SHA256SUMS
+
+on:
+  push:
+    tags:
+      - "runtime-v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish (e.g. runtime-v0.18.1)"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: runtime-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-binary:
+    name: Build sidecar (${{ matrix.target }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: darwin-arm64
+            triple: aarch64-apple-darwin
+            runner: macos-14
+          - target: darwin-x64
+            triple: x86_64-apple-darwin
+            runner: macos-15-intel
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build TS to dist/
+        run: npm run build
+
+      - name: Compile sidecar binary for ${{ matrix.target }}
+        run: node scripts/build-studio-runtime.mjs --target=${{ matrix.target }}
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: memi-studio-runtime-${{ matrix.triple }}
+          path: dist-bin/memi-studio-runtime-${{ matrix.triple }}
+          if-no-files-found: error
+          retention-days: 14
+
+      # The resources tarball is identical across architectures, so only one
+      # arch needs to upload it. Use the arm64 (default macOS) job.
+      - name: Stage resources tarball
+        if: matrix.target == 'darwin-arm64'
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          tar -czf "dist-bin/memoire-runtime-resources-${VERSION}.tar.gz" -C dist-runtime-resources .
+          echo "Staged dist-bin/memoire-runtime-resources-${VERSION}.tar.gz"
+
+      - name: Upload resources tarball artifact
+        if: matrix.target == 'darwin-arm64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: memoire-runtime-resources
+          path: dist-bin/memoire-runtime-resources-*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+  publish-release:
+    name: Publish runtime release
+    needs: build-binary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Download binary artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Stage release assets
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          find artifacts -type f \( -name 'memi-studio-runtime-*' -o -name 'memoire-runtime-resources-*' \) \
+            -exec mv {} release/ \;
+          cd release
+          shasum -a 256 * > SHA256SUMS
+          ls -la
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          gh release create "$TAG" \
+            --repo "${{ github.repository }}" \
+            --title "Runtime $TAG" \
+            --notes "Mémoire Studio runtime sidecar binaries + resources tarball.
+
+Consumed by github.com/sarveshsea/memi-studio at build time via scripts/fetch-runtime.mjs.
+
+Pin in memi-studio's package.json:
+\`\`\`json
+\"memoireRuntime\": {
+  \"version\": \"$(echo $TAG | sed 's/^runtime-v//')\",
+  \"engineRepo\": \"${{ github.repository }}\",
+  \"releaseTag\": \"$TAG\"
+}
+\`\`\`" \
+            release/*

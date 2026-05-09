@@ -1,7 +1,15 @@
 #!/usr/bin/env node
 /**
- * Build the Mémoire CLI as the Tauri Studio runtime sidecar and stage the
- * package assets the compiled binary needs when Finder launches the app.
+ * Build the Mémoire CLI as the Studio runtime sidecar binary and stage the
+ * package assets the compiled binary needs at runtime.
+ *
+ * Outputs to repo-root directories so the script is decoupled from the
+ * (now-extracted) Studio Tauri app at github.com/sarveshsea/memi-studio:
+ *   dist-bin/memi-studio-runtime-<triple>           — the compiled binary
+ *   dist-runtime-resources/                         — staged runtime payload
+ *
+ * Studio's CI fetches both via `gh release download` from a runtime-v*
+ * release tag of this repo (see .github/workflows/runtime-release.yml).
  *
  * Usage:
  *   node scripts/build-studio-runtime.mjs --target=darwin-arm64
@@ -15,9 +23,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const TAURI_ROOT = join(ROOT, "apps", "studio", "src-tauri");
-const BINARIES_DIR = join(TAURI_ROOT, "binaries");
-const RUNTIME_RESOURCE_DIR = join(TAURI_ROOT, "resources", "memoire-runtime");
+const BINARIES_DIR = join(ROOT, "dist-bin");
+const RUNTIME_RESOURCE_DIR = join(ROOT, "dist-runtime-resources");
 
 const TARGETS = {
   "darwin-arm64": {
@@ -84,7 +91,7 @@ if (bun.status !== 0) {
 
 await cp(compiledRuntime, tauriRuntime);
 await chmod(tauriRuntime, 0o755);
-console.log(`  + apps/studio/src-tauri/binaries/${tauriRuntimeName}`);
+console.log(`  + dist-bin/${tauriRuntimeName}`);
 
 await rm(RUNTIME_RESOURCE_DIR, { recursive: true, force: true });
 await mkdir(RUNTIME_RESOURCE_DIR, { recursive: true });
@@ -113,7 +120,7 @@ for (const [sourceRel, destRel] of sidecars) {
   const dst = join(RUNTIME_RESOURCE_DIR, destRel);
   await mkdir(dirname(dst), { recursive: true });
   await cp(src, dst, { recursive: true });
-  console.log(`  + resources/memoire-runtime/${destRel}`);
+  console.log(`  + dist-runtime-resources/${destRel}`);
 }
 
 await writeFile(
@@ -128,7 +135,7 @@ await writeFile(
   }, null, 2) + "\n",
 );
 
-console.log("✓ Studio runtime staged for Tauri");
+console.log("✓ Studio runtime sidecar built and staged");
 
 function hostTargetKey() {
   const tuple = spawnSync("rustc", ["--print", "host-tuple"], {

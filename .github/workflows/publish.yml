@@ -23,13 +23,10 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
-          cache-dependency-path: |
-            package-lock.json
-            apps/studio/package-lock.json
+          cache-dependency-path: package-lock.json
       - run: |
           rm -f package-lock.json
           npm install --ignore-scripts
-          npm --prefix apps/studio ci --ignore-scripts
       - run: npm run check:release
       - run: npm run lint
       - run: npm test -- --run

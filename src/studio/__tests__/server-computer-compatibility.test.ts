@@ -10,7 +10,10 @@ afterEach(async () => {
   await Promise.all(servers.splice(0).map((server) => server.stop()));
 });
 
-describe("studio compatibility and computer routes", () => {
+// The /api/computer/open + capture endpoints exercise macOS-specific
+// behavior (open(1), screencapture). Skip on non-darwin runners; the test
+// still runs on macOS dev/CI.
+describe.skipIf(process.platform !== "darwin")("studio compatibility and computer routes", () => {
   it("serves a backend compatibility matrix from the local runtime", async () => {
     const root = await mkdtemp(join(tmpdir(), "memoire-studio-compat-route-"));
     try {
