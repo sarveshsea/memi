@@ -119,6 +119,28 @@ jobs:
           shasum -a 256 * > SHA256SUMS
           ls -la
 
+      - name: Write release notes
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          VERSION="${TAG#runtime-v}"
+          REPO="${{ github.repository }}"
+          cat > release-notes.md <<EOF
+          Mémoire Studio runtime sidecar binaries + resources tarball.
+
+          Consumed by github.com/sarveshsea/memi-studio at build time via scripts/fetch-runtime.mjs.
+
+          Pin in memi-studio's package.json:
+
+          \`\`\`json
+          "memoireRuntime": {
+            "version": "${VERSION}",
+            "engineRepo": "${REPO}",
+            "releaseTag": "${TAG}"
+          }
+          \`\`\`
+          EOF
+
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -128,16 +150,5 @@ jobs:
           gh release create "$TAG" \
             --repo "${{ github.repository }}" \
             --title "Runtime $TAG" \
-            --notes "Mémoire Studio runtime sidecar binaries + resources tarball.
-
-Consumed by github.com/sarveshsea/memi-studio at build time via scripts/fetch-runtime.mjs.
-
-Pin in memi-studio's package.json:
-\`\`\`json
-\"memoireRuntime\": {
-  \"version\": \"$(echo $TAG | sed 's/^runtime-v//')\",
-  \"engineRepo\": \"${{ github.repository }}\",
-  \"releaseTag\": \"$TAG\"
-}
-\`\`\`" \
+            --notes-file release-notes.md \
             release/*
