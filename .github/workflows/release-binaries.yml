@@ -30,9 +30,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: |
-            package-lock.json
-            apps/studio/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -43,7 +41,6 @@ jobs:
         run: |
           rm -f package-lock.json
           npm install --ignore-scripts
-          npm --prefix apps/studio ci --ignore-scripts
 
       - name: Check release metadata
         run: npm run check:release
@@ -78,144 +75,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build-studio-macos:
-    name: studio-${{ matrix.arch }}
-    runs-on: ${{ matrix.runner }}
-    permissions:
-      contents: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - arch: macos-arm64
-            target: darwin-arm64
-            runner: macos-14
-          - arch: macos-x64
-            target: darwin-x64
-            runner: macos-15-intel
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: |
-            package-lock.json
-            apps/studio/package-lock.json
-
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - uses: dtolnay/rust-toolchain@stable
-
-      - name: Check Studio signing credentials
-        id: signing
-        shell: bash
-        env:
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        run: |
-          set -euo pipefail
-          missing=0
-          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD KEYCHAIN_PASSWORD APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
-            if [ -z "${!name:-}" ]; then
-              echo "::warning::$name is not configured; skipping production Studio DMG publication"
-              missing=1
-            fi
-          done
-          if [ "$missing" -eq 1 ]; then
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Import Apple Developer certificate
-        if: steps.signing.outputs.enabled == 'true'
-        shell: bash
-        env:
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          set -euo pipefail
-          echo "$APPLE_CERTIFICATE" | base64 --decode > certificate.p12
-          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security set-keychain-settings -t 3600 -u build.keychain
-          security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
-          security find-identity -v -p codesigning build.keychain
-
-      - name: Resolve Developer ID identity
-        if: steps.signing.outputs.enabled == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          CERT_INFO="$(security find-identity -v -p codesigning build.keychain | grep 'Developer ID Application' | head -n 1 || true)"
-          if [ -z "$CERT_INFO" ]; then
-            echo "Developer ID Application certificate not found in imported keychain"
-            exit 1
-          fi
-          CERT_ID="$(echo "$CERT_INFO" | awk -F'"' '{print $2}')"
-          echo "APPLE_SIGNING_IDENTITY=$CERT_ID" >> "$GITHUB_ENV"
-
-      - name: Install deps
-        if: steps.signing.outputs.enabled == 'true'
-        run: |
-          rm -f package-lock.json
-          npm install --ignore-scripts
-          npm --prefix apps/studio ci --ignore-scripts
-
-      - name: Check release metadata
-        if: steps.signing.outputs.enabled == 'true'
-        run: npm run check:release
-
-      - name: Build signed and notarized Studio DMG
-        if: steps.signing.outputs.enabled == 'true'
-        env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        run: node scripts/studio-macos-release.mjs --target=${{ matrix.target }}
-
-      - name: Delete existing Studio DMG assets
-        if: steps.signing.outputs.enabled == 'true'
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          DMG="$(find apps/studio/src-tauri/target/release/bundle/dmg -maxdepth 1 -name '*.dmg' -print -quit)"
-          arch="${DMG##*_}"
-          arch="${arch%.dmg}"
-          gh release view "${GITHUB_REF_NAME}" --json assets --jq '.assets[].name' | while IFS= read -r asset; do
-            case "$asset" in
-              *"${arch}.dmg"|*"${arch}.dmg.sha256")
-                gh release delete-asset "${GITHUB_REF_NAME}" "$asset" -y || true
-                ;;
-            esac
-          done
-
-      - name: Upload Studio DMG to release
-        if: steps.signing.outputs.enabled == 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            apps/studio/src-tauri/target/release/bundle/dmg/*.dmg
-            apps/studio/src-tauri/target/release/bundle/dmg/*.dmg.sha256
-          fail_on_unmatched_files: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   publish-checksums:
-    needs: [build, build-studio-macos]
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
