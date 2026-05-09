@@ -36,9 +36,15 @@ import type {
   ProviderRuntimeEvent,
   ProviderRuntimeEventBase,
   SessionState,
+  TurnState,
 } from "../contracts/provider-runtime.js";
 import { SessionMachine } from "../state/session-machine.js";
 import { TurnMachine } from "../state/turn-machine.js";
+import {
+  buildSnapshot,
+  type HarnessSnapshot,
+  type SnapshotStore,
+} from "../snapshots/snapshot-store.js";
 
 export interface HarnessDriverConfig {
   readonly harnessId: HarnessId;
@@ -47,6 +53,12 @@ export interface HarnessDriverConfig {
   readonly threadId?: ThreadId;
   /** Implementation-specific knobs (model, effort, base URL, env). */
   readonly options?: Record<string, unknown>;
+  /**
+   * Optional snapshot store. When provided, the driver writes a snapshot
+   * after every state-changing event so a runtime restart can resume the
+   * session. When absent, the driver behaves exactly as before.
+   */
+  readonly snapshotStore?: SnapshotStore;
 }
 
 export interface HarnessTurnRequest {
@@ -133,6 +145,146 @@ export abstract class BaseHarnessDriver implements HarnessDriver {
         // a misbehaving subscriber must never break the stream
       }
     }
+    this.maybeUpdateSnapshot(event);
+  }
+
+  // Tracked counters for snapshot persistence. Updated by maybeUpdateSnapshot.
+  private totalInputTokens = 0;
+  private totalOutputTokens = 0;
+  private totalReasoningTokens = 0;
+  private estimatedCostUsd = 0;
+  private lastError: string | undefined;
+  private snapshotCreatedAt = new Date().toISOString();
+  private snapshotWriteInflight: Promise<void> | null = null;
+
+  /**
+   * Returns the cumulative usage + last-error stats accumulated from emitted
+   * events. Useful for tests and the snapshot writer.
+   */
+  protected snapshotStats(): {
+    totalInputTokens: number;
+    totalOutputTokens: number;
+    totalReasoningTokens: number;
+    estimatedCostUsd: number;
+    lastError: string | undefined;
+    createdAt: string;
+  } {
+    return {
+      totalInputTokens: this.totalInputTokens,
+      totalOutputTokens: this.totalOutputTokens,
+      totalReasoningTokens: this.totalReasoningTokens,
+      estimatedCostUsd: this.estimatedCostUsd,
+      lastError: this.lastError,
+      createdAt: this.snapshotCreatedAt,
+    };
+  }
+
+  /**
+   * Restore mutable driver state from a previously-saved snapshot. Called
+   * by subclasses inside start() when resuming after a runtime restart.
+   *
+   * Only resumes non-terminal sessions/turns. If the snapshot says the
+   * session is stopped/error or the turn is done/failed, those are left as
+   * fresh-start.
+   */
+  protected restoreFromSnapshot(snap: HarnessSnapshot): void {
+    this.totalInputTokens = snap.totalInputTokens;
+    this.totalOutputTokens = snap.totalOutputTokens;
+    this.totalReasoningTokens = snap.totalReasoningTokens;
+    this.estimatedCostUsd = snap.estimatedCostUsd;
+    this.lastError = snap.lastError;
+    this.snapshotCreatedAt = snap.createdAt;
+    this.seq = snap.lastEventSeq;
+
+    if (snap.sessionState !== "stopped" && snap.sessionState !== "error") {
+      // Replace the session machine at the saved state.
+      (this as unknown as { session: SessionMachine }).session = new SessionMachine(snap.sessionState);
+    }
+    if (
+      snap.currentTurnId &&
+      snap.currentTurnState &&
+      snap.currentTurnState !== "done" &&
+      snap.currentTurnState !== "failed"
+    ) {
+      this.currentTurnId = snap.currentTurnId;
+      this.currentTurn = new TurnMachine(snap.currentTurnState as TurnState);
+    }
+  }
+
+  /**
+   * Returns the persisted snapshot for this session if one exists. Subclasses
+   * call this inside start() to decide whether to resume or start fresh.
+   */
+  protected loadSnapshot(): Promise<HarnessSnapshot | null> {
+    if (!this.config.snapshotStore) return Promise.resolve(null);
+    return this.config.snapshotStore.load(this.config.sessionId);
+  }
+
+  private maybeUpdateSnapshot(event: ProviderRuntimeEvent): void {
+    // Bookkeeping for cumulative counters happens for every event; the
+    // disk write only happens for state-changing events.
+    if (event.type === "usage.updated") {
+      this.totalInputTokens += event.inputTokens;
+      this.totalOutputTokens += event.outputTokens;
+      this.totalReasoningTokens += event.reasoningTokens ?? 0;
+      this.estimatedCostUsd += event.estimatedCostUsd ?? 0;
+    }
+    if (event.type === "diagnostic.error") {
+      this.lastError = event.message;
+    }
+    if (!this.config.snapshotStore) return;
+
+    const interesting =
+      event.type === "session.state.changed" ||
+      event.type === "turn.state.changed" ||
+      event.type === "turn.completed" ||
+      event.type === "session.shutdown" ||
+      event.type === "usage.updated" ||
+      event.type === "diagnostic.error";
+    if (!interesting) return;
+
+    // Fire-and-forget write. Multiple writes for the same session are
+    // safe — the FileSnapshotStore uses atomic write-then-rename, and
+    // the MemorySnapshotStore is just a Map.set. We chain through
+    // snapshotWriteInflight so the writes happen in event order even
+    // though they're async.
+    const snap = buildSnapshot({
+      sessionId: this.config.sessionId,
+      harnessId: this.config.harnessId,
+      threadId: this.config.threadId,
+      sessionState: this.session.current(),
+      currentTurnId: this.currentTurnId ?? undefined,
+      currentTurnState: this.currentTurn?.current(),
+      totalInputTokens: this.totalInputTokens,
+      totalOutputTokens: this.totalOutputTokens,
+      totalReasoningTokens: this.totalReasoningTokens,
+      estimatedCostUsd: this.estimatedCostUsd,
+      lastError: this.lastError,
+      lastEventSeq: this.seq,
+      createdAt: this.snapshotCreatedAt,
+    });
+
+    const store = this.config.snapshotStore;
+    const previous = this.snapshotWriteInflight ?? Promise.resolve();
+    this.snapshotWriteInflight = previous
+      .then(() => store.save(snap))
+      .catch((error) => {
+        // Silently log via diagnostic; never propagate disk errors to the
+        // event stream's consumers (snapshotting is best-effort).
+        try {
+          // Avoid recursive snapshot writes by emitting through the raw
+          // subscriber loop instead of this.emit().
+          for (const sub of this.subscribers) {
+            sub({
+              ...this.envelope(),
+              type: "diagnostic.warn",
+              message: `snapshot write failed: ${error instanceof Error ? error.message : String(error)}`,
+            });
+          }
+        } catch {
+          // ignore
+        }
+      });
   }
 
   protected emitToolStarted(toolCallId: ToolCallId, tool: string, args: unknown): void {
