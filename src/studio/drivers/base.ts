@@ -46,6 +46,7 @@ import {
   type SnapshotStore,
 } from "../snapshots/snapshot-store.js";
 import type { EventJournal } from "../journal/event-journal.js";
+import type { EventBus } from "../event-bus.js";
 
 export interface HarnessDriverConfig {
   readonly harnessId: HarnessId;
@@ -67,6 +68,13 @@ export interface HarnessDriverConfig {
    * the driver behaves exactly as before.
    */
   readonly eventJournal?: EventJournal;
+  /**
+   * Optional shared event bus. When provided, every emitted event is also
+   * published to the bus so cross-cutting primitives (checkpoint-store,
+   * hook-runner, walkthrough-writer, etc.) can subscribe instead of being
+   * called explicitly from the tool broker.
+   */
+  readonly eventBus?: EventBus;
 }
 
 export interface HarnessTurnRequest {
@@ -155,6 +163,12 @@ export abstract class BaseHarnessDriver implements HarnessDriver {
     }
     this.maybeUpdateSnapshot(event);
     this.maybeAppendJournal(event);
+    this.maybePublishToBus(event);
+  }
+
+  private maybePublishToBus(event: ProviderRuntimeEvent): void {
+    if (!this.config.eventBus) return;
+    this.config.eventBus.publish(event);
   }
 
   private journalWriteInflight: Promise<void> | null = null;
