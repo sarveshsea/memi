@@ -8,5 +8,9 @@ export default defineConfig({
       "examples/**/__tests__/**/*.test.ts",
     ],
     css: false,
+    // Some tests spawn real subprocesses (execute_code) and need more
+    // headroom than vitest's 5s default. 30s covers cold tsx startup +
+    // socket round-trips on slow CI runners.
+    testTimeout: 30_000,
   },
 });
