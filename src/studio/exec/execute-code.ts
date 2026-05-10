@@ -22,9 +22,33 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { existsSync } from "node:fs";
 import { generateMemiToolsStub, type StubToolSpec } from "./stub-generator.js";
 import { ToolsRpcServer, type ScriptLogEntry, type ToolRunner } from "./tools-rpc-server.js";
+
+let cachedTsxBin: string | null = null;
+
+function tsxBinPath(): string {
+  if (cachedTsxBin) return cachedTsxBin;
+  // Walk upward from this file to find the nearest node_modules/.bin/tsx.
+  // Works whether the engine is consumed as src or as dist.
+  let dir = dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 8; i += 1) {
+    const candidate = resolve(dir, "node_modules", ".bin", "tsx");
+    if (existsSync(candidate)) {
+      cachedTsxBin = candidate;
+      return candidate;
+    }
+    const next = dirname(dir);
+    if (next === dir) break;
+    dir = next;
+  }
+  // Fall back to the unqualified name; PATH will resolve it (or fail loudly).
+  cachedTsxBin = "tsx";
+  return cachedTsxBin;
+}
 
 export interface ExecuteCodeRequest {
   /** TypeScript source the user (or LLM) wants to execute. */
@@ -38,10 +62,12 @@ export interface ExecuteCodeRequest {
   /** Memory cap (passed as --max-old-space-size for Node, ignored for Bun). */
   readonly memoryMb?: number;
   /**
-   * Subprocess runner. Defaults to "bun" if available, falls back to "node"
-   * with --experimental-strip-types (Node 22+). Tests inject a custom value.
+   * Subprocess runner. Defaults to "tsx" — works on Node 20+ and supports
+   * TS natively without flags. Override with "bun" for faster startup or
+   * "node" for Node 22+'s native --experimental-strip-types path. Tests
+   * inject a custom value when needed.
    */
-  readonly runtime?: "bun" | "node" | { command: string; argsBefore?: readonly string[]; argsAfter?: readonly string[] };
+  readonly runtime?: "tsx" | "bun" | "node" | { command: string; argsBefore?: readonly string[]; argsAfter?: readonly string[] };
   /** Whitelisted env keys forwarded to the child. Default: only PATH + TZ + LANG. */
   readonly envAllowlist?: readonly string[];
   /** Extra env entries injected before the child starts. */
@@ -67,8 +93,9 @@ const DEFAULT_ENV_ALLOWLIST: readonly string[] = ["PATH", "TZ", "LANG", "LC_ALL"
 export async function executeCode(req: ExecuteCodeRequest, runner: ToolRunner): Promise<ExecuteCodeResult> {
   const start = Date.now();
   const dir = await mkdtemp(join(tmpdir(), "memi-execcode-"));
-  const stubPath = join(dir, "memi_tools.ts");
-  const scriptPath = join(dir, "script.ts");
+  // .mts forces ESM mode in tsx/Node so top-level await + import work.
+  const stubPath = join(dir, "memi_tools.mts");
+  const scriptPath = join(dir, "script.mts");
   const socketPath = join(dir, "tools.sock");
 
   await writeFile(
@@ -92,12 +119,21 @@ export async function executeCode(req: ExecuteCodeRequest, runner: ToolRunner): 
   });
   await server.listen();
 
+  const memoryEnv: Record<string, string> = {};
+  if (req.memoryMb !== undefined) {
+    // tsx (and Node generally) honors NODE_OPTIONS for V8 flags. We
+    // set it via env rather than CLI args because tsx itself doesn't
+    // recognize --node-options.
+    memoryEnv["NODE_OPTIONS"] = `--max-old-space-size=${req.memoryMb}`;
+  }
+
   const env = buildChildEnv(req.envAllowlist ?? DEFAULT_ENV_ALLOWLIST, {
     [SOCKET_ENV_VAR]: socketPath,
+    ...memoryEnv,
     ...(req.envExtra ?? {}),
   });
 
-  const { command, args } = resolveCommand(req.runtime ?? "node", scriptPath, req.memoryMb);
+  const { command, args } = resolveCommand(req.runtime ?? "tsx", scriptPath, req.memoryMb);
 
   let child: ChildProcess;
   try {
@@ -189,11 +225,19 @@ function resolveCommand(
       args: [...(runtime.argsBefore ?? []), scriptPath, ...(runtime.argsAfter ?? [])],
     };
   }
+  if (runtime === "tsx") {
+    // tsx is a devDep. Call its bin directly (skip npx startup overhead).
+    // Resolves relative to this module so it picks up the engine's
+    // node_modules even if cwd has been changed. Memory cap is applied
+    // via NODE_OPTIONS env var (tsx doesn't accept --node-options).
+    void memoryMb; // honored via NODE_OPTIONS in the parent env
+    return { command: tsxBinPath(), args: [scriptPath] };
+  }
   if (runtime === "bun") {
     return { command: "bun", args: ["run", scriptPath] };
   }
   // Node: needs --experimental-strip-types for TS support without a transpile.
-  // memoryMb caps V8 heap.
+  // Only works on Node 22+. memoryMb caps V8 heap.
   const args: string[] = ["--experimental-strip-types"];
   if (memoryMb !== undefined) args.push(`--max-old-space-size=${memoryMb}`);
   args.push(scriptPath);

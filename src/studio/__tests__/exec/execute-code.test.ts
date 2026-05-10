@@ -16,7 +16,7 @@ describe("exec/executeCode", () => {
       return a.value * 2;
     });
     const script = `
-      import { Echo, exit } from "./memi_tools.ts";
+      import { Echo, exit } from "./memi_tools.mts";
       const result = await Echo({ value: 21 });
       await exit(true, { doubled: result });
     `;
@@ -41,7 +41,7 @@ describe("exec/executeCode", () => {
       return a.value + 1;
     });
     const script = `
-      import { Inc, exit } from "./memi_tools.ts";
+      import { Inc, exit } from "./memi_tools.mts";
       let n = 0;
       for (let i = 0; i < 10; i++) {
         n = await Inc({ value: n });
@@ -64,7 +64,7 @@ describe("exec/executeCode", () => {
   it("script that runs over the timeout is killed", async () => {
     const runner = makeRunner([], () => undefined);
     const script = `
-      import { exit } from "./memi_tools.ts";
+      import { exit } from "./memi_tools.mts";
       // Hang forever
       await new Promise(() => {});
       await exit(true);
@@ -87,7 +87,7 @@ describe("exec/executeCode", () => {
     process.env["ANTHROPIC_API_KEY"] = "sk-test-secret";
     try {
       const script = `
-        import { exit } from "./memi_tools.ts";
+        import { exit } from "./memi_tools.mts";
         await exit(true, { hasKey: !!process.env.ANTHROPIC_API_KEY });
       `;
       const result = await executeCode(
@@ -109,7 +109,7 @@ describe("exec/executeCode", () => {
   it("log() messages from the script reach the parent's logs array", async () => {
     const runner = makeRunner([], () => undefined);
     const script = `
-      import { log, exit } from "./memi_tools.ts";
+      import { log, exit } from "./memi_tools.mts";
       await log("info", "step 1");
       await log("warn", "step 2");
       await exit(true);
@@ -131,7 +131,7 @@ describe("exec/executeCode", () => {
   it("captures script stdout + stderr separately", async () => {
     const runner = makeRunner([], () => undefined);
     const script = `
-      import { exit } from "./memi_tools.ts";
+      import { exit } from "./memi_tools.mts";
       console.log("stdout-line");
       console.error("stderr-line");
       await exit(true);

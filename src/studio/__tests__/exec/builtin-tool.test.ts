@@ -43,7 +43,7 @@ describe("exec/builtin-tool", () => {
     const result = await dispatchExecuteCode(
       {
         script: `
-          import { Read, exit } from "./memi_tools.ts";
+          import { Read, exit } from "./memi_tools.mts";
           const r = await Read({ path: "x.ts" });
           await exit(true, { value: r });
         `,
@@ -84,7 +84,7 @@ describe("exec/builtin-tool", () => {
     const result = await dispatchExecuteCode(
       {
         script: `
-          import { exit } from "./memi_tools.ts";
+          import { exit } from "./memi_tools.mts";
           await exit(true, { ran: true });
         `,
         profile: "broad",
@@ -121,7 +121,7 @@ describe("exec/builtin-tool", () => {
     const result = await dispatchExecuteCode(
       {
         script: `
-          import { Read, exit } from "./memi_tools.ts";
+          import { Read, exit } from "./memi_tools.mts";
           const r1 = await Read({ path: "a.ts" });
           const r2 = await Read({ path: "b.ts" });
           await exit(true, { count: 2, contents: [r1, r2] });
