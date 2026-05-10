@@ -1,6 +1,6 @@
 {
   "name": "@sarveshsea/memoire",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "mcpName": "io.github.sarveshsea/memoire",
   "description": "Design memory and UI quality tools for coding agents: Codex, Claude Code, Cursor, OpenCode, Hermes, OpenClaw, MCP, Figma, shadcn/ui, and Tailwind.",
   "type": "module",

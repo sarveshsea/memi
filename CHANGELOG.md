@@ -8,6 +8,33 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ## Unreleased
 
+## v0.18.0 — 2026-05-10
+
+### The upgrade
+Two large architectural changes plus the runtime + macOS-app split. PR #15 carved the Tauri studio app out to github.com/sarveshsea/memi-studio (FSL-1.1-ALv2, Humyn LLC). PR #17 replaced the legacy harness dispatch with a t3code-shaped event-sourced architecture: branded entity IDs, a discriminated-union ProviderRuntime event union, session + turn state machines, eight per-harness drivers (Codex, Claude Code, OpenCode, Hermes, Ollama, Gemini, memoire-native, plus a JsonLineDriver shared base), an in-memory + on-disk snapshot store with crash recovery, an append-only event journal with replay-from-cursor, a periodic maintenance runner, a typed RPC dispatcher, an EventBus, a UsageRollup, and the @sarveshsea/memi-studio-types package skeleton. PR #18 added the execute_code primitive: programmatic tool calling via Unix-socket RPC, four security profiles, and an injectable child-process runtime — multi-step pipelines that today cost N model turns now collapse to one.
+
+### New
+- Effect.js-based driver layer with eight per-harness drivers and a contract-conformance test that locks the canonical event surface across all of them (PR #17 commits 1–8).
+- Per-session snapshot store + restore-on-reconnect — kill the runtime mid-turn, restart, the session resumes (PR #17 commit 9).
+- Append-only event journal at `.memoire/studio/events/<sessionId>.jsonl` with replay-from-cursor (PR #17 commit 10).
+- Maintenance runner that prunes stale snapshots and journals on a 30s tick (PR #17 commit 11).
+- Typed RPC protocol + dispatcher (`dispatchCommand`, `subscribeThread`, `replayEvents`, `subscribeShell`, `getTurnDiff`) at `src/studio/rpc/` (PR #17 commit 12).
+- In-process EventBus with filtered subscriptions for cluster A–E primitives (PR #17 commit 13).
+- UsageRollup that subscribes to the bus and exposes per-session, per-harness, per-tool token + cost queries (PR #17 commit 14).
+- `@sarveshsea/memi-studio-types` package skeleton at `packages/memi-studio-types/` for memi-studio's frontend (PR #17 commit 15).
+- `execute_code` primitive at `src/studio/exec/`: tools-rpc protocol + Unix-socket server, typed `memi_tools` stub generator, child-process spawn lifecycle with env scrub + memory + timeout caps, four security profiles (`tight`, `read-only`, `standard`, `broad` with approval), and `STUDIO_EXECUTE_CODE.md` cookbook (PR #18).
+
+### Carve-out
+- `apps/studio/` moved to [github.com/sarveshsea/memi-studio](https://github.com/sarveshsea/memi-studio) (FSL-1.1-ALv2, Humyn LLC).
+- `scripts/build-studio-runtime.mjs` refactored to write to `dist-bin/` + `dist-runtime-resources/` instead of the now-deleted `apps/studio/src-tauri` paths.
+- Deleted: `scripts/{publish-studio-macos,studio-macos-release,studio-perf-audit,studio-workbench-e2e}.mjs`, `docs/STUDIO_MACOS_RELEASE.md`, six studio-only npm scripts.
+- Added: `.github/workflows/runtime-release.yml` — builds + publishes the sidecar binaries + resources tarball on `runtime-v*` tag pushes (PR #15 + #16 fix).
+
+### Verification
+- 1520 tests across 196 files, both root + apps/studio typechecks clean
+- Per-PR CI: PR #15, #16, #17, #18 all green at merge time
+- `runtime-v0.18.1` release published with darwin-arm64 + darwin-x64 sidecar binaries + resources tarball; `runtime-v0.18.2` to follow this release with the post-rewrite sidecar
+
 ## v0.17.0 — 2026-05-07
 
 ### The upgrade
