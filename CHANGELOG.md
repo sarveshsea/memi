@@ -22,7 +22,7 @@ First stable release as **memi**. The npm package moves from `@sarveshsea/memoir
 ### Distribution-fix highlights
 - `package.json` description rewritten as a single value-prop sentence.
 - `package.json` keywords trimmed from 70+ to 10 high-intent terms.
-- Demo GIF re-included in published files.
+- README hero now shows the demo GIF inline on the npm page (rendered from GitHub raw URL — keeps the package size under the size gate).
 - `README.md` hero replaced with single install line + 30-second example.
 - Homepage now points to `memoire.cv`.
 - `CONTRIBUTING.md` documents the new Tuesday-only release cadence and semver discipline from 1.0 onward.

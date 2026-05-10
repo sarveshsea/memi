@@ -78,6 +78,7 @@
     "assets",
     "llms.txt",
     "docs/AGENT_RECIPES.md",
+    "!assets/demo.gif",
     "!assets/noche-moon.svg",
     "README.md",
     "server.json",
