@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@memi/cli"><img src="https://img.shields.io/npm/v/@memi/cli?color=black" alt="npm"></a>
+  <a href="https://www.npmjs.com/package/@memi-design/cli"><img src="https://img.shields.io/npm/v/@memi-design/cli?color=black" alt="npm"></a>
   <a href="https://github.com/sarveshsea/memi/stargazers"><img src="https://img.shields.io/github/stars/sarveshsea/memi?style=social" alt="stars"></a>
   <a href="https://github.com/sarveshsea/memi/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-black.svg" alt="MIT"></a>
 </p>
@@ -20,7 +20,7 @@
 ## Install
 
 ```bash
-npm i -g @memi/cli
+npm i -g @memi-design/cli
 ```
 
 ## 30-second example
