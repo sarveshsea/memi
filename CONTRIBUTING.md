@@ -91,3 +91,11 @@ Tests live alongside source in `src/**/__tests__/`. Each module has its own test
 5. Open a PR — describe what changed and why
 
 Commits follow conventional commits: `feat:`, `fix:`, `docs:`, `chore:`.
+
+## Release cadence
+
+- **Releases ship Tuesdays** unless we're cutting a security fix.
+- Daily commits land on `main`; the Tuesday release tag bundles a week's worth of changes.
+- **Target 1.0.0 by 2026-06-07** (~4 weeks out). Lock the public CLI and MCP API surface before then.
+- The prepublish gate (`npm run prepublishOnly`) runs `check:release && security:audit && typecheck && test && build` on every publish — keep it green.
+- Why this cadence: pre-1.0 daily version bumps signal instability and depress installs. One predictable release per week lets users pin and upgrade with confidence.

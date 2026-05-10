@@ -1,48 +1,41 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sarveshsea/m-moire/main/assets/authentic-logo.svg" alt="Memoire" width="80" height="80" />
+  <img src="https://raw.githubusercontent.com/sarveshsea/memi/main/assets/authentic-logo.svg" alt="memi" width="80" height="80" />
 </p>
 
-<h1 align="center">memoire</h1>
+<h1 align="center">memi</h1>
 
 <p align="center">
-  <strong>Design memory and UI quality tools for coding agents.</strong><br/>
-  Shadcn-native Design CI for Tailwind apps. Give Codex, Claude Code, Cursor, OpenCode, Hermes, OpenClaw, shadcn, v0, and Figma the same design-system memory before they edit your app.
+  <strong>Design-system memory for coding agents.</strong><br/>
+  Give Claude Code, Cursor, and Codex memory of your tokens, components, and Figma — so they edit your app without breaking the design.
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@sarveshsea/memoire"><img src="https://img.shields.io/npm/v/@sarveshsea/memoire?color=black" alt="npm"></a>
-  <a href="https://github.com/sarveshsea/m-moire/actions/workflows/ci.yml"><img src="https://github.com/sarveshsea/m-moire/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/sarveshsea/m-moire/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-black.svg" alt="MIT"></a>
+  <a href="https://www.npmjs.com/package/@memi/cli"><img src="https://img.shields.io/npm/v/@memi/cli?color=black" alt="npm"></a>
+  <a href="https://github.com/sarveshsea/memi/stargazers"><img src="https://img.shields.io/github/stars/sarveshsea/memi?style=social" alt="stars"></a>
+  <a href="https://github.com/sarveshsea/memi/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-black.svg" alt="MIT"></a>
 </p>
 
-> **Looking for the macOS app?** Mémoire Studio (Tauri shell, signed DMG) lives at **[github.com/sarveshsea/memi-studio](https://github.com/sarveshsea/memi-studio)** under FSL-1.1-ALv2. This repo is the engine — CLI, MCP server, and the runtime sidecar that Studio bundles via `runtime-v*` releases.
+![demo](https://raw.githubusercontent.com/sarveshsea/memi/main/assets/demo.gif)
 
----
-
-## 60-second quickstart for agents
-
-Memoire starts from the app you already have. Install the npm package, let your coding agent audit the codebase, extract tokens, export a shadcn-native registry, then install the same components with `shadcn`, v0, or `memi`.
+## Install
 
 ```bash
-npm i -g @sarveshsea/memoire
-
-memi diagnose
-memi tokens --from ./src --report
-memi shadcn export --out public/r
-memi registry install Button --from @you/ds
-memi publish --name @you/ds
-
-# Codex plugin install paths
-memi agent install claude-code --project .
-memi agent install codex-plugin
-codex plugin marketplace add sarveshsea/m-moire --ref main --sparse .agents/plugins --sparse plugins/memoire
+npm i -g @memi/cli
 ```
 
-Use Memoire before broad UI changes, Tailwind cleanup, accessibility fixes, shadcn/ui generation, Figma-to-code work, component registry publishing, or product-spec simulation. Agent-oriented guidance is available in [`llms.txt`](./llms.txt) and [`docs/AGENT_RECIPES.md`](./docs/AGENT_RECIPES.md).
+## 30-second example
 
-Primary CTA: [`@sarveshsea/memoire` on npm](https://www.npmjs.com/package/@sarveshsea/memoire).
+```bash
+memi diagnose                       # audit your current Tailwind app
+memi tokens --from ./src --report   # extract design tokens
+memi shadcn export --out public/r   # publish a shadcn-native registry
+```
 
-Compatibility targets: [shadcn registry](https://ui.shadcn.com/docs/registry/getting-started), [registry item schema](https://ui.shadcn.com/docs/registry/registry-item-json), [components.json](https://ui.shadcn.com/docs/components-json), and [v0 design systems](https://v0.app/docs/design-systems).
+> **Looking for the macOS app?** memi Studio (Tauri shell, signed DMG) lives at **[github.com/sarveshsea/memi-studio](https://github.com/sarveshsea/memi-studio)**. Homepage: **[memoire.cv](https://memoire.cv)**.
+
+[Full quickstart →](docs/AGENT_RECIPES.md) · [llms.txt](./llms.txt) · Compatibility: [shadcn registry](https://ui.shadcn.com/docs/registry/getting-started) · [v0 design systems](https://v0.app/docs/design-systems)
+
+---
 
 ### Install Mémoire into your AI agent
 
