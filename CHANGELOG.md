@@ -8,6 +8,25 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ## Unreleased
 
+## v1.0.0 — 2026-05-10
+
+### Rebrand and stability commitment
+First stable release as **memi**. The npm package moves from `@sarveshsea/memoire` to `@memi-design/cli`, the GitHub repo from `m-moire` to `memi`, and the brand from `Mémoire` to a single lowercase wordmark. Same engine, same MCP server, same Codex plugin — clearer name, single CLI binary (`memi`), and a real homepage at `memoire.cv`.
+
+### Breaking
+- **npm package renamed**: `@sarveshsea/memoire` → `@memi-design/cli`. Reinstall with `npm i -g @memi-design/cli`. The old package will receive a final deprecation publish pointing here.
+- **CLI binaries trimmed**: `memoire` and `design-extract` aliases removed. Use `memi` only.
+- **GitHub repo renamed**: `sarveshsea/m-moire` → `sarveshsea/memi`. Old URL auto-redirects.
+- **Codex marketplace command updated**: `codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire` (was `sarveshsea/m-moire`).
+
+### Distribution-fix highlights
+- `package.json` description rewritten as a single value-prop sentence.
+- `package.json` keywords trimmed from 70+ to 10 high-intent terms.
+- Demo GIF re-included in published files.
+- `README.md` hero replaced with single install line + 30-second example.
+- Homepage now points to `memoire.cv`.
+- `CONTRIBUTING.md` documents the new Tuesday-only release cadence and semver discipline from 1.0 onward.
+
 ## v0.18.0 — 2026-05-10
 
 ### The upgrade

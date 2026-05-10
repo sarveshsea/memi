@@ -79,7 +79,7 @@ Hermes and OpenClaw receive `memoire-design-tooling` `SKILL.md` packages. Claude
 Memoire also ships as a Git-backed Codex marketplace so users can install it from `/plugins` without waiting for the official Codex Plugin Directory:
 
 ```bash
-codex plugin marketplace add sarveshsea/m-moire --ref main --sparse .agents/plugins --sparse plugins/memoire
+codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire
 ```
 
 Then open `/plugins` in Codex and install Memoire from the marketplace list. The same plugin is available through npm for users who already have `memi`:

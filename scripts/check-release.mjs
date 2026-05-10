@@ -35,7 +35,7 @@ function isPng(buffer) {
 
 const packageJson = await readJson(join(root, "package.json"));
 const version = packageJson.version;
-const expectedMcpName = "io.github.sarveshsea/memoire";
+const expectedMcpName = "io.github.sarveshsea/memi";
 if (packageJson.mcpName !== expectedMcpName) {
   fail(`package.json mcpName ${packageJson.mcpName} does not match ${expectedMcpName}`);
 }
@@ -81,18 +81,12 @@ for (const file of await collectPackagedFiles(packageJson.files ?? [])) {
 const readme = await readFile(join(root, "README.md"), "utf-8");
 const readmeTopFold = readme.slice(0, 3000);
 const requiredReadmeTerms = [
-  "Shadcn-native Design CI for Tailwind apps",
-  "npm i -g @sarveshsea/memoire",
-  "Install Mémoire into your AI agent",
-  "memi agent install claude-code --project .",
-  "memi agent install codex",
-  "memi agent install codex-plugin",
-  "codex plugin marketplace add sarveshsea/m-moire --ref main --sparse .agents/plugins --sparse plugins/memoire",
+  "Design-system memory for coding agents",
+  "npm i -g @memi-design/cli",
+  "memi diagnose",
   "memi shadcn export",
-  "memi registry install",
+  "memoire.cv",
   "https://ui.shadcn.com/docs/registry/getting-started",
-  "https://ui.shadcn.com/docs/registry/registry-item-json",
-  "https://ui.shadcn.com/docs/components-json",
   "https://v0.app/docs/design-systems",
 ];
 for (const term of requiredReadmeTerms) {
@@ -101,7 +95,7 @@ for (const term of requiredReadmeTerms) {
   }
 }
 
-const codexInstallCommand = "codex plugin marketplace add sarveshsea/m-moire --ref main --sparse .agents/plugins --sparse plugins/memoire";
+const codexInstallCommand = "codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire";
 const codexPluginDocs = await readFile(join(root, "docs", "CODEX_PLUGIN.md"), "utf-8");
 if (!codexPluginDocs.includes(codexInstallCommand)) {
   fail("docs/CODEX_PLUGIN.md is missing the public Codex marketplace install command");

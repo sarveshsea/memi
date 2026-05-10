@@ -7,7 +7,7 @@ Public page: https://www.memoire.cv/codex-plugin
 ## Git-backed Codex marketplace
 
 ```bash
-codex plugin marketplace add sarveshsea/m-moire --ref main --sparse .agents/plugins --sparse plugins/memoire
+codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire
 ```
 
 Then open `/plugins` in Codex and install Memoire from the marketplace list.
@@ -22,7 +22,7 @@ This sparse checkout exposes only the marketplace metadata and the plugin packag
 ## npm-native Codex plugin install
 
 ```bash
-npm i -g @sarveshsea/memoire
+npm i -g @memi-design/cli
 memi agent install codex-plugin
 ```
 

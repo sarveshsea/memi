@@ -1,20 +1,20 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.sarveshsea/memoire",
-  "title": "Memoire",
-  "description": "Shadcn-native Design CI for Tailwind apps with registry export and MCP UI tools.",
-  "version": "0.18.0",
-  "websiteUrl": "https://github.com/sarveshsea/m-moire#readme",
+  "name": "io.github.sarveshsea/memi",
+  "title": "memi",
+  "description": "Design-system memory for coding agents — Figma tokens, shadcn/ui codegen, Tailwind audits.",
+  "version": "1.0.0",
+  "websiteUrl": "https://memoire.cv",
   "repository": {
-    "url": "https://github.com/sarveshsea/m-moire",
+    "url": "https://github.com/sarveshsea/memi",
     "source": "github"
   },
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
-      "identifier": "@sarveshsea/memoire",
-      "version": "0.18.0",
+      "identifier": "@memi-design/cli",
+      "version": "1.0.0",
       "transport": {
         "type": "stdio"
       },
@@ -36,8 +36,8 @@
   ],
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
-      "tool": "memoire-release",
-      "version": "0.18.0"
+      "tool": "memi-release",
+      "version": "1.0.0"
     }
   }
 }

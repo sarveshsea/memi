@@ -94,8 +94,7 @@ Commits follow conventional commits: `feat:`, `fix:`, `docs:`, `chore:`.
 
 ## Release cadence
 
-- **Releases ship Tuesdays** unless we're cutting a security fix.
-- Daily commits land on `main`; the Tuesday release tag bundles a week's worth of changes.
-- **Target 1.0.0 by 2026-06-07** (~4 weeks out). Lock the public CLI and MCP API surface before then.
+- **1.0.0 ships with the rebrand.** From here, semver discipline: breaking changes require a major bump, features bump minor, fixes bump patch.
+- **Releases ship Tuesdays** unless we're cutting a security fix. Daily commits land on `main`; the Tuesday release tag bundles a week's worth of changes.
 - The prepublish gate (`npm run prepublishOnly`) runs `check:release && security:audit && typecheck && test && build` on every publish — keep it green.
-- Why this cadence: pre-1.0 daily version bumps signal instability and depress installs. One predictable release per week lets users pin and upgrade with confidence.
+- Why this cadence: daily version bumps signal instability and depress installs. One predictable release per week lets users pin and upgrade with confidence.

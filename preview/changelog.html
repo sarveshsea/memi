@@ -391,7 +391,7 @@ a:hover { text-decoration: underline; }
     </nav>
     <div class="hdr-stats">
       <span><span class="n" id="stat-commits">242</span> commits</span>
-      <span><span class="n" id="stat-versions">23</span> versions</span>
+      <span><span class="n" id="stat-versions">24</span> versions</span>
       <span><span class="n" id="stat-latest">2026-05-10</span> latest</span>
     </div>
   </header>
@@ -407,8 +407,8 @@ a:hover { text-decoration: underline; }
         <div class="hero-kpis">
           <div class="summary-card">
             <span class="summary-kicker">Current release</span>
-            <strong class="summary-value">v0.18.0</strong>
-            <div class="summary-caption">0 commits tracked in v0.18.0 from CHANGELOG.md.</div>
+            <strong class="summary-value">v1.0.0</strong>
+            <div class="summary-caption">0 commits tracked in v1.0.0 from CHANGELOG.md.</div>
           </div>
           <div class="summary-card">
             <span class="summary-kicker">Biggest theme</span>
@@ -434,10 +434,30 @@ a:hover { text-decoration: underline; }
     <section class="release-list" id="release-list"></section>
   </main>
 
-  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v0.18.0</footer>
+  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v1.0.0</footer>
 
 <script>
 const releases = [
+  {
+    "version": "v1.0.0",
+    "date": "2026-05-10",
+    "tag": "feature",
+    "summary": "**npm package renamed**: @sarveshsea/memoire → @memi-design/cli. Reinstall with npm i -g @memi-design/cli. The old package will receive a final deprecation publish pointing here; **CLI binaries trimmed**: memoire and design-extract aliases removed. Use memi only; **GitHub repo renamed**: sarveshsea/m-moire → sarveshsea/memi. Old URL auto-redirects.",
+    "commits": [],
+    "decisions": [],
+    "changes": [
+      "**npm package renamed**: @sarveshsea/memoire → @memi-design/cli. Reinstall with npm i -g @memi-design/cli. The old package will receive a final deprecation publish pointing here.",
+      "**CLI binaries trimmed**: memoire and design-extract aliases removed. Use memi only.",
+      "**GitHub repo renamed**: sarveshsea/m-moire → sarveshsea/memi. Old URL auto-redirects.",
+      "**Codex marketplace command updated**: codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire (was sarveshsea/m-moire).",
+      "package.json description rewritten as a single value-prop sentence.",
+      "package.json keywords trimmed from 70+ to 10 high-intent terms.",
+      "Demo GIF re-included in published files.",
+      "README.md hero replaced with single install line + 30-second example.",
+      "Homepage now points to memoire.cv.",
+      "CONTRIBUTING.md documents the new Tuesday-only release cadence and semver discipline from 1.0 onward."
+    ]
+  },
   {
     "version": "v0.18.0",
     "date": "2026-05-10",
