@@ -39,9 +39,9 @@ memi shadcn export --out public/r   # publish a shadcn-native registry
 
 ---
 
-### Install Mémoire into your AI agent
+### Install memi into your AI agent
 
-`0.16.3` ships native agent kits and the first native-runtime trust patch inside the npm package. Install Memoire once, initialize the workspace suite manifest, warm the shared daemon, then give Hermes agents, OpenClaw bots, Claude Code, Cursor, Codex, and OpenCode the same design-system memory, Figma bridge context, Atomic Design rules, shadcn/ui codegen, Tailwind diagnostics, and research-backed UI audit flow.
+memi ships native agent kits and the first native-runtime trust patch inside the npm package. Install memi once, initialize the workspace suite manifest, warm the shared daemon, then give Hermes agents, OpenClaw bots, Claude Code, Cursor, Codex, and OpenCode the same design-system memory, Figma bridge context, Atomic Design rules, shadcn/ui codegen, Tailwind diagnostics, and research-backed UI audit flow.
 
 ```bash
 npm i -g @memi-design/cli
@@ -68,23 +68,23 @@ Hermes and OpenClaw receive `memoire-design-tooling` `SKILL.md` packages. Claude
 
 | Agent | Native install target | What it unlocks |
 |-------|-----------------------|-----------------|
-| Hermes | `~/.hermes/skills/memoire/memoire-design-tooling/SKILL.md` | Hermes loads Memoire as a design-system skill for UI, Figma, specs, and research runs. |
+| Hermes | `~/.hermes/skills/memoire/memoire-design-tooling/SKILL.md` | Hermes loads memi as a design-system skill for UI, Figma, specs, and research runs. |
 | OpenClaw | `<workspace>/skills/memoire/memoire-design-tooling/SKILL.md` | OpenClaw picks up a workspace skill with `memi` install metadata for ClawHub-style agent use. |
 | Claude Code | `.mcp.json` | Project MCP config for `memi mcp start --no-figma`; Claude Code asks to approve project MCP servers from `.mcp.json`. |
-| Cursor | `.cursor/mcp.json` | Cursor MCP config for Memoire design-system tools. |
+| Cursor | `.cursor/mcp.json` | Cursor MCP config for memi design-system tools. |
 | Codex skill | `~/.codex/skills/memoire/memoire-design-tooling/SKILL.md` | Skill-only instructions for design audits, Figma context, specs, and Tailwind/shadcn workflows. |
-| Codex plugin | `~/plugins/memoire` + `~/.agents/plugins/marketplace.json` | Full Codex plugin with the Memoire skill and MCP server wiring. |
+| Codex plugin | `~/plugins/memoire` + `~/.agents/plugins/marketplace.json` | Full Codex plugin with the memi skill and MCP server wiring. |
 | OpenCode | workspace skill pack | Agent-native instructions for design audits, Figma context, specs, and Tailwind/shadcn workflows. |
 
 #### Public Codex plugin marketplace
 
-Memoire also ships as a Git-backed Codex marketplace so users can install it from `/plugins` without waiting for the official Codex Plugin Directory:
+memi also ships as a Git-backed Codex marketplace so users can install it from `/plugins` without waiting for the official Codex Plugin Directory:
 
 ```bash
 codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire
 ```
 
-Then open `/plugins` in Codex and install Memoire from the marketplace list. The same plugin is available through npm for users who already have `memi`:
+Then open `/plugins` in Codex and install memi from the marketplace list. The same plugin is available through npm for users who already have `memi`:
 
 ```bash
 npm i -g @memi-design/cli
@@ -93,9 +93,9 @@ memi agent install codex-plugin
 
 See [`docs/CODEX_PLUGIN.md`](./docs/CODEX_PLUGIN.md) and the public plugin page at `https://www.memoire.cv/codex-plugin`.
 
-### Mémoire Studio for macOS
+### memi Studio for macOS
 
-`0.16.3` includes Mémoire Studio: a macOS agent workbench and local web shell for Claude Code, Codex, Hermes, OpenCode, Ollama, Gemini, Mémoire Native, project memory, the Figma bridge, and an in-app Marketplace for Mémoire Notes. The desktop app includes a native Agent Kits panel so you can dry-run, install, and force-refresh Hermes/OpenClaw/Claude/Cursor/Codex/OpenCode kits without leaving Studio. Studio and the CLI share the same daemon-aware install path, suite manifest, project memory, harness metadata, and MCP startup guidance.
+memi includes a Studio app: a macOS agent workbench and local web shell for Claude Code, Codex, Hermes, OpenCode, Ollama, Gemini, memi Native, project memory, the Figma bridge, and an in-app Marketplace for memi Notes. The desktop app includes a native Agent Kits panel so you can dry-run, install, and force-refresh Hermes/OpenClaw/Claude/Cursor/Codex/OpenCode kits without leaving Studio. Studio and the CLI share the same daemon-aware install path, suite manifest, project memory, harness metadata, and MCP startup guidance.
 
 ```bash
 # web/TUI workflows from npm
@@ -118,7 +118,7 @@ Tagged GitHub Releases attach signed and notarized DMGs when Apple release secre
 
 ### Product Scenario Lab
 
-Memoire includes a clean-room product simulation layer for research-backed spec work. `memi simulate` maps `research/store.v2.json` into personas, variables, graph edges, model-swarm transcripts, interviews, reports, and spec-impact artifacts. Studio exposes the same flow through the `simulate` action and Scenario Lab so Codex, Claude Code, Hermes, OpenCode, Ollama, OpenAI-compatible providers, and deterministic fallback can operate from the macOS workbench.
+memi includes a clean-room product simulation layer for research-backed spec work. `memi simulate` maps `research/store.v2.json` into personas, variables, graph edges, model-swarm transcripts, interviews, reports, and spec-impact artifacts. Studio exposes the same flow through the `simulate` action and Scenario Lab so Codex, Claude Code, Hermes, OpenCode, Ollama, OpenAI-compatible providers, and deterministic fallback can operate from the macOS workbench.
 
 ```bash
 memi research synthesize
@@ -142,7 +142,7 @@ The npm package does not vendor MiroFish source. The optional `--adapter mirofis
 
 ### Research Vibe Design + FigJam Export
 
-Product agents can now turn `research/store.v2.json` and optional Scenario Lab reports into full Atomic Design specs plus Mermaid Jam-ready FigJam source. The first delivery path is source + open: Memoire writes Mermaid/markdown artifacts under `.memoire/mermaid-jam/<package-id>/` and opens Mermaid Jam when requested; it does not automate clipboard or direct paste.
+Product agents can now turn `research/store.v2.json` and optional Scenario Lab reports into full Atomic Design specs plus Mermaid Jam-ready FigJam source. The first delivery path is source + open: memi writes Mermaid/markdown artifacts under `.memoire/mermaid-jam/<package-id>/` and opens Mermaid Jam when requested; it does not automate clipboard or direct paste.
 
 ```bash
 memi research synthesize
@@ -164,14 +164,14 @@ npx shadcn@latest add https://your-site.com/r/button.json
 # v0 / AI-editor context
 memi shadcn serve --port 4014
 
-# Mémoire install path with aliases, npm packages, URLs, GitHub, or local paths
+# memi install path with aliases, npm packages, URLs, GitHub, or local paths
 memi registry install Button --from @you/ds
 memi add Button --from ./public/r
 ```
 
 ## No Figma required
 
-Most developer teams do not start in Figma. Memoire reads the codebase directly: Tailwind classes, shadcn usage, CSS variables, routes, markup, repeated literals, dark-mode coverage, token aliases, component targets, and registry shape.
+Most developer teams do not start in Figma. memi reads the codebase directly: Tailwind classes, shadcn usage, CSS variables, routes, markup, repeated literals, dark-mode coverage, token aliases, component targets, and registry shape.
 
 ```bash
 # Diagnose an existing app from code
@@ -194,7 +194,7 @@ Reports are written to `.memoire/app-quality/diagnosis.{json,md}` and token extr
 
 ## Trust defaults
 
-The public npm package does not run install-time lifecycle scripts. Figma plugin installation is explicit with `memi setup plugin`, and repairs are explicit with `memi doctor --repair-plugin`. The default packaged Figma plugin disables raw JavaScript execution; agents should use typed Memoire Figma tools, MCP tools, suite recipes, and local commands that the user can inspect.
+The public npm package does not run install-time lifecycle scripts. Figma plugin installation is explicit with `memi setup plugin`, and repairs are explicit with `memi doctor --repair-plugin`. The default packaged Figma plugin disables raw JavaScript execution; agents should use typed memi Figma tools, MCP tools, suite recipes, and local commands that the user can inspect.
 
 ## Registry workflow
 
@@ -212,7 +212,7 @@ memi publish --name @you/ds
 memi add Button --from @you/ds
 ```
 
-Point Memoire at `src/`, `app/globals.css`, a built CSS file, `http://localhost:3000`, or a public URL.
+Point memi at `src/`, `app/globals.css`, a built CSS file, `http://localhost:3000`, or a public URL.
 
 ### Published registry -> shadcn/v0/AI editors
 
@@ -223,7 +223,7 @@ npx shadcn@latest add https://cdn.example.com/r/button.json
 # Use the same registry as AI design-system context
 memi shadcn serve --from @you/ds
 
-# Install through Memoire when you want alias/package/URL/GitHub resolution
+# Install through memi when you want alias/package/URL/GitHub resolution
 memi registry install Button --from @you/ds
 ```
 
@@ -266,9 +266,9 @@ A registry bundles tokens (W3C DTCG JSON + Tailwind v4 `@theme` CSS), component 
 
 More examples and the featured fallback catalog live in [`examples/`](./examples/README.md).
 
-### Designed in tweakcn? Publish with Memoire.
+### Designed in tweakcn? Publish with memi.
 
-[tweakcn](https://tweakcn.com) is the visual theme editor for shadcn/ui. Memoire now treats tweakcn as a full workflow, not just a publish flag:
+[tweakcn](https://tweakcn.com) is the visual theme editor for shadcn/ui. memi now treats tweakcn as a full workflow, not just a publish flag:
 
 ```bash
 # Import from a tweakcn CSS export or share URL
@@ -288,11 +288,11 @@ memi theme publish "Acme Theme" --package @you/theme
 Theme import handles both Tailwind v3 (`:root { --primary: ... }`) and v4 (`@theme { --color-primary: ... }`) exports, including `:root` + `.dark` multi-mode themes. If you want the one-shot path, `memi publish --theme <path-or-url>` still works.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sarveshsea/memi/main/assets/demo.gif" alt="Memoire terminal publish and install flow" width="720" />
+  <img src="https://raw.githubusercontent.com/sarveshsea/memi/main/assets/demo.gif" alt="memi terminal publish and install flow" width="720" />
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sarveshsea/memi/main/assets/theme-workflow-demo.svg" alt="Memoire tweakcn theme workflow" width="720" />
+  <img src="https://raw.githubusercontent.com/sarveshsea/memi/main/assets/theme-workflow-demo.svg" alt="memi tweakcn theme workflow" width="720" />
 </p>
 
 Demo scripts for recording and reuse live in [`docs/DEMOS.md`](./docs/DEMOS.md).
@@ -300,23 +300,23 @@ No-Figma proof examples live in [`docs/PROOF.md`](./docs/PROOF.md).
 
 ---
 
-## Why teams keep Memoire in the stack
+## Why teams keep memi in the stack
 
-Claude Design, Figma Make, Lovable, Bolt, Replit Agent, and v0 are useful for fast first passes. Memoire is for the part after that first pass, when the output has to survive beyond a single prompt or canvas session.
+Claude Design, Figma Make, Lovable, Bolt, Replit Agent, and v0 are useful for fast first passes. memi is for the part after that first pass, when the output has to survive beyond a single prompt or canvas session.
 
-- App builders: strong for creating the first version. Memoire diagnoses the design debt that shows up once the app is real.
-- Claude Design and Figma Make: strong for visual exploration. Memoire keeps the reusable system portable across code, registries, and AI tools.
-- v0: strong for generating screens and using registries. Memoire helps infer, improve, and publish the registry from the app you already have.
+- App builders: strong for creating the first version. memi diagnoses the design debt that shows up once the app is real.
+- Claude Design and Figma Make: strong for visual exploration. memi keeps the reusable system portable across code, registries, and AI tools.
+- v0: strong for generating screens and using registries. memi helps infer, improve, and publish the registry from the app you already have.
 
-If your team needs better visual quality, versioned tokens, installable components, tweakcn theme packaging, and cross-tool design system context, that is the Memoire wedge.
+If your team needs better visual quality, versioned tokens, installable components, tweakcn theme packaging, and cross-tool design system context, that is the memi wedge.
 
 ---
 
 ## Studio interface references and adapted components
 
-Memoire Studio is a desktop-first agent workbench for design runs. Its interface uses Hermes WebUI and Hermes Agent as MIT-licensed references for the transcript-first console, three-pane workbench, event normalization, and supervised local sessions.
+memi Studio is a desktop-first agent workbench for design runs. Its interface uses Hermes WebUI and Hermes Agent as MIT-licensed references for the transcript-first console, three-pane workbench, event normalization, and supervised local sessions.
 
-Studio runs Claude Code, Codex, Hermes, Ollama, OpenCode, Gemini, and Memoire Native through a shared harness manifest. External coding agents receive a Memoire design/research envelope before execution, so their runs start from project memory, specs, references, Figma state, accessibility, and Atomic Design rather than a generic coding prompt. The macOS app also has an Agent Kits panel for dry-run planning, installation, and force-refresh of Hermes, OpenClaw, Claude Code, Cursor, Codex, and OpenCode kit targets. `memi studio tui` and `memi studio logs` expose the same persisted JSONL events for terminal-first visibility into package logs, Claude/Codex output, harness status, approvals, artifacts, and final results.
+Studio runs Claude Code, Codex, Hermes, Ollama, OpenCode, Gemini, and memi Native through a shared harness manifest. External coding agents receive a memi design/research envelope before execution, so their runs start from project memory, specs, references, Figma state, accessibility, and Atomic Design rather than a generic coding prompt. The macOS app also has an Agent Kits panel for dry-run planning, installation, and force-refresh of Hermes, OpenClaw, Claude Code, Cursor, Codex, and OpenCode kit targets. `memi studio tui` and `memi studio logs` expose the same persisted JSONL events for terminal-first visibility into package logs, Claude/Codex output, harness status, approvals, artifacts, and final results.
 
 Studio also includes a Notes Marketplace that lists built-in Notes, installed workspace Notes, and installable packages from the repo-owned `notes/*/note.json` manifests. The Marketplace uses the same Notes installer logic as `memi notes`, so installed packs become normal `.memoire/notes` project memory and agent context.
 
@@ -330,7 +330,7 @@ For public direct-download DMGs, use the signed/notarized release gate in [docs/
 
 Motion/video work is native in 0.15 through optional Remotion and HyperFrames adapters. `memi video create|preview|render` stores projects under `.memoire/videos` without making either video tool a hard dependency.
 
-Warp is used as a product reference for terminal blocks and grouped command output. Only MIT-licensed Warp UI framework pieces such as `warpui_core` and `warpui` are considered for adaptation; Warp AGPL application/client code is not copied into Memoire.
+Warp is used as a product reference for terminal blocks and grouped command output. Only MIT-licensed Warp UI framework pieces such as `warpui_core` and `warpui` are considered for adaptation; Warp AGPL application/client code is not copied into memi.
 
 See [`NOTICE`](./NOTICE) for source links and attribution details.
 
@@ -394,13 +394,13 @@ memi upgrade
 | Linux (x86_64)          | `memi-linux-x64.tar.gz`          |
 | Windows (x64)           | `memi-win-x64.zip`               |
 
-Verify with `SHA256SUMS.txt` (attached to every release). Extract, add `memi` to PATH, run `memi connect`. The `skills/`, `notes/`, `plugin/`, `preview/` directories must stay next to the binary — Mémoire loads them at runtime.
+Verify with `SHA256SUMS.txt` (attached to every release). Extract, add `memi` to PATH, run `memi connect`. The `skills/`, `notes/`, `plugin/`, `preview/` directories must stay next to the binary — memi loads them at runtime.
 
 ---
 
 ## Advanced: Use with AI agents
 
-Memoire can install native agent kits and also run as an MCP server, so your AI assistant can work directly with your design system after the registry workflow is in place. Use `memi agent install --dry-run --json` to inspect every write before installing. For copy-paste prompts and client-specific setup, see [`docs/AGENT_RECIPES.md`](./docs/AGENT_RECIPES.md).
+memi can install native agent kits and also run as an MCP server, so your AI assistant can work directly with your design system after the registry workflow is in place. Use `memi agent install --dry-run --json` to inspect every write before installing. For copy-paste prompts and client-specific setup, see [`docs/AGENT_RECIPES.md`](./docs/AGENT_RECIPES.md).
 
 ```bash
 memi suite init --project .              # writes memoire.agent.yaml
@@ -501,7 +501,7 @@ npm run check:public-release
 | `memi sync` | Full sync: Figma + specs + code |
 | `memi sync --live` | Watch and sync continuously |
 | `memi compose "<intent>"` | Agent orchestrator: classify, plan, execute |
-| `memi agent install [target]` | Install Memoire agent kits for Hermes, OpenClaw, Claude Code, Cursor, Codex, Codex plugin, or OpenCode |
+| `memi agent install [target]` | Install memi agent kits for Hermes, OpenClaw, Claude Code, Cursor, Codex, Codex plugin, or OpenCode |
 | `memi agent spawn <role>` | Spawn a persistent agent worker |
 | `memi daemon start|status|stop` | Manage the shared local runtime for CLI, Studio, MCP, and agent adapters |
 | `memi suite init|doctor|run <recipe>` | Manage `memoire.agent.yaml` product-team suite recipes |
