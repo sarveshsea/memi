@@ -20,7 +20,9 @@
 ## Install
 
 ```bash
-npm i -g @memi-design/cli
+npm i -g @memi-design/cli         # npm
+pnpm add -g @memi-design/cli      # pnpm
+yarn global add @memi-design/cli  # yarn
 ```
 
 ## 30-second example
