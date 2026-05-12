@@ -80,6 +80,7 @@
     "docs/AGENT_RECIPES.md",
     "!assets/demo.gif",
     "!assets/noche-moon.svg",
+    "!plugin/*.png",
     "README.md",
     "server.json",
     "LICENSE"
