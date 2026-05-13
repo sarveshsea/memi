@@ -1,0 +1,41 @@
+name: Publish to MCP Registry
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Verify npm package is published
+        run: |
+          LOCAL_VERSION="$(node -p "require('./package.json').version")"
+          PUBLISHED_VERSION="$(npm view @memi-design/cli@"${LOCAL_VERSION}" version)"
+          if [ "${PUBLISHED_VERSION}" != "${LOCAL_VERSION}" ]; then
+            echo "::error::@memi-design/cli@${LOCAL_VERSION} is not available on npm"
+            exit 1
+          fi
+          node -e "const p=require('./package.json'); const s=require('./server.json'); if (p.mcpName !== s.name) throw new Error('mcpName/server.json mismatch');"
+
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+          ./mcp-publisher --help
+
+      - name: Validate server.json
+        run: ./mcp-publisher validate server.json
+
+      - name: Authenticate to MCP Registry
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish server.json
+        run: ./mcp-publisher publish server.json

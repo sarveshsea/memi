@@ -37,6 +37,8 @@ mcp-publisher publish server.json
 curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.sarveshsea/memi"
 ```
 
+CI can publish without a local registry token through the `Publish to MCP Registry` GitHub Actions workflow. It uses GitHub OIDC, validates `server.json`, and refuses to publish until the matching `@memi-design/cli` version exists on npm.
+
 Expected registry result after publish:
 
 ```json
