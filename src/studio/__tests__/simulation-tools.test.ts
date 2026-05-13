@@ -32,6 +32,15 @@ describe("studio simulation tools", () => {
         "research.design_package",
         "research.generate_specs",
         "mermaid_jam.export",
+        "board.create",
+        "board.add_node",
+        "board.update_node",
+        "board.connect",
+        "board.layout",
+        "board.capture_ia",
+        "board.export_mermaid_jam",
+        "board.apply_template",
+        "board.sync_figjam",
       ]));
 
       const planned = await broker.call({
@@ -193,6 +202,75 @@ describe("studio simulation tools", () => {
       });
       const exportedPath = ((figjamExport.data as { exports: Array<{ outputPath: string }> }).exports[0].outputPath);
       await expect(readFile(exportedPath, "utf-8")).resolves.toContain("journey");
+
+      const boardCreate = await broker.call({
+        toolId: "board.create",
+        cwd: root,
+        input: {
+          id: "studio-e2e-board",
+          prompt: "Create a designer-friendly onboarding research board.",
+        },
+      });
+      expect(boardCreate).toMatchObject({
+        status: "completed",
+        data: {
+          board: {
+            id: "studio-e2e-board",
+            mode: "pm-brainstorm",
+            nodes: expect.any(Array),
+          },
+        },
+      });
+
+      const boardAdd = await broker.call({
+        toolId: "board.add_node",
+        cwd: root,
+        input: {
+          boardId: "studio-e2e-board",
+          kind: "risk",
+          laneId: "risks",
+          title: "Friction risk",
+          body: "The onboarding flow may hide source evidence from designers.",
+        },
+      });
+      expect(boardAdd).toMatchObject({
+        status: "completed",
+        data: {
+          board: {
+            nodes: expect.arrayContaining([expect.objectContaining({ title: "Friction risk" })]),
+          },
+        },
+      });
+
+      const boardExport = await broker.call({
+        toolId: "board.export_mermaid_jam",
+        cwd: root,
+        input: { boardId: "studio-e2e-board" },
+      });
+      expect(boardExport).toMatchObject({
+        status: "completed",
+        data: {
+          exports: expect.arrayContaining([expect.objectContaining({
+            outputPath: expect.stringContaining(".memoire/mermaid-jam/boards"),
+          })]),
+        },
+      });
+      const boardExportPath = ((boardExport.data as { exports: Array<{ outputPath: string }> }).exports[0].outputPath);
+      await expect(readFile(boardExportPath, "utf-8")).resolves.toContain("Friction risk");
+
+      await expect(broker.call({
+        toolId: "board.sync_figjam",
+        cwd: root,
+        input: { boardId: "studio-e2e-board" },
+      })).resolves.toMatchObject({
+        status: "completed",
+        data: {
+          sync: {
+            status: "fallback",
+            createdNodeCount: 0,
+          },
+        },
+      });
     } finally {
       await rm(root, { recursive: true, force: true });
     }

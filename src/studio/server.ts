@@ -125,6 +125,7 @@ import type {
   StudioAutomationDefinition,
   StudioAutomationRun,
   StudioCodexConfig,
+  StudioUsageProviderId,
 } from "./types.js";
 
 interface StudioRuntimeServerOptions {
@@ -410,6 +411,11 @@ export class StudioRuntimeServer {
         config,
         metrics: this.metrics(config),
       });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/usage") {
+      this.sendJSON(res, 200, { usage: await this.usageSnapshot() });
       return;
     }
 
@@ -1856,6 +1862,58 @@ export class StudioRuntimeServer {
     };
   }
 
+  private async usageSnapshot() {
+    const config = await this.getConfig();
+    const emptyTotals = () => ({
+      inputTokens: 0,
+      outputTokens: 0,
+      totalTokens: 0,
+      cachedInputTokens: 0,
+      reasoningTokens: 0,
+      estimatedCostUsd: 0,
+    });
+    const totals = emptyTotals();
+    const byHarness: Record<string, ReturnType<typeof emptyTotals>> = {};
+    const byProvider: Record<string, ReturnType<typeof emptyTotals>> = {};
+    const sessions = this.listSessionSummaries().map((session) => {
+      const sessionTotals = emptyTotals();
+      for (const event of this.readSessionRecord(session.id)?.events ?? []) {
+        if (event.type !== "token_usage" || !event.data || typeof event.data !== "object") continue;
+        const data = event.data as Record<string, unknown>;
+        sessionTotals.inputTokens += numberField(data.inputTokens) ?? numberField(data.input_tokens) ?? 0;
+        sessionTotals.outputTokens += numberField(data.outputTokens) ?? numberField(data.output_tokens) ?? 0;
+        sessionTotals.cachedInputTokens += numberField(data.cachedInputTokens) ?? numberField(data.cached_input_tokens) ?? 0;
+        sessionTotals.reasoningTokens += numberField(data.reasoningTokens) ?? numberField(data.reasoning_tokens) ?? 0;
+        sessionTotals.estimatedCostUsd += numberField(data.estimatedCostUsd) ?? numberField(data.estimated_cost_usd) ?? 0;
+      }
+      sessionTotals.totalTokens = sessionTotals.inputTokens + sessionTotals.outputTokens + sessionTotals.reasoningTokens;
+      addUsageTotals(totals, sessionTotals);
+      const provider = usageProviderForHarness(session.harness as StudioHarnessId);
+      byHarness[session.harness] ??= emptyTotals();
+      byProvider[provider] ??= emptyTotals();
+      addUsageTotals(byHarness[session.harness], sessionTotals);
+      addUsageTotals(byProvider[provider], sessionTotals);
+      return {
+        id: session.id,
+        harness: session.harness,
+        provider,
+        status: session.status,
+        startedAt: session.startedAt,
+        completedAt: session.completedAt ?? null,
+        totals: sessionTotals,
+      };
+    });
+    return {
+      generatedAt: new Date().toISOString(),
+      sessions,
+      totals,
+      byHarness,
+      byProvider,
+      rateLimits: [],
+      budgets: config.usageBudgets,
+    };
+  }
+
   private setBaseHeaders(res: ServerResponse): void {
     res.setHeader("access-control-allow-origin", "*");
     res.setHeader("access-control-allow-methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
@@ -1942,6 +2000,27 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function numberField(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function addUsageTotals(
+  target: { inputTokens: number; outputTokens: number; totalTokens: number; cachedInputTokens: number; reasoningTokens: number; estimatedCostUsd: number },
+  source: { inputTokens: number; outputTokens: number; totalTokens: number; cachedInputTokens: number; reasoningTokens: number; estimatedCostUsd: number },
+): void {
+  target.inputTokens += source.inputTokens;
+  target.outputTokens += source.outputTokens;
+  target.totalTokens += source.totalTokens;
+  target.cachedInputTokens += source.cachedInputTokens;
+  target.reasoningTokens += source.reasoningTokens;
+  target.estimatedCostUsd += source.estimatedCostUsd;
+}
+
+function usageProviderForHarness(harness: StudioHarnessId): StudioUsageProviderId {
+  if (harness === "codex" || harness === "opencode") return "openai";
+  if (harness === "claude-code") return "anthropic";
+  if (harness === "gemini") return "google";
+  if (harness === "ollama") return "local";
+  if (harness === "shell") return "shell";
+  return "memoire";
 }
 
 function normalizeRpcRequestSessionId(body: unknown): unknown {

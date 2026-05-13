@@ -33,6 +33,41 @@ describe("studio runtime server", () => {
     }
   });
 
+  it("serves a stable empty usage snapshot", async () => {
+    const root = await mkdtemp(join(tmpdir(), "memoire-studio-usage-"));
+    try {
+      const server = new StudioRuntimeServer({ projectRoot: root, port: 0 });
+      servers.push(server);
+      const runtime = await server.start();
+
+      const response = await fetch(`${runtime.url}/api/usage`);
+      const payload = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(payload.usage).toMatchObject({
+        sessions: [],
+        totals: {
+          inputTokens: 0,
+          outputTokens: 0,
+          totalTokens: 0,
+          cachedInputTokens: 0,
+          reasoningTokens: 0,
+          estimatedCostUsd: 0,
+        },
+        byHarness: {},
+        byProvider: {},
+        rateLimits: [],
+        budgets: {
+          warningThreshold: 0.8,
+          providers: {},
+          harnesses: {},
+        },
+      });
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it("rejects session starts outside configured workspace roots", async () => {
     const root = await mkdtemp(join(tmpdir(), "memoire-studio-server-"));
     try {

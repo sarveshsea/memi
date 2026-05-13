@@ -46,6 +46,64 @@ export interface StudioToolBrokerOptions {
   runFigmaAction?: (request: StudioFigmaActionRequest) => Promise<StudioFigmaActionResult>;
 }
 
+type BoardNodeKind = "mermaid" | "sticky" | "evidence" | "persona" | "risk" | "metric" | "spec" | "comment";
+type BoardMode = "pm-brainstorm" | "ia" | "sandbox";
+
+interface BoardNode {
+  id: string;
+  kind: BoardNodeKind;
+  title: string;
+  body: string;
+  mermaidSource?: string;
+  researchBacking: string[];
+  sourceEventIds: string[];
+  author: "human" | "agent";
+  laneId?: string;
+  priority?: "low" | "medium" | "high";
+  confidence?: number;
+  decisionStatus?: "open" | "recommended" | "decided" | "blocked";
+  position: { x: number; y: number; width: number; height: number };
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BoardEdge {
+  id: string;
+  fromNodeId: string;
+  toNodeId: string;
+  label: string;
+  sourceEventIds: string[];
+  author: "human" | "agent";
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BoardState {
+  schemaVersion: 1;
+  id: string;
+  title: string;
+  description: string;
+  mode: BoardMode;
+  templateId: string;
+  brief: { problem: string; targetUser: string; outcome: string; constraints: string[]; prompt?: string };
+  lastFigJamSync?: {
+    status: "idle" | "synced" | "fallback" | "unavailable" | "failed";
+    message: string;
+    syncedAt: string;
+    integration: string;
+    outputPaths: string[];
+    createdNodeCount: number;
+    artifactPath: string | null;
+    diagnostics: string[];
+    fallbackReason?: string;
+  } | null;
+  nodes: BoardNode[];
+  edges: BoardEdge[];
+  frames: Array<{ id: string; title: string; nodeIds: string[]; laneId?: string; position: { x: number; y: number; width: number; height: number } }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export class StudioToolBroker {
   private readonly projectRoot: string;
   private readonly getConfig: () => Promise<StudioConfig>;
@@ -84,6 +142,15 @@ export class StudioToolBroker {
       tool("research.design_package", "Research design", "research", "Preview research-backed vibe design specs and Mermaid Jam source.", false),
       tool("research.generate_specs", "Research specs", "research", "Write research-backed Atomic Design specs through the Memoire registry.", true),
       tool("mermaid_jam.export", "FigJam export", "research", "Write Mermaid Jam source artifacts for FigJam from research or simulation output.", false),
+      tool("board.create", "Board create", "board", "Create a local PM/FigJam-ready board from prompt or research context.", false),
+      tool("board.add_node", "Board node", "board", "Add a local board card with evidence metadata.", false),
+      tool("board.update_node", "Board update", "board", "Update a local board card.", false),
+      tool("board.connect", "Board connect", "board", "Connect two local board cards.", false),
+      tool("board.layout", "Board layout", "board", "Lay out local board cards into product-design lanes.", false),
+      tool("board.capture_ia", "IA capture", "board", "Capture an IA board from the current agent trace.", false),
+      tool("board.export_mermaid_jam", "Board export", "board", "Write local Mermaid Jam source files for a board without syncing externally.", false),
+      tool("board.apply_template", "Board template", "board", "Apply the product brainstorm template to a local board.", false),
+      tool("board.sync_figjam", "FigJam source", "board", "Prepare local FigJam source and report sync readiness without external writes.", false),
       tool("simulation.models", "Simulation models", "simulation", "List Codex-first model profiles available to Scenario Lab.", false),
       tool("simulation.generate_agents", "Simulation agents", "simulation", "Generate a 20-60 agent model-swarm cohort from research evidence.", false),
       tool("simulation.plan", "Simulation plan", "simulation", "Plan a local or model-swarm product simulation from research evidence.", false),
@@ -188,6 +255,24 @@ export class StudioToolBroker {
         return this.generateResearchSpecs(input);
       case "mermaid_jam.export":
         return this.exportMermaidJam(input);
+      case "board.create":
+        return this.createBoard(input);
+      case "board.add_node":
+        return this.addBoardNode(input);
+      case "board.update_node":
+        return this.updateBoardNode(input);
+      case "board.connect":
+        return this.connectBoardNodes(input);
+      case "board.layout":
+        return this.layoutBoard(input);
+      case "board.capture_ia":
+        return this.captureIABoard(input, request);
+      case "board.export_mermaid_jam":
+        return this.exportBoardMermaidJam(input);
+      case "board.apply_template":
+        return this.applyBoardTemplate(input);
+      case "board.sync_figjam":
+        return this.syncBoardFigJam(input);
       case "simulation.models":
         return this.listSimulationModels();
       case "simulation.generate_agents":
@@ -454,6 +539,260 @@ export class StudioToolBroker {
     return { spec: exportProductSpecFromRun(report) };
   }
 
+  private async createBoard(input: Record<string, unknown>): Promise<unknown> {
+    const board = this.applyBoardTemplateDefaults(this.newBoard(input, normalizeBoardMode(input.mode, "pm-brainstorm")));
+    await this.saveBoard(board);
+    return { board };
+  }
+
+  private async applyBoardTemplate(input: Record<string, unknown>): Promise<unknown> {
+    const board = this.applyBoardTemplateDefaults(await this.loadOrCreateBoard(input, "pm-brainstorm"));
+    await this.saveBoard(board);
+    return { board };
+  }
+
+  private async addBoardNode(input: Record<string, unknown>): Promise<unknown> {
+    const board = await this.loadOrCreateBoard(input, normalizeBoardMode(input.mode, "pm-brainstorm"));
+    const now = new Date().toISOString();
+    board.nodes.push({
+      id: optionalStringInput(input.nodeId ?? input.id) ?? `node-${Date.now().toString(36)}-${randomUUID().slice(0, 6)}`,
+      kind: normalizeBoardNodeKind(input.kind),
+      title: optionalStringInput(input.title) ?? titleForBoardNodeKind(normalizeBoardNodeKind(input.kind)),
+      body: optionalStringInput(input.body ?? input.text ?? input.prompt) ?? "Captured board note.",
+      mermaidSource: optionalStringInput(input.mermaidSource ?? input.source),
+      researchBacking: stringListInput(input.researchBacking ?? input.evidence),
+      sourceEventIds: stringListInput(input.sourceEventIds),
+      author: input.author === "human" ? "human" : "agent",
+      laneId: optionalStringInput(input.laneId) ?? laneForBoardNodeKind(normalizeBoardNodeKind(input.kind), board.mode),
+      priority: normalizePriority(input.priority),
+      confidence: numberInput(input.confidence, undefined),
+      decisionStatus: normalizeDecisionStatus(input.decisionStatus),
+      position: { x: 0, y: 0, width: 220, height: 128 },
+      createdAt: now,
+      updatedAt: now,
+    });
+    const laidOut = layoutBoardNodes(board);
+    await this.saveBoard(laidOut);
+    return { board: laidOut };
+  }
+
+  private async updateBoardNode(input: Record<string, unknown>): Promise<unknown> {
+    const board = await this.loadBoardOrThrow(boardIdFromInput(input));
+    const nodeId = stringInput(input.nodeId ?? input.id, "nodeId");
+    const node = board.nodes.find((candidate) => candidate.id === nodeId);
+    if (!node) throw Object.assign(new Error(`Unknown board node: ${nodeId}`), { statusCode: 404 });
+    node.title = optionalStringInput(input.title) ?? node.title;
+    node.body = optionalStringInput(input.body ?? input.text) ?? node.body;
+    node.mermaidSource = optionalStringInput(input.mermaidSource ?? input.source) ?? node.mermaidSource;
+    node.laneId = optionalStringInput(input.laneId) ?? node.laneId;
+    node.priority = normalizePriority(input.priority) ?? node.priority;
+    node.confidence = numberInput(input.confidence, undefined) ?? node.confidence;
+    node.decisionStatus = normalizeDecisionStatus(input.decisionStatus) ?? node.decisionStatus;
+    node.updatedAt = new Date().toISOString();
+    board.updatedAt = node.updatedAt;
+    await this.saveBoard(board);
+    return { board, node };
+  }
+
+  private async connectBoardNodes(input: Record<string, unknown>): Promise<unknown> {
+    const board = await this.loadBoardOrThrow(boardIdFromInput(input));
+    const fromNodeId = stringInput(input.fromNodeId ?? input.from, "fromNodeId");
+    const toNodeId = stringInput(input.toNodeId ?? input.to, "toNodeId");
+    if (!board.nodes.some((node) => node.id === fromNodeId)) throw Object.assign(new Error(`Unknown board node: ${fromNodeId}`), { statusCode: 404 });
+    if (!board.nodes.some((node) => node.id === toNodeId)) throw Object.assign(new Error(`Unknown board node: ${toNodeId}`), { statusCode: 404 });
+    const now = new Date().toISOString();
+    const edge: BoardEdge = {
+      id: optionalStringInput(input.edgeId ?? input.id) ?? `edge-${Date.now().toString(36)}-${randomUUID().slice(0, 6)}`,
+      fromNodeId,
+      toNodeId,
+      label: optionalStringInput(input.label) ?? "relates to",
+      sourceEventIds: stringListInput(input.sourceEventIds),
+      author: input.author === "human" ? "human" : "agent",
+      createdAt: now,
+      updatedAt: now,
+    };
+    board.edges.push(edge);
+    board.updatedAt = now;
+    await this.saveBoard(board);
+    return { board, edge };
+  }
+
+  private async layoutBoard(input: Record<string, unknown>): Promise<unknown> {
+    const board = layoutBoardNodes(await this.loadBoardOrThrow(boardIdFromInput(input)));
+    await this.saveBoard(board);
+    return { board };
+  }
+
+  private async captureIABoard(input: Record<string, unknown>, request: StudioToolCallRequest): Promise<unknown> {
+    const board = this.applyBoardTemplateDefaults(this.newBoard({ ...input, id: optionalStringInput(input.boardId ?? input.id) ?? "studio-ia-board" }, "ia"));
+    const events = Array.isArray(input.events) ? input.events.filter((event): event is StudioEvent => Boolean(event && typeof event === "object")) : [];
+    const sourceEventIds = events.map((event) => event.id).filter(Boolean).slice(0, 8);
+    const now = new Date().toISOString();
+    const prompt = optionalStringInput(input.prompt) ?? "Capture IA from current run.";
+    board.nodes.push({
+      id: `ia-source-${randomUUID().slice(0, 8)}`,
+      kind: "evidence",
+      title: "Run evidence",
+      body: events.slice(-3).map((event) => event.message).join("\n") || prompt,
+      researchBacking: [],
+      sourceEventIds: sourceEventIds.length ? sourceEventIds : request.sessionId ? [request.sessionId] : [],
+      author: "agent",
+      laneId: "evidence",
+      position: { x: 0, y: 0, width: 240, height: 140 },
+      createdAt: now,
+      updatedAt: now,
+    });
+    const laidOut = layoutBoardNodes(board);
+    await this.saveBoard(laidOut);
+    return { board: laidOut };
+  }
+
+  private async exportBoardMermaidJam(input: Record<string, unknown>): Promise<unknown> {
+    const board = await this.loadBoardOrThrow(boardIdFromInput(input));
+    const exports = await this.writeBoardExports(board);
+    return { board, exports, integration: await resolveMermaidJamIntegration({ projectRoot: this.projectRoot }) };
+  }
+
+  private async syncBoardFigJam(input: Record<string, unknown>): Promise<unknown> {
+    const board = await this.loadBoardOrThrow(boardIdFromInput(input));
+    const exports = await this.writeBoardExports(board);
+    const sync = {
+      status: "fallback" as const,
+      message: "Local Mermaid Jam source is ready. Direct FigJam writes were not executed.",
+      syncedAt: new Date().toISOString(),
+      integration: exports[0]?.integration ?? "mermaid-jam",
+      outputPaths: exports.map((item) => item.outputPath),
+      createdNodeCount: 0,
+      artifactPath: exports[0]?.outputPath ?? null,
+      diagnostics: ["External FigJam sync requires an explicit approval and connected bridge."],
+      fallbackReason: "No external FigJam write was requested.",
+    };
+    board.lastFigJamSync = sync;
+    board.updatedAt = sync.syncedAt;
+    await this.saveBoard(board);
+    return { board, exports, sync };
+  }
+
+  private newBoard(input: Record<string, unknown>, mode: BoardMode): BoardState {
+    const now = new Date().toISOString();
+    const prompt = optionalStringInput(input.prompt);
+    const id = optionalStringInput(input.id ?? input.boardId) ?? (mode === "ia" ? "studio-ia-board" : "studio-mermaid-board");
+    return {
+      schemaVersion: 1,
+      id,
+      title: optionalStringInput(input.title) ?? (mode === "ia" ? "IA Board" : "Product Design Board"),
+      description: optionalStringInput(input.description) ?? "Local Studio board for product design planning and FigJam source export.",
+      mode,
+      templateId: optionalStringInput(input.templateId) ?? (mode === "ia" ? "ia-journeys" : "pm-brainstorm"),
+      brief: {
+        problem: optionalStringInput(input.problem) ?? prompt ?? "Clarify the product design direction.",
+        targetUser: optionalStringInput(input.targetUser) ?? "Product designers and PMs",
+        outcome: optionalStringInput(input.outcome) ?? "A board of editable, evidence-linked design decisions.",
+        constraints: stringListInput(input.constraints),
+        ...(prompt ? { prompt } : {}),
+      },
+      lastFigJamSync: null,
+      nodes: [],
+      edges: [],
+      frames: [],
+      createdAt: now,
+      updatedAt: now,
+    };
+  }
+
+  private applyBoardTemplateDefaults(board: BoardState): BoardState {
+    if (board.nodes.length > 0) return layoutBoardNodes(board);
+    const now = new Date().toISOString();
+    const defaults = board.mode === "ia"
+      ? [
+          ["sitemap", "spec", "Sitemap hypothesis", "Top-level routes and product areas to validate."],
+          ["navigation", "sticky", "Navigation model", "Primary wayfinding, labels, and hierarchy."],
+          ["journeys", "mermaid", "Journey flow", "flowchart TD\n  Start[Open product] --> Decide[Choose task]\n  Decide --> Done[Complete flow]"],
+          ["screens", "spec", "Screen inventory", "Screens and states required for the next prototype."],
+        ]
+      : [
+          ["problem", "sticky", "Problem", board.brief.problem],
+          ["users", "persona", "User", board.brief.targetUser],
+          ["journey", "mermaid", "Journey map", "journey\n  title Product design review\n  section Discover\n    Gather evidence: 5: Designer\n  section Decide\n    Compare options: 4: PM\n  section Ship\n    Export FigJam source: 5: Designer"],
+          ["opportunities", "spec", "Opportunity", board.brief.outcome],
+          ["risks", "risk", "Risk", "Source evidence can get lost if the board is not kept local and editable."],
+          ["metrics", "metric", "Metric", "Decision confidence and handoff completeness."],
+        ];
+    board.nodes = defaults.map(([laneId, kind, title, body], index) => ({
+      id: `node-${safeSlug(laneId)}-${index + 1}`,
+      kind: normalizeBoardNodeKind(kind),
+      title,
+      body,
+      mermaidSource: kind === "mermaid" ? body : undefined,
+      researchBacking: [],
+      sourceEventIds: [],
+      author: "agent",
+      laneId,
+      priority: index === 0 ? "high" : "medium",
+      decisionStatus: kind === "risk" ? "open" : undefined,
+      position: { x: 0, y: 0, width: 220, height: 128 },
+      createdAt: now,
+      updatedAt: now,
+    }));
+    board.updatedAt = now;
+    return layoutBoardNodes(board);
+  }
+
+  private async loadOrCreateBoard(input: Record<string, unknown>, mode: BoardMode): Promise<BoardState> {
+    const id = optionalStringInput(input.boardId ?? input.id);
+    if (id) {
+      const loaded = await this.loadBoard(id);
+      if (loaded) return loaded;
+    }
+    return this.newBoard(input, mode);
+  }
+
+  private async loadBoardOrThrow(id: string): Promise<BoardState> {
+    const board = await this.loadBoard(id);
+    if (!board) throw Object.assign(new Error(`Unknown board: ${id}`), { statusCode: 404 });
+    return board;
+  }
+
+  private async loadBoard(id: string): Promise<BoardState | null> {
+    try {
+      return JSON.parse(await readFile(this.boardPath(id), "utf-8")) as BoardState;
+    } catch {
+      return null;
+    }
+  }
+
+  private async saveBoard(board: BoardState): Promise<void> {
+    await mkdir(dirname(this.boardPath(board.id)), { recursive: true });
+    await writeFile(this.boardPath(board.id), JSON.stringify(board, null, 2) + "\n", "utf-8");
+  }
+
+  private boardPath(id: string): string {
+    return join(this.projectRoot, ".memoire", "studio", "boards", `${safeSlug(id)}.json`);
+  }
+
+  private async writeBoardExports(board: BoardState) {
+    const integration = await resolveMermaidJamIntegration({ projectRoot: this.projectRoot });
+    const outputDir = join(this.projectRoot, ".memoire", "mermaid-jam", "boards", safeSlug(board.id));
+    await mkdir(outputDir, { recursive: true });
+    const markdownSource = boardMarkdownSource(board);
+    const mermaidSource = boardMermaidSource(board);
+    const jsonSource = JSON.stringify(board, null, 2);
+    const outputs = [
+      { id: `${board.id}-summary`, title: `${board.title} summary`, format: "markdown" as const, kind: "board-summary" as const, source: markdownSource, outputPath: join(outputDir, "board.md") },
+      { id: `${board.id}-source`, title: `${board.title} Mermaid`, format: "mermaid" as const, kind: "board-source" as const, source: mermaidSource, outputPath: join(outputDir, "board.mmd") },
+      { id: `${board.id}-json`, title: `${board.title} JSON`, format: "json" as const, kind: "board-json" as const, source: jsonSource, outputPath: join(outputDir, "board.json") },
+    ];
+    for (const output of outputs) await writeFile(output.outputPath, output.source, "utf-8");
+    return outputs.map((output) => ({
+      ...output,
+      integration: integration.id,
+      nextSteps: [
+        `Open Mermaid Jam in FigJam using ${integration.local.ready && integration.local.manifestPath ? integration.local.manifestPath : integration.communityUrl}.`,
+        `Paste the saved source from ${output.outputPath}; no external sync was executed by Studio.`,
+      ],
+    }));
+  }
+
   private async simulationTranscript(input: Record<string, unknown>): Promise<unknown> {
     const store = new FileSimulationStore(this.projectRoot);
     const run = await store.loadRun(stringInput(input.runId, "runId"));
@@ -538,6 +877,15 @@ const MEMOIRE_MCP_TOOL_NAMES = [
   "research.design_package",
   "research.generate_specs",
   "mermaid_jam.export",
+  "board.create",
+  "board.add_node",
+  "board.update_node",
+  "board.connect",
+  "board.layout",
+  "board.capture_ia",
+  "board.export_mermaid_jam",
+  "board.apply_template",
+  "board.sync_figjam",
   "simulation.models",
   "simulation.generate_agents",
   "simulation.plan",
@@ -575,6 +923,146 @@ function stringInput(value: unknown, name: string): string {
 
 function optionalStringInput(value: unknown): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
+function stringListInput(value: unknown): string[] {
+  if (Array.isArray(value)) return value.filter((item): item is string => typeof item === "string" && item.length > 0);
+  if (typeof value === "string" && value.length > 0) return [value];
+  return [];
+}
+
+function boardIdFromInput(input: Record<string, unknown>): string {
+  return optionalStringInput(input.boardId ?? input.id) ?? "studio-mermaid-board";
+}
+
+function normalizeBoardMode(value: unknown, fallback: BoardMode): BoardMode {
+  if (value === "pm-brainstorm" || value === "ia" || value === "sandbox") return value;
+  return fallback;
+}
+
+function normalizeBoardNodeKind(value: unknown): BoardNodeKind {
+  if (value === "mermaid" || value === "sticky" || value === "evidence" || value === "persona" || value === "risk" || value === "metric" || value === "spec" || value === "comment") return value;
+  return "sticky";
+}
+
+function titleForBoardNodeKind(kind: BoardNodeKind): string {
+  if (kind === "persona") return "Persona";
+  if (kind === "risk") return "Risk";
+  if (kind === "metric") return "Metric";
+  if (kind === "spec") return "Spec";
+  if (kind === "evidence") return "Evidence";
+  if (kind === "comment") return "Decision";
+  if (kind === "mermaid") return "Flow";
+  return "Note";
+}
+
+function laneForBoardNodeKind(kind: BoardNodeKind, mode: BoardMode): string {
+  if (mode === "ia") {
+    if (kind === "mermaid") return "journeys";
+    if (kind === "spec") return "screens";
+    return "evidence";
+  }
+  if (kind === "persona") return "users";
+  if (kind === "mermaid") return "journey";
+  if (kind === "spec") return "opportunities";
+  if (kind === "comment") return "decisions";
+  if (kind === "risk") return "risks";
+  if (kind === "metric") return "metrics";
+  if (kind === "evidence") return "next-steps";
+  return "problem";
+}
+
+function normalizePriority(value: unknown): BoardNode["priority"] | undefined {
+  if (value === "low" || value === "medium" || value === "high") return value;
+  return undefined;
+}
+
+function normalizeDecisionStatus(value: unknown): BoardNode["decisionStatus"] | undefined {
+  if (value === "open" || value === "recommended" || value === "decided" || value === "blocked") return value;
+  return undefined;
+}
+
+function layoutBoardNodes(board: BoardState): BoardState {
+  const laneOrder = board.mode === "ia"
+    ? ["sitemap", "navigation", "journeys", "screens", "evidence"]
+    : ["problem", "users", "journey", "opportunities", "decisions", "risks", "metrics", "next-steps"];
+  const laneIndex = new Map(laneOrder.map((lane, index) => [lane, index]));
+  const counts = new Map<string, number>();
+  const now = new Date().toISOString();
+  board.nodes = board.nodes.map((node) => {
+    const laneId = node.laneId ?? laneForBoardNodeKind(node.kind, board.mode);
+    const index = counts.get(laneId) ?? 0;
+    counts.set(laneId, index + 1);
+    return {
+      ...node,
+      laneId,
+      position: {
+        x: (laneIndex.get(laneId) ?? laneOrder.length) * 260,
+        y: index * 160,
+        width: node.position?.width ?? 220,
+        height: node.position?.height ?? 128,
+      },
+      updatedAt: node.updatedAt ?? now,
+    };
+  });
+  board.frames = laneOrder.map((lane, index) => ({
+    id: `frame-${lane}`,
+    title: lane.replace(/-/g, " "),
+    laneId: lane,
+    nodeIds: board.nodes.filter((node) => node.laneId === lane).map((node) => node.id),
+    position: { x: index * 260 - 16, y: -48, width: 248, height: Math.max(180, (counts.get(lane) ?? 1) * 160) },
+  }));
+  board.updatedAt = now;
+  return board;
+}
+
+function boardMarkdownSource(board: BoardState): string {
+  return [
+    `# ${board.title}`,
+    "",
+    board.description,
+    "",
+    `Problem: ${board.brief.problem}`,
+    `Target user: ${board.brief.targetUser}`,
+    `Outcome: ${board.brief.outcome}`,
+    "",
+    "## Cards",
+    ...board.nodes.map((node) => [
+      "",
+      `### ${node.title}`,
+      `Lane: ${node.laneId ?? laneForBoardNodeKind(node.kind, board.mode)} / ${node.kind}`,
+      node.body,
+      node.mermaidSource ? `\n\`\`\`mermaid\n${node.mermaidSource}\n\`\`\`` : "",
+    ].filter(Boolean).join("\n")),
+  ].join("\n");
+}
+
+function boardMermaidSource(board: BoardState): string {
+  const lines = ["flowchart LR"];
+  for (const node of board.nodes) {
+    lines.push(`  ${safeMermaidId(node.id)}["${escapeMermaidLabel(node.title)}"]`);
+  }
+  for (const edge of board.edges) {
+    lines.push(`  ${safeMermaidId(edge.fromNodeId)} -->|${escapeMermaidLabel(edge.label)}| ${safeMermaidId(edge.toNodeId)}`);
+  }
+  if (board.edges.length === 0) {
+    for (let index = 0; index < board.nodes.length - 1; index += 1) {
+      lines.push(`  ${safeMermaidId(board.nodes[index].id)} --> ${safeMermaidId(board.nodes[index + 1].id)}`);
+    }
+  }
+  return `${lines.join("\n")}\n`;
+}
+
+function safeSlug(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 96) || "board";
+}
+
+function safeMermaidId(value: string): string {
+  return `n_${value.replace(/[^A-Za-z0-9_]/g, "_")}`;
+}
+
+function escapeMermaidLabel(value: string): string {
+  return value.replace(/"/g, "'");
 }
 
 function normalizeSimulationAdapter(value: unknown, fallback: SimulationAdapterKind): SimulationAdapterKind {

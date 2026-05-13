@@ -70,6 +70,11 @@ export function defaultStudioConfig(projectRoot: string): StudioConfig {
       lastCheckedAt: null,
       downloadReadyAcknowledged: false,
     },
+    usageBudgets: {
+      warningThreshold: 0.8,
+      providers: {},
+      harnesses: {},
+    },
     harnesses: getHarnessManifest().harnesses.map((harness) => ({
       ...harness,
       enabled: harness.enabledByDefault,
@@ -156,6 +161,17 @@ function mergeStudioConfig(defaults: StudioConfig, raw: Partial<StudioConfig>): 
       ...defaults.setup,
       ...(raw.setup ?? {}),
       wizardVersion: 1,
+    },
+    usageBudgets: {
+      warningThreshold: raw.usageBudgets?.warningThreshold ?? defaults.usageBudgets.warningThreshold,
+      providers: {
+        ...defaults.usageBudgets.providers,
+        ...(raw.usageBudgets?.providers ?? {}),
+      },
+      harnesses: {
+        ...defaults.usageBudgets.harnesses,
+        ...(raw.usageBudgets?.harnesses ?? {}),
+      },
     },
     figma: {
       autoStartBridge: raw.figma?.autoStartBridge ?? defaults.figma?.autoStartBridge ?? false,
