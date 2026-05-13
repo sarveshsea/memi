@@ -9,7 +9,7 @@ const pkg = JSON.parse(await readFile(join(root, "package.json"), "utf-8"));
 
 const packageName = process.env.PACKAGE_NAME || pkg.name;
 const expectedVersion = process.env.EXPECTED_VERSION || pkg.version;
-const expectedPhrase = process.env.EXPECTED_README_PHRASE || "Design CI for shadcn/Tailwind apps";
+const expectedPhrase = process.env.EXPECTED_README_PHRASE || "Design-system memory for coding agents";
 const expectedInstall = process.env.EXPECTED_INSTALL_COMMAND || `npm i -g ${packageName}`;
 const attempts = Number.parseInt(process.env.NPM_VERIFY_ATTEMPTS || "12", 10);
 const delayMs = Number.parseInt(process.env.NPM_VERIFY_DELAY_MS || "10000", 10);

@@ -42,7 +42,10 @@ describe("studio config", () => {
       expect(config.harnesses.filter((harness) => harness.enabled).map((harness) => harness.id)).toEqual([
         "claude-code",
         "codex",
-        "hermes",
+      ]);
+      expect(config.harnesses.filter((harness) => harness.visibility === "primary").map((harness) => harness.id)).toEqual([
+        "claude-code",
+        "codex",
       ]);
       expect(config.permissions).toMatchObject({
         workspaceWrite: "allow",

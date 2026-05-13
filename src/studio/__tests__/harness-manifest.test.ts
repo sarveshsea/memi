@@ -40,7 +40,26 @@ describe("studio harness manifest", () => {
     expect(manifest.harnesses.filter((harness) => harness.enabledByDefault).map((harness) => harness.id)).toEqual([
       "claude-code",
       "codex",
+    ]);
+  });
+
+  it("marks Codex and Claude Code as the only primary Studio harnesses", () => {
+    const manifest = getHarnessManifest();
+    const primaryHarnesses = manifest.harnesses.filter((harness) => harness.visibility === "primary");
+    const advancedHarnesses = manifest.harnesses.filter((harness) => harness.visibility === "advanced");
+
+    expect(primaryHarnesses.map((harness) => harness.id)).toEqual(["claude-code", "codex"]);
+    expect(advancedHarnesses.map((harness) => harness.id)).toEqual([
+      "memoire",
+      "opencode",
+      "gemini",
+      "ollama",
       "hermes",
+      "shell",
+    ]);
+    expect(defaultStudioConfig("/tmp/project").harnesses.filter((harness) => harness.visibility === "primary").map((harness) => harness.id)).toEqual([
+      "claude-code",
+      "codex",
     ]);
   });
 

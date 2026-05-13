@@ -219,7 +219,10 @@ describe("studio harnesses", () => {
 
   it("enables Hermes toolsets for memory, skills, terminal, and file-backed design work", () => {
     const root = "/tmp/project";
-    const config = defaultStudioConfig(root);
+    const config = {
+      ...defaultStudioConfig(root),
+      harnesses: defaultStudioConfig(root).harnesses.map((harness) => harness.id === "hermes" ? { ...harness, enabled: true } : harness),
+    };
     const command = buildHarnessCommand(config, {
       harnessId: "hermes",
       cwd: root,

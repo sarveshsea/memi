@@ -1,4 +1,4 @@
-import { mkdtemp, rm } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
@@ -89,4 +89,65 @@ describe("studio runtime server", () => {
       await rm(root, { recursive: true, force: true });
     }
   });
+
+  it("journals Codex sessions as ProviderRuntimeEvents and replays them through /api/rpc", async () => {
+    const root = await mkdtemp(join(tmpdir(), "memoire-studio-rpc-"));
+    const bin = join(root, "bin");
+    const oldPath = process.env.PATH;
+    try {
+      await mkdir(bin, { recursive: true });
+      const codex = join(bin, "codex");
+      await writeFile(codex, "#!/bin/sh\necho '{\"type\":\"agent_message\",\"message\":\"done\"}'\n");
+      await chmod(codex, 0o755);
+      process.env.PATH = `${bin}:${oldPath ?? ""}`;
+
+      const server = new StudioRuntimeServer({ projectRoot: root, port: 0 });
+      servers.push(server);
+      const runtime = await server.start();
+
+      const created = await fetch(`${runtime.url}/api/sessions`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          harness: "codex",
+          cwd: root,
+          prompt: "hello",
+          action: "raw",
+        }),
+      }).then((res) => res.json());
+
+      await waitFor(() => server.getSession(created.session.id)?.status === "completed");
+      const rpc = await fetch(`${runtime.url}/api/rpc`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          op: "replayEvents",
+          requestId: "r1",
+          sessionId: created.session.id,
+        }),
+      }).then((res) => res.json());
+
+      const eventTypes = rpc.responses
+        .filter((response: { kind: string }) => response.kind === "event")
+        .map((response: { event: { type: string } }) => response.event.type);
+      expect(eventTypes).toEqual(expect.arrayContaining([
+        "message.user",
+        "session.created",
+        "turn.completed",
+      ]));
+      expect(rpc.responses.some((response: { kind: string }) => response.kind === "end")).toBe(true);
+    } finally {
+      process.env.PATH = oldPath;
+      await rm(root, { recursive: true, force: true });
+    }
+  });
 });
+
+async function waitFor(check: () => boolean, timeoutMs = 3_000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (check()) return;
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  throw new Error("Timed out waiting for condition");
+}

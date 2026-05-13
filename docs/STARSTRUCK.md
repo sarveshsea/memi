@@ -47,7 +47,7 @@ Then publish to the official MCP Registry:
 ```bash
 mcp-publisher login github
 mcp-publisher publish server.json
-curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.sarveshsea/memoire"
+curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.sarveshsea/memi"
 ```
 
 Why this matters: the official registry only hosts metadata, but MCP directories and aggregators use it as a trust source. Once this is live, submit or refresh every MCP directory with the same npm/GitHub links.
@@ -90,7 +90,7 @@ Why this matters: the official registry only hosts metadata, but MCP directories
 ## Launch Sequence For 12 Stars
 
 1. Publish `0.14.4` with security hardening, `mcpName`, and `server.json`.
-2. Publish to the official MCP Registry and verify search returns `io.github.sarveshsea/memoire`.
+2. Publish to the official MCP Registry and verify search returns `io.github.sarveshsea/memi`.
 3. Submit MCP.Directory, refresh Glama, submit Smithery, confirm PulseMCP and mcp.so indexing.
 4. Follow up on open PRs only with new proof: official registry link, security hardening, or maintainer-requested fixes.
 5. Ship one 60-second terminal demo: install, `memi diagnose`, `memi shadcn export`, `memi mcp config --install`.

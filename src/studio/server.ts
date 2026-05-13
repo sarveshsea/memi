@@ -74,6 +74,10 @@ import { StudioDownloadStore } from "./downloads.js";
 import { StudioToolBroker } from "./tool-broker.js";
 import { buildSessionReferenceTrace } from "./reference-trace.js";
 import { createStudioTraceSnapshot } from "./view-model.js";
+import { asId, makeId } from "./contracts/ids.js";
+import type { ProviderRuntimeEvent } from "./contracts/provider-runtime.js";
+import { FileEventJournal } from "./journal/event-journal.js";
+import { RpcServer } from "./rpc/server.js";
 import { FileSimulationStore } from "../simulation/index.js";
 import type { ResearchStore } from "../research/engine.js";
 import {
@@ -162,7 +166,9 @@ export class StudioRuntimeServer {
   private readonly toolBroker: StudioToolBroker;
   private readonly automations: StudioAutomationStore;
   private readonly downloads: StudioDownloadStore;
+  private readonly eventJournal: FileEventJournal;
   private readonly toolCalls = new Map<string, StudioToolCallResult>();
+  private readonly providerEventSeq = new Map<string, number>();
   private readonly startedAt = Date.now();
   private readonly activeStreams = new Set<string>();
   private eventBufferSize = 0;
@@ -177,6 +183,7 @@ export class StudioRuntimeServer {
     this.sessionStore = new StudioSessionStore(this.projectRoot);
     this.automations = new StudioAutomationStore(this.projectRoot);
     this.downloads = new StudioDownloadStore(this.projectRoot);
+    this.eventJournal = new FileEventJournal(this.projectRoot);
     this.browser = new StudioBrowserAdapter({ projectRoot: this.projectRoot });
     this.computer = new StudioComputerAdapter({ projectRoot: this.projectRoot });
     this.figma = options.figma ?? new StudioFigmaController({
@@ -418,6 +425,28 @@ export class StudioRuntimeServer {
 
     if (req.method === "GET" && url.pathname === "/api/tools") {
       this.sendJSON(res, 200, { tools: this.toolBroker.listTools() });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/rpc") {
+      const body = normalizeRpcRequestSessionId(await readJSON(req));
+      const rpc = new RpcServer({
+        journal: this.eventJournal,
+        resolver: {
+          resolveDriver: () => null,
+          resolveHarnessId: (sessionId) => {
+            const key = studioSessionKeyFromProviderSessionId(sessionId as unknown as string);
+            const session = this.sessions.get(key) ?? this.sessionStore.getSession(key);
+            return session ? asId("HarnessId", `hns_${session.harness}`) : null;
+          },
+          createDriver: () => {
+            throw new Error("Live ProviderRuntime drivers are not mounted on the legacy Studio server yet");
+          },
+        },
+      });
+      const responses: unknown[] = [];
+      for await (const response of rpc.dispatch(body)) responses.push(response);
+      this.sendJSON(res, 200, { responses });
       return;
     }
 
@@ -1585,6 +1614,10 @@ export class StudioRuntimeServer {
     if (session.events.length > this.maxInMemoryEvents) session.events.splice(0, session.events.length - this.maxInMemoryEvents);
     this.eventBufferSize = Math.min(200_000, this.eventBufferSize + event.message.length);
     this.sessionStore.appendEvent(session, event);
+    const providerEvent = this.providerRuntimeEventFromStudioEvent(session, event);
+    if (providerEvent) {
+      void this.eventJournal.append(providerEvent.sessionId, providerEvent).catch(() => undefined);
+    }
     if (shouldCaptureKnowledgeEvent(event)) {
       void captureKnowledgeEvent(this.projectRoot, event, {
         harness: session.harness,
@@ -1617,6 +1650,81 @@ export class StudioRuntimeServer {
     for (const client of this.clients) {
       if (client.sessionId === sessionId) writeSSE(client.res, event);
     }
+  }
+
+  private providerRuntimeEventFromStudioEvent(session: StudioSession, event: StudioEvent): ProviderRuntimeEvent | null {
+    if (session.harness !== "codex" && session.harness !== "claude-code") return null;
+    const base = {
+      eventId: providerRuntimeId("EventId", event.id),
+      seq: this.nextProviderEventSeq(session.id),
+      harnessId: asId("HarnessId", `hns_${session.harness}`),
+      providerInstanceId: asId("ProviderInstanceId", `prv_${session.id}`),
+      sessionId: providerRuntimeId("SessionId", session.id),
+      createdAt: event.timestamp,
+    };
+    const message = redactSecrets(event.message ?? "");
+
+    if (event.type === "session_started") {
+      return {
+        ...base,
+        type: "session.created",
+        harnessConfigSummary: {
+          harness: base.harnessId,
+          model: session.harness === "codex" ? "gpt-5.5" : undefined,
+        },
+      };
+    }
+    if (event.type === "chat_message") return { ...base, type: "message.user", text: message };
+    if (event.type === "reasoning") return { ...base, type: "reasoning.complete", text: message };
+    if (event.type === "tool_call") {
+      const data = isRecord(event.data) ? event.data : {};
+      return {
+        ...base,
+        type: "tool.call.started",
+        toolCallId: providerRuntimeId("ToolCallId", data.id ?? data.callId),
+        tool: String(data.name ?? data.tool ?? data.toolId ?? (message || "tool")),
+        args: data.input ?? data.args ?? data,
+      };
+    }
+    if (event.type === "tool_result") {
+      const data = isRecord(event.data) ? event.data : {};
+      return {
+        ...base,
+        type: "tool.call.completed",
+        toolCallId: providerRuntimeId("ToolCallId", data.id ?? data.callId ?? data.toolUseId),
+        ok: data.ok !== false,
+        result: data.output ?? data.result ?? message,
+        error: typeof data.error === "string" ? data.error : undefined,
+        elapsedMs: numberField(data.elapsedMs) ?? 0,
+      };
+    }
+    if (event.type === "token_usage") {
+      const data = isRecord(event.data) ? event.data : {};
+      return {
+        ...base,
+        type: "usage.updated",
+        inputTokens: numberField(data.inputTokens) ?? numberField(data.input_tokens) ?? 0,
+        outputTokens: numberField(data.outputTokens) ?? numberField(data.output_tokens) ?? 0,
+        reasoningTokens: numberField(data.reasoningTokens) ?? numberField(data.reasoning_tokens) ?? undefined,
+        estimatedCostUsd: numberField(data.estimatedCostUsd) ?? numberField(data.estimated_cost_usd) ?? undefined,
+      };
+    }
+    if (event.type === "session_done") {
+      return { ...base, type: "turn.completed", outcome: session.status === "cancelled" ? "cancelled" : "success" };
+    }
+    if (event.type === "session_error" || event.type === "stderr") {
+      return { ...base, type: "diagnostic.error", message, data: event.data };
+    }
+    if (event.type === "stdout" || event.type === "harness_log" || event.type === "package_log") {
+      return { ...base, type: "diagnostic.warn", message, data: event.data };
+    }
+    return null;
+  }
+
+  private nextProviderEventSeq(sessionId: string): number {
+    const next = (this.providerEventSeq.get(sessionId) ?? 0) + 1;
+    this.providerEventSeq.set(sessionId, next);
+    return next;
   }
 
   private emitToolCallEvents(request: StudioToolCallRequest, call: StudioToolCallResult): void {
@@ -1826,6 +1934,43 @@ function canonicalPath(path: string): string {
   } catch {
     return resolved;
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function numberField(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function normalizeRpcRequestSessionId(body: unknown): unknown {
+  if (!isRecord(body) || typeof body.sessionId !== "string") return body;
+  return { ...body, sessionId: providerRuntimeId("SessionId", body.sessionId) };
+}
+
+function studioSessionKeyFromProviderSessionId(sessionId: string): string {
+  return sessionId.startsWith("ses_") ? sessionId.slice("ses_".length) : sessionId;
+}
+
+const RUNTIME_ID_PREFIXES = {
+  EventId: "evt",
+  SessionId: "ses",
+  ToolCallId: "tcl",
+} as const;
+
+function providerRuntimeId<K extends keyof typeof RUNTIME_ID_PREFIXES>(kind: K, raw: unknown): ReturnType<typeof makeId<K>> {
+  const prefix = RUNTIME_ID_PREFIXES[kind];
+  if (typeof raw === "string" && raw.startsWith(`${prefix}_`)) {
+    return asId(kind, raw) as ReturnType<typeof makeId<K>>;
+  }
+  if (typeof raw !== "string" || !raw.trim()) return makeId(kind);
+  return asId(kind, `${prefix}_${safeRuntimeIdSuffix(raw)}`) as ReturnType<typeof makeId<K>>;
+}
+
+function safeRuntimeIdSuffix(raw: string): string {
+  const suffix = raw.trim().replace(/[^A-Za-z0-9._:-]/g, "_").slice(0, 160);
+  return suffix || randomUUID().replace(/-/g, "");
 }
 
 function summarySession(

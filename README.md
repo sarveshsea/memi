@@ -95,26 +95,23 @@ See [`docs/CODEX_PLUGIN.md`](./docs/CODEX_PLUGIN.md) and the public plugin page 
 
 ### memi Studio for macOS
 
-memi includes a Studio app: a macOS agent workbench and local web shell for Claude Code, Codex, Hermes, OpenCode, Ollama, Gemini, memi Native, project memory, the Figma bridge, and an in-app Marketplace for memi Notes. The desktop app includes a native Agent Kits panel so you can dry-run, install, and force-refresh Hermes/OpenClaw/Claude/Cursor/Codex/OpenCode kits without leaving Studio. Studio and the CLI share the same daemon-aware install path, suite manifest, project memory, harness metadata, and MCP startup guidance.
+The macOS app now lives in its own repo: [github.com/sarveshsea/memi-studio](https://github.com/sarveshsea/memi-studio). This npm package owns the engine/runtime it embeds: harness metadata, project memory, the Figma bridge, Agent Kits, and the local Studio web/TUI surfaces. The desktop app stays minimalist; the engine stays powerful and scriptable.
 
 ```bash
-# web/TUI workflows from npm
+# engine-backed web/TUI workflows from npm
 memi studio web --port 1422
 memi studio tui
 memi studio logs --follow
 memi studio run --harness codex --action design-doc --prompt "Audit this UI and generate a design spec"
 
-# local macOS app build
-npm run studio:build
-open "apps/studio/src-tauri/target/release/bundle/dmg/Mémoire Studio_0.16.3_aarch64.dmg"
-
-# signed and notarized direct DMG release
-npm run studio:release:macos
-
 memi video create "Launch story" --adapter remotion --prompt "Product motion system"
 ```
 
-Tagged GitHub Releases attach signed and notarized DMGs when Apple release secrets are configured. See [docs/STUDIO_MACOS_RELEASE.md](docs/STUDIO_MACOS_RELEASE.md).
+Download the signed macOS app from [memi-studio releases](https://github.com/sarveshsea/memi-studio/releases/latest), or install it with Homebrew:
+
+```bash
+brew install --cask sarveshsea/memi/memi-studio
+```
 
 ### Product Scenario Lab
 
@@ -320,13 +317,11 @@ Studio runs Claude Code, Codex, Hermes, Ollama, OpenCode, Gemini, and memi Nativ
 
 Studio also includes a Notes Marketplace that lists built-in Notes, installed workspace Notes, and installable packages from the repo-owned `notes/*/note.json` manifests. The Marketplace uses the same Notes installer logic as `memi notes`, so installed packs become normal `.memoire/notes` project memory and agent context.
 
-The desktop app source lives in `apps/studio`. Build output stays out of git under `apps/studio/src-tauri/target`; tagged GitHub Releases attach the downloadable macOS DMGs, for example `Mémoire Studio_0.16.3_aarch64.dmg`. For a local build, run:
+The desktop app source lives in [sarveshsea/memi-studio](https://github.com/sarveshsea/memi-studio). This repo keeps the packaged runtime, harness contract, CLI commands, and `memi studio web|tui|logs|run` compatibility layer. Public DMGs are attached to [memi-studio releases](https://github.com/sarveshsea/memi-studio/releases/latest), and the cask is maintained in [sarveshsea/homebrew-memi](https://github.com/sarveshsea/homebrew-memi).
 
 ```bash
-npm run studio:build
+brew install --cask sarveshsea/memi/memi-studio
 ```
-
-For public direct-download DMGs, use the signed/notarized release gate in [docs/STUDIO_MACOS_RELEASE.md](docs/STUDIO_MACOS_RELEASE.md).
 
 Motion/video work is native in 0.15 through optional Remotion and HyperFrames adapters. `memi video create|preview|render` stores projects under `.memoire/videos` without making either video tool a hard dependency.
 
@@ -376,10 +371,10 @@ curl -fsSL https://memoire.cv/install.sh | sh
 irm https://memoire.cv/install.ps1 | iex
 
 # Homebrew (macOS / Linux)
-brew install sarveshsea/memoire/memoire
+brew install sarveshsea/memi/memoire
 
 # Docker (air-gapped envs where only ghcr.io is reachable)
-docker run --rm -it -v "$PWD:/work" -w /work ghcr.io/sarveshsea/memoire --help
+docker run --rm -it -v "$PWD:/work" -w /work ghcr.io/sarveshsea/memi --help
 
 # Self-update once installed
 memi upgrade

@@ -51,8 +51,8 @@ Immediate sequence:
 
 The official MCP Registry verifies npm package ownership through `package.json#mcpName`. The already-published `0.14.3` package includes this field; `0.14.4` adds trust hardening before registry submission.
 
-- `package.json#mcpName`: `io.github.sarveshsea/memoire`
-- `server.json#name`: `io.github.sarveshsea/memoire`
+- `package.json#mcpName`: `io.github.sarveshsea/memi`
+- `server.json#name`: `io.github.sarveshsea/memi`
 - `server.json#packages[0].identifier`: `@memi-design/cli`
 - `server.json#packages[0].packageArguments`: `mcp`
 

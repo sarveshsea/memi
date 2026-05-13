@@ -13,7 +13,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$repo = "sarveshsea/m-moire"
+$repo = "sarveshsea/memi"
 $target = "win-x64"
 $archive = "memi-$target.zip"
 

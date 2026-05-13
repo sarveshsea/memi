@@ -9,6 +9,7 @@ export type StudioHarnessId =
   | "shell";
 
 export type StudioHarnessKind = "memoire" | "external-cli" | "local-model" | "shell";
+export type StudioHarnessVisibility = "primary" | "advanced";
 export type StudioRunAction =
   | "compose"
   | "design-doc"
@@ -135,6 +136,7 @@ export interface StudioHarnessManifestEntry {
   provider: StudioHarnessProvider;
   command: string;
   description: string;
+  visibility: StudioHarnessVisibility;
   enabledByDefault: boolean;
   installProbe: string[];
   capabilities: StudioRunAction[];

@@ -1,0 +1,406 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
+export const LEGACY_PACKAGE_ALIASES = ["@sarveshsea/memoire"];
+export const STUDIO_REPO = "sarveshsea/memi-studio";
+export const ENGINE_REPO = "sarveshsea/memi";
+export const HOMEBREW_STUDIO_CASK_URL = "https://raw.githubusercontent.com/sarveshsea/homebrew-memi/main/Casks/memi-studio.rb";
+export const DEFAULT_STALE_REFERENCE_PATTERNS = ["m-moire", "@sarveshsea/memoire", "MiroFish"];
+export const WEEKLY_NPM_DOWNLOAD_TARGET = 1_000_000;
+
+export const DEFAULT_DIRECTORY_PULL_REQUESTS = [
+  ["punkpeye/awesome-mcp-servers", 4373],
+  ["TensorBlock/awesome-mcp-servers", 455],
+  ["YuzeHao2023/Awesome-MCP-Servers", 208],
+  ["MobinX/awesome-mcp-list", 241],
+  ["toolsdk-ai/toolsdk-mcp-registry", 296],
+  ["bytefer/awesome-shadcn-ui", 18],
+  ["birobirobiro/awesome-shadcn-ui", 493],
+];
+
+export function actualDownloadPointUrl(packageName, period) {
+  return `https://api.npmjs.org/downloads/point/${period}/${encodeURIComponent(packageName).replace(/^%40/, "%40")}`;
+}
+
+export async function buildGrowthStatus(options = {}) {
+  const packageJson = options.packageJson;
+  if (!packageJson?.name || !packageJson?.version) {
+    throw new Error("buildGrowthStatus requires packageJson.name and packageJson.version");
+  }
+
+  const fetchJson = options.fetchJson ?? defaultFetchJson;
+  const fetchText = options.fetchText ?? defaultFetchText;
+  const now = options.now ?? (() => new Date());
+  const directoryPullRequests = options.directoryPullRequests ?? DEFAULT_DIRECTORY_PULL_REQUESTS;
+
+  const [
+    npmMetadata,
+    weeklyDownloads,
+    monthlyDownloads,
+    githubRepo,
+    registrySearch,
+    safeSkillPr,
+    directoryStatuses,
+    studioLatestRelease,
+    homebrewCaskRaw,
+    legacyAliasDownloads,
+    staleReferenceSources,
+  ] = await Promise.all([
+    fetchJson(`https://registry.npmjs.org/${encodeURIComponent(packageJson.name).replace(/^%40/, "%40")}`),
+    fetchJson(actualDownloadPointUrl(packageJson.name, "last-week")),
+    fetchJson(actualDownloadPointUrl(packageJson.name, "last-month")),
+    fetchJson(`https://api.github.com/repos/${ENGINE_REPO}`),
+    fetchJson(`https://registry.modelcontextprotocol.io/v0.1/servers?search=${encodeURIComponent(packageJson.mcpName ?? packageJson.name)}`),
+    fetchJson(`https://api.github.com/repos/${ENGINE_REPO}/pulls/2`),
+    Promise.all(directoryPullRequests.map(async ([repo, number]) => {
+      const pull = await fetchJson(`https://api.github.com/repos/${repo}/pulls/${number}`);
+      return {
+        repo,
+        number,
+        url: `https://github.com/${repo}/pull/${number}`,
+        state: summarizePullState(pull),
+        title: pull.ok === false ? null : pull.title,
+        updatedAt: pull.ok === false ? null : pull.updated_at,
+      };
+    })),
+    fetchJson(`https://api.github.com/repos/${STUDIO_REPO}/releases/latest`),
+    fetchText(HOMEBREW_STUDIO_CASK_URL),
+    Promise.all(LEGACY_PACKAGE_ALIASES.map(async (name) => ({
+      name,
+      weekly: normalizeDownloadPoint(await fetchJson(actualDownloadPointUrl(name, "last-week"))),
+      monthly: normalizeDownloadPoint(await fetchJson(actualDownloadPointUrl(name, "last-month"))),
+    }))),
+    options.staleReferenceSources ?? loadDefaultStaleReferenceSources(options.root),
+  ]);
+
+  const actualPackageDownloads = {
+    name: packageJson.name,
+    weekly: normalizeDownloadPoint(weeklyDownloads),
+    monthly: normalizeDownloadPoint(monthlyDownloads),
+  };
+  const npm = normalizeNpmMetadata(npmMetadata, packageJson.name);
+  const officialMcpRegistry = normalizeRegistry(registrySearch, packageJson.mcpName);
+  const safeSkill = normalizeSafeSkillPr(safeSkillPr);
+  const github = normalizeRepo(githubRepo);
+  const studio = normalizeStudioRelease(studioLatestRelease);
+  const homebrewStudioCask = parseHomebrewStudioCask(homebrewCaskRaw);
+  const staleReferences = collectStaleReferenceMetrics(staleReferenceSources);
+  const weeklyNpmDownloads = buildWeeklyNpmDownloadGoal(
+    actualPackageDownloads.weekly,
+    options.weeklyNpmDownloadTarget ?? WEEKLY_NPM_DOWNLOAD_TARGET,
+  );
+
+  return {
+    generatedAt: now().toISOString(),
+    package: {
+      name: packageJson.name,
+      localVersion: packageJson.version,
+      mcpName: packageJson.mcpName,
+    },
+    npm,
+    downloads: {
+      weekly: actualPackageDownloads.weekly,
+      monthly: actualPackageDownloads.monthly,
+      actualPackage: actualPackageDownloads,
+      legacyAliases: legacyAliasDownloads,
+    },
+    growth: {
+      weeklyNpmDownloads,
+    },
+    github,
+    studio,
+    homebrewStudioCask,
+    officialMcpRegistry,
+    safeSkill,
+    directoryPullRequests: directoryStatuses,
+    staleReferences,
+    nextActions: buildNextActions({
+      packageJson,
+      npm,
+      officialMcpRegistry,
+      safeSkill,
+      github,
+      staleReferences,
+      homebrewStudioCask,
+      studio,
+      weeklyNpmDownloads,
+    }),
+  };
+}
+
+export function printHuman(status) {
+  console.log(`Memoire Growth Status (${status.generatedAt})`);
+  console.log("");
+  console.log(`Package: ${status.package.name}@${status.package.localVersion}`);
+  console.log(`npm: ${status.npm.ok ? `${status.npm.latest} · ${status.npm.mcpName ?? "no mcpName"}` : `error: ${status.npm.error}`}`);
+  console.log(`Downloads: ${formatDownloads(status.downloads.actualPackage.weekly, "weekly")} · ${formatDownloads(status.downloads.actualPackage.monthly, "monthly")}`);
+  if (status.growth?.weeklyNpmDownloads) {
+    const goal = status.growth.weeklyNpmDownloads;
+    console.log(`1M/week target: ${formatNumber(goal.current)} / ${formatNumber(goal.target)} (${formatPercent(goal.percentToTarget)} · ${formatNumber(goal.gap)} gap · ${formatMultiple(goal.multipleToTarget)} to target)`);
+  }
+  for (const alias of status.downloads.legacyAliases) {
+    console.log(`Legacy alias ${alias.name}: ${formatDownloads(alias.weekly, "weekly")} · ${formatDownloads(alias.monthly, "monthly")}`);
+  }
+  console.log(`GitHub: ${status.github.ok ? `${status.github.stars} stars · ${status.github.forks} forks · ${status.github.openIssues} open issues` : `error: ${status.github.error}`}`);
+  console.log(`Studio release: ${status.studio.ok ? `${status.studio.latestRelease.tag} · ${status.studio.latestRelease.totalDownloads} downloads` : `error: ${status.studio.error}`}`);
+  console.log(`Homebrew Studio cask: ${status.homebrewStudioCask.version ?? "unknown"}`);
+  console.log(`Official MCP Registry: ${status.officialMcpRegistry.listed ? "listed" : "not listed"} (${status.officialMcpRegistry.count} result${status.officialMcpRegistry.count === 1 ? "" : "s"})`);
+  console.log(`SafeSkill PR: ${status.safeSkill.ok ? `#${status.safeSkill.number} ${status.safeSkill.state}${status.safeSkill.score !== null ? ` · ${status.safeSkill.score}/100` : ""}` : `error: ${status.safeSkill.error}`}`);
+  console.log(`Stale references: ${status.staleReferences.total}`);
+  console.log("");
+  console.log("Directory PRs:");
+  for (const pull of status.directoryPullRequests) {
+    console.log(`- ${pull.repo}#${pull.number}: ${pull.state}${pull.title ? ` · ${pull.title}` : ""}`);
+  }
+  console.log("");
+  console.log("Next:");
+  for (const action of status.nextActions) {
+    console.log(`- ${action}`);
+  }
+}
+
+export function parseHomebrewStudioCask(raw) {
+  const name = raw.match(/cask\s+"([^"]+)"/)?.[1] ?? null;
+  const version = raw.match(/version\s+"([^"]+)"/)?.[1] ?? null;
+  const releaseUrls = [...raw.matchAll(/url\s+"([^"]+)"/g)].map((match) => match[1]);
+  return { name, version, releaseUrls };
+}
+
+export function collectStaleReferenceMetrics(sources = {}) {
+  const byPattern = Object.fromEntries(DEFAULT_STALE_REFERENCE_PATTERNS.map((pattern) => [pattern, 0]));
+  const byFile = {};
+  let total = 0;
+
+  for (const [file, content] of Object.entries(sources)) {
+    let fileTotal = 0;
+    for (const pattern of DEFAULT_STALE_REFERENCE_PATTERNS) {
+      const count = countOccurrences(String(content), pattern);
+      byPattern[pattern] += count;
+      fileTotal += count;
+    }
+    if (fileTotal > 0) byFile[file] = fileTotal;
+    total += fileTotal;
+  }
+
+  return { total, byPattern, byFile };
+}
+
+export function buildWeeklyNpmDownloadGoal(point, target = WEEKLY_NPM_DOWNLOAD_TARGET) {
+  const current = point?.ok ? Number(point.downloads ?? 0) : 0;
+  const normalizedTarget = Math.max(0, Number(target) || 0);
+  const gap = Math.max(0, normalizedTarget - current);
+  return {
+    target: normalizedTarget,
+    current,
+    gap,
+    achieved: current >= normalizedTarget,
+    percentToTarget: normalizedTarget > 0 ? current / normalizedTarget : null,
+    multipleToTarget: current > 0 ? normalizedTarget / current : null,
+    start: point?.start ?? null,
+    end: point?.end ?? null,
+  };
+}
+
+async function loadDefaultStaleReferenceSources(root) {
+  if (!root) return {};
+  const candidates = [
+    "README.md",
+    "docs/README.md",
+    "docs/SUBMISSIONS.md",
+    "scripts/install.sh",
+    "scripts/install.ps1",
+    "src/studio/agent-envelope.ts",
+    "src/simulation/mirofish-adapter.ts",
+  ];
+  const entries = await Promise.all(candidates.map(async (file) => {
+    try {
+      return [file, await readFile(join(root, file), "utf-8")];
+    } catch {
+      return [file, ""];
+    }
+  }));
+  return Object.fromEntries(entries);
+}
+
+async function defaultFetchJson(url) {
+  try {
+    const headers = {
+      "Accept": "application/json",
+      "User-Agent": "Memoire-GrowthStatus/1.1",
+    };
+    if (process.env.GITHUB_TOKEN && url.includes("api.github.com")) {
+      headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+    }
+    const response = await fetch(url, {
+      headers,
+      signal: AbortSignal.timeout(12_000),
+    });
+    const body = await response.text();
+    const payload = body ? JSON.parse(body) : null;
+    if (!response.ok) {
+      return { ok: false, status: response.status, error: payload?.message ?? response.statusText, url };
+    }
+    return payload;
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : String(err), url };
+  }
+}
+
+async function defaultFetchText(url) {
+  try {
+    const response = await fetch(url, {
+      headers: { "User-Agent": "Memoire-GrowthStatus/1.1" },
+      signal: AbortSignal.timeout(12_000),
+    });
+    if (!response.ok) return "";
+    return response.text();
+  } catch {
+    return "";
+  }
+}
+
+function normalizeNpmMetadata(metadata, packageName) {
+  if (metadata.ok === false) return { ok: false, error: metadata.error };
+  const latest = metadata["dist-tags"]?.latest;
+  const version = latest ? metadata.versions?.[latest] : null;
+  return {
+    ok: true,
+    latest,
+    mcpName: version?.mcpName ?? null,
+    description: version?.description ?? metadata.description ?? null,
+    npmUrl: `https://www.npmjs.com/package/${packageName}`,
+  };
+}
+
+function normalizeDownloadPoint(point) {
+  if (point.ok === false) return { ok: false, error: point.error };
+  return {
+    ok: true,
+    downloads: Number(point.downloads ?? 0),
+    start: point.start ?? null,
+    end: point.end ?? null,
+  };
+}
+
+function normalizeRepo(repo) {
+  if (repo.ok === false) return { ok: false, error: repo.error };
+  return {
+    ok: true,
+    stars: repo.stargazers_count,
+    forks: repo.forks_count,
+    openIssues: repo.open_issues_count,
+    description: repo.description,
+    topics: repo.topics ?? [],
+    url: repo.html_url,
+  };
+}
+
+function normalizeRegistry(search, serverName) {
+  if (search.ok === false) return { ok: false, listed: false, count: 0, error: search.error };
+  const servers = Array.isArray(search.servers) ? search.servers : [];
+  return {
+    ok: true,
+    listed: servers.some((server) => server.name === serverName),
+    count: search.metadata?.count ?? servers.length,
+    url: `https://registry.modelcontextprotocol.io/v0.1/servers?search=${encodeURIComponent(serverName ?? "")}`,
+  };
+}
+
+function normalizeSafeSkillPr(pull) {
+  if (pull.ok === false) return { ok: false, error: pull.error };
+  const scoreMatch = `${pull.title ?? ""}\n${pull.body ?? ""}`.match(/(\d+)\/100/);
+  return {
+    ok: true,
+    number: pull.number,
+    state: summarizePullState(pull),
+    title: pull.title,
+    score: scoreMatch ? Number(scoreMatch[1]) : null,
+    url: pull.html_url,
+  };
+}
+
+function normalizeStudioRelease(release) {
+  if (release.ok === false) return { ok: false, error: release.error };
+  const assets = (release.assets ?? []).map((asset) => ({
+    name: asset.name,
+    size: asset.size,
+    downloadCount: asset.download_count ?? 0,
+    url: asset.browser_download_url,
+  }));
+  return {
+    ok: true,
+    latestRelease: {
+      tag: release.tag_name,
+      name: release.name,
+      publishedAt: release.published_at,
+      totalDownloads: assets.reduce((sum, asset) => sum + asset.downloadCount, 0),
+      assets,
+    },
+  };
+}
+
+function summarizePullState(pull) {
+  if (pull.ok === false) return "unknown";
+  if (pull.merged_at) return "merged";
+  return pull.state ?? "unknown";
+}
+
+function buildNextActions(input) {
+  const actions = [];
+  if (input.npm.ok && input.npm.latest !== input.packageJson.version) {
+    actions.push(`Publish ${input.packageJson.version} to npm; npm latest is ${input.npm.latest}.`);
+  }
+  if (input.officialMcpRegistry.ok && !input.officialMcpRegistry.listed) {
+    actions.push("Publish server.json to the Official MCP Registry after npm is current.");
+  }
+  if (input.safeSkill.ok && input.safeSkill.state === "open") {
+    actions.push("Do not merge the SafeSkill blocked badge; address findings or close after replacement proof.");
+  }
+  if (input.github.ok && input.github.stars < 16) {
+    actions.push(`Starstruck needs ${16 - input.github.stars} more real stars.`);
+  }
+  if (input.staleReferences.total > 0) {
+    actions.push(`Clear or intentionally quarantine ${input.staleReferences.total} stale naming/reference hit${input.staleReferences.total === 1 ? "" : "s"}.`);
+  }
+  if (input.homebrewStudioCask.version && input.studio.ok && input.studio.latestRelease.tag && `v${input.homebrewStudioCask.version}` !== input.studio.latestRelease.tag) {
+    actions.push(`Update the Homebrew Studio cask from ${input.homebrewStudioCask.version} to ${input.studio.latestRelease.tag}.`);
+  }
+  if (input.weeklyNpmDownloads && !input.weeklyNpmDownloads.achieved) {
+    actions.push(`Close the 1M/week npm gap: ${formatNumber(input.weeklyNpmDownloads.gap)} more weekly downloads needed for ${input.packageJson.name}.`);
+  }
+  return actions;
+}
+
+function formatDownloads(point, label) {
+  if (!point.ok) return `${label} error`;
+  return `${point.downloads} ${label} (${point.start}..${point.end})`;
+}
+
+function formatNumber(value) {
+  return Number(value ?? 0).toLocaleString("en-US");
+}
+
+function formatPercent(value) {
+  if (value === null || value === undefined) return "n/a";
+  if (value === 0) return "0%";
+  const percentage = value * 100;
+  return `${percentage < 0.01 ? percentage.toFixed(4) : percentage.toFixed(2)}%`;
+}
+
+function formatMultiple(value) {
+  if (value === null || value === undefined) return "n/a";
+  return `${value >= 100 ? Math.round(value).toLocaleString("en-US") : value.toFixed(1)}x`;
+}
+
+function countOccurrences(value, needle) {
+  if (!needle) return 0;
+  let count = 0;
+  let offset = 0;
+  while (offset < value.length) {
+    const index = value.indexOf(needle, offset);
+    if (index === -1) break;
+    count += 1;
+    offset = index + needle.length;
+  }
+  return count;
+}

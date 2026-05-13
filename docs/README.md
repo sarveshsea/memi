@@ -83,6 +83,7 @@ memi add Button --from @you/theme
 - Launch copy: [`docs/LAUNCH.md`](./LAUNCH.md)
 - Social launch posts: [`docs/SOCIAL.md`](./SOCIAL.md)
 - Weekly growth scorecard: [`docs/METRICS.md`](./METRICS.md)
+- 1M/week npm operating brief: [`docs/GROWTH_TO_1M_NPM.md`](./GROWTH_TO_1M_NPM.md)
 - Full package overview: [`README.md`](../README.md)
 
 ## Advanced

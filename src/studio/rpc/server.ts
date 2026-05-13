@@ -227,12 +227,14 @@ export class RpcServer {
           sub.push({ kind: "event", requestId: req.requestId, event });
         }
         sub.push({ kind: "end", requestId: req.requestId, reason: "replay-complete" });
+        sub.close();
       } catch (error) {
         sub.push({
           kind: "error",
           requestId: req.requestId,
           error: `replay failed: ${error instanceof Error ? error.message : String(error)}`,
         });
+        sub.close();
       }
     })();
     return sub;
