@@ -14,31 +14,30 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
-          cache: 'npm'
-          cache-dependency-path: package-lock.json
-      - run: |
-          rm -f package-lock.json
-          npm install --ignore-scripts
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
       - run: npm run check:release
       - run: npm run lint
       - run: npm test -- --run
       - run: npm run build
-      - name: Validate npm token
+      - name: Prepare npm publishing auth
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
-            echo "::error::NPM_TOKEN is not configured for this repository."
-            exit 1
+          npm --version
+          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
+            npm config set //registry.npmjs.org/:_authToken "${NODE_AUTH_TOKEN}"
+            echo "Configured npm token fallback."
+          else
+            echo "No NPM_TOKEN configured; npm publish will use trusted publishing OIDC."
           fi
       - name: Publish npm package
-        run: npm publish --access public --provenance
+        run: npm publish --access public
       - name: Verify npm release
         run: node scripts/verify-npm-release.mjs
         env:
