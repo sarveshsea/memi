@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '24'
           package-manager-cache: false
-      - run: npm ci --ignore-scripts
+      - run: npm install --ignore-scripts
       - run: npm run check:release
       - run: npm run lint
       - run: npm test -- --run
