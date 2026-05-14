@@ -1,6 +1,6 @@
 # Growth To 1M Weekly NPM Downloads
 
-Updated: 2026-05-13
+Updated: 2026-05-14
 
 ## North Star
 
@@ -8,12 +8,12 @@ Get `@memi-design/cli` to 1,000,000 npm downloads per week by making the engine 
 
 ## Current Truth
 
-- Public npm package: `@memi-design/cli@1.0.0`; local release branch: `1.0.1`.
-- npm downloads: 128 in the last reported week, 2026-05-05 through 2026-05-11.
+- Public npm package: `@memi-design/cli@1.0.2`.
+- npm downloads: 132 in the last reported week, 2026-05-06 through 2026-05-12.
 - Legacy alias: `@sarveshsea/memoire@0.18.0` still exists and receives more traffic than the new package.
 - GitHub repo: `sarveshsea/memi`, 10 stars, 2 forks, 2 open issues.
-- Studio repo: `sarveshsea/memi-studio`, public app repo with v1.0.0 release assets.
-- Homebrew cask: `sarveshsea/homebrew-memi`, `memi-studio` cask at v1.0.0.
+- Studio repo: `sarveshsea/memi-studio`, public app repo with v1.0.1 release assets.
+- Homebrew cask: `sarveshsea/homebrew-memi`, `memi-studio` cask at v1.0.1.
 - Official MCP Registry: not listed for `io.github.sarveshsea/memi`.
 - Active leak: old `m-moire` and `@sarveshsea/memoire` references confuse discovery, install paths, and trust.
 
@@ -45,7 +45,7 @@ The macOS app should be minimalist:
 
 1. Release correctness
 
-Publish `1.0.1`, verify npm metadata, verify binary install URLs, and keep Homebrew formulas pointed at `sarveshsea/memi`.
+Keep `1.0.2` verified on npm, verify binary install URLs, and keep Homebrew formulas pointed at `sarveshsea/memi`.
 
 2. Naming cleanup
 
@@ -85,4 +85,3 @@ Do not let Studio compete with the engine. Treat it as a native workbench for th
 - Advanced drawers: marketplace, scenario lab, video, Figma, automations, local model setup.
 - Default harness visibility: Codex and Claude Code only.
 - Every advanced feature needs a CLI/runtime equivalent.
-

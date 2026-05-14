@@ -391,8 +391,8 @@ a:hover { text-decoration: underline; }
     </nav>
     <div class="hdr-stats">
       <span><span class="n" id="stat-commits">242</span> commits</span>
-      <span><span class="n" id="stat-versions">25</span> versions</span>
-      <span><span class="n" id="stat-latest">2026-05-12</span> latest</span>
+      <span><span class="n" id="stat-versions">26</span> versions</span>
+      <span><span class="n" id="stat-latest">2026-05-14</span> latest</span>
     </div>
   </header>
 
@@ -407,8 +407,8 @@ a:hover { text-decoration: underline; }
         <div class="hero-kpis">
           <div class="summary-card">
             <span class="summary-kicker">Current release</span>
-            <strong class="summary-value">v1.0.1</strong>
-            <div class="summary-caption">0 commits tracked in v1.0.1 from CHANGELOG.md.</div>
+            <strong class="summary-value">v1.0.2</strong>
+            <div class="summary-caption">0 commits tracked in v1.0.2 from CHANGELOG.md.</div>
           </div>
           <div class="summary-card">
             <span class="summary-kicker">Biggest theme</span>
@@ -434,10 +434,22 @@ a:hover { text-decoration: underline; }
     <section class="release-list" id="release-list"></section>
   </main>
 
-  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v1.0.1</footer>
+  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v1.0.2</footer>
 
 <script>
 const releases = [
+  {
+    "version": "v1.0.2",
+    "date": "2026-05-14",
+    "tag": "fix",
+    "summary": "Stabilize Studio runtime API contracts for session hydration, simulation tools, artifact state, usage, and design changelog flows so the macOS app can reopen agent work without blanking surfaces; Stabilize Figma plugin widget metadata generation so the packaged plugin ships deterministic widget assets and avoids dirty local screenshot state.",
+    "commits": [],
+    "decisions": [],
+    "changes": [
+      "Stabilize Studio runtime API contracts for session hydration, simulation tools, artifact state, usage, and design changelog flows so the macOS app can reopen agent work without blanking surfaces.",
+      "Stabilize Figma plugin widget metadata generation so the packaged plugin ships deterministic widget assets and avoids dirty local screenshot state."
+    ]
+  },
   {
     "version": "v1.0.1",
     "date": "2026-05-12",

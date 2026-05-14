@@ -8,6 +8,14 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ## Unreleased
 
+## v1.0.2 — 2026-05-14
+
+### Studio runtime contracts
+- Stabilize Studio runtime API contracts for session hydration, simulation tools, artifact state, usage, and design changelog flows so the macOS app can reopen agent work without blanking surfaces.
+
+### Packaging
+- Stabilize Figma plugin widget metadata generation so the packaged plugin ships deterministic widget assets and avoids dirty local screenshot state.
+
 ## v1.0.1 — 2026-05-12
 
 ### Docs
