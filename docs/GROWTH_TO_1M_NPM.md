@@ -8,7 +8,7 @@ Get `@memi-design/cli` to 1,000,000 npm downloads per week by making the engine 
 
 ## Current Truth
 
-- Public npm package: `@memi-design/cli@1.0.2`.
+- Source package prepared for `@memi-design/cli@1.0.2`; public npm latest is still `1.0.1` until npm publish authentication is configured.
 - npm downloads: 132 in the last reported week, 2026-05-06 through 2026-05-12.
 - Legacy alias: `@sarveshsea/memoire@0.18.0` still exists and receives more traffic than the new package.
 - GitHub repo: `sarveshsea/memi`, 10 stars, 2 forks, 2 open issues.
@@ -45,7 +45,7 @@ The macOS app should be minimalist:
 
 1. Release correctness
 
-Keep `1.0.2` verified on npm, verify binary install URLs, and keep Homebrew formulas pointed at `sarveshsea/memi`.
+Publish `1.0.2` to npm, verify binary install URLs, and keep Homebrew formulas pointed at `sarveshsea/memi`.
 
 2. Naming cleanup
 
