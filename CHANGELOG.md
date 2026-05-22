@@ -27,7 +27,7 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 ## v1.0.0 — 2026-05-10
 
 ### Rebrand and stability commitment
-First stable release as **memi**. The npm package moves from `@memi-design/cli` to `@memi-design/cli`, the GitHub repo from `m-moire` to `memi`, and the brand from `Mémoire` to a single lowercase wordmark. Same engine, same MCP server, same Codex plugin — clearer name, single CLI binary (`memi`), and a real homepage at `memoire.cv`.
+First stable release as **memi**. The npm package stays on `@memi-design/cli`, the GitHub repo consolidates under `sarveshsea/memi`, and the brand moves to a single lowercase wordmark. Same engine, same MCP server, same Codex plugin — clearer name, single CLI binary (`memi`), and a real homepage at `memoire.cv`.
 
 ### Breaking
 - **npm package renamed**: `@memi-design/cli` → `@memi-design/cli`. Reinstall with `npm i -g @memi-design/cli`. The old package will receive a final deprecation publish pointing here.
@@ -79,7 +79,7 @@ This minor cuts the bundled wave of Mermaid Jam, research-backed vibe design, th
 - Added a native Mermaid Jam integration for routing Mermaid and markdown diagram source into the Mermaid Jam FigJam plugin.
 - Added `memi mermaid-jam status` / `memi mermaid-jam open`, a Studio `/api/integrations/mermaid-jam` endpoint, and a built-in `mermaid-jam` Note for agent workflows.
 - Added research-backed vibe design packages with `memi research design`, `memi mermaid-jam export --from`, Studio/MCP `research.design_package`, `research.generate_specs`, and `mermaid_jam.export` tools.
-- Added the clean-room `src/simulation/` domain, `memi simulate` CLI, Studio/MCP simulation tools, Scenario Lab surface, and optional MiroFish fork bridge adapter.
+- Added the clean-room `src/simulation/` domain, `memi simulate` CLI, Studio/MCP simulation tools, Scenario Lab surface, and optional simulation fork bridge adapter.
 - Added Model Swarm Simulation V2 with Codex-first profiles, deterministic fallback routing, 20-60 agent cohorts, transcripts, matrices, comparisons, costs, and Scenario Lab model/cost/transcript surfaces.
 - Added Mémoire Studio Automations with Codex-style JSON workspace definitions, JSONL run history, design-harness templates, runtime API routes, CLI commands, and a macOS user LaunchAgent scheduler.
 - Added a native Studio Automations center with template creation, edit, pause/resume, run-now, run history, scheduler status, and safe write-policy controls for Codex design harness work.
@@ -97,7 +97,7 @@ This minor cuts the bundled wave of Mermaid Jam, research-backed vibe design, th
 - Studio trace view-model derives activities once and reuses them for active-process inference, fixing the reasoning-live behavior covered by view-model.test.ts.
 
 ### Security
-- Added a release gate and unit coverage that fail if packaged files contain copied MiroFish source markers while allowing written references and optional fork bridge documentation.
+- Added a release gate and unit coverage that fail if packaged files contain copied third-party fork source markers while allowing written references and optional fork bridge documentation.
 
 ### Verification
 - Focused Mermaid Jam resolver, CLI, and Studio API tests passed.

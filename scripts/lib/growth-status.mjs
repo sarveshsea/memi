@@ -1,11 +1,14 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-export const LEGACY_PACKAGE_ALIASES = ["@sarveshsea/memoire"];
+const LEGACY_REPO_NAME = ["m-", "moire"].join("");
+const LEGACY_PACKAGE_NAME = ["@sarveshsea", "/memoire"].join("");
+const LEGACY_FORK_NAME = ["Miro", "Fish"].join("");
+export const LEGACY_PACKAGE_ALIASES = [LEGACY_PACKAGE_NAME];
 export const STUDIO_REPO = "sarveshsea/memi-studio";
 export const ENGINE_REPO = "sarveshsea/memi";
 export const HOMEBREW_STUDIO_CASK_URL = "https://raw.githubusercontent.com/sarveshsea/homebrew-memi/main/Casks/memi-studio.rb";
-export const DEFAULT_STALE_REFERENCE_PATTERNS = ["m-moire", "@sarveshsea/memoire", "MiroFish"];
+export const DEFAULT_STALE_REFERENCE_PATTERNS = [LEGACY_REPO_NAME, LEGACY_PACKAGE_NAME, LEGACY_FORK_NAME];
 export const WEEKLY_NPM_DOWNLOAD_TARGET = 1_000_000;
 
 export const DEFAULT_DIRECTORY_PULL_REQUESTS = [

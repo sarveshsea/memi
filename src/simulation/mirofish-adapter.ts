@@ -14,17 +14,17 @@ import {
   type SimulationRun,
 } from "./types.js";
 
-export interface MiroFishAdapterOptions {
+export interface ForkBridgeAdapterOptions {
   baseUrl: string;
   fetchImpl?: typeof fetch;
 }
 
-export class MiroFishAdapter implements SimulationAdapter {
+export class ForkBridgeAdapter implements SimulationAdapter {
   private readonly baseUrl: string;
   private readonly fetchImpl: typeof fetch;
   private importedRuns = new Map<string, string>();
 
-  constructor(options: MiroFishAdapterOptions) {
+  constructor(options: ForkBridgeAdapterOptions) {
     this.baseUrl = options.baseUrl.replace(/\/+$/, "");
     this.fetchImpl = options.fetchImpl ?? fetch;
   }
@@ -97,7 +97,7 @@ export class MiroFishAdapter implements SimulationAdapter {
       },
     });
     if (!response.ok) {
-      throw new Error(`MiroFish bridge request failed (${response.status}): ${await response.text()}`);
+      throw new Error(`Simulation fork bridge request failed (${response.status}): ${await response.text()}`);
     }
     return response.json() as Promise<unknown>;
   }

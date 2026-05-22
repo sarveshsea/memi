@@ -52,18 +52,18 @@ for (const unsafeFile of ["scripts/postinstall.mjs", "scripts/prepare.mjs"]) {
   }
 }
 
-const copiedMiroFishMarkers = [
+const copiedForkSourceMarkers = [
   ["camel", "-oasis"].join(""),
   ["camel", "_oasis"].join(""),
   ["generate", "_twitter", "_agent", "_graph"].join(""),
   ["generate", "_reddit", "_agent", "_graph"].join(""),
-  ["MiroFish", " Team"].join(""),
+  ["Miro", "Fish", " Team"].join(""),
   ["ZepGraph", "Memory", "Updater"].join(""),
   ["Oasis", "Profile", "Generator"].join(""),
   ["run", "_parallel", "_simulation", ".py"].join(""),
 ];
 for (const file of await collectPackagedFiles(packageJson.files ?? [])) {
-  if (isMiroFishBoundaryScanner(file)) continue;
+  if (isForkSourceBoundaryScanner(file)) continue;
   if (/\.(md|mdx|txt)$/i.test(file) || !/\.(cjs|css|html|js|json|mjs|toml|ts|tsx|ya?ml)$/i.test(file)) continue;
   let content = "";
   try {
@@ -71,9 +71,9 @@ for (const file of await collectPackagedFiles(packageJson.files ?? [])) {
   } catch {
     continue;
   }
-  for (const marker of copiedMiroFishMarkers) {
+  for (const marker of copiedForkSourceMarkers) {
     if (content.includes(marker)) {
-      fail(`packaged file ${file} contains copied MiroFish source marker: ${marker}`);
+      fail(`packaged file ${file} contains copied third-party fork source marker: ${marker}`);
     }
   }
 }
@@ -456,6 +456,6 @@ function isExcludedPackageFile(file, excludes) {
   });
 }
 
-function isMiroFishBoundaryScanner(file) {
+function isForkSourceBoundaryScanner(file) {
   return /(^|\/)simulation\/license-boundary\.(cjs|js|mjs|ts)$/.test(file);
 }

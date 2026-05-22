@@ -618,7 +618,7 @@ This is source + open friendly: it writes .mmd/.md files under .memoire/mermaid-
     "simulation.plan",
     `Create a clean-room product simulation scenario from Memoire research evidence.
 
-Prerequisites: Research data should exist in research/store.v2.json, or pass a full ResearchStore JSON string. This tool does not call or vendor MiroFish; it uses Memoire's local TypeScript simulation core. Use adapter=model-swarm for Codex-first model profile planning with deterministic fallback unless live models are explicitly allowed during run.
+Prerequisites: Research data should exist in research/store.v2.json, or pass a full ResearchStore JSON string. This tool does not call or vendor third-party fork source; it uses Memoire's local TypeScript simulation core. Use adapter=model-swarm for Codex-first model profile planning with deterministic fallback unless live models are explicitly allowed during run.
 
 Returns on success: { scenario, warnings } where scenario includes agents, variables, graph nodes/edges, and evidenceFindingIds.`,
     {
