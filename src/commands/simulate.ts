@@ -5,8 +5,8 @@ import type { MemoireEngine } from "../engine/core.js";
 import type { ResearchStore } from "../research/engine.js";
 import {
   FileSimulationStore,
+  ForkBridgeAdapter,
   LocalSimulationAdapter,
-  MiroFishAdapter,
   ModelSwarmSimulationAdapter,
   SimulationModelRouter,
   buildProductSimulationScenarioFromResearch,
@@ -82,7 +82,7 @@ export function registerSimulateCommand(program: Command, engine: MemoireEngine)
     .option("--name <name>", "Scenario name")
     .option("--hypothesis <hypothesis>", "Scenario hypothesis")
     .option("--adapter <adapter>", "Simulation adapter: local, model-swarm, or mirofish", "local")
-    .option("--url <url>", "MiroFish fork bridge URL")
+    .option("--url <url>", "Simulation fork bridge URL")
     .option("--count <count>", "Target agent count for model-swarm scenarios")
     .option("--rounds <rounds>", "Model-swarm round budget")
     .option("--max-agents <maxAgents>", "Model-swarm max agent budget")
@@ -118,7 +118,7 @@ export function registerSimulateCommand(program: Command, engine: MemoireEngine)
     .command("run <scenarioId>")
     .description("Run a prepared simulation scenario")
     .option("--adapter <adapter>", "Simulation adapter: local, model-swarm, or mirofish")
-    .option("--url <url>", "MiroFish fork bridge URL")
+    .option("--url <url>", "Simulation fork bridge URL")
     .option("--max-agents <maxAgents>", "Model-swarm max agent budget")
     .option("--rounds <rounds>", "Model-swarm round budget")
     .option("--max-tokens <maxTokens>", "Model-swarm token budget")
@@ -161,7 +161,7 @@ export function registerSimulateCommand(program: Command, engine: MemoireEngine)
     .requiredOption("--agent <agentId>", "Simulation agent id")
     .requiredOption("--prompt <prompt>", "Interview question")
     .option("--adapter <adapter>", "Simulation adapter: local, model-swarm, or mirofish")
-    .option("--url <url>", "MiroFish fork bridge URL")
+    .option("--url <url>", "Simulation fork bridge URL")
     .option("--json", "Output interview result as JSON")
     .action(async (runId: string, opts: { agent: string; prompt: string } & SimulateAdapterOptions & SimulateJsonOptions) => {
       const adapter = await adapterForRun(engine.config.projectRoot, runId, opts);
@@ -177,7 +177,7 @@ export function registerSimulateCommand(program: Command, engine: MemoireEngine)
     .command("report <runId>")
     .description("Export a simulation report")
     .option("--adapter <adapter>", "Simulation adapter: local, model-swarm, or mirofish")
-    .option("--url <url>", "MiroFish fork bridge URL")
+    .option("--url <url>", "Simulation fork bridge URL")
     .option("--json", "Output report as JSON")
     .action(async (runId: string, opts: SimulateAdapterOptions & SimulateJsonOptions) => {
       const adapter = await adapterForRun(engine.config.projectRoot, runId, opts);
@@ -193,7 +193,7 @@ export function registerSimulateCommand(program: Command, engine: MemoireEngine)
     .command("export-spec <runId>")
     .description("Convert a simulation report into a product-spec impact artifact")
     .option("--adapter <adapter>", "Simulation adapter: local, model-swarm, or mirofish")
-    .option("--url <url>", "MiroFish fork bridge URL")
+    .option("--url <url>", "Simulation fork bridge URL")
     .option("--json", "Output spec impact artifact as JSON")
     .action(async (runId: string, opts: SimulateAdapterOptions & SimulateJsonOptions) => {
       const adapter = await adapterForRun(engine.config.projectRoot, runId, opts);
@@ -210,7 +210,7 @@ export function registerSimulateCommand(program: Command, engine: MemoireEngine)
     .command("stream <runId>")
     .description("Export persisted simulation events in stream order")
     .option("--adapter <adapter>", "Simulation adapter: local, model-swarm, or mirofish")
-    .option("--url <url>", "MiroFish fork bridge URL")
+    .option("--url <url>", "Simulation fork bridge URL")
     .option("--json", "Output events as JSON")
     .action(async (runId: string, opts: SimulateAdapterOptions & SimulateJsonOptions) => {
       const adapter = await adapterForRun(engine.config.projectRoot, runId, opts);
@@ -272,7 +272,7 @@ export function registerSimulateCommand(program: Command, engine: MemoireEngine)
     .command("run-matrix")
     .description("Plan and run multiple model-swarm hypotheses for comparison")
     .option("--adapter <adapter>", "Simulation adapter: local, model-swarm, or mirofish", "model-swarm")
-    .option("--url <url>", "MiroFish fork bridge URL")
+    .option("--url <url>", "Simulation fork bridge URL")
     .option("--name <name>", "Scenario name prefix", "Simulation matrix")
     .option("--hypothesis <hypothesis>", "Hypothesis to run; repeat for multiple hypotheses", collect, [])
     .option("--max-agents <maxAgents>", "Model-swarm max agent budget")
@@ -312,8 +312,8 @@ export function registerSimulateCommand(program: Command, engine: MemoireEngine)
 
 function createAdapter(projectRoot: string, adapter: SimulationAdapterKind, url?: string, budget?: Partial<SimulationBudget>): SimulationAdapter {
   if (adapter === "mirofish") {
-    if (!url) throw new Error("MiroFish adapter requires --url <server>");
-    return new MiroFishAdapter({ baseUrl: url });
+    if (!url) throw new Error("mirofish compatibility adapter requires --url <server>");
+    return new ForkBridgeAdapter({ baseUrl: url });
   }
   if (adapter === "model-swarm") {
     return new ModelSwarmSimulationAdapter({ store: new FileSimulationStore(projectRoot), defaultBudget: budget });

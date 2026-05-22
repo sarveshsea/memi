@@ -135,7 +135,7 @@ memi simulate export-spec <run-id> --json
 
 Live model calls are opt-in; `model-swarm` falls back deterministically when Codex, Claude Code, Ollama, or provider credentials are unavailable. Studio and MCP expose: `simulation.models`, `simulation.generate_agents`, `simulation.plan`, `simulation.run`, `simulation.run_matrix`, `simulation.stream`, `simulation.transcript`, `simulation.compare`, `simulation.costs`, `simulation.interview`, `simulation.report`, and `simulation.export_spec`.
 
-The npm package does not vendor MiroFish source. The optional `--adapter mirofish --url <server>` path talks to a separately licensed fork bridge over `/api/memoire/capabilities`, `/api/memoire/import`, `/api/memoire/runs/:id/events`, `/api/memoire/runs/:id/interview`, and `/api/memoire/runs/:id/export`.
+The npm package does not vendor third-party fork source. The optional `--adapter mirofish --url <server>` compatibility path talks to a separately licensed simulation bridge over `/api/memoire/capabilities`, `/api/memoire/import`, `/api/memoire/runs/:id/events`, `/api/memoire/runs/:id/interview`, and `/api/memoire/runs/:id/export`.
 
 ### Research Vibe Design + FigJam Export
 

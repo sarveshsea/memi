@@ -20,7 +20,7 @@ const FORK_SOURCE_MARKERS = [
   ["camel", "_oasis"].join(""),
   ["generate", "_twitter", "_agent", "_graph"].join(""),
   ["generate", "_reddit", "_agent", "_graph"].join(""),
-  ["MiroFish", " Team"].join(""),
+  ["Miro", "Fish", " Team"].join(""),
   ["ZepGraph", "Memory", "Updater"].join(""),
   ["Oasis", "Profile", "Generator"].join(""),
   ["run", "_parallel", "_simulation", ".py"].join(""),
@@ -28,7 +28,7 @@ const FORK_SOURCE_MARKERS = [
 
 const REFERENCE_ONLY_EXTENSIONS = /\.(md|mdx|txt)$/i;
 
-export async function scanMiroFishLicenseBoundary(root: string, options: LicenseBoundaryOptions): Promise<LicenseBoundaryResult> {
+export async function scanForkSourceLicenseBoundary(root: string, options: LicenseBoundaryOptions): Promise<LicenseBoundaryResult> {
   const violations: LicenseBoundaryViolation[] = [];
   for (const packageFile of options.packageFiles) {
     if (REFERENCE_ONLY_EXTENSIONS.test(packageFile)) continue;

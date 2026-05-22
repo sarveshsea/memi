@@ -53,7 +53,7 @@ describe("design changelog store", () => {
     try {
       const session = makeSession(root, "studio-design-session", "audit", "Pull design system into Memoire");
       const events = [
-        makeEvent(session.id, "design_decision", "Use the Mémoire rose accent for active states.", { rationale: "Matches web brand." }),
+        makeEvent(session.id, "design_decision", "Use the memi rose accent for active states.", { rationale: "Matches web brand." }),
         makeEvent(session.id, "design_system_artifact", "Captured design-system artifact for button states."),
         makeEvent(session.id, "artifact", "Wrote design evidence to .memoire/project-memory/design-system.md"),
       ];
@@ -75,7 +75,7 @@ describe("design changelog store", () => {
         harness: "codex",
         action: "audit",
         sessionId: session.id,
-        eventIds: expect.arrayContaining(["design_decision-use-the-m-moire-rose-accent-for-active-states"]),
+        eventIds: expect.arrayContaining(["design_decision-use-the-memi-rose-accent-for-active-states"]),
       });
       expect(captured.entry?.fileRefs).toEqual([
         expect.objectContaining({ path: "apps/studio/src/styles.css", kind: "style", designSystem: true }),

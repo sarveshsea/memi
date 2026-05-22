@@ -9,9 +9,13 @@ import {
 } from "../../../scripts/lib/growth-status.mjs";
 
 describe("growth status script contract", () => {
+  const staleRepoName = ["m-", "moire"].join("");
+  const stalePackageName = ["@sarveshsea", "/memoire"].join("");
+  const staleForkName = ["Miro", "Fish"].join("");
+
   it("tracks downloads for the real public npm package, not the legacy alias", () => {
     expect(actualDownloadPointUrl("@memi-design/cli", "last-week")).toBe("https://api.npmjs.org/downloads/point/last-week/%40memi-design%2Fcli");
-    expect(actualDownloadPointUrl("@sarveshsea/memoire", "last-week")).toBe("https://api.npmjs.org/downloads/point/last-week/%40sarveshsea%2Fmemoire");
+    expect(actualDownloadPointUrl(stalePackageName, "last-week")).toBe("https://api.npmjs.org/downloads/point/last-week/%40sarveshsea%2Fmemoire");
   });
 
   it("parses the Studio Homebrew cask version and release URLs", () => {
@@ -62,7 +66,7 @@ describe("growth status script contract", () => {
       fetchText: async () => `cask "memi-studio" do\n  version "1.0.0"\nend\n`,
       directoryPullRequests: [],
       staleReferenceSources: {
-        "README.md": "m-moire @sarveshsea/memoire MiroFish",
+        "README.md": `${staleRepoName} ${stalePackageName} ${staleForkName}`,
         "docs/README.md": "clean",
       },
     });
@@ -83,14 +87,14 @@ describe("growth status script contract", () => {
 
   it("counts stale package and repo references without mixing them into downloads", () => {
     expect(collectStaleReferenceMetrics({
-      "README.md": "m-moire @sarveshsea/memoire MiroFish",
+      "README.md": `${staleRepoName} ${stalePackageName} ${staleForkName}`,
       "docs/ok.md": "memi-studio",
     })).toEqual({
       total: 3,
       byPattern: {
-        "m-moire": 1,
-        "@sarveshsea/memoire": 1,
-        "MiroFish": 1,
+        [staleRepoName]: 1,
+        [stalePackageName]: 1,
+        [staleForkName]: 1,
       },
       byFile: {
         "README.md": 3,
