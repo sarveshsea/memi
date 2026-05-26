@@ -32,10 +32,15 @@ describe("studio session store", () => {
         cwd: root,
         prompt: "printf 'hello studio\\n'",
         action: "raw",
+        conversationId: "conv-store",
+        goal: "Keep the persisted session easy to reopen.",
       });
       const finalSession = await waitForSession(server, session.id);
 
       expect(finalSession.status).toBe("completed");
+      expect(finalSession.conversationId).toBe("conv-store");
+      expect(finalSession.turnIndex).toBe(0);
+      expect(finalSession.goal).toBe("Keep the persisted session easy to reopen.");
       expect(finalSession.events.some((event) => event.type === "stdout" && event.message.includes("hello studio"))).toBe(true);
 
       const jsonl = await readFile(join(root, ".memoire", "studio", "sessions", `${session.id}.jsonl`), "utf-8");
@@ -48,6 +53,9 @@ describe("studio session store", () => {
         harness: "shell",
         status: "completed",
         action: "raw",
+        conversationId: "conv-store",
+        turnIndex: 0,
+        goal: "Keep the persisted session easy to reopen.",
       });
       expect(status.metrics).toMatchObject({
         indexedSessions: 1,
@@ -57,7 +65,7 @@ describe("studio session store", () => {
       expect(status.metrics.eventBufferSize).toBeGreaterThan(0);
 
       const logs = await fetch(`${runtime.url}/api/logs/${encodeURIComponent(session.id)}?limit=1`).then((res) => res.json());
-      expect(logs.session).toMatchObject({ id: session.id, status: "completed" });
+      expect(logs.session).toMatchObject({ id: session.id, status: "completed", conversationId: "conv-store", goal: "Keep the persisted session easy to reopen." });
       expect(logs.events).toHaveLength(1);
       expect(logs.events[0].type).toBe("session_done");
     } finally {

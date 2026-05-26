@@ -419,6 +419,11 @@ export interface StudioEvent {
 
 export interface StudioSession {
   id: string;
+  conversationId?: string;
+  turnIndex?: number;
+  goal?: string;
+  model?: string | null;
+  effort?: string | null;
   harness: StudioHarnessId;
   action: StudioRunAction;
   mode?: StudioSessionMode;
@@ -438,12 +443,15 @@ export interface StudioSession {
 
 export interface StudioRunRequest {
   harnessId: StudioHarnessId;
+  goal?: string;
   action?: StudioRunAction;
   mode?: StudioSessionMode;
   chatMode?: StudioChatMode;
   permissionMode?: StudioPermissionMode;
   cwd: string;
   prompt: string;
+  model?: string | null;
+  effort?: string | null;
   attachments?: StudioAttachment[];
   agentContext?: StudioAgentContext;
 }
@@ -691,6 +699,11 @@ export interface StudioCompatibilitySnapshot {
 export interface StudioAgentContext {
   workspaceLabel: string;
   projectRoot: string;
+  conversationId?: string;
+  turnIndex?: number;
+  goal?: string;
+  model?: string | null;
+  effort?: string | null;
   action: StudioRunAction;
   harness: StudioHarnessId;
   mode: StudioSessionMode;

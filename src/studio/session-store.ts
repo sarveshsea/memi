@@ -4,6 +4,11 @@ import type { StudioChatMode, StudioEvent, StudioPermissionMode, StudioRunAction
 
 export interface StudioSessionIndexEntry {
   id: string;
+  conversationId?: string;
+  turnIndex?: number;
+  goal?: string;
+  model?: string | null;
+  effort?: string | null;
   harness: string;
   action: StudioRunAction;
   mode?: StudioSessionMode;
@@ -54,6 +59,11 @@ export class StudioSessionStore {
   upsertSession(session: StudioSession): void {
     const entry: StudioSessionIndexEntry = {
       id: session.id,
+      conversationId: session.conversationId,
+      turnIndex: session.turnIndex,
+      goal: session.goal,
+      model: session.model,
+      effort: session.effort,
       harness: session.harness,
       action: session.action,
       mode: session.mode,

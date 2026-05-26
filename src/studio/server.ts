@@ -125,6 +125,7 @@ import type {
   StudioAutomationDefinition,
   StudioAutomationRun,
   StudioCodexConfig,
+  StudioCodexReasoningEffort,
   StudioUsageProviderId,
 } from "./types.js";
 
@@ -239,16 +240,29 @@ export class StudioRuntimeServer {
     return this.sessions.get(id) ?? null;
   }
 
-  async startSession(input: { harness: StudioHarnessId; cwd: string; prompt: string; action?: StudioRunAction; mode?: StudioSessionMode; chatMode?: StudioChatMode; permissionMode?: StudioPermissionMode; attachments?: StudioAttachment[]; codex?: Partial<StudioCodexConfig> }): Promise<StudioSession> {
+  async startSession(input: { harness: StudioHarnessId; cwd: string; prompt: string; action?: StudioRunAction; mode?: StudioSessionMode; chatMode?: StudioChatMode; permissionMode?: StudioPermissionMode; attachments?: StudioAttachment[]; conversationId?: string; goal?: string; model?: string | null; effort?: string | null; codex?: Partial<StudioCodexConfig> }): Promise<StudioSession> {
     const baseConfig = await this.getConfig();
-    const config = input.codex
-      ? { ...baseConfig, codex: { ...baseConfig.codex, ...input.codex } }
+    const requestedModel = optionalTrimmedString(input.model);
+    const requestedEffort = normalizeCodexEffort(input.effort);
+    const codexOverrides = {
+      ...(input.codex ?? {}),
+      ...(input.harness === "codex" && requestedModel ? { model: requestedModel } : {}),
+      ...(input.harness === "codex" && requestedEffort ? { reasoningEffort: requestedEffort } : {}),
+    };
+    const config = Object.keys(codexOverrides).length > 0
+      ? { ...baseConfig, codex: { ...baseConfig.codex, ...codexOverrides } }
       : baseConfig;
     const cwd = resolve(input.cwd || this.projectRoot);
     if (!isInWorkspace(cwd, config.workspaceRoots)) {
       throw Object.assign(new Error(`Workspace path is not allowed: ${cwd}`), { statusCode: 403 });
     }
     if (!input.prompt.trim()) throw Object.assign(new Error("Prompt is required"), { statusCode: 400 });
+    const sessionId = `studio-${Date.now().toString(36)}-${randomUUID().slice(0, 8)}`;
+    const conversationId = optionalTrimmedString(input.conversationId) ?? sessionId;
+    const turnIndex = this.nextConversationTurnIndex(conversationId);
+    const goal = optionalTrimmedString(input.goal);
+    const model = input.harness === "codex" ? config.codex.model : requestedModel ?? null;
+    const effort = input.harness === "codex" ? config.codex.reasoningEffort : optionalTrimmedString(input.effort) ?? null;
     const action = input.action ?? (input.harness === "memoire" ? "compose" : "raw");
     const mode = input.mode ?? "delegate";
     const chatMode = input.chatMode ?? defaultChatMode(input.harness, action, input.prompt);
@@ -262,12 +276,20 @@ export class StudioRuntimeServer {
       permissionMode,
       cwd,
       prompt: input.prompt,
+      conversationId,
+      turnIndex,
+      goal,
+      model,
+      effort,
       config,
     });
     const commandSpec = buildHarnessCommand(config, {
       harnessId: input.harness,
       cwd,
       prompt: input.prompt,
+      goal,
+      model,
+      effort,
       action,
       chatMode,
       permissionMode,
@@ -275,7 +297,12 @@ export class StudioRuntimeServer {
     });
 
     const session: StudioSession = {
-      id: `studio-${Date.now().toString(36)}-${randomUUID().slice(0, 8)}`,
+      id: sessionId,
+      conversationId,
+      turnIndex,
+      goal,
+      model,
+      effort,
       harness: input.harness,
       action,
       mode,
@@ -297,13 +324,18 @@ export class StudioRuntimeServer {
     const outputNormalizer = createStudioOutputNormalizer(commandSpec.outputParser);
     this.addEvent(session.id, "chat_message", input.prompt.trim(), {
       role: "user",
+      conversationId,
+      turnIndex,
+      goal,
+      model,
+      effort,
       chatMode,
       permissionMode,
       harness: input.harness,
       action,
       attachments,
     });
-    this.addEvent(session.id, "session_started", `Started ${input.harness}`, { cwd, prompt: input.prompt, mode, chatMode, permissionMode, attachments });
+    this.addEvent(session.id, "session_started", `Started ${input.harness}`, { cwd, prompt: input.prompt, conversationId, turnIndex, goal, model, effort, mode, chatMode, permissionMode, attachments });
     this.addEvent(session.id, "reference_trace", "Mémoire package and source references loaded", {
       references: buildSessionReferenceTrace(agentContext),
     });
@@ -1324,7 +1356,7 @@ export class StudioRuntimeServer {
     }
 
     if (req.method === "POST" && url.pathname === "/api/sessions") {
-      const body = await readJSON<{ harness?: StudioHarnessId; cwd?: string; prompt?: string; action?: StudioRunAction; mode?: StudioSessionMode; chatMode?: StudioChatMode; permissionMode?: StudioPermissionMode; attachments?: StudioAttachment[] }>(req);
+      const body = await readJSON<{ harness?: StudioHarnessId; cwd?: string; prompt?: string; action?: StudioRunAction; mode?: StudioSessionMode; chatMode?: StudioChatMode; permissionMode?: StudioPermissionMode; attachments?: StudioAttachment[]; conversationId?: string; goal?: string; model?: string | null; effort?: string | null }>(req);
       try {
         const session = await this.startSession({
           harness: body.harness ?? (await this.getConfig()).defaultHarness,
@@ -1335,6 +1367,10 @@ export class StudioRuntimeServer {
           chatMode: body.chatMode,
           permissionMode: body.permissionMode,
           attachments: body.attachments,
+          conversationId: body.conversationId,
+          goal: body.goal,
+          model: body.model,
+          effort: body.effort,
         });
         this.sendJSON(res, 201, { session: summarySession(session, "live") });
       } catch (error) {
@@ -1546,6 +1582,19 @@ export class StudioRuntimeServer {
     return [...live, ...persisted];
   }
 
+  private nextConversationTurnIndex(conversationId: string): number {
+    const liveCount = Array.from(this.sessions.values())
+      .filter((session) => (session.conversationId ?? session.id) === conversationId)
+      .length;
+    const persistedIds = new Set(this.sessions.keys());
+    const persistedCount = this.sessionStore
+      .listSessions()
+      .filter((session) => !persistedIds.has(session.id))
+      .filter((session) => (session.conversationId ?? session.id) === conversationId)
+      .length;
+    return liveCount + persistedCount;
+  }
+
   private async listHarnessSnapshot(forceRefresh = false): Promise<StudioHarnessStatus[]> {
     const now = Date.now();
     if (!forceRefresh && this.harnessSnapshot && now - this.harnessSnapshot.checkedAt < this.harnessSnapshotTtlMs) {
@@ -1676,7 +1725,8 @@ export class StudioRuntimeServer {
         type: "session.created",
         harnessConfigSummary: {
           harness: base.harnessId,
-          model: session.harness === "codex" ? "gpt-5.5" : undefined,
+          model: session.model ?? (session.harness === "codex" ? "gpt-5.5" : undefined),
+          effort: session.effort ?? undefined,
         },
       };
     }
@@ -1767,6 +1817,11 @@ export class StudioRuntimeServer {
     permissionMode: StudioPermissionMode;
     cwd: string;
     prompt: string;
+    conversationId?: string;
+    turnIndex?: number;
+    goal?: string;
+    model?: string | null;
+    effort?: string | null;
     config: StudioConfig;
   }): Promise<StudioAgentContext> {
     const [memory, knowledge, figmaStatus, researchDesign] = await Promise.all([
@@ -1778,6 +1833,11 @@ export class StudioRuntimeServer {
     return {
       workspaceLabel: "Memoire workspace",
       projectRoot: this.projectRoot,
+      conversationId: input.conversationId,
+      turnIndex: input.turnIndex,
+      goal: input.goal,
+      model: input.model,
+      effort: input.effort,
       harness: input.harness,
       action: input.action,
       mode: input.mode,
@@ -2050,6 +2110,15 @@ function providerRuntimeId<K extends keyof typeof RUNTIME_ID_PREFIXES>(kind: K, 
 function safeRuntimeIdSuffix(raw: string): string {
   const suffix = raw.trim().replace(/[^A-Za-z0-9._:-]/g, "_").slice(0, 160);
   return suffix || randomUUID().replace(/-/g, "");
+}
+
+function optionalTrimmedString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function normalizeCodexEffort(value: unknown): StudioCodexReasoningEffort | undefined {
+  if (value === "low" || value === "medium" || value === "high" || value === "xhigh") return value;
+  return undefined;
 }
 
 function summarySession(

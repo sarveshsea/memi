@@ -98,6 +98,21 @@ describe("studio design agent envelope", () => {
     expect(envelope).toContain("Codex approval policy: on-request");
   });
 
+  it("keeps the pinned conversation goal distinct from the immediate prompt", () => {
+    const envelope = createDesignAgentEnvelope(context({
+      conversationId: "conv-onboarding",
+      turnIndex: 2,
+      goal: "Increase activation without adding onboarding clutter.",
+      prompt: "Audit the empty state copy.",
+    }));
+
+    expect(envelope).toContain("## Conversation goal");
+    expect(envelope).toContain("Increase activation without adding onboarding clutter.");
+    expect(envelope).toContain("- Conversation: conv-onboarding");
+    expect(envelope).toContain("- Turn: 3");
+    expect(envelope).toContain("## User request\nAudit the empty state copy.");
+  });
+
   it("summarizes context compactly for run blocks", () => {
     const summary = summarizeAgentContext(context({ harness: "claude-code", action: "audit" }));
 
