@@ -197,8 +197,11 @@ if (!npmPackageEntry) {
 
 const studioPackageInfo = await readFile(join(root, "src", "studio", "package-info.ts"), "utf-8");
 const studioPackageVersion = studioPackageInfo.match(/MEMOIRE_PACKAGE_VERSION\s*=\s*"([^"]+)"/)?.[1];
-if (studioPackageVersion !== version) {
-  fail(`src/studio/package-info.ts version ${studioPackageVersion ?? "missing"} does not match package.json ${version}`);
+if (studioPackageVersion && studioPackageVersion !== version) {
+  fail(`src/studio/package-info.ts version ${studioPackageVersion} does not match package.json ${version}`);
+}
+if (!studioPackageVersion && !studioPackageInfo.includes("getMemoirePackageVersion()")) {
+  fail("src/studio/package-info.ts must derive MEMOIRE_PACKAGE_VERSION from package.json");
 }
 
 const changelog = normalizeNewlines(await readFile(join(root, "CHANGELOG.md"), "utf-8"));

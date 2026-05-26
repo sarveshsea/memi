@@ -1,6 +1,7 @@
 node_modules/
 dist/
 dist-bin/
+dist-runtime-resources/
 target/
 apps/studio/src-tauri/binaries/
 apps/studio/src-tauri/resources/memoire-runtime/

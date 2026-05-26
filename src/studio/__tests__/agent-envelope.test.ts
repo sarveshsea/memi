@@ -1,5 +1,8 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { createDesignAgentEnvelope, summarizeAgentContext } from "../agent-envelope.js";
+import { MEMOIRE_PACKAGE_NAME, MEMOIRE_PACKAGE_URL, MEMOIRE_PACKAGE_VERSION } from "../package-info.js";
 import type { StudioAgentContext } from "../types.js";
 
 function context(overrides: Partial<StudioAgentContext> = {}): StudioAgentContext {
@@ -27,6 +30,14 @@ function context(overrides: Partial<StudioAgentContext> = {}): StudioAgentContex
 }
 
 describe("studio design agent envelope", () => {
+  it("derives the public package identity from package metadata", () => {
+    const packageJson = JSON.parse(readFileSync(fileURLToPath(new URL("../../../package.json", import.meta.url)), "utf-8")) as { name: string; version: string };
+
+    expect(MEMOIRE_PACKAGE_NAME).toBe(packageJson.name);
+    expect(MEMOIRE_PACKAGE_VERSION).toBe(packageJson.version);
+    expect(MEMOIRE_PACKAGE_URL).toBe(`https://www.npmjs.com/package/${packageJson.name}`);
+  });
+
   it("wraps external harness prompts in a UX research and design-system lens", () => {
     const envelope = createDesignAgentEnvelope(context());
 
@@ -48,8 +59,8 @@ describe("studio design agent envelope", () => {
     expect(envelope).toContain(".memoire/project-memory/changelog");
     expect(envelope).toContain("design_system_artifact");
     expect(envelope).toContain("markdown and YAML");
-    expect(envelope).toContain("@memi-design/cli@1.0.2");
-    expect(envelope).toContain("https://www.npmjs.com/package/@memi-design/cli");
+    expect(envelope).toContain(`${MEMOIRE_PACKAGE_NAME}@${MEMOIRE_PACKAGE_VERSION}`);
+    expect(envelope).toContain(MEMOIRE_PACKAGE_URL);
     expect(envelope).toContain("specs/components/NoteCard.json");
     expect(envelope).toContain("Codex + Mémoire command ladder");
     expect(envelope).toContain("memi status --json");
