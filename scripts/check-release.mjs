@@ -195,6 +195,12 @@ if (!npmPackageEntry) {
   }
 }
 
+const studioPackageInfo = await readFile(join(root, "src", "studio", "package-info.ts"), "utf-8");
+const studioPackageVersion = studioPackageInfo.match(/MEMOIRE_PACKAGE_VERSION\s*=\s*"([^"]+)"/)?.[1];
+if (studioPackageVersion !== version) {
+  fail(`src/studio/package-info.ts version ${studioPackageVersion ?? "missing"} does not match package.json ${version}`);
+}
+
 const changelog = normalizeNewlines(await readFile(join(root, "CHANGELOG.md"), "utf-8"));
 const changelogMatch = changelog.match(/^## v([0-9]+\.[0-9]+\.[0-9]+)\b/m);
 if (!changelogMatch) {
