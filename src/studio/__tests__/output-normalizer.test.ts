@@ -121,6 +121,57 @@ describe("studio output normalizer", () => {
     ]);
   });
 
+  it("maps OpenCode JSON run events into Studio timeline events", () => {
+    const state = createStudioOutputNormalizer("opencode-jsonl");
+    const events = normalizeStudioOutputChunk(state, "stdout", [
+      JSON.stringify({
+        kind: "tool_started",
+        toolCallId: "tool_1",
+        tool: "bash",
+        args: { command: "rg tokens" },
+      }),
+      JSON.stringify({
+        kind: "tool_completed",
+        toolCallId: "tool_1",
+        ok: true,
+        elapsedMs: 42,
+        result: "src/theme/tokens.ts",
+      }),
+      JSON.stringify({
+        kind: "assistant_message",
+        text: "Design review complete.",
+      }),
+      JSON.stringify({
+        kind: "usage",
+        inputTokens: 12,
+        outputTokens: 7,
+        estimatedCostUsd: 0.001,
+      }),
+      "",
+    ].join("\n"));
+
+    expect(events).toEqual([
+      expect.objectContaining({
+        type: "tool_call",
+        message: "bash",
+        data: expect.objectContaining({ toolCallId: "tool_1" }),
+      }),
+      expect.objectContaining({
+        type: "tool_result",
+        message: "src/theme/tokens.ts",
+        data: expect.objectContaining({ toolUseId: "tool_1", ok: true }),
+      }),
+      expect.objectContaining({
+        type: "session_result",
+        message: "Design review complete.",
+      }),
+      expect.objectContaining({
+        type: "token_usage",
+        message: "Token usage",
+      }),
+    ]);
+  });
+
   it("maps Codex function call outputs into tool result events", () => {
     const state = createStudioOutputNormalizer("codex-jsonl");
     const events = normalizeStudioOutputChunk(state, "stdout", [

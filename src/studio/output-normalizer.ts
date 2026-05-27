@@ -68,7 +68,7 @@ export function normalizeStudioOutputChunk(
     state.stdoutBuffer += chunk;
     return [];
   }
-  if (state.parser !== "memoire-jsonl" && state.parser !== "claude-stream-json" && state.parser !== "codex-jsonl") {
+  if (!isStructuredJSONParser(state.parser)) {
     return chunk ? [{ type: "stdout", message: chunk }] : [];
   }
 
@@ -94,7 +94,7 @@ export function flushStudioOutputNormalizer(state: StudioOutputNormalizerState):
     state.stdoutBuffer = "";
     return message ? eventsFromModelTextResult(message, { result: message, parser: "hermes-text" }) : [];
   }
-  if (state.parser !== "memoire-jsonl" && state.parser !== "claude-stream-json" && state.parser !== "codex-jsonl") {
+  if (!isStructuredJSONParser(state.parser)) {
     const message = state.stdoutBuffer;
     state.stdoutBuffer = "";
     return [{ type: "stdout", message }];
@@ -128,6 +128,13 @@ function drainStructuredBuffer(state: StudioOutputNormalizerState, force: boolea
   return [{ type: "stdout", message: raw }];
 }
 
+function isStructuredJSONParser(parser: StudioOutputParser): boolean {
+  return parser === "memoire-jsonl"
+    || parser === "claude-stream-json"
+    || parser === "codex-jsonl"
+    || parser === "opencode-jsonl";
+}
+
 function parseCompleteJSONLines(
   raw: string,
   mapParsed: (parsed: unknown) => StudioNormalizedOutputEvent[],
@@ -149,6 +156,7 @@ function parseCompleteJSONLines(
 function eventsFromParsedPayload(parser: StudioOutputParser, parsed: unknown): StudioNormalizedOutputEvent[] {
   if (parser === "claude-stream-json") return eventsFromClaudePayload(parsed);
   if (parser === "codex-jsonl") return eventsFromCodexPayload(parsed);
+  if (parser === "opencode-jsonl") return eventsFromOpenCodePayload(parsed);
   return [eventFromParsedMemoirePayload(parsed)];
 }
 
@@ -256,6 +264,78 @@ function eventsFromCodexPayload(parsed: unknown): StudioNormalizedOutputEvent[] 
 
   if (type === "error" || type === "turn.failed") {
     return [{ type: "session_error", message: stringField(parsed.message) ?? "Codex error", data: parsed }];
+  }
+
+  return [];
+}
+
+function eventsFromOpenCodePayload(parsed: unknown): StudioNormalizedOutputEvent[] {
+  if (!isRecord(parsed)) return [{ type: "stdout", message: JSON.stringify(parsed) }];
+  const kind = stringField(parsed.kind);
+  if (!kind && typeof parsed.type === "string") return eventsFromCodexPayload(parsed);
+
+  if (kind === "assistant_delta") {
+    const delta = stringField(parsed.delta);
+    return delta ? [{ type: "reasoning", message: delta, data: parsed }] : [];
+  }
+
+  if (kind === "assistant_message") {
+    const message = stringField(parsed.text) ?? stringField(parsed.message) ?? "OpenCode result";
+    return eventsFromModelTextResult(message, parsed, stringField(parsed.id));
+  }
+
+  if (kind === "tool_started") {
+    const toolCallId = stringField(parsed.toolCallId) ?? stringField(parsed.tool_call_id) ?? stringField(parsed.id);
+    const tool = stringField(parsed.tool) ?? stringField(parsed.name) ?? "tool";
+    return [{
+      type: "tool_call",
+      message: tool,
+      data: {
+        ...parsed,
+        ...(toolCallId ? { id: toolCallId, toolCallId, toolUseId: toolCallId } : {}),
+      },
+    }];
+  }
+
+  if (kind === "tool_output") {
+    const toolCallId = stringField(parsed.toolCallId) ?? stringField(parsed.tool_call_id) ?? stringField(parsed.id);
+    const output = stringField(parsed.chunk) ?? stringField(parsed.output) ?? stringField(parsed.result) ?? "";
+    return output ? [{
+      type: "terminal_output",
+      message: output,
+      data: {
+        ...parsed,
+        ...(toolCallId ? { id: toolCallId, toolCallId, toolUseId: toolCallId } : {}),
+        output,
+      },
+    }] : [];
+  }
+
+  if (kind === "tool_completed") {
+    const toolCallId = stringField(parsed.toolCallId) ?? stringField(parsed.tool_call_id) ?? stringField(parsed.id);
+    const output = stringField(parsed.result) ?? stringField(parsed.output) ?? stringField(parsed.error) ?? "tool completed";
+    return [{
+      type: "tool_result",
+      message: output,
+      data: {
+        ...parsed,
+        ...(toolCallId ? { id: toolCallId, toolCallId, toolUseId: toolCallId } : {}),
+        output,
+      },
+    }];
+  }
+
+  if (kind === "usage") {
+    return [{ type: "token_usage", message: "Token usage", data: parsed }];
+  }
+
+  if (kind === "turn_completed") {
+    const ok = parsed.ok !== false;
+    return ok ? [] : [{ type: "session_error", message: stringField(parsed.error) ?? "OpenCode error", data: parsed }];
+  }
+
+  if (kind === "error") {
+    return [{ type: "session_error", message: stringField(parsed.message) ?? "OpenCode error", data: parsed }];
   }
 
   return [];

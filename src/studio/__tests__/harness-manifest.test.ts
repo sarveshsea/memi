@@ -112,6 +112,42 @@ describe("studio harness manifest", () => {
     expect(manifest.harnesses.find((harness) => harness.id === "ollama")?.defaultModel).toBe("llama3.1:8b");
   });
 
+  it("keeps OpenCode advanced while using its JSON run stream for trace-friendly sessions", () => {
+    const manifest = getHarnessManifest();
+    const opencode = manifest.harnesses.find((harness) => harness.id === "opencode");
+
+    expect(opencode).toMatchObject({
+      visibility: "advanced",
+      enabledByDefault: false,
+      supportsStreaming: true,
+      supportsCancel: true,
+      outputParser: "opencode-jsonl",
+    });
+    expect(opencode?.commandTemplates.raw).toEqual([
+      "run",
+      "--format",
+      "json",
+      "--dir",
+      "{{cwd}}",
+      "{{promptEnvelope}}",
+    ]);
+
+    const root = "/tmp/project";
+    const command = buildHarnessCommand(enableHarness(defaultStudioConfig(root), "opencode"), {
+      harnessId: "opencode",
+      cwd: root,
+      prompt: "Review the design system",
+      action: "raw",
+    });
+
+    expect(command).toMatchObject({
+      command: "opencode",
+      outputParser: "opencode-jsonl",
+      args: expect.arrayContaining(["run", "--format", "json", "--dir", root]),
+    });
+    expect(command.args.at(-1)).toContain("Review the design system");
+  });
+
   it("builds Memoire commands for design-first actions", () => {
     const root = "/tmp/project";
     const config = enableHarness(defaultStudioConfig(root), "memoire");

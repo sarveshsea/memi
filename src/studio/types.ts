@@ -79,6 +79,7 @@ export type StudioOutputParser =
   | "memoire-jsonl"
   | "claude-stream-json"
   | "codex-jsonl"
+  | "opencode-jsonl"
   | "hermes-text"
   | "stdio"
   | "ollama"

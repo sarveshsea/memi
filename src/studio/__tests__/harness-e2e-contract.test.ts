@@ -19,7 +19,7 @@ describe("studio harness E2E contract", () => {
   it("covers the macOS power harness matrix with streaming, cancellation, and trace-friendly parsers", () => {
     const harnesses = new Map(manifest.harnesses.map((harness) => [harness.id, harness]));
 
-    for (const id of ["claude-code", "codex", "memoire", "ollama", "hermes"] as const) {
+    for (const id of ["claude-code", "codex", "opencode", "memoire", "ollama", "hermes"] as const) {
       const harness = harnesses.get(id);
       expect(harness, id).toBeTruthy();
       expect(harness?.supportsStreaming, id).toBe(true);
