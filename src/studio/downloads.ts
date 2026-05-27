@@ -16,6 +16,8 @@ export class StudioDownloadStore {
   private readonly projectRoot: string;
   private readonly emitter = new EventEmitter();
   private loaded = false;
+  private storageAvailable = true;
+  private storageError: string | null = null;
   private jobs = new Map<string, StudioDownloadJob>();
   private events = new Map<string, StudioDownloadEvent[]>();
 
@@ -26,8 +28,8 @@ export class StudioDownloadStore {
 
   async init(): Promise<void> {
     if (this.loaded) return;
-    await mkdir(this.downloadsDir(), { recursive: true });
     try {
+      await mkdir(this.downloadsDir(), { recursive: true });
       const parsed = JSON.parse(await readFile(this.storePath(), "utf-8")) as DownloadStoreFile;
       const retainedJobs = parsed.jobs.filter((job) => shouldRetainJob(job));
       for (const job of retainedJobs) this.jobs.set(job.id, job);
@@ -38,8 +40,13 @@ export class StudioDownloadStore {
         current.push(event);
         this.events.set(event.jobId, current);
       }
-    } catch {
-      // Fresh store.
+    } catch (error) {
+      if (isMissingStoreError(error)) {
+        // Fresh store.
+      } else {
+        this.storageAvailable = false;
+        this.storageError = error instanceof Error ? error.message : String(error);
+      }
     }
     this.loaded = true;
     await this.persist();
@@ -57,12 +64,14 @@ export class StudioDownloadStore {
     return this.events.get(id) ?? [];
   }
 
-  metrics(): { total: number; active: number; queued: number } {
+  metrics(): { total: number; active: number; queued: number; storageAvailable: boolean; storageError: string | null } {
     const jobs = this.list();
     return {
       total: jobs.length,
       active: jobs.filter((job) => job.status === "running").length,
       queued: jobs.filter((job) => job.status === "queued").length,
+      storageAvailable: this.storageAvailable,
+      storageError: this.storageError,
     };
   }
 
@@ -193,13 +202,19 @@ export class StudioDownloadStore {
   }
 
   private async persist(): Promise<void> {
-    await mkdir(this.downloadsDir(), { recursive: true });
+    if (!this.storageAvailable) return;
     const payload: DownloadStoreFile = {
       schemaVersion: 1,
       jobs: this.list(),
       events: Array.from(this.events.values()).flat(),
     };
-    await writeFile(this.storePath(), `${JSON.stringify(payload, null, 2)}\n`, "utf-8");
+    try {
+      await mkdir(this.downloadsDir(), { recursive: true });
+      await writeFile(this.storePath(), `${JSON.stringify(payload, null, 2)}\n`, "utf-8");
+    } catch (error) {
+      this.storageAvailable = false;
+      this.storageError = error instanceof Error ? error.message : String(error);
+    }
   }
 
   private downloadsDir(): string {
@@ -209,6 +224,13 @@ export class StudioDownloadStore {
   private storePath(): string {
     return join(this.downloadsDir(), "downloads.json");
   }
+}
+
+function isMissingStoreError(error: unknown): boolean {
+  return typeof error === "object"
+    && error !== null
+    && "code" in error
+    && (error as { code?: unknown }).code === "ENOENT";
 }
 
 function shouldRetainJob(job: StudioDownloadJob): boolean {

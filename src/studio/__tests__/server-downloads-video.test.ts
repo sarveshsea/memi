@@ -1,10 +1,11 @@
 import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
-import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it } from "vitest";
+import { StudioDownloadStore } from "../downloads.js";
 import { StudioRuntimeServer } from "../server.js";
 
 const servers: StudioRuntimeServer[] = [];
@@ -14,6 +15,26 @@ afterEach(async () => {
 });
 
 describe("studio downloads and video runtime APIs", () => {
+  it("keeps the runtime alive when the project download ledger is not writable", async () => {
+    const root = await mkdtemp(join(tmpdir(), "memoire-studio-downloads-readonly-"));
+    try {
+      await chmod(root, 0o555);
+      const downloads = new StudioDownloadStore(root);
+      await expect(downloads.init()).resolves.toBeUndefined();
+      expect(downloads.list()).toEqual([]);
+      expect(downloads.metrics()).toMatchObject({
+        total: 0,
+        active: 0,
+        queued: 0,
+        storageAvailable: false,
+      });
+      expect(downloads.metrics().storageError).toContain(".memoire");
+    } finally {
+      await chmod(root, 0o755).catch(() => {});
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it("returns a download job for remote marketplace note installs and persists the installed note", async () => {
     const root = await mkdtemp(join(tmpdir(), "memoire-studio-downloads-"));
     try {
