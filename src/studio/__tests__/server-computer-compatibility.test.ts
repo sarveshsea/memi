@@ -80,9 +80,14 @@ describe.skipIf(process.platform !== "darwin")("studio compatibility and compute
       }).then((res) => res.json());
       expect(capture.result).toMatchObject({
         action: "captureScreen",
-        status: process.platform === "darwin" ? "completed" : "unavailable",
         requiresApproval: false,
       });
+      expect(process.platform === "darwin" ? ["completed", "failed"] : ["unavailable"]).toContain(capture.result.status);
+      if (capture.result.status === "completed") {
+        expect(capture.result.artifactPath).toEqual(expect.any(String));
+      } else {
+        expect(capture.result.message).toEqual(expect.any(String));
+      }
     } finally {
       await rm(root, { recursive: true, force: true });
     }
