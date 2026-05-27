@@ -34,6 +34,7 @@
  */
 
 import { getMemoirePackageVersion } from "./utils/package-version.js";
+import { resolveCliProjectRoot } from "./utils/project-root.js";
 
 import { existsSync, rmSync } from "fs";
 import { join } from "path";
@@ -158,6 +159,7 @@ process.on("unhandledRejection", (reason) => {
 });
 
 const program = new Command();
+const projectRoot = resolveCliProjectRoot();
 
 program
   .name("memi")
@@ -166,7 +168,7 @@ program
 
 // Create engine instance (shared across commands)
 const engine = new MemoireEngine({
-  projectRoot: process.cwd(),
+  projectRoot,
   figmaToken: process.env.FIGMA_TOKEN,
   figmaFileKey: process.env.FIGMA_FILE_KEY,
   anthropicApiKey: process.env.ANTHROPIC_API_KEY,
