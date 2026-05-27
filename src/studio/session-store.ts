@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { StudioChatMode, StudioEvent, StudioPermissionMode, StudioRunAction, StudioSession, StudioSessionMode } from "./types.js";
@@ -48,6 +49,7 @@ export class StudioSessionStore {
       this.index = { schemaVersion: 1, sessions: [] };
       this.flushIndex();
     }
+    this.finalizeAbandonedRunningSessions();
   }
 
   appendEvent(session: StudioSession, event: StudioEvent): void {
@@ -121,5 +123,35 @@ export class StudioSessionStore {
   private flushIndex(): void {
     mkdirSync(this.root, { recursive: true });
     writeFileSync(this.indexPath, `${JSON.stringify(this.index, null, 2)}\n`);
+  }
+
+  private finalizeAbandonedRunningSessions(): void {
+    const running = this.index.sessions.filter((session) => session.status === "running");
+    if (running.length === 0) return;
+    const completedAt = new Date().toISOString();
+    const message = "Session interrupted because the Studio runtime restarted before it completed.";
+    this.index = {
+      schemaVersion: 1,
+      sessions: this.index.sessions.map((session) => session.status === "running"
+        ? {
+            ...session,
+            status: "failed",
+            completedAt,
+            exitCode: null,
+            updatedAt: completedAt,
+          }
+        : session),
+    };
+    for (const session of running) {
+      appendFileSync(this.eventLogPath(session.id), `${JSON.stringify({
+        id: randomUUID(),
+        sessionId: session.id,
+        type: "session_error",
+        timestamp: completedAt,
+        message,
+        data: { reason: "runtime-restart" },
+      })}\n`);
+    }
+    this.flushIndex();
   }
 }

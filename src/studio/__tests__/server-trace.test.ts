@@ -70,6 +70,40 @@ describe("studio backend trace and persisted sessions", () => {
     }
   });
 
+  it("marks persisted running sessions failed when the runtime restarts", async () => {
+    const root = await mkdtemp(join(tmpdir(), "memoire-studio-abandoned-session-"));
+    try {
+      const store = new StudioSessionStore(root);
+      store.init();
+      const session = makeSession(root, "running", "studio-abandoned-session");
+      store.appendEvent(session, makeEvent(session.id, "session_started", "Started codex"));
+
+      const server = new StudioRuntimeServer({ projectRoot: root, port: 0 });
+      servers.push(server);
+      const runtime = await server.start();
+
+      const sessionsPayload = await fetch(`${runtime.url}/api/sessions`).then((res) => res.json());
+      const eventsPayload = await fetch(`${runtime.url}/api/sessions/${encodeURIComponent(session.id)}/events`).then((res) => res.json());
+      const repaired = sessionsPayload.sessions.find((entry: StudioSession) => entry.id === session.id);
+
+      expect(repaired).toMatchObject({
+        id: session.id,
+        status: "failed",
+        exitCode: null,
+      });
+      expect(repaired.completedAt).toEqual(expect.any(String));
+      expect(eventsPayload.events).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          type: "session_error",
+          message: expect.stringContaining("runtime restarted"),
+          data: { reason: "runtime-restart" },
+        }),
+      ]));
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it("returns a backend trace snapshot from persisted events without inventing empty work", async () => {
     const root = await mkdtemp(join(tmpdir(), "memoire-studio-trace-"));
     try {
