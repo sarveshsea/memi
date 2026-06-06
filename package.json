@@ -121,5 +121,10 @@
     "@rollup/rollup-darwin-arm64": "^4.60.0",
     "@rollup/rollup-linux-x64-gnu": "^4.60.1",
     "playwright": "^1.59.1"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "11.1.1"
+    }
   }
 }
