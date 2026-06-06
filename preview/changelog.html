@@ -391,8 +391,8 @@ a:hover { text-decoration: underline; }
     </nav>
     <div class="hdr-stats">
       <span><span class="n" id="stat-commits">242</span> commits</span>
-      <span><span class="n" id="stat-versions">26</span> versions</span>
-      <span><span class="n" id="stat-latest">2026-05-14</span> latest</span>
+      <span><span class="n" id="stat-versions">27</span> versions</span>
+      <span><span class="n" id="stat-latest">2026-06-06</span> latest</span>
     </div>
   </header>
 
@@ -407,8 +407,8 @@ a:hover { text-decoration: underline; }
         <div class="hero-kpis">
           <div class="summary-card">
             <span class="summary-kicker">Current release</span>
-            <strong class="summary-value">v1.0.2</strong>
-            <div class="summary-caption">0 commits tracked in v1.0.2 from CHANGELOG.md.</div>
+            <strong class="summary-value">v1.1.0</strong>
+            <div class="summary-caption">0 commits tracked in v1.1.0 from CHANGELOG.md.</div>
           </div>
           <div class="summary-card">
             <span class="summary-kicker">Biggest theme</span>
@@ -434,10 +434,24 @@ a:hover { text-decoration: underline; }
     <section class="release-list" id="release-list"></section>
   </main>
 
-  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v1.0.2</footer>
+  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v1.1.0</footer>
 
 <script>
 const releases = [
+  {
+    "version": "v1.1.0",
+    "date": "2026-06-06",
+    "tag": "feature",
+    "summary": "Add memi self-update to update the CLI itself: npm installs run npm i -g @memi-design/cli@latest; standalone binaries are pointed at memi upgrade. Supports --check and --json; Add a throttled, non-blocking \"update available\" notice on startup. It reads a once-per-day cache at ~/.memoire/update-check.json and refreshes it in a detached background process, so the hot path never waits on the network. The notice is written to stderr, leaving stdout and --json output clean; Opt out with MEMOIRE_NO_UPDATE_CHECK=1; opt in to silent auto-apply (npm installs only) with MEMOIRE_AUTO_UPDATE=1. The check is skipped in MCP, --json, non-TTY, and CI contexts, and never blocks or throws.",
+    "commits": [],
+    "decisions": [],
+    "changes": [
+      "Add memi self-update to update the CLI itself: npm installs run npm i -g @memi-design/cli@latest; standalone binaries are pointed at memi upgrade. Supports --check and --json.",
+      "Add a throttled, non-blocking \"update available\" notice on startup. It reads a once-per-day cache at ~/.memoire/update-check.json and refreshes it in a detached background process, so the hot path never waits on the network. The notice is written to stderr, leaving stdout and --json output clean.",
+      "Opt out with MEMOIRE_NO_UPDATE_CHECK=1; opt in to silent auto-apply (npm installs only) with MEMOIRE_AUTO_UPDATE=1. The check is skipped in MCP, --json, non-TTY, and CI contexts, and never blocks or throws.",
+      "Internal: extract isStandaloneBinary into utils/runtime.ts (shared by upgrade and the update checker); semver-precedence comparison with no new dependencies."
+    ]
+  },
   {
     "version": "v1.0.2",
     "date": "2026-05-14",

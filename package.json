@@ -1,6 +1,6 @@
 {
   "name": "@memi-design/cli",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "mcpName": "io.github.sarveshsea/memi",
   "description": "Design-system memory for coding agents — give Claude Code, Cursor, and Codex memory of your tokens, components, and Figma so they edit your app without breaking the design.",
   "type": "module",
