@@ -18,6 +18,7 @@ import { pipeline } from "node:stream/promises";
 import { Readable } from "node:stream";
 import type { MemoireEngine } from "../engine/core.js";
 import { packageRoot } from "../utils/asset-path.js";
+import { isStandaloneBinary } from "../utils/runtime.js";
 
 const REPO = "sarveshsea/memi";
 
@@ -29,13 +30,6 @@ function detectTarget(): { target: string; ext: string; archive: "tar.gz" | "zip
   if (platform === "linux"  && arch === "x64")   return { target: "linux-x64",    ext: "", archive: "tar.gz" };
   if (platform === "win32"  && arch === "x64")   return { target: "win-x64",      ext: ".exe", archive: "zip" };
   return null;
-}
-
-function isStandaloneBinary(): boolean {
-  // Compiled via bun build --compile → process.execPath points at the memi
-  // binary itself (not node). In dev/npm install, execPath is node.
-  const exec = process.execPath.toLowerCase();
-  return exec.endsWith("memi") || exec.endsWith("memi.exe") || exec.includes("/memi-") || exec.includes("\\memi-");
 }
 
 async function download(url: string, dest: string): Promise<void> {
