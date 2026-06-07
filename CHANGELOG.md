@@ -8,6 +8,14 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ## Unreleased
 
+## v1.1.0 — 2026-06-06
+
+### CLI self-update
+- Add `memi self-update` to update the CLI itself: npm installs run `npm i -g @memi-design/cli@latest`; standalone binaries are pointed at `memi upgrade`. Supports `--check` and `--json`.
+- Add a throttled, non-blocking "update available" notice on startup. It reads a once-per-day cache at `~/.memoire/update-check.json` and refreshes it in a detached background process, so the hot path never waits on the network. The notice is written to stderr, leaving stdout and `--json` output clean.
+- Opt out with `MEMOIRE_NO_UPDATE_CHECK=1`; opt in to silent auto-apply (npm installs only) with `MEMOIRE_AUTO_UPDATE=1`. The check is skipped in MCP, `--json`, non-TTY, and CI contexts, and never blocks or throws.
+- Internal: extract `isStandaloneBinary` into `utils/runtime.ts` (shared by `upgrade` and the update checker); semver-precedence comparison with no new dependencies.
+
 ## v1.0.2 — 2026-05-14
 
 ### Studio runtime contracts
