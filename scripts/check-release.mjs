@@ -84,6 +84,7 @@ const requiredReadmeTerms = [
   "Design-system memory for coding agents",
   "npm i -g @memi-design/cli",
   "memi diagnose",
+  "memi ux audit",
   "memi shadcn export",
   "memoire.cv",
   "https://ui.shadcn.com/docs/registry/getting-started",
@@ -145,7 +146,7 @@ if (!codexTermsPage.includes("Memoire terms of service")) {
 }
 
 const cliEntry = await readFile(join(root, "src", "index.ts"), "utf-8");
-for (const command of ["diagnose [target]", "tokens", "publish", "shadcn <subcommand>", "fix <subcommand>", "add <component>", "registry <subcommand>"]) {
+for (const command of ["diagnose [target]", "ux audit [target]", "tokens", "publish", "shadcn <subcommand>", "fix <subcommand>", "add <component>", "registry <subcommand>"]) {
   if (!cliEntry.includes(command)) {
     fail(`fast CLI help is missing command: ${command}`);
   }
@@ -193,6 +194,15 @@ if (!npmPackageEntry) {
   if (JSON.stringify(positionalArgs) !== JSON.stringify(expectedArgs)) {
     fail(`server.json npm package must use registry-safe MCP args ${expectedArgs.join(" ")}; got ${positionalArgs.join(" ")}`);
   }
+}
+
+const studioPackageInfo = await readFile(join(root, "src", "studio", "package-info.ts"), "utf-8");
+const studioPackageVersion = studioPackageInfo.match(/MEMOIRE_PACKAGE_VERSION\s*=\s*"([^"]+)"/)?.[1];
+if (studioPackageVersion && studioPackageVersion !== version) {
+  fail(`src/studio/package-info.ts version ${studioPackageVersion} does not match package.json ${version}`);
+}
+if (!studioPackageVersion && !studioPackageInfo.includes("getMemoirePackageVersion()")) {
+  fail("src/studio/package-info.ts must derive MEMOIRE_PACKAGE_VERSION from package.json");
 }
 
 const changelog = normalizeNewlines(await readFile(join(root, "CHANGELOG.md"), "utf-8"));

@@ -100,6 +100,7 @@ describe("studio harnesses", () => {
       harnessId: "codex",
       cwd: root,
       prompt: "audit the app",
+      goal: "Keep the product designer workflow obvious.",
       action: "audit",
       agentContext: agentContext(root, "audit the app"),
     });
@@ -113,6 +114,8 @@ describe("studio harnesses", () => {
     expect(codex.args.at(-1)).toContain("codex login status");
     expect(codex.args.at(-1)).toContain("model_reasoning_effort");
     expect(codex.args.at(-1)).toContain("- Chat mode: ideate");
+    expect(codex.args.at(-1)).toContain("## Conversation goal");
+    expect(codex.args.at(-1)).toContain("Keep the product designer workflow obvious.");
     expect(codex.args.at(-1)).toContain("- Permission mode: guarded");
 
     expect(buildHarnessCommand(config, {

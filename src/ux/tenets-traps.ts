@@ -1,0 +1,491 @@
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import type { AppQualityIssue, AppQualitySeverity } from "../app-quality/engine.js";
+
+export type UxTenetId =
+  | "clarity"
+  | "feedback"
+  | "control"
+  | "consistency"
+  | "accessibility"
+  | "error-recovery"
+  | "progressive-disclosure"
+  | "workflow-fit"
+  | "trust"
+  | "state-continuity";
+
+export type UxTrapId =
+  | "ambiguous-affordance"
+  | "missing-state"
+  | "silent-system"
+  | "choice-overload"
+  | "layout-instability"
+  | "token-drift"
+  | "inaccessible-interaction"
+  | "copy-theater"
+  | "context-leak"
+  | "destructive-default";
+
+export interface UxTenetDefinition {
+  id: UxTenetId;
+  name: string;
+  description: string;
+  protectBy: string[];
+}
+
+export interface UxTrapDefinition {
+  id: UxTrapId;
+  name: string;
+  description: string;
+  defaultFix: string;
+  tenetIds: UxTenetId[];
+}
+
+export type UxFindingSource = "app-quality" | "screenshot" | "manual" | "mcp";
+
+export interface UxAuditFinding {
+  id: string;
+  title: string;
+  severity: AppQualitySeverity;
+  tenetIds: UxTenetId[];
+  trapIds: UxTrapId[];
+  evidence: string[];
+  recommendation: string;
+  source: UxFindingSource;
+  artifactPath?: string;
+  confidence?: number;
+  affectedFiles?: string[];
+}
+
+export interface UxTenetCoverage {
+  tenetId: UxTenetId;
+  name: string;
+  status: "protected" | "at-risk" | "unknown";
+  findingIds: string[];
+  notes: string[];
+}
+
+export interface UxTrapRisk {
+  trapId: UxTrapId;
+  name: string;
+  status: "clear" | "watch" | "present";
+  riskScore: number;
+  findingIds: string[];
+  defaultFix: string;
+}
+
+export interface UxAuditReport {
+  schemaVersion: 1;
+  target: string;
+  generatedAt: string;
+  score: number;
+  tenetCoverage: UxTenetCoverage[];
+  trapRisks: UxTrapRisk[];
+  findings: UxAuditFinding[];
+  recommendedTweaks: string[];
+  artifactPath?: string;
+  metadata?: {
+    issueCount?: number;
+    appQualityScore?: number;
+  };
+}
+
+export interface BuildUxAuditReportInput {
+  target?: string;
+  generatedAt?: string;
+  artifactPath?: string | null;
+  issues?: AppQualityIssue[];
+  appQualityScore?: number;
+  source?: UxFindingSource;
+}
+
+interface Mapping {
+  tenetIds: UxTenetId[];
+  trapIds: UxTrapId[];
+  recommendation?: string;
+}
+
+export const UX_TENETS: UxTenetDefinition[] = [
+  {
+    id: "clarity",
+    name: "Clarity",
+    description: "Users can tell what matters, what each control does, and what to do next.",
+    protectBy: ["clear hierarchy", "specific labels", "visible primary action"],
+  },
+  {
+    id: "feedback",
+    name: "Feedback",
+    description: "The system acknowledges user actions, progress, loading, success, and failure.",
+    protectBy: ["loading states", "success receipts", "error messages", "disabled state reasons"],
+  },
+  {
+    id: "control",
+    name: "Control",
+    description: "Users can review, undo, cancel, and steer consequential actions.",
+    protectBy: ["undo paths", "confirmations", "manual overrides", "escape hatches"],
+  },
+  {
+    id: "consistency",
+    name: "Consistency",
+    description: "The product repeats tokens, components, copy patterns, and interaction rules.",
+    protectBy: ["semantic tokens", "component variants", "shared layout rhythm"],
+  },
+  {
+    id: "accessibility",
+    name: "Accessibility",
+    description: "The interface works across keyboard, screen reader, contrast, motion, and touch needs.",
+    protectBy: ["focus visibility", "text alternatives", "semantic controls", "contrast checks"],
+  },
+  {
+    id: "error-recovery",
+    name: "Error Recovery",
+    description: "Errors are specific, recoverable, and keep user work intact.",
+    protectBy: ["inline repair", "retry paths", "saved drafts", "actionable messages"],
+  },
+  {
+    id: "progressive-disclosure",
+    name: "Progressive Disclosure",
+    description: "Complexity appears when it is useful instead of overwhelming the default path.",
+    protectBy: ["advanced controls behind intent", "sane defaults", "scannable details"],
+  },
+  {
+    id: "workflow-fit",
+    name: "Workflow Fit",
+    description: "The screen matches the cadence, density, and decision shape of the user's work.",
+    protectBy: ["compact repeated actions", "responsive layouts", "task-oriented grouping"],
+  },
+  {
+    id: "trust",
+    name: "Trust",
+    description: "The product makes claims, sources, permissions, and irreversible actions legible.",
+    protectBy: ["evidence links", "honest copy", "permission receipts", "audit trails"],
+  },
+  {
+    id: "state-continuity",
+    name: "State Continuity",
+    description: "Navigation, refreshes, retries, and background work preserve context and progress.",
+    protectBy: ["persistent session state", "draft preservation", "clear current location"],
+  },
+];
+
+export const UX_TRAPS: UxTrapDefinition[] = [
+  {
+    id: "ambiguous-affordance",
+    name: "Ambiguous Affordance",
+    description: "Interactive elements do not clearly read as clickable, editable, selected, or disabled.",
+    defaultFix: "Clarify labels, state styling, cursor/focus behavior, and primary/secondary action hierarchy.",
+    tenetIds: ["clarity", "control"],
+  },
+  {
+    id: "missing-state",
+    name: "Missing State",
+    description: "Loading, empty, error, disabled, selected, or success states are absent or inconsistent.",
+    defaultFix: "Add explicit default, loading, empty, error, success, disabled, focus, and selected states.",
+    tenetIds: ["feedback", "error-recovery", "state-continuity"],
+  },
+  {
+    id: "silent-system",
+    name: "Silent System",
+    description: "The interface performs work without visible progress, acknowledgement, or receipt.",
+    defaultFix: "Add progress feedback, status copy, completion receipts, and failure reasons near the action.",
+    tenetIds: ["feedback", "trust"],
+  },
+  {
+    id: "choice-overload",
+    name: "Choice Overload",
+    description: "Too many equally weighted controls, styles, or content blocks compete at once.",
+    defaultFix: "Group related choices, reduce simultaneous options, and reveal advanced controls after intent.",
+    tenetIds: ["clarity", "progressive-disclosure", "workflow-fit"],
+  },
+  {
+    id: "layout-instability",
+    name: "Layout Instability",
+    description: "The layout is fragile across breakpoints, content lengths, loading, or dynamic states.",
+    defaultFix: "Add responsive constraints, stable dimensions, overflow rules, and route-level breakpoint coverage.",
+    tenetIds: ["workflow-fit", "state-continuity"],
+  },
+  {
+    id: "token-drift",
+    name: "Token Drift",
+    description: "Raw values and one-off styles break the visual system and make meaning inconsistent.",
+    defaultFix: "Promote repeated colors, spacing, type, radius, and elevation into semantic tokens and variants.",
+    tenetIds: ["consistency", "trust"],
+  },
+  {
+    id: "inaccessible-interaction",
+    name: "Inaccessible Interaction",
+    description: "Keyboard, screen reader, contrast, label, motion, or touch expectations are not met.",
+    defaultFix: "Patch semantic markup, focus states, labels, alternatives, contrast, and reduced-motion behavior.",
+    tenetIds: ["accessibility", "control", "trust"],
+  },
+  {
+    id: "copy-theater",
+    name: "Copy Theater",
+    description: "The UI explains intent with vague or decorative copy instead of useful next-step language.",
+    defaultFix: "Replace decorative or generic copy with task-specific labels, outcomes, and constraints.",
+    tenetIds: ["clarity", "trust"],
+  },
+  {
+    id: "context-leak",
+    name: "Context Leak",
+    description: "The product loses project, selection, permissions, or history context across work surfaces.",
+    defaultFix: "Persist current context in receipts, breadcrumbs, session records, and recovery flows.",
+    tenetIds: ["state-continuity", "workflow-fit", "trust"],
+  },
+  {
+    id: "destructive-default",
+    name: "Destructive Default",
+    description: "Risky actions are too easy to trigger or do not explain consequence before execution.",
+    defaultFix: "Make destructive paths explicit, reversible where possible, and guarded with clear confirmation.",
+    tenetIds: ["control", "error-recovery", "trust"],
+  },
+];
+
+const ISSUE_MAPPINGS: Record<string, Mapping> = {
+  "scan.empty": {
+    tenetIds: ["clarity", "trust"],
+    trapIds: ["ambiguous-affordance", "copy-theater"],
+    recommendation: "Point the audit at visible UI code or a rendered page so hierarchy and state evidence can be checked.",
+  },
+  "system.tokens.missing": {
+    tenetIds: ["consistency", "trust"],
+    trapIds: ["token-drift"],
+    recommendation: "Create semantic tokens for core surfaces, text, radius, spacing, and state colors before expanding screens.",
+  },
+  "color.raw-hex": {
+    tenetIds: ["consistency", "trust"],
+    trapIds: ["token-drift"],
+  },
+  "color.scale-wide": {
+    tenetIds: ["consistency", "clarity"],
+    trapIds: ["token-drift", "choice-overload"],
+  },
+  "type.scale-wide": {
+    tenetIds: ["clarity", "consistency"],
+    trapIds: ["choice-overload", "token-drift"],
+  },
+  "spacing.scale-wide": {
+    tenetIds: ["clarity", "workflow-fit", "consistency"],
+    trapIds: ["choice-overload", "layout-instability", "token-drift"],
+  },
+  "shape.radius-drift": {
+    tenetIds: ["consistency", "trust"],
+    trapIds: ["token-drift"],
+  },
+  "depth.shadow-drift": {
+    tenetIds: ["clarity", "consistency"],
+    trapIds: ["choice-overload", "token-drift"],
+  },
+  "components.default-shadcn": {
+    tenetIds: ["consistency", "trust"],
+    trapIds: ["token-drift", "ambiguous-affordance"],
+  },
+  "maintainability.arbitrary-tailwind": {
+    tenetIds: ["consistency", "workflow-fit"],
+    trapIds: ["token-drift", "layout-instability"],
+  },
+  "responsive.coverage-low": {
+    tenetIds: ["workflow-fit", "state-continuity"],
+    trapIds: ["layout-instability"],
+  },
+  "a11y.image-alt": {
+    tenetIds: ["accessibility", "trust"],
+    trapIds: ["inaccessible-interaction"],
+  },
+  "a11y.focus-missing": {
+    tenetIds: ["accessibility", "control", "trust"],
+    trapIds: ["inaccessible-interaction", "ambiguous-affordance"],
+  },
+};
+
+const CATEGORY_MAPPINGS: Record<AppQualityIssue["category"], Mapping> = {
+  "visual-system": { tenetIds: ["clarity", "consistency"], trapIds: ["token-drift", "choice-overload"] },
+  typography: { tenetIds: ["clarity", "consistency"], trapIds: ["choice-overload"] },
+  spacing: { tenetIds: ["clarity", "workflow-fit"], trapIds: ["choice-overload", "layout-instability"] },
+  color: { tenetIds: ["consistency", "trust"], trapIds: ["token-drift"] },
+  components: { tenetIds: ["consistency", "control"], trapIds: ["ambiguous-affordance", "missing-state"] },
+  accessibility: { tenetIds: ["accessibility", "control"], trapIds: ["inaccessible-interaction"] },
+  responsive: { tenetIds: ["workflow-fit", "state-continuity"], trapIds: ["layout-instability"] },
+  maintainability: { tenetIds: ["consistency", "workflow-fit"], trapIds: ["token-drift"] },
+};
+
+const SEVERITY_PENALTY: Record<AppQualitySeverity, number> = {
+  critical: 24,
+  high: 18,
+  medium: 10,
+  low: 5,
+};
+
+export function mapAppQualityIssueToUxFinding(issue: AppQualityIssue): UxAuditFinding {
+  const mapping = ISSUE_MAPPINGS[issue.id] ?? CATEGORY_MAPPINGS[issue.category];
+  return {
+    id: `ux.${issue.id}`,
+    title: issue.title,
+    severity: issue.severity,
+    tenetIds: mapping.tenetIds,
+    trapIds: mapping.trapIds,
+    evidence: [
+      issue.detail,
+      ...issue.evidence,
+      ...(issue.affectedFiles?.slice(0, 3).map((file) => `Affected file: ${file}`) ?? []),
+    ],
+    recommendation: mapping.recommendation ?? issue.recommendation,
+    source: "app-quality",
+    confidence: issue.confidence,
+    affectedFiles: issue.affectedFiles,
+  };
+}
+
+export function buildUxAuditReport(input: BuildUxAuditReportInput): UxAuditReport {
+  const target = input.target ?? input.artifactPath ?? "workspace";
+  const issueFindings = (input.issues ?? []).map(mapAppQualityIssueToUxFinding);
+  const screenshotFinding = input.artifactPath && issueFindings.length === 0
+    ? [buildScreenshotAuditFinding(input.artifactPath, input.source ?? "screenshot")]
+    : [];
+  const findings = [...issueFindings, ...screenshotFinding].sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
+  const score = scoreUx(findings, input.appQualityScore);
+  const generatedAt = input.generatedAt ?? new Date().toISOString();
+
+  return {
+    schemaVersion: 1,
+    target,
+    generatedAt,
+    score,
+    tenetCoverage: buildTenetCoverage(findings),
+    trapRisks: buildTrapRisks(findings),
+    findings,
+    recommendedTweaks: recommendedTweaks(findings),
+    artifactPath: input.artifactPath ?? undefined,
+    metadata: {
+      issueCount: input.issues?.length ?? 0,
+      appQualityScore: input.appQualityScore,
+    },
+  };
+}
+
+export async function writeUxAuditReport(projectRoot: string, report: UxAuditReport): Promise<{ jsonPath: string; markdownPath: string }> {
+  const outDir = join(projectRoot, ".memoire", "app-quality");
+  await mkdir(outDir, { recursive: true });
+  const jsonPath = join(outDir, "ux-audit.json");
+  const markdownPath = join(outDir, "ux-audit.md");
+  await writeFile(jsonPath, `${JSON.stringify(report, null, 2)}\n`, "utf-8");
+  await writeFile(markdownPath, renderUxAuditMarkdown(report), "utf-8");
+  return { jsonPath, markdownPath };
+}
+
+export function renderUxAuditMarkdown(report: UxAuditReport): string {
+  const lines = [
+    "# Memoire UX Tenets and Traps Audit",
+    "",
+    `Target: \`${report.target}\``,
+    `Score: ${report.score}/100`,
+    `Generated: ${report.generatedAt}`,
+  ];
+  if (report.artifactPath) lines.push(`Artifact: \`${report.artifactPath}\``);
+
+  lines.push("", "## Tenet Coverage", "");
+  for (const tenet of report.tenetCoverage) {
+    lines.push(`- **${tenet.name}**: ${tenet.status}${tenet.findingIds.length ? ` (${tenet.findingIds.join(", ")})` : ""}`);
+  }
+
+  lines.push("", "## Trap Risks", "");
+  for (const trap of report.trapRisks.filter((risk) => risk.status !== "clear")) {
+    lines.push(`- **${trap.name}**: ${trap.status} (${trap.riskScore}/100)`);
+    lines.push(`  Fix: ${trap.defaultFix}`);
+  }
+  if (!report.trapRisks.some((risk) => risk.status !== "clear")) lines.push("- No major trap risk detected.");
+
+  lines.push("", "## Findings", "");
+  if (report.findings.length === 0) {
+    lines.push("- No UX trap findings detected from available evidence.");
+  } else {
+    for (const finding of report.findings) {
+      lines.push(`- **${finding.severity.toUpperCase()} ${finding.title}**`);
+      lines.push(`  Traps: ${finding.trapIds.join(", ")}`);
+      lines.push(`  Recommendation: ${finding.recommendation}`);
+      if (finding.evidence[0]) lines.push(`  Evidence: ${finding.evidence[0]}`);
+    }
+  }
+
+  lines.push("", "## Recommended Tweaks", "");
+  for (const tweak of report.recommendedTweaks) lines.push(`- ${tweak}`);
+  if (report.recommendedTweaks.length === 0) lines.push("- Preserve current tenets and keep collecting screenshot/code evidence.");
+  lines.push("");
+  return lines.join("\n");
+}
+
+function buildScreenshotAuditFinding(artifactPath: string, source: UxFindingSource): UxAuditFinding {
+  return {
+    id: "ux.screenshot.review-required",
+    title: "Screenshot needs tenets/traps review",
+    severity: "medium",
+    tenetIds: ["clarity", "feedback", "workflow-fit", "trust"],
+    trapIds: ["ambiguous-affordance", "missing-state", "silent-system"],
+    evidence: [`Screenshot artifact: ${artifactPath}`],
+    recommendation: "Review hierarchy, primary action, state visibility, empty/loading/error affordances, and next-step receipts against the tenets.",
+    source,
+    artifactPath,
+    confidence: 0.7,
+  };
+}
+
+function buildTenetCoverage(findings: UxAuditFinding[]): UxTenetCoverage[] {
+  return UX_TENETS.map((tenet) => {
+    const related = findings.filter((finding) => finding.tenetIds.includes(tenet.id));
+    return {
+      tenetId: tenet.id,
+      name: tenet.name,
+      status: related.length > 0 ? "at-risk" : findings.length > 0 ? "protected" : "unknown",
+      findingIds: related.map((finding) => finding.id),
+      notes: related.length > 0
+        ? related.map((finding) => finding.title).slice(0, 3)
+        : tenet.protectBy.slice(0, 2),
+    };
+  });
+}
+
+function buildTrapRisks(findings: UxAuditFinding[]): UxTrapRisk[] {
+  return UX_TRAPS.map((trap) => {
+    const related = findings.filter((finding) => finding.trapIds.includes(trap.id));
+    const riskScore = Math.min(100, related.reduce((sum, finding) => sum + SEVERITY_PENALTY[finding.severity], 0) * 3);
+    const highestSeverity = related.map((finding) => finding.severity).sort((a, b) => severityRank(b) - severityRank(a))[0];
+    return {
+      trapId: trap.id,
+      name: trap.name,
+      status: related.length === 0 ? "clear" : highestSeverity === "critical" || highestSeverity === "high" ? "present" : "watch",
+      riskScore,
+      findingIds: related.map((finding) => finding.id),
+      defaultFix: trap.defaultFix,
+    };
+  });
+}
+
+function recommendedTweaks(findings: UxAuditFinding[]): string[] {
+  const seen = new Set<string>();
+  const tweaks: string[] = [];
+  for (const finding of findings.sort((a, b) => severityRank(b.severity) - severityRank(a.severity))) {
+    if (seen.has(finding.recommendation)) continue;
+    seen.add(finding.recommendation);
+    tweaks.push(finding.recommendation);
+    for (const trapId of finding.trapIds) {
+      const trap = UX_TRAPS.find((candidate) => candidate.id === trapId);
+      if (!trap || seen.has(trap.defaultFix)) continue;
+      seen.add(trap.defaultFix);
+      tweaks.push(trap.defaultFix);
+      break;
+    }
+    if (tweaks.length >= 6) break;
+  }
+  return tweaks;
+}
+
+function scoreUx(findings: UxAuditFinding[], appQualityScore?: number): number {
+  const trapPenalty = findings.reduce((sum, finding) => sum + SEVERITY_PENALTY[finding.severity], 0);
+  const evidenceScore = Math.max(0, 100 - trapPenalty);
+  if (appQualityScore === undefined) return evidenceScore;
+  return Math.max(0, Math.round((evidenceScore * 0.65) + (appQualityScore * 0.35)));
+}
+
+function severityRank(severity: AppQualitySeverity): number {
+  return severity === "critical" ? 4 : severity === "high" ? 3 : severity === "medium" ? 2 : 1;
+}

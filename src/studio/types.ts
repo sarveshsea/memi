@@ -79,6 +79,7 @@ export type StudioOutputParser =
   | "memoire-jsonl"
   | "claude-stream-json"
   | "codex-jsonl"
+  | "opencode-jsonl"
   | "hermes-text"
   | "stdio"
   | "ollama"
@@ -419,6 +420,11 @@ export interface StudioEvent {
 
 export interface StudioSession {
   id: string;
+  conversationId?: string;
+  turnIndex?: number;
+  goal?: string;
+  model?: string | null;
+  effort?: string | null;
   harness: StudioHarnessId;
   action: StudioRunAction;
   mode?: StudioSessionMode;
@@ -438,12 +444,15 @@ export interface StudioSession {
 
 export interface StudioRunRequest {
   harnessId: StudioHarnessId;
+  goal?: string;
   action?: StudioRunAction;
   mode?: StudioSessionMode;
   chatMode?: StudioChatMode;
   permissionMode?: StudioPermissionMode;
   cwd: string;
   prompt: string;
+  model?: string | null;
+  effort?: string | null;
   attachments?: StudioAttachment[];
   agentContext?: StudioAgentContext;
 }
@@ -493,6 +502,7 @@ export type StudioToolCategory =
   | "figma"
   | "computer"
   | "mcp"
+  | "review"
   | "knowledge"
   | "research"
   | "board"
@@ -691,6 +701,11 @@ export interface StudioCompatibilitySnapshot {
 export interface StudioAgentContext {
   workspaceLabel: string;
   projectRoot: string;
+  conversationId?: string;
+  turnIndex?: number;
+  goal?: string;
+  model?: string | null;
+  effort?: string | null;
   action: StudioRunAction;
   harness: StudioHarnessId;
   mode: StudioSessionMode;

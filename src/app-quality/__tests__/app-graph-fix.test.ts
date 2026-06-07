@@ -45,6 +45,8 @@ describe("app graph and fix planning", () => {
     const projectRoot = await makeFixtureProject();
     try {
       const plan = await buildUiFixPlan({ projectRoot, write: false });
+      expect(plan.ux.score).toBeLessThan(100);
+      expect(plan.ux.recommendedTweaks.length).toBeGreaterThan(0);
       expect(plan.patches.some((patch) => patch.id === "a11y.add-image-alt-hints")).toBe(true);
       await expect(access(join(projectRoot, ".memoire", "app-quality", "fix-plan.json"))).rejects.toThrow();
     } finally {

@@ -1,5 +1,7 @@
 import { spawnSync } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -205,12 +207,22 @@ describe("packaged agent kits", () => {
   });
 
   it("includes agent kit files in npm pack dry-run output", () => {
+    const npmCache = mkdtempSync(join(tmpdir(), "memoire-npm-cache-"));
     const pack = spawnSync("npm", ["pack", "--dry-run", "--json"], {
       cwd: process.cwd(),
       encoding: "utf-8",
+      env: {
+        ...process.env,
+        npm_config_cache: npmCache,
+        npm_config_update_notifier: "false",
+      },
       maxBuffer: 8 * 1024 * 1024,
     });
-    expect(pack.status, pack.stderr || pack.stdout).toBe(0);
+    try {
+      expect(pack.status, pack.stderr || pack.stdout).toBe(0);
+    } finally {
+      rmSync(npmCache, { recursive: true, force: true });
+    }
 
     const [packageInfo] = JSON.parse(pack.stdout) as Array<{
       files: Array<{ path: string }>;

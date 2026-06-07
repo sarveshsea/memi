@@ -301,10 +301,15 @@ function normalizeRepo(repo) {
 function normalizeRegistry(search, serverName) {
   if (search.ok === false) return { ok: false, listed: false, count: 0, error: search.error };
   const servers = Array.isArray(search.servers) ? search.servers : [];
+  const serverRecords = servers.map((entry) => entry?.server ?? entry).filter(Boolean);
   return {
     ok: true,
-    listed: servers.some((server) => server.name === serverName),
+    listed: serverRecords.some((server) => server.name === serverName),
     count: search.metadata?.count ?? servers.length,
+    latestVersion: serverRecords.find((server, index) => {
+      const meta = servers[index]?._meta?.["io.modelcontextprotocol.registry/official"];
+      return server.name === serverName && meta?.isLatest === true;
+    })?.version ?? null,
     url: `https://registry.modelcontextprotocol.io/v0.1/servers?search=${encodeURIComponent(serverName ?? "")}`,
   };
 }
@@ -351,7 +356,14 @@ function summarizePullState(pull) {
 function buildNextActions(input) {
   const actions = [];
   if (input.npm.ok && input.npm.latest !== input.packageJson.version) {
-    actions.push(`Publish ${input.packageJson.version} to npm; npm latest is ${input.npm.latest}.`);
+    const versionOrder = compareSemver(input.packageJson.version, input.npm.latest);
+    if (versionOrder > 0) {
+      actions.push(`Publish ${input.packageJson.version} to npm; npm latest is ${input.npm.latest}.`);
+    } else if (versionOrder < 0) {
+      actions.push(`Sync local package metadata from ${input.packageJson.version} to npm latest ${input.npm.latest} before publishing or tagging.`);
+    } else {
+      actions.push(`Reconcile local package version ${input.packageJson.version} with npm latest ${input.npm.latest}.`);
+    }
   }
   if (input.officialMcpRegistry.ok && !input.officialMcpRegistry.listed) {
     actions.push("Publish server.json to the Official MCP Registry after npm is current.");
@@ -372,6 +384,23 @@ function buildNextActions(input) {
     actions.push(`Close the 1M/week npm gap: ${formatNumber(input.weeklyNpmDownloads.gap)} more weekly downloads needed for ${input.packageJson.name}.`);
   }
   return actions;
+}
+
+function compareSemver(left, right) {
+  const leftParts = parseSemver(left);
+  const rightParts = parseSemver(right);
+  if (!leftParts || !rightParts) return Number.NaN;
+  for (let index = 0; index < 3; index += 1) {
+    if (leftParts[index] > rightParts[index]) return 1;
+    if (leftParts[index] < rightParts[index]) return -1;
+  }
+  return 0;
+}
+
+function parseSemver(value) {
+  const match = String(value ?? "").match(/^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/);
+  if (!match) return null;
+  return match.slice(1, 4).map(Number);
 }
 
 function formatDownloads(point, label) {

@@ -31,6 +31,7 @@ export function createDesignAgentSystemPrompt(context: StudioAgentContext): stri
     "Use project memory, specs, reference corpus, and Figma bridge state as first-class context.",
     `Reference package: ${MEMOIRE_PACKAGE_NAME}@${MEMOIRE_PACKAGE_VERSION}.`,
     "When full_access is selected, execute workspace, terminal, and computer actions directly while keeping every action traceable.",
+    context.goal?.trim() ? `Persistent conversation goal: ${context.goal.trim()}` : "",
     context.permissionMode === "plan" ? "Plan mode is read-only: inspect, research, and propose before editing files or running mutating commands." : "",
     codex ? `Codex settings: model ${codex.model}, model_reasoning_effort ${codex.reasoningEffort}, approval_policy ${codex.approvalPolicy}.` : "",
     "Report useful discoveries as research_note, design_decision, tool_call, artifact, and session_result events when the harness supports structured output.",
@@ -80,6 +81,10 @@ export function createDesignAgentEnvelope(context: StudioAgentContext): string {
     "",
     "## Harness behavior",
     `- Harness: ${context.harness}`,
+    ...(context.conversationId ? [
+      `- Conversation: ${context.conversationId}`,
+      `- Turn: ${(context.turnIndex ?? 0) + 1}`,
+    ] : []),
     `- Action: ${context.action}`,
     `- Mode: ${context.mode}`,
     `- Chat mode: ${context.chatMode}`,
@@ -138,6 +143,11 @@ export function createDesignAgentEnvelope(context: StudioAgentContext): string {
     "- Save durable learnings through `/api/knowledge` when the harness or Studio surface exposes it.",
     "- Prefer markdown and YAML for portable memory artifacts, design decisions, runbooks, and reusable workflow notes.",
     "",
+    ...(context.goal?.trim() ? [
+      "## Conversation goal",
+      context.goal.trim(),
+      "",
+    ] : []),
     "## User request",
     context.prompt.trim(),
   ].join("\n");
@@ -172,6 +182,11 @@ export function basicAgentContext(input: {
   action: StudioRunAction;
   harness: StudioHarnessId;
   prompt: string;
+  goal?: string;
+  conversationId?: string;
+  turnIndex?: number;
+  model?: string | null;
+  effort?: string | null;
   mode?: StudioAgentContext["mode"];
   chatMode?: StudioAgentContext["chatMode"];
   permissionMode?: StudioAgentContext["permissionMode"];
@@ -180,6 +195,11 @@ export function basicAgentContext(input: {
   return {
     workspaceLabel: input.workspaceLabel ?? "Memoire workspace",
     projectRoot: input.projectRoot,
+    conversationId: input.conversationId,
+    turnIndex: input.turnIndex,
+    goal: input.goal,
+    model: input.model,
+    effort: input.effort,
     action: input.action,
     harness: input.harness,
     mode: input.mode ?? "delegate",
@@ -260,7 +280,8 @@ function harnessSpecificGuidance(harness: StudioHarnessId, codex: StudioCodexCon
       settings.includeCodexCommands ? "- First confirm Codex readiness with `codex login status` when auth or run ability is unclear." : "- Codex readiness checks are disabled in Studio settings; do not spend tokens on auth checks unless the run fails.",
       settings.includeMemoireCommands ? "- Start workspace inspection with `memi status --json`, then `memi suite doctor --json` when a suite manifest exists." : "- Mémoire command hints are disabled in Studio settings; rely on repository inspection and explicit user commands.",
       settings.includeMemoireCommands ? "- For research-scale work, prefer `memi research report --json` or `memi research synthesize --json` when research inputs exist." : "- When research inputs exist, summarize them directly from files instead of invoking Mémoire research commands.",
-      settings.includeMemoireCommands ? "- For UI quality and shadcn/Tailwind cleanup, use `memi diagnose . --json`, token pulls, and design docs before editing." : "- For UI quality work, inspect files manually and still report research_note/design_decision sections.",
+      settings.includeMemoireCommands ? "- For UI quality and shadcn/Tailwind cleanup, use `memi diagnose . --json`, `memi ux audit . --json`, token pulls, and design docs before editing." : "- For UI quality work, inspect files manually and still report research_note/design_decision sections.",
+      "- Treat UX Tenets and Traps as the review frame for clarity, feedback, control, consistency, accessibility, error recovery, progressive disclosure, workflow fit, trust, and state continuity.",
       "- Emit final sections with these exact labels when possible: research_note, design_decision, tool_call, artifact, acceptance_statement, session_result.",
     ];
   }
@@ -270,7 +291,7 @@ function harnessSpecificGuidance(harness: StudioHarnessId, codex: StudioCodexCon
     "## Hermes Memoire skill activation",
     "- Prefer the `memoire-design-tooling` skill for UI design, Figma, design-system, Tailwind, shadcn/ui, research, and Atomic Design tasks.",
     "- If the skill is missing, tell the user to run `memi agent install hermes`; continue with the commands below when `memi` is already available.",
-    "- Use `memi status` to inspect workspace setup, `memi compose` for design/research orchestration, and `memi diagnose .` or `memi audit` for evidence-backed UI quality work.",
+    "- Use `memi status` to inspect workspace setup, `memi compose` for design/research orchestration, and `memi diagnose .`, `memi ux audit . --json`, or `memi audit` for evidence-backed UI quality work.",
     "- Treat Figma bridge state, project memory, specs, tokens, and research notes as native Hermes context before editing files.",
   ];
 }

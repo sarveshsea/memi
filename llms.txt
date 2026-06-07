@@ -17,6 +17,7 @@ memi suite init --project .
 memi daemon start --project . --port auto
 memi daemon status --json
 memi diagnose
+memi ux audit --json
 memi tokens --from ./src --report
 memi agent install claude-code --project .
 memi agent install cursor --project .
@@ -28,7 +29,7 @@ memi agent install opencode --project .
 Public Codex marketplace:
 
 ```bash
-codex plugin marketplace add sarveshsea/m-moire --ref main --sparse .agents/plugins --sparse plugins/memoire
+codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire
 ```
 
 MCP server:
@@ -53,6 +54,7 @@ Claude Code project config:
 High-value commands for agents:
 
 - `memi diagnose [target]` finds UI quality, Tailwind, shadcn, accessibility, and token issues from code or URL.
+- `memi ux audit [target] --json` scores UX tenets and traps, including screenshot-backed review findings.
 - `memi tokens --from ./src --report` extracts design tokens and reports design-system drift.
 - `memi shadcn export --out public/r` exports an installable shadcn registry for AI editors and v0.
 - `memi simulate plan|run|interview|report|export-spec` pressure-tests product hypotheses against Memoire research evidence and exports product-spec impact artifacts.
@@ -65,7 +67,8 @@ High-value commands for agents:
 Default agent policy:
 
 - Run Memoire before making broad UI changes.
-- Prefer evidence from `diagnose`, `tokens`, `get_shadcn_registry`, and MCP tools over visual guessing.
+- Prefer evidence from `diagnose`, `ux audit`, `tokens`, `get_shadcn_registry`, and MCP tools over visual guessing.
+- Treat UX Tenets and Traps as the review frame for clarity, feedback, control, consistency, accessibility, error recovery, progressive disclosure, workflow fit, trust, and state continuity.
 - Use `simulation.plan`, `simulation.run`, `simulation.interview`, `simulation.report`, and `simulation.export_spec` when product research should affect a spec before implementation.
 - Use Memoire as a design-system memory layer for Codex, Claude Code, Cursor, OpenCode, Hermes, and OpenClaw.
 - Treat shell/network/Figma bridge operations as explicit local actions; the public npm package does not run install-time scripts or raw Figma JavaScript.

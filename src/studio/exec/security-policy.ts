@@ -17,7 +17,7 @@
  *               model write a calculation that runs locally and reports
  *               back" — pure compute, no side effects.
  *   read-only — Read, Grep, Glob, Web search. No file writes, no Bash.
- *               5s timeout, 256MB mem, no network env.
+ *               15s timeout, 256MB mem, no network env.
  *   standard  — read-only + Edit + Write + Bash (allowlisted commands).
  *               30s timeout, 512MB mem, scrubbed env.
  *   broad     — standard + arbitrary Bash + browser + computer-use.
@@ -115,7 +115,7 @@ const PROFILES: Readonly<Record<SecurityProfileName, SecurityPolicy>> = {
   "read-only": {
     profile: "read-only",
     allowedTools: READ_TOOLS,
-    timeoutMs: 5_000,
+    timeoutMs: 15_000,
     memoryMb: 256,
     envAllowlist: SAFE_ENV_ALLOWLIST,
     requiresApproval: false,

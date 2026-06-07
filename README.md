@@ -29,6 +29,7 @@ yarn global add @memi-design/cli  # yarn
 
 ```bash
 memi diagnose                       # audit your current Tailwind app
+memi ux audit --json                # score UX tenets and trap risks
 memi tokens --from ./src --report   # extract design tokens
 memi shadcn export --out public/r   # publish a shadcn-native registry
 ```
@@ -41,7 +42,7 @@ memi shadcn export --out public/r   # publish a shadcn-native registry
 
 ### Install memi into your AI agent
 
-memi ships native agent kits and the first native-runtime trust patch inside the npm package. Install memi once, initialize the workspace suite manifest, warm the shared daemon, then give Hermes agents, OpenClaw bots, Claude Code, Cursor, Codex, and OpenCode the same design-system memory, Figma bridge context, Atomic Design rules, shadcn/ui codegen, Tailwind diagnostics, and research-backed UI audit flow.
+memi ships native agent kits and the first native-runtime trust patch inside the npm package. Install memi once, initialize the workspace suite manifest, warm the shared daemon, then give Hermes agents, OpenClaw bots, Claude Code, Cursor, Codex, and OpenCode the same design-system memory, Figma bridge context, Atomic Design rules, UX Tenets and Traps, shadcn/ui codegen, Tailwind diagnostics, and research-backed UI audit flow.
 
 ```bash
 npm i -g @memi-design/cli
@@ -177,6 +178,10 @@ memi diagnose
 # Diagnose a running local route / public URL
 memi diagnose http://localhost:3000
 
+# Focus the critique on tenet coverage, trap risks, and next tweaks
+memi ux audit --json
+memi ux audit --screenshot .memoire/studio/artifacts/screen.png --json
+
 # Extract the token system from the app and write audit reports
 memi tokens --from ./src --output generated/tokens --report
 
@@ -187,7 +192,7 @@ memi shadcn export --out public/r
 memi tokens --from ./src --save
 ```
 
-Reports are written to `.memoire/app-quality/diagnosis.{json,md}` and token extraction emits CSS, Tailwind, JSON, Style Dictionary, semantic coverage, scale-health notes, alias graph validation, duplicate-value groups, recommendations, and inferred token candidates. Shadcn export emits `registry.json` plus installable item JSON files under `/r`.
+Reports are written to `.memoire/app-quality/diagnosis.{json,md}` with a `ux` field for tenet coverage, trap risks, findings, and recommended tweaks. Focused UX reports are written to `.memoire/app-quality/ux-audit.{json,md}`. Token extraction emits CSS, Tailwind, JSON, Style Dictionary, semantic coverage, scale-health notes, alias graph validation, duplicate-value groups, recommendations, and inferred token candidates. Shadcn export emits `registry.json` plus installable item JSON files under `/r`.
 
 ## Trust defaults
 
@@ -348,6 +353,7 @@ npm i -g @memi-design/cli
 
 memi diagnose                         # audit the current app from code
 memi diagnose http://localhost:3000   # audit a running route or public URL
+memi ux audit . --json                # audit UX tenets and traps
 memi design-doc https://linear.app     # extract any site's design system
 memi tokens --from ./src --save         # extract app tokens into the registry
 memi tokens --from ./src --report       # write token-extraction.report.{md,json}
@@ -458,6 +464,7 @@ npm run check:public-release
 | `memi setup plugin` | Explicitly copy the packaged Figma plugin to `~/.memoire/plugin` |
 | `memi init` | Initialize workspace with starter specs |
 | `memi diagnose [target]` | Diagnose design debt in an existing web app from code or URL |
+| `memi ux audit [target]` | Audit UX tenet coverage, trap risks, findings, and recommended tweaks |
 | `memi connect` | Start Figma bridge (auto-discovers plugin on ports 9223-9232) |
 | `memi mermaid-jam status` | Inspect the Mermaid Jam FigJam plugin link, repo, and local manifest path |
 | `memi mermaid-jam export --from research` | Write research-backed Mermaid Jam source artifacts for FigJam |

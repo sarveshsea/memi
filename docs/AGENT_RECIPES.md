@@ -10,11 +10,12 @@ memi suite init --project .
 memi daemon start --project . --port auto
 memi daemon status --json
 memi diagnose
+memi ux audit --json
 memi tokens --from ./src --report
 memi shadcn export --out public/r
 ```
 
-Use this when an agent is asked to fix layout, polish visual design, remove Tailwind drift, improve accessibility, convert Figma to code, or create a component registry. Treat `memoire.agent.yaml` as the workspace contract and the reports under `.memoire/app-quality/` as evidence for the patch plan.
+Use this when an agent is asked to fix layout, polish visual design, remove Tailwind drift, improve accessibility, convert Figma to code, critique screenshots, or create a component registry. Treat `memoire.agent.yaml` as the workspace contract and the reports under `.memoire/app-quality/` as evidence for the patch plan, including UX Tenets and Traps when `ux` appears in diagnosis or fix-plan JSON.
 
 ## Claude Code
 
@@ -31,7 +32,7 @@ memi mcp start --no-figma
 Recommended prompt:
 
 ```text
-Before changing UI code, use the Memoire MCP server to diagnose app quality, inspect tokens, and read shadcn registry context. Ground every UI patch in Memoire evidence.
+Before changing UI code, use the Memoire MCP server to diagnose app quality, inspect tokens, audit UX tenets and traps, and read shadcn registry context. Ground every UI patch in Memoire evidence.
 ```
 
 ## Codex
@@ -54,7 +55,7 @@ Then open `/plugins` in Codex and install Memoire from the marketplace list.
 Recommended prompt:
 
 ```text
-Use the Memoire skill before frontend changes. Run memi diagnose and memi tokens when UI quality, Tailwind, shadcn/ui, accessibility, component registry, or Figma context matters.
+Use the Memoire skill before frontend changes. Run memi diagnose, memi ux audit, and memi tokens when UI quality, Tailwind, shadcn/ui, accessibility, component registry, screenshot critique, or Figma context matters.
 ```
 
 ## Cursor

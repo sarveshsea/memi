@@ -188,15 +188,15 @@
       "installProbe": ["opencode"],
       "capabilities": ["compose", "audit", "raw", "app-build", "self-design", "research", "simulate", "fix", "browser-audit", "handoff"],
       "commandTemplates": {
-        "compose": ["run", "{{promptEnvelope}}"],
-        "audit": ["run", "{{promptEnvelope}}"],
-        "raw": ["run", "{{promptEnvelope}}"]
+        "compose": ["run", "--format", "json", "--dir", "{{cwd}}", "{{promptEnvelope}}"],
+        "audit": ["run", "--format", "json", "--dir", "{{cwd}}", "{{promptEnvelope}}"],
+        "raw": ["run", "--format", "json", "--dir", "{{cwd}}", "{{promptEnvelope}}"]
       },
       "envPolicy": "provider",
       "workspacePolicy": "workspace-required",
       "supportsStreaming": true,
       "supportsCancel": true,
-      "outputParser": "stdio"
+      "outputParser": "opencode-jsonl"
     },
     {
       "id": "gemini",

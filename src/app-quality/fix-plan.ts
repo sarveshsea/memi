@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { buildAppGraph, type AppGraph } from "./app-graph.js";
 import { diagnoseAppQuality, type AppQualityDiagnosis, type AppQualityIssue } from "./engine.js";
+import type { UxAuditReport } from "../ux/tenets-traps.js";
 
 export type UiFixCategory = "tokens" | "accessibility" | "components" | "responsive" | "code-health";
 export type UiFixRisk = "safe" | "review" | "manual";
@@ -37,6 +38,7 @@ export interface UiFixPlan {
     reviewPatchCount: number;
     manualPatchCount: number;
   };
+  ux: UxAuditReport;
   patches: UiFixPatch[];
   caveats: string[];
 }
@@ -89,6 +91,7 @@ export async function buildUiFixPlan(options: BuildUiFixPlanOptions): Promise<Ui
       reviewPatchCount: patches.filter((patch) => patch.risk === "review").length,
       manualPatchCount: patches.filter((patch) => patch.risk === "manual").length,
     },
+    ux: diagnosis.ux,
     patches,
     caveats: [
       "Plan mode does not modify application source files.",
@@ -359,6 +362,13 @@ function renderFixPlanMarkdown(plan: UiFixPlan): string {
     `- Safe: ${plan.summary.safePatchCount}`,
     `- Review: ${plan.summary.reviewPatchCount}`,
     `- Manual: ${plan.summary.manualPatchCount}`,
+    `- UX score: ${plan.ux.score}/100`,
+    "",
+    "## UX Tweaks",
+    "",
+    ...(plan.ux.recommendedTweaks.length > 0
+      ? plan.ux.recommendedTweaks.slice(0, 5).map((tweak) => `- ${tweak}`)
+      : ["- No UX trap tweaks generated from the current diagnosis."]),
     "",
     "## Patches",
     "",

@@ -27,6 +27,7 @@ import {
   type SimulationBudget,
   type SimulationReport,
 } from "../simulation/index.js";
+import { buildUxAuditReport, writeUxAuditReport } from "../ux/tenets-traps.js";
 import type { ResearchStore } from "../research/engine.js";
 import type {
   StudioBrowserActionRequest,
@@ -134,6 +135,7 @@ export class StudioToolBroker {
       tool("browser.click", "Click", "browser", "Click a selector in an active browser session.", false),
       tool("browser.type", "Type", "browser", "Fill a selector in an active browser session.", false),
       tool("figma.action", "Figma", "figma", "Run an allowlisted Figma bridge action.", false),
+      tool("ux.audit_screenshot", "UX audit", "review", "Audit a screenshot artifact against UX tenets and traps.", false),
       tool("mcp.list", "MCP list", "mcp", "List Mémoire MCP tools available to external agents.", false),
       tool("mcp.call", "MCP call", "mcp", "Reserved external MCP call adapter.", true),
       tool("knowledge.search", "Knowledge search", "knowledge", "Search indexed markdown, YAML, specs, references, and captures.", false),
@@ -237,6 +239,8 @@ export class StudioToolBroker {
       case "figma.action":
         if (!this.runFigmaAction) throw new Error("Figma bridge is not configured for Studio tools");
         return this.runFigmaAction(input as unknown as StudioFigmaActionRequest);
+      case "ux.audit_screenshot":
+        return this.auditUxScreenshot(input, config);
       case "mcp.list":
         return { tools: MEMOIRE_MCP_TOOL_NAMES };
       case "mcp.call":
@@ -846,6 +850,33 @@ export class StudioToolBroker {
     }
   }
 
+  private async auditUxScreenshot(input: Record<string, unknown>, config: StudioConfig): Promise<unknown> {
+    const artifactPath = this.resolveWorkspacePath(
+      stringInput(input.artifactPath ?? input.screenshotPath ?? input.path, "artifactPath"),
+      config,
+    );
+    await stat(artifactPath);
+    const report = buildUxAuditReport({
+      target: optionalStringInput(input.target) ?? "screenshot",
+      artifactPath,
+      source: "screenshot",
+    });
+    const artifact = await writeUxAuditReport(this.projectRoot, report);
+    return {
+      report,
+      artifactPath: artifact.jsonPath,
+      markdownPath: artifact.markdownPath,
+      screenshotPath: artifactPath,
+      designSystemArtifact: {
+        kind: "ux-tenets-traps",
+        path: artifact.jsonPath,
+        markdownPath: artifact.markdownPath,
+        score: report.score,
+        traps: report.trapRisks.filter((risk) => risk.status !== "clear").map((risk) => risk.trapId),
+      },
+    };
+  }
+
   private resolveWorkspacePath(path: string, config: StudioConfig): string {
     const resolved = resolve(path);
     if (!isInWorkspace(resolved, config.workspaceRoots)) {
@@ -874,6 +905,7 @@ const MEMOIRE_MCP_TOOL_NAMES = [
   "get_ai_usage",
   "check_bridge_health",
   "design_doc",
+  "audit_ux_tenets_traps",
   "research.design_package",
   "research.generate_specs",
   "mermaid_jam.export",

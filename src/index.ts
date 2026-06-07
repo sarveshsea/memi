@@ -5,6 +5,7 @@
  *
  * Commands:
  *    memoire diagnose          Diagnose design debt in an existing web app
+ *    memoire ux audit          Audit UX tenets and traps from code or screenshots
  *    memoire connect           Connect to Figma Desktop Bridge
  *    memoire pull              Pull design system from Figma
  *    memoire research <sub>    Run research pipeline
@@ -23,6 +24,7 @@
  *    memoire tokens            Export design tokens
  *    memoire shadcn            Export and serve shadcn-native registry files
  *    memoire fix               Plan and apply safe UI quality fixes
+ *    memoire ux audit          Audit UX tenets and traps from code or screenshots
  *    memoire registry          Discover installable registries
  *    memoire pull --rest       Pull design system via Figma REST API (no plugin)
  *    memoire design-doc <url>  Extract design system from any URL → DESIGN.md
@@ -34,6 +36,7 @@
  */
 
 import { getMemoirePackageVersion } from "./utils/package-version.js";
+import { resolveCliProjectRoot } from "./utils/project-root.js";
 
 import { existsSync, rmSync } from "fs";
 import { join } from "path";
@@ -99,6 +102,7 @@ const [
   { registerUpgradeCommand },
   { registerUpdateCommand },
   { registerDiagnoseCommand },
+  { registerUxCommand },
   { registerStudioCommand },
   { registerMermaidJamCommand },
   { registerVideoCommand },
@@ -147,6 +151,7 @@ const [
   import("./commands/upgrade.js"),
   import("./commands/update.js"),
   import("./commands/diagnose.js"),
+  import("./commands/ux.js"),
   import("./commands/studio.js"),
   import("./commands/mermaid-jam.js"),
   import("./commands/video.js"),
@@ -160,6 +165,7 @@ process.on("unhandledRejection", (reason) => {
 });
 
 const program = new Command();
+const projectRoot = resolveCliProjectRoot();
 
 program
   .name("memi")
@@ -168,7 +174,7 @@ program
 
 // Create engine instance (shared across commands)
 const engine = new MemoireEngine({
-  projectRoot: process.cwd(),
+  projectRoot,
   figmaToken: process.env.FIGMA_TOKEN,
   figmaFileKey: process.env.FIGMA_FILE_KEY,
   anthropicApiKey: process.env.ANTHROPIC_API_KEY,
@@ -190,6 +196,7 @@ if (!mcpMode) {
 // Register all commands. Put the code-native design-quality workflow first so
 // `memi --help` leads with the new product surface instead of the long tail.
 registerDiagnoseCommand(program, engine);
+registerUxCommand(program, engine);
 registerStudioCommand(program, engine);
 registerMermaidJamCommand(program, engine);
 registerVideoCommand(program, engine);
@@ -319,6 +326,7 @@ function printFastHelp(version: string): void {
     "",
     "Hero workflow:",
     "  diagnose [target]       Diagnose design debt in code or a URL",
+    "  ux audit [target]       Audit UX tenets and traps from code or screenshots",
     "  tokens                  Extract or export design tokens",
     "  publish                 Package the design system as an installable registry",
     "  shadcn <subcommand>     Export, serve, and validate shadcn-native registry files",

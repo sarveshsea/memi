@@ -31,6 +31,7 @@ describe("studio tool broker", () => {
         "mcp.list",
         "knowledge.search",
         "knowledge.capture",
+        "ux.audit_screenshot",
       ]));
       expect(broker.listTools().find((tool) => tool.id === "workspace.write")).toMatchObject({
         category: "workspace",
@@ -164,6 +165,39 @@ describe("studio tool broker", () => {
       })).resolves.toMatchObject({
         status: "completed",
         artifactPath: expect.stringMatching(/screenshot.*\.png$/),
+      });
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("audits screenshot artifacts through UX tenets and traps", async () => {
+    const root = await mkdtemp(join(tmpdir(), "memoire-ux-tool-"));
+    try {
+      const screenshotPath = join(root, ".memoire", "studio", "artifacts", "screen.png");
+      await mkdir(join(screenshotPath, ".."), { recursive: true });
+      await writeFile(screenshotPath, "png");
+      const broker = new StudioToolBroker({
+        projectRoot: root,
+        getConfig: async () => defaultStudioConfig(root),
+        browser: new StudioBrowserAdapter({ projectRoot: root }),
+      });
+
+      await expect(broker.call({
+        toolId: "ux.audit_screenshot",
+        input: { artifactPath: screenshotPath, target: "current screen" },
+      })).resolves.toMatchObject({
+        status: "completed",
+        toolId: "ux.audit_screenshot",
+        artifactPath: expect.stringMatching(/ux-audit\.json$/),
+        data: {
+          report: {
+            schemaVersion: 1,
+            artifactPath: screenshotPath,
+            findings: expect.any(Array),
+            recommendedTweaks: expect.any(Array),
+          },
+        },
       });
     } finally {
       await rm(root, { recursive: true, force: true });

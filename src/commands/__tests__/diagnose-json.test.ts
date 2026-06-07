@@ -28,6 +28,8 @@ export default function Page() {
       expect(payload.summary.scannedFiles).toBe(1);
       expect(payload.summary.score).toBeLessThan(100);
       expect(payload.issues.some((issue: { id: string }) => issue.id === "color.raw-hex")).toBe(true);
+      expect(payload.ux.score).toBeLessThan(100);
+      expect(payload.ux.trapRisks.some((trap: { trapId: string }) => trap.trapId === "token-drift")).toBe(true);
     } finally {
       await rm(root, { recursive: true, force: true });
     }

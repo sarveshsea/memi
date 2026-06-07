@@ -76,6 +76,7 @@ function printFixPlan(plan: UiFixPlan, wroteReports: boolean): void {
   console.log(ui.dots("Safe", String(plan.summary.safePatchCount)));
   console.log(ui.dots("Review", String(plan.summary.reviewPatchCount)));
   console.log(ui.dots("Manual", String(plan.summary.manualPatchCount)));
+  console.log(ui.dots("UX", `${plan.ux.score}/100`));
   console.log();
 
   if (plan.patches.length === 0) {

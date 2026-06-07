@@ -49,6 +49,15 @@
       "prerequisite": "figma-use"
     },
     {
+      "id": "ux-tenets-traps",
+      "name": "UX Tenets and Traps",
+      "file": "skills/UX_TENETS_TRAPS.md",
+      "description": "First-class UX critique framework for tenet coverage, trap risk, screenshot audits, and recommended tweaks.",
+      "activateOn": "design-review",
+      "freedomLevel": "read-only",
+      "prerequisite": null
+    },
+    {
       "id": "figma-prototype",
       "name": "/figma-prototype",
       "file": "skills/FIGMA_PROTOTYPE.md",
