@@ -301,10 +301,15 @@ function normalizeRepo(repo) {
 function normalizeRegistry(search, serverName) {
   if (search.ok === false) return { ok: false, listed: false, count: 0, error: search.error };
   const servers = Array.isArray(search.servers) ? search.servers : [];
+  const serverRecords = servers.map((entry) => entry?.server ?? entry).filter(Boolean);
   return {
     ok: true,
-    listed: servers.some((server) => server.name === serverName),
+    listed: serverRecords.some((server) => server.name === serverName),
     count: search.metadata?.count ?? servers.length,
+    latestVersion: serverRecords.find((server, index) => {
+      const meta = servers[index]?._meta?.["io.modelcontextprotocol.registry/official"];
+      return server.name === serverName && meta?.isLatest === true;
+    })?.version ?? null,
     url: `https://registry.modelcontextprotocol.io/v0.1/servers?search=${encodeURIComponent(serverName ?? "")}`,
   };
 }
