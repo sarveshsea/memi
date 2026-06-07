@@ -85,6 +85,36 @@ describe("growth status script contract", () => {
     expect(status.staleReferences.total).toBe(3);
   });
 
+  it("does not recommend publishing an older local package over a newer npm latest", async () => {
+    const status = await buildGrowthStatus({
+      packageJson: {
+        name: "@memi-design/cli",
+        version: "1.0.2",
+        mcpName: "io.github.sarveshsea/memi",
+      },
+      now: () => new Date("2026-06-07T00:00:00.000Z"),
+      fetchJson: async (url: string) => {
+        if (url.includes("registry.npmjs.org")) {
+          return { "dist-tags": { latest: "1.1.0" }, versions: { "1.1.0": { mcpName: "io.github.sarveshsea/memi" } } };
+        }
+        if (url.includes("downloads/point/")) return { downloads: 188, start: "2026-05-27", end: "2026-06-02" };
+        if (url.includes("repos/sarveshsea/memi-studio/releases/latest")) {
+          return { tag_name: "v1.0.3", published_at: "2026-05-27T19:26:42Z", assets: [] };
+        }
+        if (url.includes("repos/sarveshsea/memi")) return { stargazers_count: 16, forks_count: 3, open_issues_count: 1, html_url: "https://github.com/sarveshsea/memi", topics: [] };
+        if (url.includes("registry.modelcontextprotocol.io")) return { servers: [{ name: "io.github.sarveshsea/memi" }], metadata: { count: 1 } };
+        if (url.includes("/pulls/")) return { state: "closed", number: 2, title: "SafeSkill", html_url: url, updated_at: "2026-06-07T00:00:00Z" };
+        return {};
+      },
+      fetchText: async () => `cask "memi-studio" do\n  version "1.0.3"\nend\n`,
+      directoryPullRequests: [],
+      staleReferenceSources: {},
+    });
+
+    expect(status.nextActions).toContain("Sync local package metadata from 1.0.2 to npm latest 1.1.0 before publishing or tagging.");
+    expect(status.nextActions).not.toContain("Publish 1.0.2 to npm; npm latest is 1.1.0.");
+  });
+
   it("counts stale package and repo references without mixing them into downloads", () => {
     expect(collectStaleReferenceMetrics({
       "README.md": `${staleRepoName} ${stalePackageName} ${staleForkName}`,
