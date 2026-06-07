@@ -106,6 +106,7 @@ const [
   { registerStudioCommand },
   { registerMermaidJamCommand },
   { registerVideoCommand },
+  { registerSelfUpdateCommand },
 ] = await Promise.all([
   import("commander"),
   import("./engine/core.js"),
@@ -154,6 +155,7 @@ const [
   import("./commands/studio.js"),
   import("./commands/mermaid-jam.js"),
   import("./commands/video.js"),
+  import("./commands/self-update.js"),
 ]);
 
 // Catch unhandled async errors so the CLI doesn't crash silently
@@ -238,6 +240,7 @@ registerPrototypeCommand(program, engine);
 registerHeartbeatCommand(program, engine);
 registerDashboardCommand(program, engine);
 registerIACommand(program, engine);
+registerSelfUpdateCommand(program, engine);
 
 // Uninstall command — removes all Mémoire artifacts
 program
@@ -293,6 +296,11 @@ if (process.argv.length === 2) {
     // Never block the CLI on welcome-banner issues
   }
 }
+
+// Non-blocking "update available" notice (reads cache; refreshes in the
+// background). Guarded so it never runs in MCP/JSON/non-TTY contexts.
+const { maybeNotifyUpdate } = await import("./utils/update-check.js");
+await maybeNotifyUpdate({ currentVersion: packageVersion, mcpMode, jsonOutput: jsonOutputRequested });
 
 // Parse and execute
 program.parse();
