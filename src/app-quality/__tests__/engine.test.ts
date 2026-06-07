@@ -35,9 +35,13 @@ export default function Dashboard() {
       expect(diagnosis.summary.score).toBeLessThan(100);
       expect(diagnosis.issues.map((issue) => issue.id)).toContain("color.raw-hex");
       expect(diagnosis.issues.map((issue) => issue.id)).toContain("a11y.image-alt");
+      expect(diagnosis.ux.score).toBeLessThan(100);
+      expect(diagnosis.ux.trapRisks.map((risk) => risk.trapId)).toContain("token-drift");
+      expect(diagnosis.ux.findings.map((finding) => finding.id)).toContain("ux.color.raw-hex");
       expect(diagnosis.directions.map((direction) => direction.id)).toContain("premium-saas");
       await expect(readFile(join(root, ".memoire", "app-quality", "diagnosis.json"), "utf-8")).resolves.toContain("\"version\": 1");
       await expect(readFile(join(root, ".memoire", "app-quality", "diagnosis.md"), "utf-8")).resolves.toContain("# Memoire App Diagnosis");
+      await expect(readFile(join(root, ".memoire", "app-quality", "diagnosis.md"), "utf-8")).resolves.toContain("## UX Tenets and Traps");
     } finally {
       await rm(root, { recursive: true, force: true });
     }

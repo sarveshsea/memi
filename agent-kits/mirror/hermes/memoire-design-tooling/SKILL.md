@@ -30,6 +30,7 @@ memi daemon start --project . --port auto
 memi daemon status --json
 memi status
 memi diagnose .
+memi ux audit . --json
 memi mcp start --no-figma
 memi suite run design-audit --project . --json
 memi suite run research-vibe-design --project . --json
@@ -47,10 +48,11 @@ memi studio web
 4. Inspect existing project context before making UI changes: `.memoire/`, specs, tokens, README/AGENTS files, `memoire.agent.yaml`, and Figma connection state.
 5. Keep components in Atomic Design levels: atom, molecule, organism, template, page.
 6. Prefer shadcn/ui primitives and Tailwind utilities. Do not introduce CSS modules or styled-components for Memoire-generated components.
-7. Use `memi diagnose .`, `memi audit`, `memi design-doc <url>`, `memi suite run <recipe>`, or `memi compose "<intent>"` when the work needs evidence instead of taste.
-8. For research-backed vibe design, use `memi research design`, `research.design_package`, `research.generate_specs`, and `mermaid_jam.export` to create specs and FigJam source before implementation.
-9. If Figma is connected, use typed Memoire/Figma actions for token pulls, component inspection, screenshot capture, and sync before creating replacement UI.
-10. End with a concise result: design decision, files changed, commands run, assumptions, and next verification step.
+7. Use `memi diagnose .`, `memi ux audit . --json`, `memi audit`, `memi design-doc <url>`, `memi suite run <recipe>`, or `memi compose "<intent>"` when the work needs evidence instead of taste.
+8. Treat UX Tenets and Traps as the review layer for clarity, feedback, control, consistency, accessibility, error recovery, progressive disclosure, workflow fit, trust, and state continuity.
+9. For research-backed vibe design, use `memi research design`, `research.design_package`, `research.generate_specs`, and `mermaid_jam.export` to create specs and FigJam source before implementation.
+10. If Figma is connected, use typed Memoire/Figma actions for token pulls, component inspection, screenshot capture, and sync before creating replacement UI.
+11. End with a concise result: design decision, files changed, commands run, assumptions, and next verification step.
 
 ## Common Mistakes
 - Starting from code before checking design memory or Figma state.

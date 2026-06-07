@@ -8,6 +8,11 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ## Unreleased
 
+### UX Tenets and Traps
+- Added UX Tenets and Traps as a first-class audit concept across the app-quality engine, `memi diagnose`, `memi fix plan`, MCP `audit_ux_tenets_traps`, and the focused `memi ux audit` CLI.
+- Shipped the built-in `UX_TENETS_TRAPS` skill plus the installable `ux-tenets-traps` Note package for framework guidance and screenshot audit workflows.
+- Added Studio runtime support for `ux.audit_screenshot`, real macOS `captureScreen` artifacts, and app-quality UX reports under `.memoire/app-quality/`.
+
 ## v1.0.2 — 2026-05-14
 
 ### Studio runtime contracts

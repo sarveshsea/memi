@@ -24,6 +24,8 @@ memi suite init --project .
 memi daemon start --project . --port auto
 memi daemon status --json
 memi status
+memi diagnose .
+memi ux audit . --json
 memi mcp start --no-figma
 memi suite run design-audit --project . --json
 memi suite run research-vibe-design --project . --json
@@ -36,11 +38,12 @@ memi mermaid-jam export --from research --json
 2. Initialize or read `memoire.agent.yaml`; it declares memory sources, harnesses, skills, and recipes for the workspace.
 3. Prefer the warmed daemon path with `memi daemon start --project . --port auto`, then check `memi daemon status --json`.
 4. Inspect `.memoire/`, specs, tokens, design docs, `memoire.agent.yaml`, and existing agent instructions before choosing an implementation path.
-5. For audits, run `memi diagnose .`, `memi audit`, or `memi suite run design-audit --project . --json` and use file-backed findings as evidence.
-6. For research-backed vibe design, use `memi research design`, `research.design_package`, `research.generate_specs`, and `mermaid_jam.export` before coding the product surface.
-7. For generation, create or reuse specs, keep the Atomic Design level explicit, then run `memi generate`.
-8. For Figma work, connect through `memi connect` or use the Figma-independent MCP server with `memi mcp start --no-figma`.
-9. Keep final output concrete: commands run, design decisions, files changed, remaining risks, and how to verify.
+5. For audits, run `memi diagnose .`, `memi ux audit . --json`, `memi audit`, or `memi suite run design-audit --project . --json` and use file-backed findings as evidence.
+6. Treat UX Tenets and Traps as the review layer for clarity, feedback, control, consistency, accessibility, error recovery, progressive disclosure, workflow fit, trust, and state continuity.
+7. For research-backed vibe design, use `memi research design`, `research.design_package`, `research.generate_specs`, and `mermaid_jam.export` before coding the product surface.
+8. For generation, create or reuse specs, keep the Atomic Design level explicit, then run `memi generate`.
+9. For Figma work, connect through `memi connect` or use the Figma-independent MCP server with `memi mcp start --no-figma`.
+10. Keep final output concrete: commands run, design decisions, files changed, remaining risks, and how to verify.
 
 ## Safety
 Treat third-party skills and generated code as untrusted until reviewed. Do not paste secrets into prompts or logs. Avoid destructive shell commands unless the user explicitly approves them.

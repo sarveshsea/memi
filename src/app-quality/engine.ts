@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { performance } from "node:perf_hooks";
 import { scanSources, type ScannedSourceFile } from "../utils/source-scanner.js";
 import { buildAppGraph, type AppGraph } from "./app-graph.js";
+import { buildUxAuditReport, type UxAuditReport } from "../ux/tenets-traps.js";
 
 export type AppQualitySeverity = "critical" | "high" | "medium" | "low";
 export type AppQualityCategory =
@@ -70,6 +71,7 @@ export interface AppQualityDiagnosis {
   scores: Record<AppQualityCategory, number>;
   files: AppQualityFileSignal[];
   issues: AppQualityIssue[];
+  ux: UxAuditReport;
   directions: AppQualityDirection[];
   nextActions: string[];
   appGraph?: {
@@ -142,6 +144,7 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
   const scores = scoreCategories(issues);
   const score = Math.round(Object.values(scores).reduce((sum, value) => sum + value, 0) / Object.values(scores).length);
   const analysisMs = performance.now() - startedAt;
+  const ux = buildUxAuditReport({ target, issues, appQualityScore: score });
 
   const diagnosis: AppQualityDiagnosis = {
     version: 1,
@@ -165,6 +168,7 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
     scores,
     files: fileSignals,
     issues,
+    ux,
     directions: buildDirections(aggregate, issues),
     nextActions: [
       "Run `memi diagnose --json` in CI to track design debt over time.",
@@ -554,6 +558,20 @@ function renderDiagnosisMarkdown(diagnosis: AppQualityDiagnosis): string {
         lines.push(`  Evidence: ${location.file}${location.line ? `:${location.line}` : ""}${location.excerpt ? ` — ${location.excerpt}` : ""}`);
       }
     }
+  }
+
+  lines.push("", "## UX Tenets and Traps", "");
+  lines.push(`- UX score: ${diagnosis.ux.score}/100`);
+  const activeTraps = diagnosis.ux.trapRisks.filter((risk) => risk.status !== "clear").slice(0, 5);
+  if (activeTraps.length === 0) {
+    lines.push("- No major UX traps detected from available evidence.");
+  } else {
+    for (const trap of activeTraps) {
+      lines.push(`- ${trap.name}: ${trap.status} (${trap.riskScore}/100)`);
+    }
+  }
+  for (const tweak of diagnosis.ux.recommendedTweaks.slice(0, 3)) {
+    lines.push(`- Tweak: ${tweak}`);
   }
 
   lines.push("", "## Directions", "");

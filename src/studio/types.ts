@@ -502,6 +502,7 @@ export type StudioToolCategory =
   | "figma"
   | "computer"
   | "mcp"
+  | "review"
   | "knowledge"
   | "research"
   | "board"

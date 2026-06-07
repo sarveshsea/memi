@@ -280,7 +280,8 @@ function harnessSpecificGuidance(harness: StudioHarnessId, codex: StudioCodexCon
       settings.includeCodexCommands ? "- First confirm Codex readiness with `codex login status` when auth or run ability is unclear." : "- Codex readiness checks are disabled in Studio settings; do not spend tokens on auth checks unless the run fails.",
       settings.includeMemoireCommands ? "- Start workspace inspection with `memi status --json`, then `memi suite doctor --json` when a suite manifest exists." : "- Mémoire command hints are disabled in Studio settings; rely on repository inspection and explicit user commands.",
       settings.includeMemoireCommands ? "- For research-scale work, prefer `memi research report --json` or `memi research synthesize --json` when research inputs exist." : "- When research inputs exist, summarize them directly from files instead of invoking Mémoire research commands.",
-      settings.includeMemoireCommands ? "- For UI quality and shadcn/Tailwind cleanup, use `memi diagnose . --json`, token pulls, and design docs before editing." : "- For UI quality work, inspect files manually and still report research_note/design_decision sections.",
+      settings.includeMemoireCommands ? "- For UI quality and shadcn/Tailwind cleanup, use `memi diagnose . --json`, `memi ux audit . --json`, token pulls, and design docs before editing." : "- For UI quality work, inspect files manually and still report research_note/design_decision sections.",
+      "- Treat UX Tenets and Traps as the review frame for clarity, feedback, control, consistency, accessibility, error recovery, progressive disclosure, workflow fit, trust, and state continuity.",
       "- Emit final sections with these exact labels when possible: research_note, design_decision, tool_call, artifact, acceptance_statement, session_result.",
     ];
   }
@@ -290,7 +291,7 @@ function harnessSpecificGuidance(harness: StudioHarnessId, codex: StudioCodexCon
     "## Hermes Memoire skill activation",
     "- Prefer the `memoire-design-tooling` skill for UI design, Figma, design-system, Tailwind, shadcn/ui, research, and Atomic Design tasks.",
     "- If the skill is missing, tell the user to run `memi agent install hermes`; continue with the commands below when `memi` is already available.",
-    "- Use `memi status` to inspect workspace setup, `memi compose` for design/research orchestration, and `memi diagnose .` or `memi audit` for evidence-backed UI quality work.",
+    "- Use `memi status` to inspect workspace setup, `memi compose` for design/research orchestration, and `memi diagnose .`, `memi ux audit . --json`, or `memi audit` for evidence-backed UI quality work.",
     "- Treat Figma bridge state, project memory, specs, tokens, and research notes as native Hermes context before editing files.",
   ];
 }

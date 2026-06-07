@@ -22,10 +22,11 @@ const DEFAULT_RECIPES: SuiteRecipe[] = [
   {
     id: "design-audit",
     title: "Design Audit",
-    prompt: "Audit the UI with Memoire project memory, design tokens, Tailwind/shadcn conventions, accessibility, and product-team handoff notes.",
+    prompt: "Audit the UI with Memoire project memory, design tokens, Tailwind/shadcn conventions, accessibility, UX Tenets and Traps, and product-team handoff notes.",
     commands: [
       "memi daemon status --json",
       "memi diagnose --json",
+      "memi ux audit --json",
       "memi studio run --action audit --harness codex --mode brokered --prompt \"Audit this UI and produce a design-system fix plan\"",
     ],
   },

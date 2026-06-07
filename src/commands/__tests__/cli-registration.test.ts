@@ -18,6 +18,7 @@ describe("CLI registration smoke test", () => {
     expect(source).toContain('registerDesignDocCommand');
     expect(source).toContain("registerThemeCommand");
     expect(source).toContain("registerDiagnoseCommand");
+    expect(source).toContain("registerUxCommand");
   });
 
   it("registers doctor, daemon, heartbeat, and design-doc on the root program", async () => {
@@ -30,6 +31,7 @@ describe("CLI registration smoke test", () => {
     expect(source).toContain('registerDesignDocCommand(program, engine);');
     expect(source).toContain("registerThemeCommand(program, engine);");
     expect(source).toContain("registerDiagnoseCommand(program, engine);");
+    expect(source).toContain("registerUxCommand(program, engine);");
   });
 
   it("registers pull command with --rest and --force flag support", async () => {

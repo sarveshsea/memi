@@ -5,6 +5,7 @@
  *
  * Commands:
  *    memoire diagnose          Diagnose design debt in an existing web app
+ *    memoire ux audit          Audit UX tenets and traps from code or screenshots
  *    memoire connect           Connect to Figma Desktop Bridge
  *    memoire pull              Pull design system from Figma
  *    memoire research <sub>    Run research pipeline
@@ -23,6 +24,7 @@
  *    memoire tokens            Export design tokens
  *    memoire shadcn            Export and serve shadcn-native registry files
  *    memoire fix               Plan and apply safe UI quality fixes
+ *    memoire ux audit          Audit UX tenets and traps from code or screenshots
  *    memoire registry          Discover installable registries
  *    memoire pull --rest       Pull design system via Figma REST API (no plugin)
  *    memoire design-doc <url>  Extract design system from any URL → DESIGN.md
@@ -100,6 +102,7 @@ const [
   { registerUpgradeCommand },
   { registerUpdateCommand },
   { registerDiagnoseCommand },
+  { registerUxCommand },
   { registerStudioCommand },
   { registerMermaidJamCommand },
   { registerVideoCommand },
@@ -147,6 +150,7 @@ const [
   import("./commands/upgrade.js"),
   import("./commands/update.js"),
   import("./commands/diagnose.js"),
+  import("./commands/ux.js"),
   import("./commands/studio.js"),
   import("./commands/mermaid-jam.js"),
   import("./commands/video.js"),
@@ -190,6 +194,7 @@ if (!mcpMode) {
 // Register all commands. Put the code-native design-quality workflow first so
 // `memi --help` leads with the new product surface instead of the long tail.
 registerDiagnoseCommand(program, engine);
+registerUxCommand(program, engine);
 registerStudioCommand(program, engine);
 registerMermaidJamCommand(program, engine);
 registerVideoCommand(program, engine);
@@ -313,6 +318,7 @@ function printFastHelp(version: string): void {
     "",
     "Hero workflow:",
     "  diagnose [target]       Diagnose design debt in code or a URL",
+    "  ux audit [target]       Audit UX tenets and traps from code or screenshots",
     "  tokens                  Extract or export design tokens",
     "  publish                 Package the design system as an installable registry",
     "  shadcn <subcommand>     Export, serve, and validate shadcn-native registry files",

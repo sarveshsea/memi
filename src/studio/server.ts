@@ -1621,7 +1621,7 @@ export class StudioRuntimeServer {
     });
   }
 
-  private emitComputerEvent(sessionId: string | null | undefined, result: { status: string; action: string; message: string }): void {
+  private emitComputerEvent(sessionId: string | null | undefined, result: { status: string; action: string; message: string; artifactPath?: string | null }): void {
     if (!sessionId) return;
     if (!this.sessions.has(sessionId)) return;
     const type: StudioEventType = result.status === "completed"
@@ -1630,6 +1630,12 @@ export class StudioRuntimeServer {
         ? "approval_request"
         : "computer_action_failed";
     this.addEvent(sessionId, type, result.message, result);
+    if (result.status === "completed" && result.action === "captureScreen" && result.artifactPath) {
+      this.addEvent(sessionId, "screenshot", "Captured screen", {
+        artifactPath: result.artifactPath,
+        source: "computer",
+      });
+    }
   }
 
   private readSessionRecord(sessionId: string, limit?: number): {
@@ -1802,6 +1808,12 @@ export class StudioRuntimeServer {
       result: call.data,
       artifactPath: call.artifactPath,
     });
+    const designArtifact = isRecord(call.data) && isRecord(call.data.designSystemArtifact)
+      ? call.data.designSystemArtifact
+      : null;
+    if (call.status === "completed" && designArtifact) {
+      this.addEvent(request.sessionId, "design_system_artifact", "UX Tenets and Traps audit", designArtifact);
+    }
   }
 
   private async getConfig(): Promise<StudioConfig> {

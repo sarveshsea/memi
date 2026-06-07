@@ -15,6 +15,7 @@ memi daemon start --project . --port auto
 memi daemon status --json
 memi status
 memi diagnose .
+memi ux audit . --json
 memi mcp start --no-figma
 memi suite run design-audit --project . --json
 memi suite run research-vibe-design --project . --json
@@ -30,4 +31,5 @@ memi generate
 - For research-backed vibe design, use `research.design_package`, `research.generate_specs`, and `mermaid_jam.export` before coding a product surface.
 - Keep Atomic Design levels explicit.
 - Prefer shadcn/ui and Tailwind.
+- Treat UX Tenets and Traps as the review layer for clarity, feedback, control, consistency, accessibility, error recovery, progressive disclosure, workflow fit, trust, and state continuity.
 - Verify with Memoire diagnostics or project tests before completion.

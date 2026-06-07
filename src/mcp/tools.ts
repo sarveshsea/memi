@@ -7,6 +7,7 @@
  */
 
 import { z } from "zod";
+import { stat } from "node:fs/promises";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { MemoireEngine } from "../engine/core.js";
 import { AgentOrchestrator } from "../agents/orchestrator.js";
@@ -17,6 +18,7 @@ import { fetchPageAssets, parseCSSTokens } from "../research/css-extractor.js";
 import { buildShadcnRegistry, toShadcnItemName } from "../shadcn/index.js";
 import { diagnoseAppQuality } from "../app-quality/engine.js";
 import { buildUiFixPlan } from "../app-quality/fix-plan.js";
+import { buildUxAuditReport } from "../ux/tenets-traps.js";
 import { resolveMermaidJamIntegration } from "../integrations/mermaid-jam.js";
 import {
   buildResearchDesignPackage,
@@ -351,6 +353,50 @@ Use this tool: to decide what a human or coding agent should patch before callin
         write: false,
       });
       return { content: [{ type: "text" as const, text: JSON.stringify(plan, null, 2) }] };
+    },
+  );
+
+  // ── audit_ux_tenets_traps ──────────────────────────────
+  server.tool(
+    "audit_ux_tenets_traps",
+    `Audit UX tenets and traps from app-quality evidence or a screenshot artifact.
+
+Returns on success: UX audit JSON with score, tenetCoverage, trapRisks, findings, and recommendedTweaks. This tool does not modify source files.
+
+Use this tool: when an agent needs a focused design critique packet for clarity, feedback, control, consistency, accessibility, error recovery, progressive disclosure, workflow fit, trust, and state continuity.`,
+    {
+      target: z.string().optional().describe("Local path or public URL to scan. Defaults to the current project root."),
+      screenshotPath: z.string().optional().describe("Optional screenshot artifact path to attach to the UX audit."),
+      maxFiles: z.number().default(500).describe("Maximum source files to scan when target evidence is used."),
+    },
+    async ({ target, screenshotPath, maxFiles }) => {
+      if (screenshotPath) await assertReadableArtifact(screenshotPath);
+
+      if (screenshotPath && !target) {
+        const report = buildUxAuditReport({
+          target: "screenshot",
+          artifactPath: screenshotPath,
+          source: "mcp",
+        });
+        return { content: [{ type: "text" as const, text: JSON.stringify(report, null, 2) }] };
+      }
+
+      const diagnosis = await diagnoseAppQuality({
+        projectRoot: engine.config.projectRoot,
+        target,
+        maxFiles,
+        write: false,
+      });
+      const report = screenshotPath
+        ? buildUxAuditReport({
+          target: diagnosis.target,
+          issues: diagnosis.issues,
+          appQualityScore: diagnosis.summary.score,
+          artifactPath: screenshotPath,
+          source: "mcp",
+        })
+        : diagnosis.ux;
+      return { content: [{ type: "text" as const, text: JSON.stringify(report, null, 2) }] };
     },
   );
 
@@ -1142,6 +1188,16 @@ Use this tool: to monitor token spend during a session involving analyze_design,
       };
     },
   );
+}
+
+async function assertReadableArtifact(path: string): Promise<void> {
+  const info = await stat(path).catch((error: unknown) => {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Artifact is not readable: ${path}. ${message}`);
+  });
+  if (!info.isFile()) {
+    throw new Error(`Artifact is not a file: ${path}`);
+  }
 }
 
 async function loadMcpResearchStore(engine: MemoireEngine): Promise<ResearchStore> {

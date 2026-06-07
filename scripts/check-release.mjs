@@ -84,6 +84,7 @@ const requiredReadmeTerms = [
   "Design-system memory for coding agents",
   "npm i -g @memi-design/cli",
   "memi diagnose",
+  "memi ux audit",
   "memi shadcn export",
   "memoire.cv",
   "https://ui.shadcn.com/docs/registry/getting-started",
@@ -145,7 +146,7 @@ if (!codexTermsPage.includes("Memoire terms of service")) {
 }
 
 const cliEntry = await readFile(join(root, "src", "index.ts"), "utf-8");
-for (const command of ["diagnose [target]", "tokens", "publish", "shadcn <subcommand>", "fix <subcommand>", "add <component>", "registry <subcommand>"]) {
+for (const command of ["diagnose [target]", "ux audit [target]", "tokens", "publish", "shadcn <subcommand>", "fix <subcommand>", "add <component>", "registry <subcommand>"]) {
   if (!cliEntry.includes(command)) {
     fail(`fast CLI help is missing command: ${command}`);
   }

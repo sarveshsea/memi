@@ -11,6 +11,7 @@ const entry = join(root, "dist", "index.js");
 const requiredTools = [
   "pull_design_system",
   "diagnose_app_quality",
+  "audit_ux_tenets_traps",
   "design_doc",
   "get_shadcn_registry",
 ];

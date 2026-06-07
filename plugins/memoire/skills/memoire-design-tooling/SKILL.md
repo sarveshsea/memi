@@ -15,6 +15,7 @@ memi daemon start --project . --port auto
 memi daemon status --json
 memi status
 memi diagnose .
+memi ux audit . --json
 memi mcp start --no-figma
 memi suite run design-audit --project . --json
 memi suite run research-vibe-design --project . --json
@@ -29,4 +30,5 @@ memi compose "Create an Atomic Design implementation plan"
 - For research-backed vibe design, preview with `research.design_package`, write only approved specs with `research.generate_specs`, and export FigJam source through `mermaid_jam.export`.
 - Keep every component at an Atomic Design level.
 - Prefer shadcn/ui and Tailwind.
+- Treat UX Tenets and Traps as the review layer: protect clarity, feedback, control, consistency, accessibility, error recovery, progressive disclosure, workflow fit, trust, and state continuity.
 - Use Memoire audits and specs as evidence in final responses.

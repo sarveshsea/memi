@@ -1,4 +1,6 @@
-import { resolve } from "node:path";
+import { execFile as execFileCallback } from "node:child_process";
+import { mkdir } from "node:fs/promises";
+import { join, resolve } from "node:path";
 import type {
   StudioComputerAction,
   StudioComputerActionRequest,
@@ -11,21 +13,30 @@ import type {
 
 export interface StudioComputerAdapterOptions {
   projectRoot: string;
+  platform?: NodeJS.Platform;
+  execFile?: (file: string, args: string[]) => Promise<void>;
+  now?: () => Date;
 }
 
 export class StudioComputerAdapter {
   private readonly projectRoot: string;
+  private readonly platform: NodeJS.Platform;
+  private readonly execFile: (file: string, args: string[]) => Promise<void>;
+  private readonly now: () => Date;
 
   constructor(options: StudioComputerAdapterOptions) {
     this.projectRoot = resolve(options.projectRoot);
+    this.platform = options.platform ?? process.platform;
+    this.execFile = options.execFile ?? execFilePromise;
+    this.now = options.now ?? (() => new Date());
   }
 
   status(config: StudioConfig): StudioComputerStatus {
     const enabled = Boolean(config.computer.enabled);
-    const available = enabled && process.platform === "darwin";
+    const available = enabled && this.platform === "darwin";
     return {
       enabled,
-      platform: process.platform,
+      platform: this.platform,
       available,
       mode: config.computer.requireApproval ? "guarded-native" : "full-access-native",
       permissions: config.computer.permissions,
@@ -64,7 +75,40 @@ export class StudioComputerAdapter {
     const validation = validateComputerAction(request, config);
     if (validation) return result(request.action, "failed", approvalRequired, false, validation);
 
+    if (request.action === "captureScreen") {
+      return this.captureScreen(request, approvalRequired);
+    }
+
     return result(request.action, "completed", approvalRequired, false, actionMessage(request.action, request));
+  }
+
+  private async captureScreen(
+    request: StudioComputerActionRequest,
+    approvalRequired: boolean,
+  ): Promise<StudioComputerActionResult> {
+    const artifactDir = join(this.projectRoot, ".memoire", "studio", "artifacts", "computer");
+    await mkdir(artifactDir, { recursive: true });
+    const stamp = this.now().toISOString().replace(/[:.]/g, "-");
+    const artifactPath = join(artifactDir, `${stamp}-screen.png`);
+    try {
+      await this.execFile("screencapture", ["-x", artifactPath]);
+      return result(
+        request.action,
+        "completed",
+        approvalRequired,
+        true,
+        `Captured screen to ${artifactPath}`,
+        artifactPath,
+      );
+    } catch (error) {
+      return result(
+        request.action,
+        "failed",
+        approvalRequired,
+        true,
+        `Failed to capture screen: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 }
 
@@ -107,6 +151,7 @@ function result(
   requiresApproval: boolean,
   executed: boolean,
   message: string,
+  artifactPath: string | null = null,
 ): StudioComputerActionResult {
   return {
     action,
@@ -115,10 +160,22 @@ function result(
     requiresApproval,
     executed,
     message,
-    artifactPath: null,
+    artifactPath,
   };
 }
 
 function thisPathFallback(): string {
   return ".";
+}
+
+function execFilePromise(file: string, args: string[]): Promise<void> {
+  return new Promise((resolvePromise, reject) => {
+    execFileCallback(file, args, (error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolvePromise();
+    });
+  });
 }

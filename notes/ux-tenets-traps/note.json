@@ -1,0 +1,24 @@
+{
+  "name": "ux-tenets-traps",
+  "version": "1.0.0",
+  "description": "UX tenets and traps framework for code, Figma, screenshot, and Studio critique workflows.",
+  "category": "craft",
+  "tags": ["ux", "design-review", "screenshots", "audit", "tenets", "traps", "app-quality"],
+  "skills": [
+    {
+      "file": "ux-tenets-traps.md",
+      "name": "UX Tenets and Traps",
+      "activateOn": "design-review",
+      "freedomLevel": "read-only"
+    },
+    {
+      "file": "ux-screenshot-audit.md",
+      "name": "UX Screenshot Audit",
+      "activateOn": "design-review",
+      "freedomLevel": "read-only"
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-05-27T00:00:00.000Z",
+  "updatedAt": "2026-05-27T00:00:00.000Z"
+}

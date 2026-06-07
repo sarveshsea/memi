@@ -61,4 +61,10 @@ describe("MCP tools registration", () => {
     expect(src).toContain('"research.generate_specs"');
     expect(src).toContain('"mermaid_jam.export"');
   });
+
+  it("registers UX tenets and traps audit tool", async () => {
+    const src = await readToolsSrc();
+    expect(src).toContain('"audit_ux_tenets_traps"');
+    expect(src).toContain("screenshotPath");
+  });
 });
