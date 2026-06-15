@@ -4,13 +4,13 @@ description: Use when an OpenClaw workspace task involves UI design, Figma, desi
 version: 1.1.0
 author: Sarvesh Chidambaram
 license: MIT
-metadata: {"openclaw":{"homepage":"https://github.com/sarveshsea/memi","requires":{"bins":["memi"]},"install":[{"id":"npm","kind":"node","package":"@memi-design/cli","bins":["memi"],"label":"Install Memoire CLI with npm"}]}}
+metadata: {"openclaw":{"homepage":"https://github.com/sarveshsea/memi","requires":{"bins":["memi"]},"install":[{"id":"npm","kind":"node","package":"@memi-design/cli","bins":["memi"],"label":"Install memi CLI with npm"}]}}
 ---
 
-# Mémoire Design Tooling
+# memi Design Tooling
 
 ## Overview
-Memoire gives OpenClaw a local design intelligence layer: warmed project memory, suite recipes, Figma bridge context, research memory, Atomic Design specs, shadcn/ui codegen, Tailwind token checks, and evidence-backed UI audits.
+memi gives OpenClaw a local design intelligence layer: warmed project memory, suite recipes, Figma bridge context, research memory, Atomic Design specs, shadcn/ui codegen, Tailwind token checks, and evidence-backed UI audits.
 
 ## When to Use
 - The task mentions interface design, product flows, design systems, Figma, Tailwind, shadcn/ui, components, accessibility, screenshots, or research synthesis.

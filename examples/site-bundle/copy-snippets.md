@@ -1,8 +1,9 @@
-# Memoire Site Copy Snippets
+# memi Site Copy Snippets
 
-Hero: Shadcn-native Design CI for Tailwind apps.
-Subhead: Turn an existing app into a registry that works with shadcn, v0, AI editors, npm, and Memoire.
-Primary CTA: https://www.npmjs.com/package/@memi-design/cli
+Hero: memi is the AI workbench for product designers.
+Subhead: Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
+Primary CTA: https://github.com/sarveshsea/memi-studio/releases/latest
+Engine CTA: https://www.npmjs.com/package/@memi-design/cli
 Codex plugin: https://www.memoire.cv/codex-plugin
 Codex marketplace install: codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire
 
@@ -51,4 +52,3 @@ Codex marketplace install: codex plugin marketplace add sarveshsea/memi --ref ma
 - tweakcn Linear: Linear-inspired registry with warm surfaces and focused indigo-violet accents.
   Install: memi add Button --from @memoire-examples/tweakcn-linear
   Open in v0: https://v0.dev/chat/api/open?url=https%3A%2F%2Fwww.memoire.cv%2Fr%2Ftweakcn-linear%2Fbutton.json
-

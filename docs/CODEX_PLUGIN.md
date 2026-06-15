@@ -1,6 +1,6 @@
-# Memoire Codex Plugin
+# memi Codex Plugin
 
-Memoire is available to Codex in two public install paths: a Git-backed Codex marketplace for plugin discovery, and an npm-native installer for users who already have `memi`.
+memi is available to Codex in two public install paths: a Git-backed Codex marketplace for plugin discovery, and an npm-native installer for users who already have `memi`.
 
 Public page: https://www.memoire.cv/codex-plugin
 
@@ -10,7 +10,7 @@ Public page: https://www.memoire.cv/codex-plugin
 codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire
 ```
 
-Then open `/plugins` in Codex and install Memoire from the marketplace list.
+Then open `/plugins` in Codex and install memi from the marketplace list.
 
 This sparse checkout exposes only the marketplace metadata and the plugin package:
 

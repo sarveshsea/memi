@@ -1,7 +1,7 @@
 {
   "name": "memoire",
-  "version": "1.1.0",
-  "description": "Design memory and UI quality tools for Codex: MCP tools, design-system context, Figma workflows, shadcn/ui, Tailwind, and Atomic Design.",
+  "version": "1.1.1",
+  "description": "memi design memory and UI quality tools for Codex: MCP tools, design-system context, Figma workflows, shadcn/ui, Tailwind, and Atomic Design.",
   "author": {
     "name": "Sarvesh Chidambaram",
     "url": "https://github.com/sarveshsea"
@@ -25,9 +25,9 @@
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
-    "displayName": "Memoire",
+    "displayName": "memi",
     "shortDescription": "Design memory and UI quality tools for Codex.",
-    "longDescription": "Memoire gives Codex design-system memory, MCP tools, Figma context, Tailwind and shadcn/ui diagnostics, Atomic Design guidance, and research-backed UI audit workflows before frontend edits.",
+    "longDescription": "memi gives Codex design-system memory, MCP tools, Figma context, Tailwind and shadcn/ui diagnostics, Atomic Design guidance, and research-backed UI audit workflows before frontend edits.",
     "developerName": "Sarvesh Chidambaram",
     "category": "Productivity",
     "capabilities": [
@@ -39,7 +39,7 @@
     "privacyPolicyURL": "https://www.memoire.cv/privacy",
     "termsOfServiceURL": "https://www.memoire.cv/terms",
     "defaultPrompt": [
-      "Audit this UI with Memoire before editing.",
+      "Audit this UI with memi before editing.",
       "Extract tokens and shadcn registry context.",
       "Create an Atomic Design implementation plan."
     ],

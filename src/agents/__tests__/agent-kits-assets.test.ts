@@ -95,7 +95,7 @@ describe("packaged agent kits", () => {
       expect(skill).toMatch(/^---\n/);
       expect(skill).toContain("name: memoire-design-tooling");
       expect(skill).toContain("description: Use when");
-      expect(skill).toMatch(/\n---\n\n# Mémoire Design Tooling/);
+      expect(skill).toMatch(/\n---\n\n# memi Design Tooling/);
       expect(skill).toContain("npm i -g @memi-design/cli");
       expect(skill).toContain("memoire.agent.yaml");
       expect(skill).toContain("memi daemon status --json");
@@ -139,16 +139,16 @@ describe("packaged agent kits", () => {
       skills: "./skills/",
       mcpServers: "./.mcp.json",
       interface: {
-        displayName: "Memoire",
+        displayName: "memi",
         privacyPolicyURL: "https://www.memoire.cv/privacy",
         termsOfServiceURL: "https://www.memoire.cv/terms",
         composerIcon: "./assets/authentic-logo.png",
         logo: "./assets/authentic-logo.png",
       },
     });
-    expect(manifest.description).toContain("Design memory");
+    expect(manifest.description).toContain("memi design memory");
     expect(manifest.interface.defaultPrompt.length).toBeLessThanOrEqual(3);
-    expect(manifest.interface.defaultPrompt).toContain("Audit this UI with Memoire before editing.");
+    expect(manifest.interface.defaultPrompt).toContain("Audit this UI with memi before editing.");
     expect(manifest.interface.screenshots).toEqual(["./assets/screenshot-plugin-overview.png"]);
     for (const relativePath of [manifest.interface.logo, manifest.interface.composerIcon, ...manifest.interface.screenshots]) {
       const buffer = await readFile(join(root, "plugins", "memoire", relativePath.replace(/^\.\//, "")));

@@ -1,8 +1,8 @@
-# Memoire Agent Skills
+# memi Agent Skills
 
-Mirror-ready `SKILL.md` packages for `sarveshsea/memoire-agent-skills`. Copy this folder into that repo to make Memoire discoverable to Hermes agents, OpenClaw bots, ClawHub users, and any agent runtime that understands local `SKILL.md` folders.
+Mirror-ready `SKILL.md` packages for `sarveshsea/memoire-agent-skills`. Copy this folder into that repo to make memi discoverable to Hermes agents, OpenClaw bots, ClawHub users, and any agent runtime that understands local `SKILL.md` folders.
 
-Memoire gives agents a local design intelligence layer: warmed daemon context, `memoire.agent.yaml` suite recipes, Figma bridge context, project memory, research notes, Atomic Design specs, shadcn/ui codegen, Tailwind token diagnostics, and evidence-backed UI audits.
+memi gives agents a local design intelligence layer: warmed daemon context, `memoire.agent.yaml` suite recipes, Figma bridge context, project memory, research notes, Atomic Design specs, shadcn/ui codegen, Tailwind token diagnostics, and evidence-backed UI audits.
 
 ## Install
 

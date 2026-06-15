@@ -18,9 +18,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
           cache-dependency-path: package-lock.json
-      - run: |
-          rm -f package-lock.json
-          npm install --ignore-scripts
+      - run: npm install --ignore-scripts
       - run: npm run check:release
       - run: npm run lint
       - run: npm test -- --run

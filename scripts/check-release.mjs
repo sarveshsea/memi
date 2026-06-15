@@ -12,6 +12,12 @@ async function readJson(path) {
   return JSON.parse(await readFile(path, "utf-8"));
 }
 
+function spawnFailureMessage(result, fallback) {
+  const stderr = typeof result.stderr === "string" ? result.stderr.trim() : "";
+  const stdout = typeof result.stdout === "string" ? result.stdout.trim() : "";
+  return stderr || stdout || String(result.status ?? fallback);
+}
+
 const failures = [];
 
 function fail(message) {
@@ -370,7 +376,7 @@ if (process.env.SKIP_PACK_GATE !== "1") {
     maxBuffer: 1024 * 1024,
   });
   if (pack.status !== 0) {
-    fail(`package size gate failed: ${pack.stderr.trim() || pack.stdout.trim() || pack.status}`);
+    fail(`package size gate failed: ${spawnFailureMessage(pack, "failed")}`);
   }
 }
 
@@ -385,7 +391,7 @@ if (process.env.SKIP_AUDIT_GATE !== "1") {
     },
   });
   if (audit.status !== 0) {
-    fail(`production audit gate failed: ${audit.stderr.trim() || audit.stdout.trim() || audit.status}`);
+    fail(`production audit gate failed: ${spawnFailureMessage(audit, "failed")}`);
   }
 }
 

@@ -1,108 +1,69 @@
-# Social Launch Posts
+# memi Social Launch Posts
 
-All posts link to npm until `https://www.memoire.cv/components` is reliable.
-
-Primary link: `https://www.npmjs.com/package/@memi-design/cli`
+Primary link: <https://www.memoire.cv>
 
 ## X / Twitter
 
-### Main launch
+### Main Launch
 
 ```text
-Memoire 0.13 is Design CI for shadcn/Tailwind apps.
+Launching memi today.
 
-Run:
-memi diagnose
-memi tokens --from ./src --report
-memi publish --name @you/ds
+It is an AI workbench for product designers: run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
 
-It starts from real code, finds UI debt, extracts tokens, and packages the improved system as an installable registry.
-
-https://www.npmjs.com/package/@memi-design/cli
+Download:
+https://www.memoire.cv
 ```
 
 ### Reply 1
 
 ```text
-The core bet:
+The problem:
 
-Most teams do not have a perfect Figma source of truth.
-They have an app that works, but looks inconsistent.
+agent runs produce useful product work, but the evidence gets scattered across chat, files, Figma, logs, and memory notes.
 
-Memoire starts there.
+memi gives that work a cockpit: context in, receipts during, artifacts out.
 ```
 
 ### Reply 2
 
 ```text
-Claude Design/v0/Bolt help create the first pass.
-
-Memoire is for the next phase:
-- diagnose the actual app
-- tighten the system
-- extract tokens
-- publish reusable code
-```
-
-## shadcn community
-
-```text
-If your team uses shadcn, Memoire gives you a Design CI loop around the app:
-
-1. `memi diagnose`
-2. `memi tokens --from ./src --report`
-3. `memi publish --name @you/ds`
-4. `memi add Button --from @you/ds`
-
-shadcn made components installable. Memoire makes the design system installable.
-
-https://www.npmjs.com/package/@memi-design/cli
-```
-
-## tweakcn community
-
-```text
-tweakcn is where you shape a shadcn theme.
-
-Memoire is how you validate, package, publish, and install that theme across apps:
-
-memi theme import ./tweakcn-export.css --name "Acme Theme"
-memi theme validate "Acme Theme"
-memi theme publish "Acme Theme" --package @you/theme
-memi add Button --from @you/theme
-
-https://www.npmjs.com/package/@memi-design/cli
-```
-
-## Dev-design community
-
-```text
-Design systems usually fail after implementation, not before it.
-
-Memoire 0.13 starts from code:
-- audits UI debt in a real shadcn/Tailwind app
-- extracts token coverage and dark-mode parity
-- turns the improved system into an installable registry
+The CLI is still there for teams who want the engine directly:
 
 npm i -g @memi-design/cli
-
-https://www.npmjs.com/package/@memi-design/cli
+memi diagnose
+memi ux audit --json
+memi mcp start --no-figma
 ```
 
-## Marketplace category posts
-
-Use [`docs/MARKETPLACE_LAUNCH.md`](./MARKETPLACE_LAUNCH.md) for the `0.13.1` registry marketplace campaign. It contains one post each for landing pages, auth flows, AI chat, ecommerce, shadcn, tweakcn, and developer forums.
-
-## Short comments
+### Reply 3
 
 ```text
-The code-first path is the point: `memi diagnose` then `memi tokens --from ./src --report`.
+Studio stays focused on Codex and Claude Code first.
+
+Advanced paths like Figma, MCP, OpenCode, Hermes, Ollama, notes, and simulations are there when the work needs them, but not on top of the first run.
+```
+
+## Product Hunt Comment
+
+```text
+I built memi because product-design agent work needs more than a chat box.
+
+The agent needs product memory, design-system context, Figma/FigJam handoff, and a visible receipt trail. The designer needs a place to supervise the run, cancel safely, inspect artifacts, and keep useful decisions after the session ends.
+
+memi Studio is that macOS workbench. The npm package and MCP server power the engine underneath, but the launch story today is the calmer desktop surface for running Codex or Claude Code on product work.
+```
+
+## Short Comments
+
+```text
+memi is the workbench; @memi-design/cli is the engine underneath.
 ```
 
 ```text
-This is not prompt-to-UI. It is the cleanup and distribution layer after the app exists.
+The goal is not another prompt-to-UI surface. It is a place to supervise design-aware agent runs and keep the receipts.
 ```
 
 ```text
-Memoire treats a design system like CI: detect drift, extract tokens, publish reusable packages.
+Figma is contextual in memi: connect it when a run needs design source, keep local artifacts inspectable first.
 ```

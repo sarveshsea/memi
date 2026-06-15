@@ -3,9 +3,9 @@ name: memoire-design-tooling
 description: Use when an OpenCode task involves UI design, Figma, design systems, shadcn/ui, Tailwind, Atomic Design, research synthesis, component specs, design audits, or design-to-code generation.
 ---
 
-# Mémoire Design Tooling
+# memi Design Tooling
 
-Use Memoire as the design-system and research layer for frontend work.
+Use memi as the design-system and research layer for frontend work.
 
 ## Commands
 ```bash
@@ -32,4 +32,4 @@ memi generate
 - Keep Atomic Design levels explicit.
 - Prefer shadcn/ui and Tailwind.
 - Treat UX Tenets and Traps as the review layer for clarity, feedback, control, consistency, accessibility, error recovery, progressive disclosure, workflow fit, trust, and state continuity.
-- Verify with Memoire diagnostics or project tests before completion.
+- Verify with memi diagnostics or project tests before completion.

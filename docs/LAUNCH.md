@@ -1,183 +1,119 @@
-# Memoire Launch Pack
+# memi Product Hunt Launch Pack
 
-Use one message everywhere for the `0.13.1` launch:
+Use one message everywhere for the `1.1.1` launch:
 
-> Design CI for shadcn/Tailwind apps: diagnose UI debt in real code, extract tokens, and publish the improved system as an installable registry.
+> memi is the AI workbench for product designers. Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
 
-Link to one conversion page only per post. Until `memoire.cv/components` is fixed, prefer the npm package page:
+Primary CTA: <https://www.memoire.cv>
 
-- [npm: `@memi-design/cli`](https://www.npmjs.com/package/@memi-design/cli)
+## Launch Baseline
 
-## Launch baseline
+- Product Hunt story: Studio-first, with the npm CLI/MCP engine underneath.
+- Release target: `@memi-design/cli@1.1.1`.
+- Studio download: `memi-studio v1.0.4` signed macOS app from GitHub Releases.
+- Homebrew: `brew install --cask sarveshsea/memi/memi-studio`.
+- MCP Registry: `io.github.sarveshsea/memi`.
+- Codex plugin: `codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire`.
 
-- Repo release target: `0.13.1`
-- npm package behind repo before launch: `0.12.3` latest while repo was `0.12.4`
-- Demand baseline from the 30-day plan: `66` weekly downloads for Apr 17-23, 2026 and `1532` monthly downloads for Mar 25-Apr 23, 2026
-- 30-day target: `1500+` weekly downloads and `4000+` monthly downloads
-- Primary search phrase: `Design CI for shadcn/Tailwind apps`
+## Product Hunt Copy
 
-## Competitive positioning
-
-Use this distinction consistently:
-
-- Claude Design is for prompt-first visual exploration and prototypes.
-- Figma Make is for prompt-to-app work inside Figma.
-- v0 is for first-screen and first-app generation.
-- Memoire is for the existing-app phase: diagnose UI debt from code, improve the design system, publish the result, and carry that registry into AI tools.
-
-## Tweet pack
-
-### Launch
+Name:
 
 ```text
-Memoire 0.13 is Design CI for shadcn/Tailwind apps.
+memi
+```
 
-Run `memi diagnose`, find UI debt in real code, extract tokens, then publish the improved system as an installable registry.
+Tagline:
+
+```text
+AI workbench for product designers
+```
+
+Description:
+
+```text
+Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
+```
+
+Maker comment:
+
+```text
+I built memi because product-design agent runs kept losing the thread: the code agent had one context, Figma had another, project decisions lived in markdown, and useful output disappeared into chat history.
+
+memi Studio is a signed macOS workbench for running Codex or Claude Code with the product system already attached: project memory, design tokens, specs, research, Figma/FigJam handoff, run receipts, logs, and artifacts.
+
+The npm package is still the engine underneath:
+npm i -g @memi-design/cli
+memi diagnose
+memi ux audit --json
+memi mcp start --no-figma
+
+Today’s launch is the workbench story: a calmer place for product designers to supervise AI work, keep evidence, and turn useful output into durable design memory.
+```
+
+## Social Posts
+
+### Main Launch
+
+```text
+Launching memi today.
+
+It is an AI workbench for product designers: run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
+
+Download:
+https://www.memoire.cv
+```
+
+### Engine Underneath
+
+```text
+memi Studio is the workbench.
+@memi-design/cli is the engine underneath.
 
 npm i -g @memi-design/cli
-https://www.npmjs.com/package/@memi-design/cli
+memi diagnose
+memi ux audit --json
+memi mcp start --no-figma
+
+The goal: agents start from the product system, not a blank prompt.
 ```
 
-### No Figma
+### Codex / Claude
 
 ```text
-Most dev teams do not start in Figma.
+Codex and Claude Code are powerful, but product-design work needs receipts:
 
-Memoire now starts from the app:
-`memi diagnose` + `memi tokens --from ./src --report`
+- what context was loaded
+- what files changed
+- what design memory was used
+- what artifacts came out
+- what should be preserved
 
-That turns code into a design-system audit.
-
-https://www.npmjs.com/package/@memi-design/cli
+That is the surface memi Studio gives you.
 ```
 
-### shadcn
+### Figma / FigJam
 
 ```text
-shadcn made components installable.
+Figma stays contextual in memi.
 
-Memoire makes the design system installable: tokens, components, registry, and update path.
+Connect it when the run needs design source, pull tokens/components/screenshots, and export local Mermaid or FigJam-ready planning source before external sync.
 
-npm i -g @memi-design/cli
-memi publish --name @you/ds
-memi add Button --from @you/ds
-
-https://www.npmjs.com/package/@memi-design/cli
+The handoff remains inspectable.
 ```
 
-### tweakcn
+## Competitive Positioning
 
-```text
-tweakcn is where you shape the theme.
+- Prompt-to-UI tools help create the first pass.
+- Coding agents help modify the product.
+- memi is for supervised product-design agent work: memory, receipts, artifacts, Figma context, and reusable design-system evidence.
 
-Memoire is how you validate, package, publish, and install it across apps.
+## Launch Checklist
 
-memi theme import ./tweakcn-export.css --name "Acme Theme"
-memi theme publish "Acme Theme" --package @you/theme
-
-https://www.npmjs.com/package/@memi-design/cli
-```
-
-### Competitive
-
-```text
-Claude Design and v0 help create the first pass.
-
-Memoire is for the part after: diagnose the real app, clean the system, and publish reusable code.
-
-https://www.npmjs.com/package/@memi-design/cli
-```
-
-### Proof
-
-```text
-Memoire 0.13 target:
-- faster CLI
-- code-first token extraction
-- SEO-clean npm page
-- Design CI workflow devs can try in under 60 seconds
-
-https://www.npmjs.com/package/@memi-design/cli
-```
-
-## Marketplace campaign
-
-The `0.13.1` marketplace-specific launch posts live in [`docs/MARKETPLACE_LAUNCH.md`](./MARKETPLACE_LAUNCH.md). Use those for category-specific pushes around `landing-page`, `auth-flow`, `ai-chat`, `ecommerce`, shadcn, tweakcn, and developer forums.
-
-The `0.14.1` shadcn-native registry bridge campaign lives in [`docs/LAUNCH_0_14_1.md`](./LAUNCH_0_14_1.md). Use it for shadcn, v0, AI editor/MCP, Tailwind, and existing-app audiences.
-
-## Canonical posts
-
-Standalone post templates and reply copy live in [`docs/SOCIAL.md`](./SOCIAL.md).
-
-### X / Twitter
-
-```text
-Memoire is Design CI for shadcn/Tailwind apps.
-
-diagnose:
-memi diagnose http://localhost:3000
-
-package the improved system:
-memi publish --name @you/ds
-
-It finds UI debt in real apps, then turns the cleaned-up system into something installable.
-
-https://www.npmjs.com/package/@memi-design/cli
-```
-
-### shadcn community
-
-```text
-If you like the shadcn install pattern, Memoire applies it to whole design systems.
-
-- publish a Figma system or tweakcn theme to npm
-- install real components with memi add
-- keep tokens + components synced through one registry
-
-Quickstart:
-npm i -g @memi-design/cli
-memi publish --name @you/ds --figma <url> --push
-memi add Button --from @you/ds
-
-https://www.npmjs.com/package/@memi-design/cli
-```
-
-### tweakcn audience
-
-```text
-tweakcn is great for visual theme editing.
-Memoire handles the next step: validate, preview, diff, package, and publish the theme as an installable shadcn registry.
-
-memi theme import ./tweakcn-export.css --name "Acme Theme"
-memi theme validate "Acme Theme"
-memi theme publish "Acme Theme" --package @you/theme
-
-https://www.npmjs.com/package/@memi-design/cli
-```
-
-### Figma / dev-design audience
-
-```text
-Memoire takes a Figma design system and ships it as an npm registry instead of a screenshot or token dump.
-
-publish:
-memi publish --name @you/ds --figma <url> --push
-
-install anywhere:
-memi add Button --from @you/ds
-
-Registry-first docs and examples:
-https://www.npmjs.com/package/@memi-design/cli
-```
-
-## Weekly checks
-
-- Fill in [`docs/METRICS.md`](./METRICS.md)
-- Weekly npm downloads
-- Monthly npm downloads
-- npm latest version
-- GitHub stars and metadata status
-- README first-screen CTA
-- Website `/components` health
-- Which featured registry gets the most installs
+- [ ] Publish `@memi-design/cli@1.1.1`.
+- [ ] Verify npm install smoke with `npm run check:public-release`.
+- [ ] Republish `server.json` to the MCP Registry.
+- [ ] Create GitHub tag/release `v1.1.1`.
+- [ ] Confirm homepage still shows Studio `1.0.4`, npm latest, and the macOS download.
+- [ ] Submit Product Hunt with the exact name, tagline, description, and CTA above.
+- [ ] Post the main launch thread and one engine-underneath reply.

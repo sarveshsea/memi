@@ -315,7 +315,7 @@ function isGlobalVersionRequest(args: string[]): boolean {
 
 function printFastHelp(version: string): void {
   const lines = [
-    "Usage: memoire [options] [command]",
+    "Usage: memi [options] [command]",
     "",
     "AI-native design tooling for agents.",
     "Diagnose UI debt, export shadcn registries, and install design memory into AI agents.",

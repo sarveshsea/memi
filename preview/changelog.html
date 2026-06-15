@@ -391,8 +391,8 @@ a:hover { text-decoration: underline; }
     </nav>
     <div class="hdr-stats">
       <span><span class="n" id="stat-commits">242</span> commits</span>
-      <span><span class="n" id="stat-versions">27</span> versions</span>
-      <span><span class="n" id="stat-latest">2026-06-06</span> latest</span>
+      <span><span class="n" id="stat-versions">28</span> versions</span>
+      <span><span class="n" id="stat-latest">2026-06-15</span> latest</span>
     </div>
   </header>
 
@@ -407,8 +407,8 @@ a:hover { text-decoration: underline; }
         <div class="hero-kpis">
           <div class="summary-card">
             <span class="summary-kicker">Current release</span>
-            <strong class="summary-value">v1.1.0</strong>
-            <div class="summary-caption">0 commits tracked in v1.1.0 from CHANGELOG.md.</div>
+            <strong class="summary-value">v1.1.1</strong>
+            <div class="summary-caption">0 commits tracked in v1.1.1 from CHANGELOG.md.</div>
           </div>
           <div class="summary-card">
             <span class="summary-kicker">Biggest theme</span>
@@ -434,10 +434,28 @@ a:hover { text-decoration: underline; }
     <section class="release-list" id="release-list"></section>
   </main>
 
-  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v1.1.0</footer>
+  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v1.1.1</footer>
 
 <script>
 const releases = [
+  {
+    "version": "v1.1.1",
+    "date": "2026-06-15",
+    "tag": "fix",
+    "summary": "Refreshed launch, social, submission, and site handoff docs around the Studio-first story: **memi is the AI workbench for product designers**; Updated public agent-facing install guidance so llms.txt points at @memi-design/cli instead of the deprecated @sarveshsea/memoire alias; Fixed fast CLI help to present the live binary as memi.",
+    "commits": [],
+    "decisions": [],
+    "changes": [
+      "Refreshed launch, social, submission, and site handoff docs around the Studio-first story: **memi is the AI workbench for product designers**.",
+      "Updated public agent-facing install guidance so llms.txt points at @memi-design/cli instead of the deprecated @sarveshsea/memoire alias.",
+      "Fixed fast CLI help to present the live binary as memi.",
+      "Resolved the production form-data advisory with a pinned 4.0.6 override while keeping the same Anthropic SDK line for same-day launch safety.",
+      "Synced package, MCP registry, Codex plugin, widget, and example registry metadata for 1.1.1.",
+      "Added UX Tenets and Traps as a first-class audit concept across the app-quality engine, memi diagnose, memi fix plan, MCP audit_ux_tenets_traps, and the focused memi ux audit CLI.",
+      "Shipped the built-in UX_TENETS_TRAPS skill plus the installable ux-tenets-traps Note package for framework guidance and screenshot audit workflows.",
+      "Added Studio runtime support for ux.audit_screenshot, real macOS captureScreen artifacts, and app-quality UX reports under .memoire/app-quality/."
+    ]
+  },
   {
     "version": "v1.1.0",
     "date": "2026-06-06",

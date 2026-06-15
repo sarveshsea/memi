@@ -1,6 +1,6 @@
 {
   "name": "@memi-design/cli",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "mcpName": "io.github.sarveshsea/memi",
   "description": "Design-system memory for coding agents — give Claude Code, Cursor, and Codex memory of your tokens, components, and Figma so they edit your app without breaking the design.",
   "type": "module",
@@ -123,6 +123,7 @@
     "playwright": "^1.59.1"
   },
   "overrides": {
+    "form-data": "4.0.6",
     "exceljs": {
       "uuid": "11.1.1"
     }

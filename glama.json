@@ -1,11 +1,11 @@
 {
-  "name": "memoire",
-  "display_name": "Memoire",
-  "description": "Publish Figma and tweakcn design systems as installable shadcn registries, then connect the same workflow to MCP clients.",
+  "name": "memi",
+  "display_name": "memi",
+  "description": "Design-memory MCP server and CLI behind the memi AI workbench for product designers.",
   "repository": "https://github.com/sarveshsea/memi",
   "homepage": "https://memoire.cv",
   "author": "sarveshsea",
   "license": "MIT",
   "categories": ["Design Tools", "Developer Tools"],
-  "tags": ["registry", "figma", "tweakcn", "design-system", "shadcn", "npm", "tailwind", "mcp"]
+  "tags": ["ai-workbench", "figma", "figjam", "design-memory", "design-system", "codex", "claude-code", "tailwind", "mcp"]
 }
