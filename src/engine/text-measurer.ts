@@ -63,15 +63,31 @@ async function ensurePolyfill(): Promise<void> {
 }
 
 function approximateLayout(text: string, font: string, maxWidth: number, lineHeight: number) {
+  const detailed = approximateLayoutDetailed(text, font, maxWidth, lineHeight);
+  return { height: detailed.height, lineCount: detailed.lineCount };
+}
+
+function approximateLayoutDetailed(text: string, font: string, maxWidth: number, lineHeight: number): DetailedMeasureResult {
   const fontSize = parseFontSize(font);
   const avgCharWidth = fontSize * 0.55;
   const charsPerLine = Math.max(1, Math.floor(maxWidth / avgCharWidth));
   const paragraphs = text.split("\n");
-  let lineCount = 0;
+  const lines: Array<{ text: string; width: number }> = [];
   for (const p of paragraphs) {
-    lineCount += Math.max(1, Math.ceil(p.length / charsPerLine));
+    if (p.length === 0) {
+      lines.push({ text: "", width: 0 });
+      continue;
+    }
+    for (let start = 0; start < p.length; start += charsPerLine) {
+      const lineText = p.slice(start, start + charsPerLine);
+      lines.push({
+        text: lineText,
+        width: Math.min(maxWidth, lineText.length * avgCharWidth),
+      });
+    }
   }
-  return { height: lineCount * lineHeight, lineCount };
+  const lineCount = lines.length;
+  return { height: lineCount * lineHeight, lineCount, lines };
 }
 
 // ── Types ──────────────────────────────────────────────────
@@ -137,6 +153,7 @@ const DEFAULT_BREAKPOINTS: Record<string, number> = {
 
 export class TextMeasurer {
   private cache = new Map<string, PreparedText>();
+  private approximateCache = new Set<string>();
   private maxCacheSize: number;
   private initPromise: Promise<void>;
 
@@ -154,7 +171,9 @@ export class TextMeasurer {
   measure(text: string, opts: MeasureOptions): MeasureResult {
     const font = opts.font ?? "16px sans-serif";
     const lineHeight = opts.lineHeight ?? parseFontSize(font) * 1.5;
-    if (!polyfillInstalled || shouldUseApproximateMeasurement(text)) {
+    const useApproximate = !polyfillInstalled || shouldUseApproximateMeasurement(text);
+    if (useApproximate) {
+      if (!shouldUseApproximateMeasurement(text)) this.trackApproximate(text, font);
       return approximateLayout(text, font, opts.maxWidth, lineHeight);
     }
     const prepared = this.getPrepared(text, font);
@@ -165,9 +184,10 @@ export class TextMeasurer {
   measureDetailed(text: string, opts: MeasureOptions): DetailedMeasureResult {
     const font = opts.font ?? "16px sans-serif";
     const lineHeight = opts.lineHeight ?? parseFontSize(font) * 1.5;
-    if (!polyfillInstalled || shouldUseApproximateMeasurement(text)) {
-      const approx = approximateLayout(text, font, opts.maxWidth, lineHeight);
-      return { ...approx, lines: [] };
+    const useApproximate = !polyfillInstalled || shouldUseApproximateMeasurement(text);
+    if (useApproximate) {
+      if (!shouldUseApproximateMeasurement(text)) this.trackApproximate(text, font);
+      return approximateLayoutDetailed(text, font, opts.maxWidth, lineHeight);
     }
     const prepared = prepareWithSegments(text, font);
     const result = layoutWithLines(prepared, opts.maxWidth, lineHeight);
@@ -239,12 +259,13 @@ export class TextMeasurer {
   /** Clear the internal measurement cache and Pretext's global cache. */
   clearCache(): void {
     this.cache.clear();
+    this.approximateCache.clear();
     clearCache();
   }
 
   /** Get cache size for monitoring. */
   get cacheSize(): number {
-    return this.cache.size;
+    return this.cache.size + this.approximateCache.size;
   }
 
   // ── Internal ─────────────────────────────────────────
@@ -269,6 +290,18 @@ export class TextMeasurer {
       this.cache.set(key, prepared);
     }
     return prepared;
+  }
+
+  private trackApproximate(text: string, font: string): void {
+    const key = `${font}\0${text}`;
+    if (this.approximateCache.has(key)) {
+      this.approximateCache.delete(key);
+    }
+    this.approximateCache.add(key);
+    if (this.approximateCache.size > this.maxCacheSize) {
+      const firstKey = this.approximateCache.values().next().value!;
+      this.approximateCache.delete(firstKey);
+    }
   }
 }
 

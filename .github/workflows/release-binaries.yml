@@ -37,10 +37,7 @@ jobs:
           bun-version: latest
 
       - name: Install deps
-        shell: bash
-        run: |
-          rm -f package-lock.json
-          npm install --ignore-scripts
+        run: npm install --ignore-scripts
 
       - name: Check release metadata
         run: npm run check:release
