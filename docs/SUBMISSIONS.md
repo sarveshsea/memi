@@ -1,180 +1,128 @@
 # Distribution Submissions
 
-Use this as the operating board for real directory and launch work. Every entry should improve Memoire discovery or trust. Do not submit low-quality PRs for achievements.
+Use this as the operating board for Product Hunt and real directory work. Every entry should improve memi discovery or trust.
 
 ## Canonical Positioning
 
 ```text
-Memoire is an MCP server and CLI for shadcn-native Design CI: diagnose UI debt, extract Tailwind tokens, export shadcn registries, and plan safe UI fixes.
+memi is the AI workbench for product designers: run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
 ```
 
-## Primary Install Path
+## Primary Paths
+
+macOS app:
+
+```bash
+brew install --cask sarveshsea/memi/memi-studio
+```
+
+CLI / MCP engine:
 
 ```bash
 npm i -g @memi-design/cli
 memi diagnose
-memi shadcn export --out public/r
-memi mcp config --install
+memi ux audit --json
+memi mcp start --no-figma
+```
+
+Codex plugin:
+
+```bash
+codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire
 ```
 
 ## Directory Matrix
 
-| Priority | Target | Lane | Submission route | Status | Next action |
-| --- | --- | --- | --- | --- | --- |
-| P0 | Official MCP Registry | MCP directory | `mcp-publisher publish server.json` | Ready after `0.14.4` publish | Publish npm, then publish `server.json` |
-| P0 | MCP.Directory | MCP directory | `https://mcp.directory/submit` | Ready | Submit GitHub URL, npm package, and one-line description |
-| P0 | Smithery | MCP directory | `https://smithery.ai/new` or CLI publish | Ready | Submit after server metadata is published |
-| P0 | Glama | MCP directory | Glama MCP server directory submission | Listed with old copy | Claim or refresh listing after official registry publish |
-| P0 | PulseMCP | MCP directory | Directory indexing/submission path | Ready | Confirm listing after official registry submission |
-| P0 | MCP Central | MCP directory | Directory listing | Ready | Submit after npm is live |
-| P0 | mcp.so | MCP directory | Directory listing | Ready | Submit after npm is live |
-| P0 | `punkpeye/awesome-mcp-servers` | Awesome list | Pull request | Accepted | Merged: https://github.com/punkpeye/awesome-mcp-servers/pull/4373 |
-| P0 | `TensorBlock/awesome-mcp-servers` | Awesome list | Pull request | Submitted, maintainer change addressed | https://github.com/TensorBlock/awesome-mcp-servers/pull/455 |
-| P0 | `YuzeHao2023/Awesome-MCP-Servers` | Awesome list | Pull request | Submitted | https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/208 |
-| P0 | `MobinX/awesome-mcp-list` | Awesome list | Pull request | Submitted | https://github.com/MobinX/awesome-mcp-list/pull/241 |
-| P0 | `toolsdk-ai/toolsdk-mcp-registry` | MCP registry | Pull request | Merged | https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/296 |
-| P1 | `appcypher/awesome-mcp-servers` | Awesome list | Pull request | Branch pushed | PR creation blocked by base permissions; compare branch: https://github.com/appcypher/awesome-mcp-servers/compare/main...sarveshsea:awesome-mcp-servers-2:add-memoire-design-ci |
-| P1 | `wong2/awesome-mcp-servers` | Awesome list | Pull request | Branch pushed | PR creation blocked by base permissions; compare branch: https://github.com/wong2/awesome-mcp-servers/compare/main...sarveshsea:awesome-mcp-servers-1:add-memoire-design-ci |
-| P0 | `hesreallyhim/awesome-claude-code` | Awesome list | Web form | Closed, wrong submission route | Resubmit through required web form after 7-day cooldown |
-| P1 | shadcn registry directory | shadcn registry | Pull request to registry index | Ready | Submit when public registry URL is stable |
-| P1 | `bytefer/awesome-shadcn-ui` | shadcn ecosystem | Pull request | Submitted | https://github.com/bytefer/awesome-shadcn-ui/pull/18 |
-| P1 | `birobirobiro/awesome-shadcn-ui` | shadcn ecosystem | Pull request | Merged | https://github.com/birobirobiro/awesome-shadcn-ui/pull/493 |
-| P1 | v0/design-system community | v0 ecosystem | Post/demo | Ready | Lead with Open in v0 registry workflow |
-| P2 | Product Hunt | Launch | Launch page | Draft | Use demo video and npm CTA |
-| P2 | Hacker News | Launch | Show HN post | Draft | Post after npm latest is verified |
-| P2 | Reddit `r/mcp` | Community | Demo post | Draft | Share practical setup and demo, not hype |
-| P2 | Reddit `r/shadcn` | Community | Registry workflow post | Draft | Lead with shadcn-native registry export |
-| P2 | Dev.to/Hashnode | Content | Tutorial | Draft | Publish the 60-second workflow as a written guide |
+| Priority | Target | Lane | Status | Next action |
+| --- | --- | --- | --- | --- |
+| P0 | Product Hunt | Launch | Ready after `1.1.1` publish | Submit with Studio-first copy and homepage CTA |
+| P0 | Official MCP Registry | MCP directory | Listed for `io.github.sarveshsea/memi` | Republish `server.json` after npm `1.1.1` |
+| P0 | npm | CLI distribution | `@memi-design/cli@1.1.1` release target | Publish and run public release gate |
+| P0 | GitHub Releases | Traceability | Missing `v1.1.1` tag until release | Create tag/release after publish |
+| P0 | Codex plugin | Agent distribution | Sparse checkout smoke passes locally | Keep marketplace command in launch replies |
+| P1 | Glama / MCP directories | MCP discovery | Some listings still use Memoire-era copy | Refresh to memi workbench + design-memory engine copy |
+| P1 | Awesome MCP lists | Ecosystem discovery | Several older PRs merged/open | Refresh only where maintainers accept updates |
+| P1 | shadcn / v0 communities | Engine proof | Secondary to Product Hunt | Share CLI workflow after launch spike |
+| P2 | Hacker News | Launch | Draft | Post only after Product Hunt assets are stable |
+| P2 | Reddit `r/mcp` | Community | Draft | Share practical MCP setup, not launch hype |
+| P2 | Dev.to / Hashnode | Tutorial | Draft | Write Studio + CLI walkthrough |
+
+## Product Hunt Submission
+
+Name:
+
+```text
+memi
+```
+
+Tagline:
+
+```text
+AI workbench for product designers
+```
+
+Description:
+
+```text
+Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
+```
+
+URL:
+
+```text
+https://www.memoire.cv
+```
 
 ## Ready-To-Submit Entries
 
-### awesome-claude-code
-
-Category: `Agent Skills > General`
-
-```markdown
-- [Memoire](https://github.com/sarveshsea/memi) by [sarveshsea](https://github.com/sarveshsea) - MCP server and CLI for shadcn-native Design CI. Diagnose UI debt, extract Tailwind tokens, export shadcn registries, plan safe UI fixes, and connect Claude Code with `memi mcp config --install`.
-```
-
-### awesome-mcp-servers
-
-Category: `Developer Tools > Design`
-
-```markdown
-- [Memoire](https://github.com/sarveshsea/memi) 📇 🏠 - MCP server and CLI for shadcn-native Design CI. Audits Tailwind/shadcn apps, extracts tokens, exports shadcn registries, plans safe UI fixes, and gives Claude Code/Cursor/Codex design-system context through MCP.
-```
-
-### MCP directory one-liner
+### MCP Directory One-Liner
 
 ```text
-MCP server and CLI for shadcn-native Design CI in Tailwind apps.
+Design-memory MCP server and CLI behind the memi AI workbench for product designers.
 ```
 
-### MCP directory description
+### MCP Directory Description
 
 ```text
-Memoire lets AI coding tools understand and improve real shadcn/Tailwind apps. It diagnoses UI debt, extracts design tokens, exports shadcn-compatible registries, validates install paths, and exposes the workflow through MCP for Claude Code, Cursor, Codex, and other clients.
+memi gives AI coding tools design-system memory before frontend work. The CLI and MCP server expose UI diagnosis, UX tenet audits, token extraction, shadcn registry context, Figma-aware workflows, and agent kits for Codex, Claude Code, Cursor, OpenCode, Hermes, and OpenClaw.
 ```
 
-### shadcn/v0 directory description
+### Codex Plugin Description
 
 ```text
-Memoire turns existing Tailwind/shadcn applications into shadcn-native registries that work with shadcn CLI, v0, AI editors, and npm. Use it to audit an app, extract tokens, export registry items, and publish installable design-system packages.
+memi gives Codex design-system memory, MCP tools, Tailwind and shadcn diagnostics, Atomic Design guidance, and research-backed UX audit workflows before frontend edits.
 ```
 
-## Show HN Post
+### Show HN Post
 
-Title: `Show HN: MCP server for shadcn-native Design CI`
+Title: `Show HN: memi, an AI workbench for product designers`
 
 ```text
-I built Memoire, an MCP server and CLI for shadcn-native Design CI.
+I built memi, a signed macOS workbench for running Codex or Claude Code on product-design work.
 
-It starts from the app you already have:
+It keeps the product context visible: project memory, design-system context, Figma/FigJam handoff, run receipts, logs, and artifacts.
+
+The engine is also available as an npm package and MCP server:
 
   npm i -g @memi-design/cli
   memi diagnose
-  memi shadcn export --out public/r
-  memi mcp config --install
+  memi ux audit --json
+  memi mcp start --no-figma
 
-That gives you a UI-quality diagnosis, Tailwind token extraction, shadcn-compatible registry output, and MCP tools for Claude Code/Cursor/Codex.
+The wedge is supervised design-aware agent runs. I want product designers to see what context went in, what happened during the run, and what should be kept after the session ends.
 
-The wedge is code-first design systems. No Figma required. If your team has a messy shadcn/Tailwind app, Memoire helps turn it into an installable registry and a set of safer UI fix plans.
-
-MIT licensed.
-
+https://www.memoire.cv
 https://github.com/sarveshsea/memi
-```
-
-## X/Twitter Thread
-
-```text
-i built an MCP server for shadcn-native Design CI
-
-npm i -g @memi-design/cli
-memi diagnose
-memi shadcn export --out public/r
-memi mcp config --install
-
-it turns a real Tailwind/shadcn app into a UI audit, token report, shadcn registry, and AI-editor context
-```
-
-```text
-most AI UI tools help with the first draft
-
-Memoire is for after the draft:
-- find UI debt
-- extract tokens from code
-- export shadcn registry items
-- validate install paths
-- give Claude Code/Cursor/Codex MCP tools for the same system
-```
-
-```text
-the core loop:
-
-1. run `memi diagnose`
-2. export registry items with `memi shadcn export`
-3. validate with `memi shadcn doctor`
-4. connect MCP with `memi mcp config --install`
-5. let AI editors work from the same design-system context
-```
-
-```text
-repo:
-https://github.com/sarveshsea/memi
-
-npm:
-https://www.npmjs.com/package/@memi-design/cli
 ```
 
 ## Submission Checklist
 
-- [x] Publish npm 0.14.1 and verify `npm view @memi-design/cli version`
-- [x] Publish npm 0.14.3 and verify `mcpName`
-- [ ] Publish 0.14.4 trust patch
-- [x] Update GitHub description and topics
-- [x] Enable GitHub Discussions
-- [ ] Submit to Official MCP Registry
-- [ ] Submit to MCP.Directory
-- [ ] Submit to Smithery
-- [ ] Submit to Glama
-- [ ] Submit to PulseMCP
-- [ ] Submit to MCP Central
-- [ ] Submit to mcp.so
-- [x] Merge `punkpeye/awesome-mcp-servers` PR
-- [ ] Merge `TensorBlock/awesome-mcp-servers` PR
-- [ ] Merge `YuzeHao2023/Awesome-MCP-Servers` PR
-- [ ] Merge `MobinX/awesome-mcp-list` PR
-- [x] Merge `toolsdk-ai/toolsdk-mcp-registry` PR
-- [ ] Open or hand-submit `appcypher/awesome-mcp-servers` branch
-- [ ] Open or hand-submit `wong2/awesome-mcp-servers` branch
-- [x] Close `hesreallyhim/awesome-claude-code` issue
-- [ ] Resubmit `hesreallyhim/awesome-claude-code` through required web form
-- [ ] Merge `bytefer/awesome-shadcn-ui` PR
-- [x] Merge `birobirobiro/awesome-shadcn-ui` PR
-- [ ] Submit to shadcn registry directory
-- [ ] Post Show HN
-- [ ] Post X/Twitter thread with demo
-- [ ] Post practical walkthrough to `r/mcp`
-- [ ] Post registry workflow to `r/shadcn`
-- [ ] Publish Dev.to or Hashnode tutorial
+- [ ] Publish npm `1.1.1`.
+- [ ] Verify `npm run check:public-release`.
+- [ ] Republish `server.json` to the Official MCP Registry.
+- [ ] Create GitHub tag/release `v1.1.1`.
+- [ ] Submit Product Hunt.
+- [ ] Post X/Twitter launch thread.
+- [ ] Refresh Glama/MCP directory copy where editable.
+- [ ] Post practical MCP setup to `r/mcp`.
+- [ ] Publish Studio + CLI tutorial.

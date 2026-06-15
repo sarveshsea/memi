@@ -1,7 +1,7 @@
 {
   "version": 1,
   "name": "memoire-agent-kits",
-  "description": "Installable agent kits that teach AI agents to use Memoire as daemon-aware design memory, MCP tooling, and product-team suite recipes.",
+  "description": "Installable agent kits that teach AI agents to use memi as daemon-aware design memory, MCP tooling, and product-team suite recipes.",
   "suiteManifest": "memoire.agent.yaml",
   "daemon": {
     "start": "memi daemon start --project . --port auto",

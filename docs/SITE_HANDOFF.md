@@ -1,44 +1,46 @@
 # Site and GitHub Handoff
 
-These are the exact external-surface updates that still need credentials or the separate website repo.
+These are the external-surface updates for the Studio-first Product Hunt launch.
 
-## GitHub repo metadata
+## GitHub Repo Metadata
 
-- Description: `Shadcn-native Design CI for Tailwind apps: export registries that work with shadcn, v0, AI editors, and npm.`
-- Topics: `shadcn-native`, `shadcn-registry`, `shadcn-registry-generator`, `v0-design-system`, `design-ci`, `tailwind-audit`, `token-extraction`, `ui-quality`, `ui-fix-plan`, `registry-generator`, `design-tokens`, `tweakcn`
+- Description: `AI workbench for product designers: run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff.`
+- Topics: `ai-workbench`, `product-design`, `codex`, `claude-code`, `mcp-server`, `figma`, `figjam`, `design-system`, `design-memory`, `tailwind-audit`, `shadcn`, `ui-quality`
 
-## Homepage hero
+## Homepage Hero
 
-- Heading: `Shadcn-native Design CI for Tailwind apps.`
-- Subhead: `Turn an existing app into a registry that works with shadcn, v0, AI editors, npm, and Mémoire.`
-- Primary CTA: `https://www.npmjs.com/package/@memi-design/cli`
-- Secondary CTA: omit until `/components` is reliable. If one is required, use `https://github.com/sarveshsea/memi#no-figma-required`.
+- Heading: `memi is the AI workbench for product designers.`
+- Subhead: `Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.`
+- Primary CTA: `https://github.com/sarveshsea/memi-studio/releases/latest`
+- Secondary CTA: `https://www.npmjs.com/package/@memi-design/cli`
+- Proof line: `Open source · Apple-signed by Humyn LLC · Studio 1.0.4 · npm latest 1.1.1`
 
-## Docs landing
+## Product Hunt Surface
 
-- Lead with the two quickstarts from [`docs/README.md`](./README.md)
-- Push MCP, Notes, and agents below the fold under an `Advanced` heading
+- Product: `memi`
+- Tagline: `AI workbench for product designers`
+- Description: `Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.`
+- CTA: `https://www.memoire.cv`
 
-## `/components` fallback
+## Docs Landing
 
-- Primary data: render all entries from [`examples/marketplace-catalog.v1.json`](../examples/marketplace-catalog.v1.json)
-- Fallback data: when the full catalog cannot load, render the three entries from [`examples/featured-registries.json`](../examples/featured-registries.json)
-- Never show an all-zero empty state if either catalog exists
-- Registry cards must show screenshot, title, description, install command, tags, component count, source link, and npm package link
-- Individual pages should use the template and keyword clusters in [`docs/MARKETPLACE_SEO.md`](./MARKETPLACE_SEO.md)
+- Lead with Studio setup and download.
+- Put CLI/MCP setup directly below as the engine path:
 
-## Footer
+```bash
+npm i -g @memi-design/cli
+memi diagnose
+memi ux audit --json
+memi mcp start --no-figma
+```
 
-- npm link: `https://www.npmjs.com/package/@memi-design/cli`
-- Version string: only show the currently released package version
-- OpenGraph, Twitter card, sitemap, and JSON-LD copy: [`docs/SEO.md`](./SEO.md)
+- Keep shadcn registry, Notes, simulation, and advanced agents below the first product story.
 
-## 0.14.1 external release checklist
+## Release Checklist
 
-- Publish `0.13.1` first if npm latest is still behind the repo; do not announce `0.14.1` while npm users still see the old README.
-- Publish `0.14.1` to npm from the tagged `main` commit, then run `npm run check:public-release`.
-- Update GitHub description and topics to the exact strings above.
-- Deploy the website hero, docs landing, and `/components` catalog from the generated marketplace bundle.
-- Verify `/components` renders non-empty cards from the catalog or featured fallback.
-- Verify npm README first screen contains `Shadcn-native Design CI for Tailwind apps` and `npm i -g @memi-design/cli`.
-- Record the 7-day follow-up metrics in [`docs/METRICS.md`](./METRICS.md): npm weekly downloads, npm monthly downloads, npm latest, GitHub stars, README CTA, and `/components` health.
+- Publish `@memi-design/cli@1.1.1`.
+- Verify `npm run check:public-release`.
+- Publish `server.json` to the MCP Registry.
+- Create GitHub tag/release `v1.1.1`.
+- Confirm the homepage shows Studio `1.0.4`, Homebrew cask `1.0.4`, and npm `1.1.1`.
+- Confirm no first-fold public install path points to deprecated `@sarveshsea/memoire`.

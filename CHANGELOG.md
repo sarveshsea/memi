@@ -8,6 +8,19 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ## Unreleased
 
+No unreleased changes.
+
+## v1.1.1 — 2026-06-15
+
+### Product Hunt launch alignment
+- Refreshed launch, social, submission, and site handoff docs around the Studio-first story: **memi is the AI workbench for product designers**.
+- Updated public agent-facing install guidance so `llms.txt` points at `@memi-design/cli` instead of the deprecated `@sarveshsea/memoire` alias.
+- Fixed fast CLI help to present the live binary as `memi`.
+
+### Security and release hygiene
+- Resolved the production `form-data` advisory with a pinned `4.0.6` override while keeping the same Anthropic SDK line for same-day launch safety.
+- Synced package, MCP registry, Codex plugin, widget, and example registry metadata for `1.1.1`.
+
 ### UX Tenets and Traps
 - Added UX Tenets and Traps as a first-class audit concept across the app-quality engine, `memi diagnose`, `memi fix plan`, MCP `audit_ux_tenets_traps`, and the focused `memi ux audit` CLI.
 - Shipped the built-in `UX_TENETS_TRAPS` skill plus the installable `ux-tenets-traps` Note package for framework guidance and screenshot audit workflows.

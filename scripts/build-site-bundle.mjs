@@ -58,11 +58,12 @@ const seoPages = [{
   ogImage: "https://www.memoire.cv/plugin/memoire/assets/screenshot-plugin-overview.png",
 }];
 const snippets = [
-  "# Memoire Site Copy Snippets",
+  "# memi Site Copy Snippets",
   "",
-  "Hero: Shadcn-native Design CI for Tailwind apps.",
-  "Subhead: Turn an existing app into a registry that works with shadcn, v0, AI editors, npm, and Memoire.",
-  "Primary CTA: https://www.npmjs.com/package/@memi-design/cli",
+  "Hero: memi is the AI workbench for product designers.",
+  "Subhead: Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.",
+  "Primary CTA: https://github.com/sarveshsea/memi-studio/releases/latest",
+  "Engine CTA: https://www.npmjs.com/package/@memi-design/cli",
   "Codex plugin: https://www.memoire.cv/codex-plugin",
   `Codex marketplace install: ${codexPluginInstallCommand}`,
   "",
