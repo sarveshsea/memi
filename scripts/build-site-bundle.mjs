@@ -147,6 +147,8 @@ await writeFile(join(outDir, "catalog.json"), `${JSON.stringify(bundleCatalog, n
 await writeFile(join(outDir, "seo.json"), `${JSON.stringify({ pages: seoPages }, null, 2)}\n`);
 await writeFile(join(outDir, "sitemap.xml"), renderSitemap(sitemapUrls));
 await writeFile(join(outDir, "copy-snippets.md"), `${snippets.join("\n")}\n`);
+await cp(join(root, "scripts", "install.sh"), join(outDir, "install.sh"));
+await cp(join(root, "scripts", "install.ps1"), join(outDir, "install.ps1"));
 await cp(join(root, "assets", "marketplace-catalog.v1.json"), join(outDir, "assets", "marketplace-catalog.v1.json"));
 await writeFile(join(outDir, "codex-plugin", "index.html"), renderCodexPluginPage(codexPluginInstallCommand));
 await writeFile(join(outDir, "privacy", "index.html"), renderPolicyPage({

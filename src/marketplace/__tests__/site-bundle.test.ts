@@ -71,4 +71,23 @@ describe("marketplace site bundle", () => {
     expect(privacy).toContain("Memoire privacy policy");
     expect(terms).toContain("Memoire terms of service");
   });
+
+  it("contains public no-npm installers at the site root", async () => {
+    const shellInstaller = await readFile(join(bundleRoot, "install.sh"), "utf8");
+    const powershellInstaller = await readFile(join(bundleRoot, "install.ps1"), "utf8");
+
+    expect(shellInstaller).toContain("archive_sums_url");
+    expect(shellInstaller).toContain(".sha256");
+    expect(powershellInstaller).toContain("$archiveSumsUrl");
+    expect(powershellInstaller).toContain(".sha256");
+  });
+
+  it("checks public no-npm installers in the release site-bundle gate", async () => {
+    const checker = await readFile(join(root, "scripts", "check-site-bundle-urls.mjs"), "utf8");
+
+    expect(checker).toContain('join(baseDir, "install.sh")');
+    expect(checker).toContain('join(baseDir, "install.ps1")');
+    expect(checker).toContain('`${baseUrl}/install.sh`');
+    expect(checker).toContain('`${baseUrl}/install.ps1`');
+  });
 });
