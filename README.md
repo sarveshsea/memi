@@ -395,7 +395,7 @@ memi upgrade
 | Linux (x86_64)          | `memi-linux-x64.tar.gz`          |
 | Windows (x64)           | `memi-win-x64.zip`               |
 
-Verify with `SHA256SUMS.txt` (attached to every release). Extract, add `memi` to PATH, run `memi connect`. The `skills/`, `notes/`, `plugin/`, `preview/` directories must stay next to the binary — memi loads them at runtime.
+Verify with `SHA256SUMS.txt` or the per-archive `.sha256` sidecar attached to the release. Extract, add `memi` to PATH, run `memi connect`. The `skills/`, `notes/`, `plugin/`, `preview/` directories must stay next to the binary — memi loads them at runtime.
 
 ---
 

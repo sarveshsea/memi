@@ -14,6 +14,8 @@ await requireFile(join(baseDir, "notes", "index.html"));
 await requireFile(join(baseDir, "notes", "community", "catalog.v1.json"));
 await requireFile(join(baseDir, "notes", "community", "index.html"));
 await requireFile(join(baseDir, "assets", "marketplace-catalog.v1.json"));
+await requireFile(join(baseDir, "install.sh"));
+await requireFile(join(baseDir, "install.ps1"));
 
 const catalog = JSON.parse(await readFile(join(baseDir, "notes", "catalog.v1.json"), "utf8"));
 for (const note of catalog.notes ?? []) {
@@ -39,6 +41,8 @@ if (args.baseUrl) {
   await requireRemote(`${baseUrl}/notes/community/catalog.v1.json`);
   await requireRemote(`${baseUrl}/notes/community/`);
   await requireRemote(`${baseUrl}/assets/marketplace-catalog.v1.json`);
+  await requireRemote(`${baseUrl}/install.sh`);
+  await requireRemote(`${baseUrl}/install.ps1`);
   for (const note of (catalog.notes ?? []).slice(0, 5)) {
     await requireRemote(`${baseUrl}/notes/${encodeURIComponent(note.name)}/`);
     await requireRemote(`${baseUrl}/notes/${encodeURIComponent(note.name)}/${encodeURIComponent(`${note.name}-${note.version}.tgz`)}`);

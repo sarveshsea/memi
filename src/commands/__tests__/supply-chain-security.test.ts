@@ -21,6 +21,7 @@ describe("public package supply-chain defaults", () => {
 
     expect(lock.packages["node_modules/@chenglou/pretext"]?.version).toBe("0.0.6");
     expect(lock.packages["node_modules/path-to-regexp"]?.version).toMatch(/^8\.[4-9]\./);
+    expect(lock.packages["node_modules/hono"]?.version).toMatch(/^4\.12\.(2[5-9]|[3-9][0-9])$/);
   });
 
   it("keeps raw Figma JavaScript execution out of public source paths", async () => {

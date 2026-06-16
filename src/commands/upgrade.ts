@@ -45,6 +45,13 @@ async function sha256File(path: string): Promise<string> {
   return createHash("sha256").update(buf).digest("hex");
 }
 
+export function checksumUrlsForArchive(base: string, archiveName: string): string[] {
+  return [
+    `${base}/SHA256SUMS.txt`,
+    `${base}/${archiveName}.sha256`,
+  ];
+}
+
 function extract(archivePath: string, destDir: string, archive: "tar.gz" | "zip"): void {
   mkdirSync(destDir, { recursive: true });
   const result = archive === "zip"
@@ -109,7 +116,7 @@ export function registerUpgradeCommand(program: Command, _engine: MemoireEngine)
 
       const archiveName = `memi-${plat.target}.${plat.archive}`;
       const archiveUrl = `${base}/${archiveName}`;
-      const sumsUrl = `${base}/SHA256SUMS.txt`;
+      const checksumUrls = checksumUrlsForArchive(base, archiveName);
 
       if (opts.check) {
         console.log(`  Checking ${archiveUrl} ...`);
@@ -127,18 +134,25 @@ export function registerUpgradeCommand(program: Command, _engine: MemoireEngine)
         console.log(`▸ Downloading ${archiveName}`);
         await download(archiveUrl, archivePath);
 
-        let checksumManifestDownloaded = false;
-        try {
-          await download(sumsUrl, sumsPath);
-          checksumManifestDownloaded = true;
-        } catch (err) {
-          if (!opts.allowUnverified) {
-            throw new Error(`SHA256SUMS.txt unavailable (${(err as Error).message}). Re-run with --allow-unverified only if you trust the release source.`);
+        let checksumSource: string | null = null;
+        let checksumError: unknown = null;
+        for (const checksumUrl of checksumUrls) {
+          try {
+            await download(checksumUrl, sumsPath);
+            checksumSource = checksumUrl.endsWith("SHA256SUMS.txt") ? "SHA256SUMS.txt" : `${archiveName}.sha256`;
+            break;
+          } catch (err) {
+            checksumError = err;
           }
-          console.warn(`  ! SHA256SUMS.txt unavailable (${(err as Error).message}) — continuing because --allow-unverified was set`);
+        }
+        if (!checksumSource) {
+          if (!opts.allowUnverified) {
+            throw new Error(`SHA256 metadata unavailable (${(checksumError as Error).message}). Re-run with --allow-unverified only if you trust the release source.`);
+          }
+          console.warn(`  ! SHA256 metadata unavailable (${(checksumError as Error).message}) — continuing because --allow-unverified was set`);
         }
 
-        if (checksumManifestDownloaded) {
+        if (checksumSource) {
           const checksumStatus = await verifyArchiveChecksum({
             archiveName,
             archivePath,
@@ -146,9 +160,9 @@ export function registerUpgradeCommand(program: Command, _engine: MemoireEngine)
             allowUnverified: opts.allowUnverified,
           });
           if (checksumStatus === "verified") {
-            console.log("✓ SHA256 verified");
+            console.log(`✓ SHA256 verified (${checksumSource})`);
           } else {
-            console.warn(`  ! No SHA256 for ${archiveName} in manifest — continuing because --allow-unverified was set`);
+            console.warn(`  ! No SHA256 for ${archiveName} in ${checksumSource} — continuing because --allow-unverified was set`);
           }
         }
 

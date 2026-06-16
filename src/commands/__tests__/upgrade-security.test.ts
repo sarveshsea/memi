@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { verifyArchiveChecksum } from "../upgrade.js";
+import { checksumUrlsForArchive, verifyArchiveChecksum } from "../upgrade.js";
 
 let root: string;
 
@@ -17,6 +17,13 @@ afterEach(async () => {
 });
 
 describe("verifyArchiveChecksum", () => {
+  it("tries the combined checksum manifest before the per-archive checksum sidecar", () => {
+    expect(checksumUrlsForArchive("https://github.com/sarveshsea/memi/releases/latest/download", "memi-darwin-arm64.tar.gz")).toEqual([
+      "https://github.com/sarveshsea/memi/releases/latest/download/SHA256SUMS.txt",
+      "https://github.com/sarveshsea/memi/releases/latest/download/memi-darwin-arm64.tar.gz.sha256",
+    ]);
+  });
+
   it("verifies a matching SHA256 manifest entry", async () => {
     const archiveName = "memi-darwin-arm64.tar.gz";
     const archivePath = join(root, archiveName);
