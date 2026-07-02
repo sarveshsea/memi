@@ -5,7 +5,7 @@
 <h1 align="center">memi</h1>
 
 <p align="center">
-  <strong>Design-system memory for coding agents.</strong><br/>
+  <strong>The AI workbench for product designers.</strong><br/>
   Give Claude Code, Cursor, and Codex memory of your tokens, components, and Figma — so they edit your app without breaking the design.
 </p>
 
@@ -36,7 +36,7 @@ memi shadcn export --out public/r   # publish a shadcn-native registry
 
 > **Looking for the macOS app?** memi Studio (Tauri shell, signed DMG) lives at **[github.com/sarveshsea/memi-studio](https://github.com/sarveshsea/memi-studio)**. Homepage: **[memoire.cv](https://memoire.cv)**.
 
-[Full quickstart →](docs/AGENT_RECIPES.md) · [llms.txt](./llms.txt) · Compatibility: [shadcn registry](https://ui.shadcn.com/docs/registry/getting-started) · [v0 design systems](https://v0.app/docs/design-systems)
+[Full quickstart →](https://github.com/sarveshsea/memi/blob/main/docs/AGENT_RECIPES.md) · [llms.txt](https://github.com/sarveshsea/memi/blob/main/llms.txt) · Compatibility: [shadcn registry](https://ui.shadcn.com/docs/registry/getting-started) · [v0 design systems](https://v0.app/docs/design-systems)
 
 ---
 
@@ -92,7 +92,7 @@ npm i -g @memi-design/cli
 memi agent install codex-plugin
 ```
 
-See [`docs/CODEX_PLUGIN.md`](./docs/CODEX_PLUGIN.md) and the public plugin page at `https://www.memoire.cv/codex-plugin`.
+See [`docs/CODEX_PLUGIN.md`](https://github.com/sarveshsea/memi/blob/main/docs/CODEX_PLUGIN.md).
 
 ### memi Studio for macOS
 
@@ -266,7 +266,7 @@ A registry bundles tokens (W3C DTCG JSON + Tailwind v4 `@theme` CSS), component 
 - `@memoire-examples/docs-blog` — editorial docs/blog kit. Install with `memi add Button --from @memoire-examples/docs-blog`. Source: [`examples/presets/docs-blog`](./examples/presets/docs-blog)
 - `@memoire-examples/dashboard` — high-contrast analytics dashboard. Install with `memi add Button --from @memoire-examples/dashboard`. Source: [`examples/presets/dashboard`](./examples/presets/dashboard)
 
-More examples and the featured fallback catalog live in [`examples/`](./examples/README.md).
+More examples and the featured fallback catalog live in [`examples/`](https://github.com/sarveshsea/memi/tree/main/examples).
 
 ### Designed in tweakcn? Publish with memi.
 
@@ -297,8 +297,8 @@ Theme import handles both Tailwind v3 (`:root { --primary: ... }`) and v4 (`@the
   <img src="https://raw.githubusercontent.com/sarveshsea/memi/main/assets/theme-workflow-demo.svg" alt="memi tweakcn theme workflow" width="720" />
 </p>
 
-Demo scripts for recording and reuse live in [`docs/DEMOS.md`](./docs/DEMOS.md).
-No-Figma proof examples live in [`docs/PROOF.md`](./docs/PROOF.md).
+Demo scripts for recording and reuse live in [`docs/DEMOS.md`](https://github.com/sarveshsea/memi/blob/main/docs/DEMOS.md).
+No-Figma proof examples live in [`docs/PROOF.md`](https://github.com/sarveshsea/memi/blob/main/docs/PROOF.md).
 
 ---
 
@@ -376,8 +376,8 @@ curl -fsSL https://memoire.cv/install.sh | sh
 # Windows (PowerShell) — auto-adds to user PATH
 irm https://memoire.cv/install.ps1 | iex
 
-# Homebrew (macOS / Linux)
-brew install sarveshsea/memi/memoire
+# Homebrew installs the signed macOS Studio app (the CLI ships via npm or the installer above)
+brew install --cask sarveshsea/memi/memi-studio
 
 # Docker (air-gapped envs where only ghcr.io is reachable)
 docker run --rm -it -v "$PWD:/work" -w /work ghcr.io/sarveshsea/memi --help
@@ -401,7 +401,7 @@ Verify with `SHA256SUMS.txt` or the per-archive `.sha256` sidecar attached to th
 
 ## Advanced: Use with AI agents
 
-memi can install native agent kits and also run as an MCP server, so your AI assistant can work directly with your design system after the registry workflow is in place. Use `memi agent install --dry-run --json` to inspect every write before installing. For copy-paste prompts and client-specific setup, see [`docs/AGENT_RECIPES.md`](./docs/AGENT_RECIPES.md).
+memi can install native agent kits and also run as an MCP server, so your AI assistant can work directly with your design system after the registry workflow is in place. Use `memi agent install --dry-run --json` to inspect every write before installing. For copy-paste prompts and client-specific setup, see [`docs/AGENT_RECIPES.md`](https://github.com/sarveshsea/memi/blob/main/docs/AGENT_RECIPES.md).
 
 ```bash
 memi suite init --project .              # writes memoire.agent.yaml
@@ -430,25 +430,12 @@ Or add manually to `.mcp.json`:
 }
 ```
 
-**Tools include:** `pull_design_system`, `generate_code`, `create_spec`, `get_tokens`, `compose`, `design_doc`, `run_audit`, `capture_screenshot`, `analyze_design`, and more in the [docs](./docs/README.md).
+**Tools include:** `pull_design_system`, `generate_code`, `create_spec`, `get_tokens`, `compose`, `design_doc`, `run_audit`, `capture_screenshot`, `analyze_design`, and more in the [docs](https://github.com/sarveshsea/memi/blob/main/docs/README.md).
 
 For MCP registry crawlers, smoke tests, and Glama freshness checks, use the Figma-independent startup command:
 
 ```bash
 memi mcp start --no-figma
-```
-
-Release/publish recovery flow:
-
-```bash
-npm logout --registry=https://registry.npmjs.org/
-npm login --auth-type=web --registry=https://registry.npmjs.org/
-npm whoami --registry=https://registry.npmjs.org/   # must print sarveshsea
-npm publish --access public --auth-type=web
-npm view @memi-design/cli version dist-tags.latest mcpName --json
-mcp-publisher login github
-mcp-publisher publish server.json
-npm run check:public-release
 ```
 
 ---
@@ -569,7 +556,7 @@ src/
 
 ## Links
 
-[Quickstart](./docs/README.md) -- [Examples](./examples/README.md) -- [Launch Pack](./docs/LAUNCH.md) -- [Changelog](CHANGELOG.md)
+[Quickstart](https://github.com/sarveshsea/memi/blob/main/docs/README.md) -- [Examples](https://github.com/sarveshsea/memi/tree/main/examples) -- [Launch Pack](https://github.com/sarveshsea/memi/blob/main/docs/LAUNCH.md) -- [Changelog](https://github.com/sarveshsea/memi/blob/main/CHANGELOG.md)
 
 ## License
 

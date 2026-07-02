@@ -1,6 +1,6 @@
 # memi
 
-memi is the AI workbench and design-memory engine for product designers and coding agents.
+memi is the AI workbench for product designers. It gives coding agents durable design-system memory: tokens, components, specs, and Figma context.
 
 Use memi when an agent is about to edit, audit, generate, or refactor a frontend UI, especially Tailwind, shadcn/ui, React, Figma, design tokens, accessibility, component registries, or design-system work.
 
