@@ -44,6 +44,56 @@ import {
 } from "../simulation/index.js";
 import type { ResearchStore } from "../research/engine.js";
 
+/**
+ * Wrap every registered tool handler so unexpected throws come back as
+ * structured { isError: true } results instead of raw protocol errors —
+ * agents can read the message and retry/adjust instead of failing opaquely.
+ */
+function installSafeToolErrors(server: McpServer): void {
+  const originalTool = (server.tool as (...args: unknown[]) => unknown).bind(server);
+  (server as unknown as { tool: (...args: unknown[]) => unknown }).tool = (...args: unknown[]) => {
+    const cbIndex = args.length - 1;
+    const cb = args[cbIndex];
+    if (typeof cb === "function") {
+      const name = typeof args[0] === "string" ? args[0] : "tool";
+      args[cbIndex] = async (...cbArgs: unknown[]) => {
+        try {
+          return await (cb as (...a: unknown[]) => unknown)(...cbArgs);
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          return { isError: true, content: [{ type: "text", text: `${name} failed: ${message}` }] };
+        }
+      };
+    }
+    return originalTool(...args);
+  };
+}
+
+/**
+ * Parse a caller-supplied ResearchStore JSON string with structural checks —
+ * a malformed payload must produce a readable error, not a raw SyntaxError
+ * or a silently wrong cast.
+ */
+function parseResearchStore(raw: string): ResearchStore {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (err) {
+    throw new Error(`research parameter is not valid JSON: ${(err as Error).message}`);
+  }
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new Error("research parameter must be a JSON object (a ResearchStore), not a primitive or array");
+  }
+  const store = parsed as Partial<ResearchStore>;
+  if (store.observations !== undefined && !Array.isArray(store.observations)) {
+    throw new Error("research.observations must be an array when present");
+  }
+  if (store.findings !== undefined && !Array.isArray(store.findings)) {
+    throw new Error("research.findings must be an array when present");
+  }
+  return parsed as ResearchStore;
+}
+
 function requireFigma(engine: MemoireEngine): void {
   if (!engine.figma.isConnected) {
     throw new Error("Figma not connected. Start the daemon (`memi daemon start`) or connect (`memi connect`) first.");
@@ -51,6 +101,7 @@ function requireFigma(engine: MemoireEngine): void {
 }
 
 export function registerTools(server: McpServer, engine: MemoireEngine): void {
+  installSafeToolErrors(server);
   // ── pull_design_system ──────────────────────────────────
   server.tool(
     "pull_design_system",
@@ -323,7 +374,7 @@ Returns on success: App-quality diagnosis V2 with scores, issues, evidence locat
 Use this tool: before planning UI fixes, exporting a registry, or giving an AI editor context on real app design debt.`,
     {
       target: z.string().optional().describe("Local path or public URL to scan. Defaults to the current project root."),
-      maxFiles: z.number().default(500).describe("Maximum source files to scan."),
+      maxFiles: z.number().int().min(1).max(5000).default(500).describe("Maximum source files to scan."),
     },
     async ({ target, maxFiles }) => {
       const diagnosis = await diagnoseAppQuality({
@@ -346,7 +397,7 @@ Returns on success: { patches[], summary, caveats[] } where every patch includes
 Use this tool: to decide what a human or coding agent should patch before calling memi fix apply or making manual edits.`,
     {
       target: z.string().optional().describe("Local path or public URL to scan. Defaults to the current project root."),
-      maxFiles: z.number().default(500).describe("Maximum source files to scan."),
+      maxFiles: z.number().int().min(1).max(5000).default(500).describe("Maximum source files to scan."),
     },
     async ({ target, maxFiles }) => {
       const plan = await buildUiFixPlan({
@@ -370,7 +421,7 @@ Use this tool: when an agent needs a focused design critique packet for clarity,
     {
       target: z.string().optional().describe("Local path or public URL to scan. Defaults to the current project root."),
       screenshotPath: z.string().optional().describe("Optional screenshot artifact path to attach to the UX audit."),
-      maxFiles: z.number().default(500).describe("Maximum source files to scan when target evidence is used."),
+      maxFiles: z.number().int().min(1).max(5000).default(500).describe("Maximum source files to scan when target evidence is used."),
     },
     async ({ target, screenshotPath, maxFiles }) => {
       if (screenshotPath) await assertReadableArtifact(screenshotPath);
@@ -478,9 +529,9 @@ Use this tool: as the first MCP call when a coding agent is asked to design, pol
 
 Prerequisites: Token must already exist in the registry (use get_tokens to list names). To push to Figma, a plugin connection is also required.
 
-Returns on success: Plain confirmation string \`Token "<name>" updated\`.
+Returns on success: JSON { updated: true, name, pushedToFigma: boolean, reason?: string } — pushedToFigma is false with a reason when the push was requested but skipped (not connected) or failed.
 
-Error behavior: Returns isError if the token name is not found in the registry. If pushToFigma is true but Figma is not connected, the local update still succeeds — the push is silently skipped (no error thrown). To verify the push landed in Figma, capture a screenshot afterward.
+Error behavior: Returns isError if the token name is not found in the registry. A requested-but-skipped Figma push is reported in the result, never silently dropped.
 
 Use this tool: to apply a token override (e.g. change a brand color for a client theme) and optionally propagate it to Figma immediately. For bulk token mapping to Tailwind, use sync_design_tokens instead.`,
     {
@@ -496,11 +547,27 @@ Use this tool: to apply a token override (e.g. change a brand color for a client
       const updated = { ...token, values: { ...token.values, ...values } };
       engine.registry.updateToken(name, updated);
 
-      if (pushToFigma && engine.figma.isConnected) {
-        await engine.figma.pushTokens([{ name: updated.name, values: updated.values }]);
+      let pushedToFigma = false;
+      let reason: string | undefined;
+      if (pushToFigma) {
+        if (!engine.figma.isConnected) {
+          reason = "Figma not connected — push skipped, local update applied";
+        } else {
+          try {
+            await engine.figma.pushTokens([{ name: updated.name, values: updated.values }]);
+            pushedToFigma = true;
+          } catch (err) {
+            reason = `Figma push failed: ${(err as Error).message} — local update applied`;
+          }
+        }
       }
 
-      return { content: [{ type: "text" as const, text: `Token "${name}" updated` }] };
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({ updated: true, name, pushedToFigma, ...(reason ? { reason } : {}) }),
+        }],
+      };
     },
   );
 
@@ -519,7 +586,7 @@ Use this tool: to visually inspect a component or frame before/after mutations, 
     {
       nodeId: z.string().optional().describe("Figma node ID to capture (e.g. '123:456'). Omit to capture the entire current page. Obtain IDs from get_selection or get_page_tree."),
       format: z.enum(["PNG", "SVG"]).default("PNG").describe("Export format. PNG for raster output (default, works for all node types). SVG for vector output (best for icons and simple components)."),
-      scale: z.number().default(2).describe("Export scale multiplier (default 2 = @2x). Use 1 for quick inspection, 2–3 for high-quality analysis."),
+      scale: z.number().min(0.5).max(4).default(2).describe("Export scale multiplier (default 2 = @2x, max 4). Use 1 for quick inspection, 2–3 for high-quality analysis."),
     },
     async ({ nodeId, format, scale }) => {
       requireFigma(engine);
@@ -682,7 +749,7 @@ Returns on success: { package } with brief, Atomic Design specs, evidence ids, M
       research: z.string().optional().describe("Optional ResearchStore JSON string. Omit to load workspace research."),
     },
     async ({ intent, hypothesis, runId, research }) => {
-      const store = research ? JSON.parse(research) as ResearchStore : await loadMcpResearchStore(engine);
+      const store = research ? parseResearchStore(research) : await loadMcpResearchStore(engine);
       const simulationReport = runId ? await loadMcpSimulationReport(engine.config.projectRoot, runId) : null;
       const designPackage = buildResearchDesignPackage(store, { intent, hypothesis, simulationReport });
       return { content: [{ type: "text" as const, text: JSON.stringify({ package: designPackage }, null, 2) }] };
@@ -705,7 +772,7 @@ Prerequisites: Call research_design_package first to preview. This tool requires
       if (!approved) {
         return { isError: true, content: [{ type: "text" as const, text: "Approval required: pass approved=true to write generated research specs." }] };
       }
-      const store = research ? JSON.parse(research) as ResearchStore : await loadMcpResearchStore(engine);
+      const store = research ? parseResearchStore(research) : await loadMcpResearchStore(engine);
       const simulationReport = runId ? await loadMcpSimulationReport(engine.config.projectRoot, runId) : null;
       const designPackage = buildResearchDesignPackage(store, { intent, hypothesis, simulationReport });
       const specWrite = await saveResearchDesignSpecs(designPackage, engine.registry);
@@ -725,7 +792,7 @@ This is source + open friendly: it writes .mmd/.md files under .memoire/mermaid-
       research: z.string().optional().describe("Optional ResearchStore JSON string. Omit to load workspace research."),
     },
     async ({ source, intent, hypothesis, research }) => {
-      const store = research ? JSON.parse(research) as ResearchStore : await loadMcpResearchStore(engine);
+      const store = research ? parseResearchStore(research) : await loadMcpResearchStore(engine);
       const simulationReport = source && source !== "research"
         ? await loadMcpSimulationReport(engine.config.projectRoot, source)
         : null;
@@ -748,6 +815,26 @@ This is source + open friendly: it writes .mmd/.md files under .memoire/mermaid-
   );
 
   server.tool(
+    "simulation_list_runs",
+    `List persisted simulation runs with lightweight summaries. Use this to discover runIds for simulation_status, simulation_stream, simulation_transcript, simulation_costs, simulation_report, and simulation_compare.`,
+    {},
+    async () => {
+      const store = new FileSimulationStore(engine.config.projectRoot);
+      const runs = await store.listRuns();
+      const summaries = runs.map((run) => ({
+        id: run.id,
+        scenarioId: run.scenarioId,
+        adapter: run.adapter,
+        status: run.status,
+        startedAt: run.startedAt,
+        completedAt: run.completedAt,
+        eventCount: run.eventCount,
+      }));
+      return { content: [{ type: "text" as const, text: JSON.stringify({ runs: summaries }) }] };
+    },
+  );
+
+  server.tool(
     "simulation_generate_agents",
     `Generate a 20-60 agent model-swarm cohort from Memoire research evidence without starting a run.`,
     {
@@ -756,7 +843,7 @@ This is source + open friendly: it writes .mmd/.md files under .memoire/mermaid-
       research: z.string().optional().describe("Optional ResearchStore JSON string. Omit to load workspace research."),
     },
     async ({ count, adapter, research }) => {
-      const store = research ? JSON.parse(research) as ResearchStore : await loadMcpResearchStore(engine);
+      const store = research ? parseResearchStore(research) : await loadMcpResearchStore(engine);
       const scenario = buildProductSimulationScenarioFromResearch(store, {
         adapter: adapter ?? "model-swarm",
         agentCount: count ?? (adapter === "local" ? undefined : 24),
@@ -783,7 +870,7 @@ Returns on success: { scenario, warnings } where scenario includes agents, varia
       rounds: z.number().int().min(1).max(12).optional().describe("Run budget max rounds."),
     },
     async ({ name, hypothesis, research, adapter, agentCount, maxAgents, rounds }) => {
-      const store = research ? JSON.parse(research) as ResearchStore : await loadMcpResearchStore(engine);
+      const store = research ? parseResearchStore(research) : await loadMcpResearchStore(engine);
       const adapterKind = adapter ?? "local";
       const budget = budgetFromMcp({ maxAgents, rounds });
       const scenario = buildProductSimulationScenarioFromResearch(store, {
@@ -833,7 +920,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
       research: z.string().optional().describe("Optional ResearchStore JSON string."),
     },
     async ({ hypotheses, maxAgents, rounds, research }) => {
-      const store = research ? JSON.parse(research) as ResearchStore : await loadMcpResearchStore(engine);
+      const store = research ? parseResearchStore(research) : await loadMcpResearchStore(engine);
       const budget = budgetFromMcp({ maxAgents, rounds });
       const adapter = createMcpSimulationAdapter(engine.config.projectRoot, "model-swarm", budget);
       const runs = [];
@@ -1034,7 +1121,7 @@ Returns on success: Nested tree structure — top level is an array of page obje
 Error behavior: Throws "Figma not connected" if no plugin is connected. Very high depth values may time out for large files.
 
 Use this tool: at the start of a session to understand file structure and locate frames by name, to find node IDs without requiring manual selection in Figma, or to enumerate all pages before performing bulk operations. Use depth=1 to list pages only, depth=2 (default) to see top-level frames, depth=3+ to drill into component internals.`,
-    { depth: z.number().default(2).describe("Maximum tree depth to traverse (default 2). Depth 1 = pages only, depth 2 = pages + top-level frames, depth 3+ = deeper into component trees. Large files at depth 4+ may be slow.") },
+    { depth: z.number().int().min(1).max(8).default(2).describe("Maximum tree depth to traverse (default 2, max 8). Depth 1 = pages only, depth 2 = pages + top-level frames, depth 3+ = deeper into component trees. Large files at depth 4+ may be slow.") },
     async ({ depth }) => {
       requireFigma(engine);
       const tree = await engine.figma.getPageTree(depth);
