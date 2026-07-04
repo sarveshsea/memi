@@ -127,7 +127,7 @@ Use this tool: at the start of any session that touches design tokens or compone
             components: ds.components.length,
             styles: ds.styles.length,
             lastSync: ds.lastSync,
-          }, null, 2),
+          }),
         }],
       };
     },
@@ -157,7 +157,7 @@ Use this tool: when the Figma plugin is not available (CI, headless, remote), or
             components: ds.components.length,
             styles: ds.styles.length,
             lastSync: ds.lastSync,
-          }, null, 2),
+          }),
         }],
       };
     },
@@ -185,7 +185,7 @@ Use this tool: before create_spec (to check whether a spec already exists and wo
             name: s.name,
             type: s.type,
             purpose: "purpose" in s ? s.purpose : undefined,
-          })), null, 2),
+          }))),
         }],
       };
     },
@@ -209,7 +209,7 @@ Use this tool vs get_specs: get_specs gives you names and types (cheap list oper
       if (!spec) {
         return { isError: true, content: [{ type: "text" as const, text: `Spec "${name}" not found` }] };
       }
-      return { content: [{ type: "text" as const, text: JSON.stringify(spec, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(spec) }] };
     },
   );
 
@@ -280,7 +280,7 @@ Use this tool: after create_spec to turn a spec into working code. For pages, th
             entryFile,
             files: gen?.files ?? [],
             generatedAt: gen?.generatedAt,
-          }, null, 2),
+          }),
         }],
       };
     },
@@ -297,14 +297,25 @@ Returns on success: Array of token objects, each with shape { name: string, type
 
 Error behavior: Returns an empty array [] if no tokens have been pulled yet — not an error.
 
-Use this tool: to inspect available tokens before writing code (e.g. find the exact token name for a primary color), to validate token coverage before running sync_design_tokens, or to check which modes are defined. For a Tailwind-ready mapping, use sync_design_tokens instead.`,
-    {},
-    async () => ({
-      content: [{
-        type: "text" as const,
-        text: JSON.stringify(engine.registry.designSystem.tokens, null, 2),
-      }],
-    }),
+Use this tool: to inspect available tokens before writing code (e.g. find the exact token name for a primary color), to validate token coverage before running sync_design_tokens, or to check which modes are defined. For a Tailwind-ready mapping, use sync_design_tokens instead. Filter by type/name to keep responses small on large token sets.`,
+    {
+      type: z.enum(["color", "spacing", "typography", "radius", "shadow", "other"]).optional().describe("Only return tokens of this type."),
+      name: z.string().optional().describe("Case-insensitive substring filter on token names (e.g. 'primary')."),
+    },
+    async ({ type, name }) => {
+      let tokens = engine.registry.designSystem.tokens;
+      if (type) tokens = tokens.filter((t) => t.type === type);
+      if (name) {
+        const needle = name.toLowerCase();
+        tokens = tokens.filter((t) => t.name.toLowerCase().includes(needle));
+      }
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify(tokens),
+        }],
+      };
+    },
   );
 
   // ── get_shadcn_registry ────────────────────────────────
@@ -329,7 +340,7 @@ Use this tool: to provide AI editors and v0-compatible workflows with a registry
         designSystem: engine.registry.designSystem,
         specs,
       });
-      return { content: [{ type: "text" as const, text: JSON.stringify(registry, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(registry) }] };
     },
   );
 
@@ -360,7 +371,7 @@ Use this tool: when an AI editor needs the exact installable context for one com
       if (!item) {
         return { isError: true, content: [{ type: "text" as const, text: `Registry item "${name}" not found` }] };
       }
-      return { content: [{ type: "text" as const, text: JSON.stringify(item, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(item) }] };
     },
   );
 
@@ -383,7 +394,7 @@ Use this tool: before planning UI fixes, exporting a registry, or giving an AI e
         maxFiles,
         write: false,
       });
-      return { content: [{ type: "text" as const, text: JSON.stringify(diagnosis, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(diagnosis) }] };
     },
   );
 
@@ -406,7 +417,7 @@ Use this tool: to decide what a human or coding agent should patch before callin
         maxFiles,
         write: false,
       });
-      return { content: [{ type: "text" as const, text: JSON.stringify(plan, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(plan) }] };
     },
   );
 
@@ -432,7 +443,7 @@ Use this tool: when an agent needs a focused design critique packet for clarity,
           artifactPath: screenshotPath,
           source: "mcp",
         });
-        return { content: [{ type: "text" as const, text: JSON.stringify(report, null, 2) }] };
+        return { content: [{ type: "text" as const, text: JSON.stringify(report) }] };
       }
 
       const diagnosis = await diagnoseAppQuality({
@@ -450,7 +461,7 @@ Use this tool: when an agent needs a focused design critique packet for clarity,
           source: "mcp",
         })
         : diagnosis.ux;
-      return { content: [{ type: "text" as const, text: JSON.stringify(report, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(report) }] };
     },
   );
 
@@ -476,7 +487,7 @@ Use this tool: before an agent edits UI, after a redesign pass, or whenever the 
           artifactPath: screenshotPath,
           source: "mcp",
         });
-        return { content: [{ type: "text" as const, text: JSON.stringify(report, null, 2) }] };
+        return { content: [{ type: "text" as const, text: JSON.stringify(report) }] };
       }
 
       const diagnosis = await diagnoseAppQuality({
@@ -492,7 +503,7 @@ Use this tool: before an agent edits UI, after a redesign pass, or whenever the 
         artifactPath: screenshotPath,
         source: "mcp",
       });
-      return { content: [{ type: "text" as const, text: JSON.stringify(report, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(report) }] };
     },
   );
 
@@ -518,7 +529,7 @@ Use this tool: as the first MCP call when a coding agent is asked to design, pol
         mode,
         agent,
       });
-      return { content: [{ type: "text" as const, text: JSON.stringify(brief, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(brief) }] };
     },
   );
 
@@ -617,7 +628,7 @@ Use this tool: to retrieve node IDs for use in capture_screenshot or analyze_des
     async () => {
       requireFigma(engine);
       const selection = await engine.figma.getSelection();
-      return { content: [{ type: "text" as const, text: JSON.stringify(selection, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(selection) }] };
     },
   );
 
@@ -647,7 +658,7 @@ Be specific — vague intents like "make something nice" produce generic plans. 
     async ({ intent, dryRun }) => {
       const orchestrator = new AgentOrchestrator(engine);
       const result = await orchestrator.execute(intent, { dryRun });
-      return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
     },
   );
 
@@ -727,12 +738,41 @@ Returns on success: Research store object with shape { version, sources, observa
 
 Error behavior: Never throws — loads gracefully and returns an empty store if files are missing.
 
-Use this tool: before running compose with a research-driven intent (e.g. "generate a dashboard based on user research"), to inspect what research context is available, or to verify that a research import or synthesis succeeded. Combine with compose to ground design decisions in actual user data.`,
-    {},
-    async () => {
+Use this tool: before running compose with a research-driven intent (e.g. "generate a dashboard based on user research"), to inspect what research context is available, or to verify that a research import or synthesis succeeded. Combine with compose to ground design decisions in actual user data. Research stores grow large — request only the sections you need (default is a summary with per-section counts).`,
+    {
+      sections: z.array(z.enum([
+        "sources", "observations", "findings", "themes", "personas",
+        "quantitativeMetrics", "opportunities", "risks", "contradictions",
+        "quality", "summary", "methods",
+      ])).optional().describe("Sections to include in full. Omit for a lightweight overview: summary + per-section counts. Pass the sections you actually need to keep the payload small."),
+    },
+    async ({ sections }) => {
       await engine.research.load();
-      const store = engine.research.getStore();
-      return { content: [{ type: "text" as const, text: JSON.stringify(store, null, 2) }] };
+      const store = engine.research.getStore() as unknown as Record<string, unknown>;
+
+      if (!sections || sections.length === 0) {
+        const counts: Record<string, number> = {};
+        for (const key of ["sources", "observations", "findings", "themes", "personas", "quantitativeMetrics", "opportunities", "risks", "contradictions"]) {
+          const value = store[key];
+          counts[key] = Array.isArray(value) ? value.length : 0;
+        }
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              version: store.version,
+              summary: store.summary,
+              quality: store.quality,
+              counts,
+              hint: "Pass sections: [\"findings\", ...] to fetch full section content.",
+            }),
+          }],
+        };
+      }
+
+      const picked: Record<string, unknown> = { version: store.version };
+      for (const key of sections) picked[key] = store[key];
+      return { content: [{ type: "text" as const, text: JSON.stringify(picked) }] };
     },
   );
 
@@ -752,7 +792,7 @@ Returns on success: { package } with brief, Atomic Design specs, evidence ids, M
       const store = research ? parseResearchStore(research) : await loadMcpResearchStore(engine);
       const simulationReport = runId ? await loadMcpSimulationReport(engine.config.projectRoot, runId) : null;
       const designPackage = buildResearchDesignPackage(store, { intent, hypothesis, simulationReport });
-      return { content: [{ type: "text" as const, text: JSON.stringify({ package: designPackage }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ package: designPackage }) }] };
     },
   );
 
@@ -776,7 +816,7 @@ Prerequisites: Call research_design_package first to preview. This tool requires
       const simulationReport = runId ? await loadMcpSimulationReport(engine.config.projectRoot, runId) : null;
       const designPackage = buildResearchDesignPackage(store, { intent, hypothesis, simulationReport });
       const specWrite = await saveResearchDesignSpecs(designPackage, engine.registry);
-      return { content: [{ type: "text" as const, text: JSON.stringify({ package: designPackage, specWrite }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ package: designPackage, specWrite }) }] };
     },
   );
 
@@ -799,7 +839,7 @@ This is source + open friendly: it writes .mmd/.md files under .memoire/mermaid-
       const designPackage = buildResearchDesignPackage(store, { intent, hypothesis, simulationReport });
       const integration = await resolveMermaidJamIntegration({ projectRoot: engine.config.projectRoot });
       const exports = await writeMermaidJamArtifacts(designPackage, { projectRoot: engine.config.projectRoot, integration });
-      return { content: [{ type: "text" as const, text: JSON.stringify({ package: designPackage, exports, integration }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ package: designPackage, exports, integration }) }] };
     },
   );
 
@@ -810,7 +850,7 @@ This is source + open friendly: it writes .mmd/.md files under .memoire/mermaid-
     {},
     async () => {
       const profiles = new SimulationModelRouter().listProfiles();
-      return { content: [{ type: "text" as const, text: JSON.stringify({ profiles }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ profiles }) }] };
     },
   );
 
@@ -848,7 +888,7 @@ This is source + open friendly: it writes .mmd/.md files under .memoire/mermaid-
         adapter: adapter ?? "model-swarm",
         agentCount: count ?? (adapter === "local" ? undefined : 24),
       });
-      return { content: [{ type: "text" as const, text: JSON.stringify({ agents: scenario.agents, graph: scenario.graph, budget: scenario.metadata.budget }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ agents: scenario.agents, graph: scenario.graph, budget: scenario.metadata.budget }) }] };
     },
   );
 
@@ -883,7 +923,7 @@ Returns on success: { scenario, warnings } where scenario includes agents, varia
       });
       const simulationAdapter = createMcpSimulationAdapter(engine.config.projectRoot, adapterKind, budget);
       const prepared = await simulationAdapter.prepare(scenario);
-      return { content: [{ type: "text" as const, text: JSON.stringify(prepared, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(prepared) }] };
     },
   );
 
@@ -906,7 +946,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
       const scenario = await store.loadScenario(scenarioId);
       const adapterKind = adapter ?? scenario?.adapter ?? "local";
       const run = await createMcpSimulationAdapter(engine.config.projectRoot, adapterKind, budgetFromMcp({ maxAgents, rounds, allowLiveModels })).start(scenarioId);
-      return { content: [{ type: "text" as const, text: JSON.stringify({ run }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ run }) }] };
     },
   );
 
@@ -938,19 +978,34 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
         runs.push({ hypothesis: hypotheses[index], scenario: prepared.scenario, run });
       }
       const comparison = compareSimulationRuns(runs.map((entry) => entry.run));
-      return { content: [{ type: "text" as const, text: JSON.stringify({ runs, comparison }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ runs, comparison }) }] };
     },
   );
 
   server.tool(
     "simulation_stream",
-    `Read persisted simulation events in stream order.`,
-    { runId: z.string().describe("Simulation run id.") },
-    async ({ runId }) => {
+    `Read persisted simulation events in stream order. Paginated — use offset/limit to page through long runs instead of materializing the full event log.`,
+    {
+      runId: z.string().describe("Simulation run id."),
+      offset: z.number().int().min(0).default(0).describe("Skip this many events from the start."),
+      limit: z.number().int().min(1).max(1000).default(200).describe("Maximum events to return (default 200)."),
+    },
+    async ({ runId, offset, limit }) => {
       const adapter = await createMcpAdapterForRun(engine.config.projectRoot, runId);
       const events = [];
-      for await (const event of adapter.stream(runId)) events.push(event);
-      return { content: [{ type: "text" as const, text: JSON.stringify({ events }, null, 2) }] };
+      let index = 0;
+      let total = 0;
+      for await (const event of adapter.stream(runId)) {
+        total++;
+        if (index >= offset && events.length < limit) events.push(event);
+        index++;
+      }
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({ events, offset, limit, total, hasMore: offset + events.length < total }),
+        }],
+      };
     },
   );
 
@@ -964,7 +1019,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
       const store = new FileSimulationStore(engine.config.projectRoot);
       const run = await store.loadRun(runId);
       if (!run) return { isError: true, content: [{ type: "text" as const, text: `Unknown simulation run: ${runId}` }] };
-      return { content: [{ type: "text" as const, text: JSON.stringify({ run }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ run }) }] };
     },
   );
 
@@ -979,7 +1034,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
     async ({ runId, agentId, prompt }) => {
       const adapter = await createMcpAdapterForRun(engine.config.projectRoot, runId);
       const interview = await adapter.interview(runId, { agentId, prompt });
-      return { content: [{ type: "text" as const, text: JSON.stringify({ interview }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ interview }) }] };
     },
   );
 
@@ -991,7 +1046,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
       const store = new FileSimulationStore(engine.config.projectRoot);
       const run = await store.loadRun(runId);
       if (!run) return { isError: true, content: [{ type: "text" as const, text: `Unknown simulation run: ${runId}` }] };
-      return { content: [{ type: "text" as const, text: JSON.stringify({ transcripts: run.transcripts }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ transcripts: run.transcripts }) }] };
     },
   );
 
@@ -1007,7 +1062,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
         return run;
       }));
       const comparison = compareSimulationRuns(runs);
-      return { content: [{ type: "text" as const, text: JSON.stringify({ comparison }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ comparison }) }] };
     },
   );
 
@@ -1019,7 +1074,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
       const store = new FileSimulationStore(engine.config.projectRoot);
       const run = await store.loadRun(runId);
       if (!run) return { isError: true, content: [{ type: "text" as const, text: `Unknown simulation run: ${runId}` }] };
-      return { content: [{ type: "text" as const, text: JSON.stringify({ costs: simulationCosts(run) }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ costs: simulationCosts(run) }) }] };
     },
   );
 
@@ -1032,7 +1087,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
     async ({ runId }) => {
       const adapter = await createMcpAdapterForRun(engine.config.projectRoot, runId);
       const report = await adapter.exportReport(runId);
-      return { content: [{ type: "text" as const, text: JSON.stringify({ report }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ report }) }] };
     },
   );
 
@@ -1046,7 +1101,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
       const adapter = await createMcpAdapterForRun(engine.config.projectRoot, runId);
       const report = await adapter.exportReport(runId);
       const spec = exportProductSpecFromRun(report);
-      return { content: [{ type: "text" as const, text: JSON.stringify({ spec }, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify({ spec }) }] };
     },
   );
 
@@ -1098,14 +1153,14 @@ This tool is best used as part of the self-heal loop: create → capture_screens
           if (!spec) {
             return { isError: true, content: [{ type: "text" as const, text: `Spec "${specName}" not found` }] };
           }
-          analysis = await analyzer.checkSpecCompliance(screenshot.base64, JSON.stringify(spec, null, 2), engine.registry.designSystem);
+          analysis = await analyzer.checkSpecCompliance(screenshot.base64, JSON.stringify(spec), engine.registry.designSystem);
           break;
         }
         default:
           analysis = await analyzer.analyzeDesign(screenshot.base64);
       }
 
-      return { content: [{ type: "text" as const, text: JSON.stringify(analysis, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(analysis) }] };
     },
   );
 
@@ -1125,7 +1180,7 @@ Use this tool: at the start of a session to understand file structure and locate
     async ({ depth }) => {
       requireFigma(engine);
       const tree = await engine.figma.getPageTree(depth);
-      return { content: [{ type: "text" as const, text: JSON.stringify(tree, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(tree) }] };
     },
   );
 
@@ -1173,7 +1228,7 @@ Use this tool: to validate that a UI label or body text will fit inside a fixed-
         result.breakpoints = breakpoints;
       }
 
-      return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
     },
   );
 
@@ -1244,7 +1299,7 @@ Use this tool vs get_tokens: get_tokens returns raw token data for inspection; s
       return {
         content: [{
           type: "text" as const,
-          text: JSON.stringify(patch, null, 2),
+          text: JSON.stringify(patch),
         }],
       };
     },
@@ -1268,7 +1323,7 @@ Use this tool: as the first diagnostic step before calling any Figma-dependent t
       return {
         content: [{
           type: "text" as const,
-          text: JSON.stringify(health, null, 2),
+          text: JSON.stringify(health),
         }],
       };
     },
@@ -1321,7 +1376,7 @@ Use this tool: to reverse-engineer a competitor's or reference site's design sys
                   radii: tokens.radii,
                   shadows: tokens.shadows,
                 },
-              }, null, 2),
+              }),
             }],
           };
         }
@@ -1365,7 +1420,7 @@ Use this tool: to monitor token spend during a session involving analyze_design,
     async () => {
       const tracker = getTracker();
       if (!tracker) {
-        return { content: [{ type: "text" as const, text: JSON.stringify({ calls: 0, inputTokens: 0, outputTokens: 0, estimatedCost: "$0.0000", summary: "No AI client initialized" }, null, 2) }] };
+        return { content: [{ type: "text" as const, text: JSON.stringify({ calls: 0, inputTokens: 0, outputTokens: 0, estimatedCost: "$0.0000", summary: "No AI client initialized" }) }] };
       }
       return {
         content: [{
@@ -1376,7 +1431,7 @@ Use this tool: to monitor token spend during a session involving analyze_design,
             outputTokens: tracker.totalOutput,
             estimatedCost: `$${tracker.totalCost.toFixed(4)}`,
             summary: tracker.summary,
-          }, null, 2),
+          }),
         }],
       };
     },

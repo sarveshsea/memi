@@ -3,7 +3,6 @@
  * for the research engine to process.
  */
 
-import ExcelJS from "exceljs";
 import { readFile } from "fs/promises";
 
 export interface ParsedSheet {
@@ -24,6 +23,9 @@ export async function parseExcel(filePath: string): Promise<ParsedSheet> {
     return parseCsv(filePath);
   }
 
+  // Lazy import — exceljs is a multi-MB dependency used only for .xlsx
+  // parsing; loading it at module import time taxes every CLI startup.
+  const { default: ExcelJS } = await import("exceljs");
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile(filePath);
 

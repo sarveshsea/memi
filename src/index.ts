@@ -61,107 +61,186 @@ if (isGlobalHelpRequest(cliArgs)) {
   process.exit(0);
 }
 
-const [
-  { Command },
-  { MemoireEngine },
-  { registerConnectCommand },
-  { registerPullCommand },
-  { registerResearchCommand },
-  { registerSimulateCommand },
-  { registerSpecCommand },
-  { registerGenerateCommand },
-  { registerPreviewCommand },
-  { registerStatusCommand },
-  { registerDoctorCommand },
-  { registerDaemonCommand },
-  { registerHeartbeatCommand },
-  { registerSyncCommand },
-  { registerTokensCommand },
-  { registerPrototypeCommand },
-  { registerInitCommand },
-  { registerDashboardCommand },
-  { registerIACommand },
-  { registerComposeCommand },
-  { registerGoCommand },
-  { registerExportCommand },
-  { registerNotesCommand },
-  { registerWatchCommand },
-  { registerListCommand },
-  { registerMcpCommand },
-  { registerAgentCommand },
-  { registerValidateCommand },
-  { registerDesignDocCommand },
-  { registerSetupCommand },
-  { registerSuiteCommand },
-  { registerAuditCommand },
-  { registerDiffCommand },
-  { registerAddCommand },
-  { registerPublishCommand },
-  { registerThemeCommand },
-  { registerShadcnCommand },
-  { registerFixCommand },
-  { registerViewCommand },
-  { registerRegistryCommand },
-  { registerUpgradeCommand },
-  { registerUpdateCommand },
-  { registerDiagnoseCommand },
-  { registerUxCommand },
-  { registerCraftCommand },
-  { registerStudioCommand },
-  { registerMermaidJamCommand },
-  { registerVideoCommand },
-  { registerSelfUpdateCommand },
-] = await Promise.all([
+const [{ Command }, { MemoireEngine }] = await Promise.all([
   import("commander"),
   import("./engine/core.js"),
-  import("./commands/connect.js"),
-  import("./commands/pull.js"),
-  import("./commands/research.js"),
-  import("./commands/simulate.js"),
-  import("./commands/spec.js"),
-  import("./commands/generate.js"),
-  import("./commands/preview.js"),
-  import("./commands/status.js"),
-  import("./commands/doctor.js"),
-  import("./commands/daemon.js"),
-  import("./commands/heartbeat.js"),
-  import("./commands/sync.js"),
-  import("./commands/tokens.js"),
-  import("./commands/prototype.js"),
-  import("./commands/init.js"),
-  import("./commands/dashboard.js"),
-  import("./commands/ia.js"),
-  import("./commands/compose.js"),
-  import("./commands/go.js"),
-  import("./commands/export.js"),
-  import("./commands/notes.js"),
-  import("./commands/watch.js"),
-  import("./commands/list.js"),
-  import("./commands/mcp.js"),
-  import("./commands/agent.js"),
-  import("./commands/validate.js"),
-  import("./commands/design-doc.js"),
-  import("./commands/setup.js"),
-  import("./commands/suite.js"),
-  import("./commands/audit.js"),
-  import("./commands/diff.js"),
-  import("./commands/add.js"),
-  import("./commands/publish.js"),
-  import("./commands/theme.js"),
-  import("./commands/shadcn.js"),
-  import("./commands/fix.js"),
-  import("./commands/view.js"),
-  import("./commands/registry.js"),
-  import("./commands/upgrade.js"),
-  import("./commands/update.js"),
-  import("./commands/diagnose.js"),
-  import("./commands/ux.js"),
-  import("./commands/craft.js"),
-  import("./commands/studio.js"),
-  import("./commands/mermaid-jam.js"),
-  import("./commands/video.js"),
-  import("./commands/self-update.js"),
 ]);
+
+type CliProgram = InstanceType<typeof Command>;
+type CliEngine = InstanceType<typeof MemoireEngine>;
+type RegisterFn = (program: CliProgram, engine: CliEngine) => void;
+
+/**
+ * Fast path — hot commands load only their own module instead of all ~48
+ * command modules. Anything not listed falls back to full registration,
+ * so aliases, help, and unknown-command handling behave exactly as before.
+ */
+const FAST_COMMANDS: Record<string, () => Promise<RegisterFn>> = {
+  "status": async () => (await import("./commands/status.js")).registerStatusCommand,
+  "tokens": async () => (await import("./commands/tokens.js")).registerTokensCommand,
+  "diagnose": async () => (await import("./commands/diagnose.js")).registerDiagnoseCommand,
+  "mcp": async () => (await import("./commands/mcp.js")).registerMcpCommand,
+  "pull": async () => (await import("./commands/pull.js")).registerPullCommand,
+  "generate": async () => (await import("./commands/generate.js")).registerGenerateCommand,
+  "add": async () => (await import("./commands/add.js")).registerAddCommand,
+  "theme": async () => (await import("./commands/theme.js")).registerThemeCommand,
+  "design-doc": async () => (await import("./commands/design-doc.js")).registerDesignDocCommand,
+  "extract": async () => (await import("./commands/design-doc.js")).registerDesignDocCommand,
+  "ux": async () => (await import("./commands/ux.js")).registerUxCommand,
+  "fix": async () => (await import("./commands/fix.js")).registerFixCommand,
+  "audit": async () => (await import("./commands/audit.js")).registerAuditCommand,
+  "studio": async () => (await import("./commands/studio.js")).registerStudioCommand,
+};
+
+async function registerAllCommands(program: CliProgram, engine: CliEngine): Promise<void> {
+  const [
+    { registerConnectCommand },
+    { registerPullCommand },
+    { registerResearchCommand },
+    { registerSimulateCommand },
+    { registerSpecCommand },
+    { registerGenerateCommand },
+    { registerPreviewCommand },
+    { registerStatusCommand },
+    { registerDoctorCommand },
+    { registerDaemonCommand },
+    { registerHeartbeatCommand },
+    { registerSyncCommand },
+    { registerTokensCommand },
+    { registerPrototypeCommand },
+    { registerInitCommand },
+    { registerDashboardCommand },
+    { registerIACommand },
+    { registerComposeCommand },
+    { registerGoCommand },
+    { registerExportCommand },
+    { registerNotesCommand },
+    { registerWatchCommand },
+    { registerListCommand },
+    { registerMcpCommand },
+    { registerAgentCommand },
+    { registerValidateCommand },
+    { registerDesignDocCommand },
+    { registerSetupCommand },
+    { registerSuiteCommand },
+    { registerAuditCommand },
+    { registerDiffCommand },
+    { registerAddCommand },
+    { registerPublishCommand },
+    { registerThemeCommand },
+    { registerShadcnCommand },
+    { registerFixCommand },
+    { registerViewCommand },
+    { registerRegistryCommand },
+    { registerUpgradeCommand },
+    { registerUpdateCommand },
+    { registerDiagnoseCommand },
+    { registerUxCommand },
+    { registerCraftCommand },
+    { registerStudioCommand },
+    { registerMermaidJamCommand },
+    { registerVideoCommand },
+    { registerSelfUpdateCommand },
+  ] = await Promise.all([
+    import("./commands/connect.js"),
+    import("./commands/pull.js"),
+    import("./commands/research.js"),
+    import("./commands/simulate.js"),
+    import("./commands/spec.js"),
+    import("./commands/generate.js"),
+    import("./commands/preview.js"),
+    import("./commands/status.js"),
+    import("./commands/doctor.js"),
+    import("./commands/daemon.js"),
+    import("./commands/heartbeat.js"),
+    import("./commands/sync.js"),
+    import("./commands/tokens.js"),
+    import("./commands/prototype.js"),
+    import("./commands/init.js"),
+    import("./commands/dashboard.js"),
+    import("./commands/ia.js"),
+    import("./commands/compose.js"),
+    import("./commands/go.js"),
+    import("./commands/export.js"),
+    import("./commands/notes.js"),
+    import("./commands/watch.js"),
+    import("./commands/list.js"),
+    import("./commands/mcp.js"),
+    import("./commands/agent.js"),
+    import("./commands/validate.js"),
+    import("./commands/design-doc.js"),
+    import("./commands/setup.js"),
+    import("./commands/suite.js"),
+    import("./commands/audit.js"),
+    import("./commands/diff.js"),
+    import("./commands/add.js"),
+    import("./commands/publish.js"),
+    import("./commands/theme.js"),
+    import("./commands/shadcn.js"),
+    import("./commands/fix.js"),
+    import("./commands/view.js"),
+    import("./commands/registry.js"),
+    import("./commands/upgrade.js"),
+    import("./commands/update.js"),
+    import("./commands/diagnose.js"),
+    import("./commands/ux.js"),
+    import("./commands/craft.js"),
+    import("./commands/studio.js"),
+    import("./commands/mermaid-jam.js"),
+    import("./commands/video.js"),
+    import("./commands/self-update.js"),
+  ]);
+
+  // Register all commands. Put the code-native design-quality workflow first so
+  // `memi --help` leads with the new product surface instead of the long tail.
+  registerDiagnoseCommand(program, engine);
+  registerUxCommand(program, engine);
+  registerCraftCommand(program, engine);
+  registerStudioCommand(program, engine);
+  registerMermaidJamCommand(program, engine);
+  registerVideoCommand(program, engine);
+  registerInitCommand(program, engine);
+  registerPublishCommand(program, engine);
+  registerThemeCommand(program, engine);
+  registerShadcnCommand(program, engine);
+  registerFixCommand(program, engine);
+  registerAddCommand(program, engine);
+  registerRegistryCommand(program, engine);
+  registerUpdateCommand(program, engine);
+  registerViewCommand(program, engine);
+  registerDesignDocCommand(program, engine);
+  registerMcpCommand(program, engine);
+  registerSetupCommand(program, engine);
+  registerSuiteCommand(program, engine);
+  registerSimulateCommand(program, engine);
+  registerConnectCommand(program, engine);
+  registerPullCommand(program, engine);
+  registerSyncCommand(program, engine);
+  registerGenerateCommand(program, engine);
+  registerTokensCommand(program, engine);
+  registerPreviewCommand(program, engine);
+  registerExportCommand(program, engine);
+  registerValidateCommand(program, engine);
+  registerStatusCommand(program, engine);
+  registerDoctorCommand(program, engine);
+  registerDiffCommand(program, engine);
+  registerGoCommand(program, engine);
+  registerNotesCommand(program, engine);
+  registerWatchCommand(program, engine);
+  registerAuditCommand(program, engine);
+  registerComposeCommand(program, engine);
+  registerAgentCommand(program, engine);
+  registerDaemonCommand(program, engine);
+  registerUpgradeCommand(program, engine);
+  registerSpecCommand(program, engine);
+  registerListCommand(program, engine);
+  registerResearchCommand(program, engine);
+  registerPrototypeCommand(program, engine);
+  registerHeartbeatCommand(program, engine);
+  registerDashboardCommand(program, engine);
+  registerIACommand(program, engine);
+  registerSelfUpdateCommand(program, engine);
+}
 
 // Catch unhandled async errors so the CLI doesn't crash silently
 process.on("unhandledRejection", (reason) => {
@@ -198,55 +277,15 @@ if (!mcpMode) {
   });
 }
 
-// Register all commands. Put the code-native design-quality workflow first so
-// `memi --help` leads with the new product surface instead of the long tail.
-registerDiagnoseCommand(program, engine);
-registerUxCommand(program, engine);
-registerCraftCommand(program, engine);
-registerStudioCommand(program, engine);
-registerMermaidJamCommand(program, engine);
-registerVideoCommand(program, engine);
-registerInitCommand(program, engine);
-registerPublishCommand(program, engine);
-registerThemeCommand(program, engine);
-registerShadcnCommand(program, engine);
-registerFixCommand(program, engine);
-registerAddCommand(program, engine);
-registerRegistryCommand(program, engine);
-registerUpdateCommand(program, engine);
-registerViewCommand(program, engine);
-registerDesignDocCommand(program, engine);
-registerMcpCommand(program, engine);
-registerSetupCommand(program, engine);
-registerSuiteCommand(program, engine);
-registerSimulateCommand(program, engine);
-registerConnectCommand(program, engine);
-registerPullCommand(program, engine);
-registerSyncCommand(program, engine);
-registerGenerateCommand(program, engine);
-registerTokensCommand(program, engine);
-registerPreviewCommand(program, engine);
-registerExportCommand(program, engine);
-registerValidateCommand(program, engine);
-registerStatusCommand(program, engine);
-registerDoctorCommand(program, engine);
-registerDiffCommand(program, engine);
-registerGoCommand(program, engine);
-registerNotesCommand(program, engine);
-registerWatchCommand(program, engine);
-registerAuditCommand(program, engine);
-registerComposeCommand(program, engine);
-registerAgentCommand(program, engine);
-registerDaemonCommand(program, engine);
-registerUpgradeCommand(program, engine);
-registerSpecCommand(program, engine);
-registerListCommand(program, engine);
-registerResearchCommand(program, engine);
-registerPrototypeCommand(program, engine);
-registerHeartbeatCommand(program, engine);
-registerDashboardCommand(program, engine);
-registerIACommand(program, engine);
-registerSelfUpdateCommand(program, engine);
+// Register commands — fast path when the invoked subcommand is a known hot
+// command, full registration otherwise (help, unknown, long-tail commands).
+const invokedCommand = cliArgs.find((arg) => !arg.startsWith("-"));
+const fastLoader = invokedCommand ? FAST_COMMANDS[invokedCommand] : undefined;
+if (fastLoader) {
+  (await fastLoader())(program, engine);
+} else {
+  await registerAllCommands(program, engine);
+}
 
 // Uninstall command — removes all Mémoire artifacts
 program
