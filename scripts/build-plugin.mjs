@@ -49,6 +49,18 @@ export async function buildPluginBundle(options = {}) {
     // Vite emitted code.js directly.
   }
 
+  // Mark this as build output — the file is committed (Figma loads plugin
+  // code from a static path, it can't fetch source at install time), so a
+  // human or security scanner reading it should attribute its content to
+  // this build pipeline (src/plugin/main/**), not to hand-authored logic.
+  const codeJsPath = join(outDir, "code.js");
+  const codeJsContent = await readFile(codeJsPath, "utf-8");
+  await writeFile(
+    codeJsPath,
+    `// GENERATED FILE — built by scripts/build-plugin.mjs from src/plugin/main/**.\n// Do not edit directly; run \`npm run build:plugin\` to regenerate.\n${codeJsContent}`,
+    "utf-8",
+  );
+
   await build({
     configFile: false,
     root: uiSourceDir,

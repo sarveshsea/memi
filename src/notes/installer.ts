@@ -108,7 +108,14 @@ async function installFromGithub(repo: string, destRoot: string): Promise<NoteMa
     throw new Error("Git is not installed. Install git or use local path: memi notes install ./my-note");
   }
 
-  // Clone into a temp directory first
+  // Clone into a temp directory first. cloneUrl is built from owner/repo already
+  // validated against GITHUB_REPO_PATTERN (parseGithubNoteRepo) — execFile (not
+  // exec/execSync) means no shell-interpolation risk regardless. There is no
+  // checksum/signature verification of the cloned content itself: a Note can
+  // include skill markdown that "activates automatically during agent
+  // execution" (see commands/notes.ts), so this is a real trust boundary, not
+  // just a shell-injection one — only install Notes from repos you trust.
+  console.log(`  Cloning ${source.cloneUrl} ...`);
   const tmpDir = join(destRoot, ".tmp-clone-" + Date.now());
   try {
     await execFileChecked("git", ["clone", "--depth", "1", source.cloneUrl, tmpDir], {

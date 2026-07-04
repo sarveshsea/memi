@@ -1,3 +1,5 @@
+// GENERATED FILE — built by scripts/build-plugin.mjs from src/plugin/main/**.
+// Do not edit directly; run `npm run build:plugin` to regenerate.
 var __defProp = Object.defineProperty;
 var __defProps = Object.defineProperties;
 var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
