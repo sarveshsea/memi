@@ -633,12 +633,12 @@ Use this tool: before running compose with a research-driven intent (e.g. "gener
     },
   );
 
-  // ── research.design_package ─────────────────────────────
+  // ── research_design_package ─────────────────────────────
   server.tool(
-    "research.design_package",
+    "research_design_package",
     `Preview a research-backed vibe design package from ResearchStore V2 plus an optional simulation run.
 
-Returns on success: { package } with brief, Atomic Design specs, evidence ids, Mermaid Jam-ready source artifacts, and warnings. This tool is non-mutating; call research.generate_specs to write specs or mermaid_jam.export to write FigJam source files.`,
+Returns on success: { package } with brief, Atomic Design specs, evidence ids, Mermaid Jam-ready source artifacts, and warnings. This tool is non-mutating; call research_generate_specs to write specs or mermaid_jam_export to write FigJam source files.`,
     {
       intent: z.string().optional().describe("Design intent for the package."),
       hypothesis: z.string().optional().describe("Product/design hypothesis to ground generated specs."),
@@ -654,10 +654,10 @@ Returns on success: { package } with brief, Atomic Design specs, evidence ids, M
   );
 
   server.tool(
-    "research.generate_specs",
+    "research_generate_specs",
     `Write research-backed Atomic Design specs generated from ResearchStore V2.
 
-Prerequisites: Call research.design_package first to preview. This tool requires approved=true to make the write explicit. Writes DesignSpec, IASpec, PageSpec, ComponentSpec, and DataVizSpec objects through the Memoire registry.`,
+Prerequisites: Call research_design_package first to preview. This tool requires approved=true to make the write explicit. Writes DesignSpec, IASpec, PageSpec, ComponentSpec, and DataVizSpec objects through the Memoire registry.`,
     {
       intent: z.string().optional(),
       hypothesis: z.string().optional(),
@@ -678,7 +678,7 @@ Prerequisites: Call research.design_package first to preview. This tool requires
   );
 
   server.tool(
-    "mermaid_jam.export",
+    "mermaid_jam_export",
     `Write Mermaid Jam-ready FigJam source artifacts from research or a simulation run.
 
 This is source + open friendly: it writes .mmd/.md files under .memoire/mermaid-jam and returns next steps. It does not attempt clipboard or direct paste automation.`,
@@ -700,9 +700,9 @@ This is source + open friendly: it writes .mmd/.md files under .memoire/mermaid-
     },
   );
 
-  // ── simulation.models ───────────────────────────────────
+  // ── simulation_models ───────────────────────────────────
   server.tool(
-    "simulation.models",
+    "simulation_models",
     `List Codex-first model profiles available to Memoire model-swarm simulations. Live model execution is opt-in; unavailable providers automatically fall back to deterministic clean-room simulation.`,
     {},
     async () => {
@@ -712,7 +712,7 @@ This is source + open friendly: it writes .mmd/.md files under .memoire/mermaid-
   );
 
   server.tool(
-    "simulation.generate_agents",
+    "simulation_generate_agents",
     `Generate a 20-60 agent model-swarm cohort from Memoire research evidence without starting a run.`,
     {
       count: z.number().int().min(1).max(60).optional().describe("Target agent count. Model-swarm defaults to 24."),
@@ -729,9 +729,9 @@ This is source + open friendly: it writes .mmd/.md files under .memoire/mermaid-
     },
   );
 
-  // ── simulation.plan ─────────────────────────────────────
+  // ── simulation_plan ─────────────────────────────────────
   server.tool(
-    "simulation.plan",
+    "simulation_plan",
     `Create a clean-room product simulation scenario from Memoire research evidence.
 
 Prerequisites: Research data should exist in research/store.v2.json, or pass a full ResearchStore JSON string. This tool does not call or vendor third-party fork source; it uses Memoire's local TypeScript simulation core. Use adapter=model-swarm for Codex-first model profile planning with deterministic fallback unless live models are explicitly allowed during run.
@@ -765,14 +765,14 @@ Returns on success: { scenario, warnings } where scenario includes agents, varia
   );
 
   server.tool(
-    "simulation.run",
+    "simulation_run",
     `Run a prepared local or model-swarm product simulation scenario.
 
-Prerequisites: Call simulation.plan first and pass the returned scenario.id.
+Prerequisites: Call simulation_plan first and pass the returned scenario.id.
 
 Returns on success: SimulationRun with status, events, eventCount, and persisted run id.`,
     {
-      scenarioId: z.string().describe("Scenario id returned by simulation.plan."),
+      scenarioId: z.string().describe("Scenario id returned by simulation_plan."),
       adapter: z.enum(["local", "model-swarm"]).optional().describe("Adapter mode. Defaults to the scenario adapter."),
       maxAgents: z.number().int().min(1).max(60).optional(),
       rounds: z.number().int().min(1).max(12).optional(),
@@ -788,7 +788,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
   );
 
   server.tool(
-    "simulation.run_matrix",
+    "simulation_run_matrix",
     `Plan and run multiple model-swarm hypotheses, then compare outcomes for product-spec decision work.`,
     {
       hypotheses: z.array(z.string()).min(1).describe("Hypotheses to run."),
@@ -820,7 +820,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
   );
 
   server.tool(
-    "simulation.stream",
+    "simulation_stream",
     `Read persisted simulation events in stream order.`,
     { runId: z.string().describe("Simulation run id.") },
     async ({ runId }) => {
@@ -832,7 +832,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
   );
 
   server.tool(
-    "simulation.status",
+    "simulation_status",
     `Read a local simulation run status from .memoire/simulations/runs.`,
     {
       runId: z.string().describe("Simulation run id."),
@@ -846,7 +846,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
   );
 
   server.tool(
-    "simulation.interview",
+    "simulation_interview",
     `Interview a simulated product stakeholder from a completed local or model-swarm run.`,
     {
       runId: z.string().describe("Simulation run id."),
@@ -861,7 +861,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
   );
 
   server.tool(
-    "simulation.transcript",
+    "simulation_transcript",
     `Read model-swarm transcript memory for a run.`,
     { runId: z.string().describe("Simulation run id.") },
     async ({ runId }) => {
@@ -873,7 +873,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
   );
 
   server.tool(
-    "simulation.compare",
+    "simulation_compare",
     `Compare completed simulation runs by adoption, confidence, evidence coverage, risk, and cost.`,
     { runIds: z.array(z.string()).min(1).describe("Simulation run ids.") },
     async ({ runIds }) => {
@@ -889,7 +889,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
   );
 
   server.tool(
-    "simulation.costs",
+    "simulation_costs",
     `Summarize token and cost usage for a simulation run.`,
     { runId: z.string().describe("Simulation run id.") },
     async ({ runId }) => {
@@ -901,7 +901,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
   );
 
   server.tool(
-    "simulation.report",
+    "simulation_report",
     `Export a simulation report with recommendations, risks, assumptions, events, interviews, and evidenceFindingIds.`,
     {
       runId: z.string().describe("Simulation run id."),
@@ -914,7 +914,7 @@ Returns on success: SimulationRun with status, events, eventCount, and persisted
   );
 
   server.tool(
-    "simulation.export_spec",
+    "simulation_export_spec",
     `Convert a simulation report into a product-spec impact artifact that agents can paste into specs or handoff docs.`,
     {
       runId: z.string().describe("Simulation run id."),

@@ -1887,7 +1887,7 @@ export class StudioRuntimeServer {
         risks: [],
         metrics: [],
         latestSimulationRunId: null,
-        suggestedTools: ["research.design_package", "research.generate_specs", "mermaid_jam.export"],
+        suggestedTools: ["research_design_package", "research_generate_specs", "mermaid_jam_export"],
       },
     };
   }
@@ -1909,7 +1909,7 @@ export class StudioRuntimeServer {
       risks: (research?.risks ?? []).slice(0, 4).map((risk) => compactResearchContext(`${risk.title}: ${risk.summary}`)),
       metrics: (research?.quantitativeMetrics ?? []).slice(0, 4).map((metric) => compactResearchContext(`${metric.label || metric.field}: ${metric.mean ?? "n/a"}`)),
       latestSimulationRunId: latestRun?.id ?? null,
-      suggestedTools: ["research.design_package", "research.generate_specs", "mermaid_jam.export"],
+      suggestedTools: ["research_design_package", "research_generate_specs", "mermaid_jam_export"],
     };
   }
 

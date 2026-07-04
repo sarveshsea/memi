@@ -341,9 +341,7 @@ export class CodeGenerator {
     ctx: CodegenContext,
     dir: string,
   ): Promise<CodegenResult> {
-    const tokenVersion = ctx.designSystem?.tokens?.length
-      ? String(ctx.designSystem.tokens.length)
-      : "";
+    const tokenVersion = tokenFingerprint(ctx);
     const variants = expandAxes(spec, tokenVersion);
     if (variants.length === 0) {
       // Declared axes were empty arrays — fall back to single-file path.
@@ -497,8 +495,21 @@ export class CodeGenerator {
   }
 }
 
+/**
+ * Fingerprint the full token set (names + values), not just the count —
+ * a rebrand that changes token values must invalidate generated output.
+ */
+function tokenFingerprint(ctx: CodegenContext): string {
+  const tokens = ctx.designSystem?.tokens;
+  if (!tokens?.length) return "";
+  return createHash("sha256")
+    .update(JSON.stringify(tokens.map((t) => [t.name, t.type, t.values])))
+    .digest("hex")
+    .slice(0, 16);
+}
+
 function computeSpecHash(spec: AnySpec, ctx: CodegenContext): string {
   return createHash("sha256")
-    .update(JSON.stringify(spec) + JSON.stringify(ctx.designSystem.tokens.length))
+    .update(JSON.stringify(spec) + tokenFingerprint(ctx))
     .digest("hex");
 }

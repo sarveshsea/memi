@@ -141,9 +141,9 @@ export class StudioToolBroker {
       tool("knowledge.search", "Knowledge search", "knowledge", "Search indexed markdown, YAML, specs, references, and captures.", false),
       tool("knowledge.read", "Knowledge read", "knowledge", "Read an indexed knowledge item.", false),
       tool("knowledge.capture", "Knowledge capture", "knowledge", "Persist a research note, design decision, or artifact capture.", false),
-      tool("research.design_package", "Research design", "research", "Preview research-backed vibe design specs and Mermaid Jam source.", false),
-      tool("research.generate_specs", "Research specs", "research", "Write research-backed Atomic Design specs through the Memoire registry.", true),
-      tool("mermaid_jam.export", "FigJam export", "research", "Write Mermaid Jam source artifacts for FigJam from research or simulation output.", false),
+      tool("research_design_package", "Research design", "research", "Preview research-backed vibe design specs and Mermaid Jam source.", false),
+      tool("research_generate_specs", "Research specs", "research", "Write research-backed Atomic Design specs through the Memoire registry.", true),
+      tool("mermaid_jam_export", "FigJam export", "research", "Write Mermaid Jam source artifacts for FigJam from research or simulation output.", false),
       tool("board.create", "Board create", "board", "Create a local PM/FigJam-ready board from prompt or research context.", false),
       tool("board.add_node", "Board node", "board", "Add a local board card with evidence metadata.", false),
       tool("board.update_node", "Board update", "board", "Update a local board card.", false),
@@ -153,19 +153,19 @@ export class StudioToolBroker {
       tool("board.export_mermaid_jam", "Board export", "board", "Write local Mermaid Jam source files for a board without syncing externally.", false),
       tool("board.apply_template", "Board template", "board", "Apply the product brainstorm template to a local board.", false),
       tool("board.sync_figjam", "FigJam source", "board", "Prepare local FigJam source and report sync readiness without external writes.", false),
-      tool("simulation.models", "Simulation models", "simulation", "List Codex-first model profiles available to Scenario Lab.", false),
-      tool("simulation.generate_agents", "Simulation agents", "simulation", "Generate a 20-60 agent model-swarm cohort from research evidence.", false),
-      tool("simulation.plan", "Simulation plan", "simulation", "Plan a local or model-swarm product simulation from research evidence.", false),
-      tool("simulation.run", "Simulation run", "simulation", "Run a local or model-swarm product-team simulation.", false),
-      tool("simulation.run_matrix", "Simulation matrix", "simulation", "Run multiple hypotheses and compare model-swarm outcomes.", false),
-      tool("simulation.stream", "Simulation stream", "simulation", "Read persisted simulation events in stream order.", false),
-      tool("simulation.status", "Simulation status", "simulation", "Read a local simulation run status.", false),
-      tool("simulation.transcript", "Simulation transcript", "simulation", "Read model-swarm transcript memory for a run.", false),
-      tool("simulation.compare", "Simulation compare", "simulation", "Compare completed simulation runs.", false),
-      tool("simulation.costs", "Simulation costs", "simulation", "Summarize token and cost usage for a simulation run.", false),
-      tool("simulation.interview", "Simulation interview", "simulation", "Interview a simulated stakeholder agent from a run.", false),
-      tool("simulation.report", "Simulation report", "simulation", "Export a simulation report with recommendations and evidence.", false),
-      tool("simulation.export_spec", "Simulation spec", "simulation", "Export a product spec impact report from a simulation run.", false),
+      tool("simulation_models", "Simulation models", "simulation", "List Codex-first model profiles available to Scenario Lab.", false),
+      tool("simulation_generate_agents", "Simulation agents", "simulation", "Generate a 20-60 agent model-swarm cohort from research evidence.", false),
+      tool("simulation_plan", "Simulation plan", "simulation", "Plan a local or model-swarm product simulation from research evidence.", false),
+      tool("simulation_run", "Simulation run", "simulation", "Run a local or model-swarm product-team simulation.", false),
+      tool("simulation_run_matrix", "Simulation matrix", "simulation", "Run multiple hypotheses and compare model-swarm outcomes.", false),
+      tool("simulation_stream", "Simulation stream", "simulation", "Read persisted simulation events in stream order.", false),
+      tool("simulation_status", "Simulation status", "simulation", "Read a local simulation run status.", false),
+      tool("simulation_transcript", "Simulation transcript", "simulation", "Read model-swarm transcript memory for a run.", false),
+      tool("simulation_compare", "Simulation compare", "simulation", "Compare completed simulation runs.", false),
+      tool("simulation_costs", "Simulation costs", "simulation", "Summarize token and cost usage for a simulation run.", false),
+      tool("simulation_interview", "Simulation interview", "simulation", "Interview a simulated stakeholder agent from a run.", false),
+      tool("simulation_report", "Simulation report", "simulation", "Export a simulation report with recommendations and evidence.", false),
+      tool("simulation_export_spec", "Simulation spec", "simulation", "Export a product spec impact report from a simulation run.", false),
     ];
   }
 
@@ -252,12 +252,12 @@ export class StudioToolBroker {
         return this.readKnowledge(input);
       case "knowledge.capture":
         return this.captureKnowledge(input, request);
-      case "research.design_package":
+      case "research_design_package":
         return this.researchDesignPackage(input);
-      case "research.generate_specs":
+      case "research_generate_specs":
         if (!request.approved) throw Object.assign(new Error("Approval required to write generated research specs"), { approvalReason: "Approve research spec generation" });
         return this.generateResearchSpecs(input);
-      case "mermaid_jam.export":
+      case "mermaid_jam_export":
         return this.exportMermaidJam(input);
       case "board.create":
         return this.createBoard(input);
@@ -277,31 +277,31 @@ export class StudioToolBroker {
         return this.applyBoardTemplate(input);
       case "board.sync_figjam":
         return this.syncBoardFigJam(input);
-      case "simulation.models":
+      case "simulation_models":
         return this.listSimulationModels();
-      case "simulation.generate_agents":
+      case "simulation_generate_agents":
         return this.generateSimulationAgents(input);
-      case "simulation.plan":
+      case "simulation_plan":
         return this.planSimulation(input);
-      case "simulation.run":
+      case "simulation_run":
         return this.runSimulation(input);
-      case "simulation.run_matrix":
+      case "simulation_run_matrix":
         return this.runSimulationMatrix(input);
-      case "simulation.stream":
+      case "simulation_stream":
         return this.streamSimulation(input);
-      case "simulation.status":
+      case "simulation_status":
         return this.simulationStatus(input);
-      case "simulation.transcript":
+      case "simulation_transcript":
         return this.simulationTranscript(input);
-      case "simulation.compare":
+      case "simulation_compare":
         return this.compareSimulations(input);
-      case "simulation.costs":
+      case "simulation_costs":
         return this.simulationCosts(input);
-      case "simulation.interview":
+      case "simulation_interview":
         return this.interviewSimulation(input);
-      case "simulation.report":
+      case "simulation_report":
         return this.reportSimulation(input);
-      case "simulation.export_spec":
+      case "simulation_export_spec":
         return this.exportSimulationSpec(input);
       default:
         throw new Error(`Unhandled Studio tool: ${request.toolId}`);
@@ -906,9 +906,9 @@ const MEMOIRE_MCP_TOOL_NAMES = [
   "check_bridge_health",
   "design_doc",
   "audit_ux_tenets_traps",
-  "research.design_package",
-  "research.generate_specs",
-  "mermaid_jam.export",
+  "research_design_package",
+  "research_generate_specs",
+  "mermaid_jam_export",
   "board.create",
   "board.add_node",
   "board.update_node",
@@ -918,19 +918,19 @@ const MEMOIRE_MCP_TOOL_NAMES = [
   "board.export_mermaid_jam",
   "board.apply_template",
   "board.sync_figjam",
-  "simulation.models",
-  "simulation.generate_agents",
-  "simulation.plan",
-  "simulation.run",
-  "simulation.run_matrix",
-  "simulation.stream",
-  "simulation.status",
-  "simulation.transcript",
-  "simulation.compare",
-  "simulation.costs",
-  "simulation.interview",
-  "simulation.report",
-  "simulation.export_spec",
+  "simulation_models",
+  "simulation_generate_agents",
+  "simulation_plan",
+  "simulation_run",
+  "simulation_run_matrix",
+  "simulation_stream",
+  "simulation_status",
+  "simulation_transcript",
+  "simulation_compare",
+  "simulation_costs",
+  "simulation_interview",
+  "simulation_report",
+  "simulation_export_spec",
 ];
 
 function tool(id: string, label: string, category: StudioToolDefinition["category"], description: string, requiresApproval: boolean): StudioToolDefinition {
