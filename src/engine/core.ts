@@ -7,7 +7,7 @@ import { ProjectContext, detectProject } from "./project-context.js";
 import { Registry, type DesignSystem } from "./registry.js";
 import { FigmaBridge } from "../figma/bridge.js";
 import { ResearchEngine } from "../research/engine.js";
-import { CodeGenerator } from "../codegen/generator.js";
+import { CodeGenerator, type CodegenResult } from "../codegen/generator.js";
 import { autoSpecFromDesignSystem } from "./auto-spec.js";
 import { BidirectionalSync, type SyncDirection } from "./sync.js";
 import { CodeWatcher } from "./code-watcher.js";
@@ -624,11 +624,15 @@ export class MemoireEngine extends EventEmitter {
    * project context and design system, writes files to `generated/`, and emits a
    * `success` event. The engine must be initialized before calling this method.
    *
+   * A critical quality-gate finding blocks the write (result.blocked = true,
+   * no files written, no generation recorded) unless opts.force is passed.
+   *
    * @param specName - The spec name as stored in the registry (case-sensitive).
-   * @returns The path to the generated entry file (e.g. `generated/atoms/Button.tsx`).
+   * @param opts.force - Write files despite critical quality-gate findings.
+   * @returns The full CodegenResult (entryFile, files, findings, blocked, critique).
    * @throws {Error} If the spec does not exist or the engine has not been initialized.
    */
-  async generateFromSpec(specName: string): Promise<string> {
+  async generateFromSpec(specName: string, opts?: { force?: boolean }): Promise<CodegenResult> {
     const spec = await this.registry.getSpec(specName);
     if (!spec) {
       throw new Error(`Spec "${specName}" not found`);
@@ -641,17 +645,19 @@ export class MemoireEngine extends EventEmitter {
     const result = await this.codegen.generate(spec, {
       project: this._project,
       designSystem: this.registry.designSystem,
-    });
+    }, opts);
 
     this.emit("event", {
-      type: "success",
+      type: result.blocked ? "error" : "success",
       source: "codegen",
-      message: `Code generated for ${specName} — ${result.files.length} files written`,
+      message: result.blocked
+        ? `Code generation blocked for ${specName} — ${result.findings.filter((f) => f.severity === "critical").length} critical finding(s)`
+        : `Code generated for ${specName} — ${result.files.length} files written`,
       timestamp: new Date(),
       data: result,
     } satisfies MemoireEvent);
 
-    return result.entryFile;
+    return result;
   }
 
   /**
@@ -659,21 +665,27 @@ export class MemoireEngine extends EventEmitter {
    * for all specs in the registry.
    *
    * Requires an active plugin connection (calls `pullDesignSystem()` internally).
-   * Equivalent to running `memi pull && memi generate` in sequence.
+   * Equivalent to running `memi pull && memi generate` in sequence. Blocked specs
+   * are never force-written in bulk — they are skipped and counted separately
+   * so the sync summary reports them instead of silently writing past a
+   * critical finding.
    */
   async fullSync(): Promise<void> {
     this.log.info("Starting full sync...");
     await this.pullDesignSystem();
 
     const specs = await this.registry.getAllSpecs();
+    let blockedCount = 0;
     for (const spec of specs) {
-      await this.generateFromSpec(spec.name);
+      const result = await this.generateFromSpec(spec.name);
+      if (result.blocked) blockedCount++;
     }
 
     this.emit("event", {
       type: "success",
       source: "engine",
-      message: `Sync complete — pulled design system and regenerated ${specs.length} specs`,
+      message: `Sync complete — pulled design system and regenerated ${specs.length - blockedCount} of ${specs.length} specs` +
+        (blockedCount > 0 ? ` (${blockedCount} blocked by the quality gate — run \`memi generate <name> --force\` to override)` : ""),
       timestamp: new Date(),
     } satisfies MemoireEvent);
   }

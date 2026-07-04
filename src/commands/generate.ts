@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
-import type { CodegenResult } from "../codegen/generator.js";
+import type { CodegenResult, Finding } from "../codegen/generator.js";
 import { ui } from "../tui/format.js";
 import { checkCapabilities, formatCapabilityError } from "../engine/capabilities.js";
 
@@ -12,12 +12,14 @@ export interface GeneratePayload {
     all: boolean;
     json: boolean;
     preview: boolean;
+    force: boolean;
   };
   summary: {
     totalSpecs: number;
     attempted: number;
     generated: number;
     failed: number;
+    blocked: number;
   };
   results: GenerateResultPayload[];
   generatedFiles: string[];
@@ -29,9 +31,11 @@ export interface GeneratePayload {
 
 export interface GenerateResultPayload {
   name: string;
-  status: "generated" | "failed";
+  status: "generated" | "failed" | "blocked";
   entryFile: string | null;
   error: string | null;
+  findings: Finding[];
+  critique?: { score: number; summary: string };
 }
 
 export function registerGenerateCommand(program: Command, engine: MemoireEngine) {
@@ -43,9 +47,12 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
     .option("--preview", "Show generated code diff without writing files")
     .option("--no-stories", "Skip Storybook story generation")
     .option("--framework <framework>", "Output framework: react (default), vue, svelte")
-    .action(async (specName: string | undefined, opts: { all?: boolean; json?: boolean; preview?: boolean; stories?: boolean; framework?: string }) => {
+    .option("-f, --force", "Write files despite critical quality-gate findings")
+    .option("--strict-skill-compliance", "Promote atomic/motion skill-compliance findings to critical (blocking) severity")
+    .action(async (specName: string | undefined, opts: { all?: boolean; json?: boolean; preview?: boolean; stories?: boolean; framework?: string; force?: boolean; strictSkillCompliance?: boolean }) => {
       const startedAt = Date.now();
       const generateAll = Boolean(opts.all || !specName);
+      const force = opts.force === true;
 
       try {
         await engine.init();
@@ -53,6 +60,7 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
         engine.codegen.setOptions({
           noStories: opts.stories === false,
           framework: (opts.framework as "react" | "vue" | "svelte") || "react",
+          strictSkillCompliance: opts.strictSkillCompliance === true,
         });
 
         // ── Preview mode — generate in memory, no disk writes ──
@@ -80,12 +88,15 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
           }
 
           const ctx = { project, designSystem: engine.registry.designSystem };
-          const previewResults: { name: string; files: { path: string; content: string }[] }[] = [];
+          const previewResults: { name: string; files: { path: string; content: string }[]; findings: Finding[] }[] = [];
 
           for (const spec of specs) {
             if (!spec) continue;
             const result: CodegenResult = await engine.codegen.preview(spec, ctx);
-            previewResults.push({ name: spec.name, files: result.files });
+            // Findings are shown here (so --preview isn't blind to what would
+            // block a real generate) but critique is never run in preview —
+            // preview() never calls the AI critic, so there's nothing to show.
+            previewResults.push({ name: spec.name, files: result.files, findings: result.findings });
           }
 
           if (opts.json) {
@@ -94,6 +105,7 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
               results: previewResults.map((r) => ({
                 name: r.name,
                 files: r.files.map((f) => ({ path: f.path, content: f.content })),
+                findings: r.findings,
               })),
             }, null, 2));
           } else {
@@ -108,6 +120,9 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
                   console.log(ui.dim(`  ... ${lines.length - 20} more lines`));
                 }
                 console.log();
+              }
+              for (const finding of r.findings) {
+                console.log(ui.dim(`  [${finding.severity}] ${finding.message} (${finding.rule})`));
               }
             }
           }
@@ -124,6 +139,7 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
                 all: generateAll,
                 json: Boolean(opts.json),
                 preview: false,
+                force,
               },
               results: [],
               generatedFiles: [],
@@ -152,19 +168,46 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
 
           const results: GenerateResultPayload[] = [];
           const generatedFiles: string[] = [];
+          let anyBlocked = false;
 
           for (const spec of specs) {
             try {
-              const entryFile = await engine.generateFromSpec(spec.name);
+              const result = await engine.generateFromSpec(spec.name, { force });
+              if (result.blocked) {
+                anyBlocked = true;
+                results.push({
+                  name: spec.name,
+                  status: "blocked",
+                  entryFile: null,
+                  error: null,
+                  findings: result.findings,
+                });
+                if (!opts.json) {
+                  console.log(ui.fail(`${spec.name}  blocked by quality gate`));
+                  for (const finding of result.findings.filter((f) => f.severity === "critical")) {
+                    console.log(ui.dim(`    ${finding.message} (${finding.rule})`));
+                  }
+                }
+                continue;
+              }
+
               results.push({
                 name: spec.name,
                 status: "generated",
-                entryFile,
+                entryFile: result.entryFile,
                 error: null,
+                findings: result.findings,
+                critique: result.critique ? { score: result.critique.score, summary: result.critique.summary } : undefined,
               });
-              generatedFiles.push(entryFile);
+              generatedFiles.push(result.entryFile);
               if (!opts.json) {
-                console.log(ui.ok(`+ ${entryFile}`));
+                console.log(ui.ok(`+ ${result.entryFile}`));
+                for (const finding of result.findings.filter((f) => f.severity === "warning")) {
+                  console.log(ui.dim(`    Quality: ${finding.message} (${finding.rule})`));
+                }
+                if (result.critique) {
+                  console.log(ui.dim(`    Critique: ${result.critique.summary} (score ${result.critique.score}/100)`));
+                }
               }
             } catch (err) {
               const msg = err instanceof Error ? err.message : String(err);
@@ -173,6 +216,7 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
                 status: "failed",
                 entryFile: null,
                 error: msg,
+                findings: [],
               });
 
               if (!opts.json) {
@@ -188,11 +232,14 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
               all: generateAll,
               json: Boolean(opts.json),
               preview: false,
+              force,
             },
             results,
             generatedFiles,
             elapsedMs: Date.now() - startedAt,
           });
+
+          if (anyBlocked) process.exitCode = 1;
 
           if (opts.json) {
             console.log(JSON.stringify(payload, null, 2));
@@ -202,7 +249,13 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
           console.log();
           console.log(ui.rule());
           console.log();
-          console.log(ui.ready("DONE") + ui.dim(`  ${payload.summary.generated} generated` + (payload.summary.failed > 0 ? `, ${payload.summary.failed} failed` : "")));
+          const parts = [`${payload.summary.generated} generated`];
+          if (payload.summary.blocked > 0) parts.push(`${payload.summary.blocked} blocked`);
+          if (payload.summary.failed > 0) parts.push(`${payload.summary.failed} failed`);
+          console.log(ui.ready("DONE") + ui.dim(`  ${parts.join(", ")}`));
+          if (anyBlocked) {
+            console.log(ui.dim("  Run again with --force to write blocked specs anyway."));
+          }
           console.log();
           return;
         }
@@ -211,7 +264,41 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
           throw new Error("Missing spec name for single generation");
         }
 
-        const entryFile = await engine.generateFromSpec(specName);
+        const result = await engine.generateFromSpec(specName, { force });
+
+        if (result.blocked) {
+          const payload = buildGeneratePayload({
+            mode: "single",
+            target: specName,
+            options: { all: false, json: Boolean(opts.json), preview: false, force },
+            results: [{
+              name: specName,
+              status: "blocked",
+              entryFile: null,
+              error: null,
+              findings: result.findings,
+            }],
+            generatedFiles: [],
+            elapsedMs: Date.now() - startedAt,
+          });
+
+          if (opts.json) {
+            console.log(JSON.stringify(payload, null, 2));
+            process.exitCode = 1;
+            return;
+          }
+
+          console.log();
+          console.log(ui.fail(`${specName}  blocked by quality gate`));
+          for (const finding of result.findings.filter((f) => f.severity === "critical")) {
+            console.log(ui.dim(`  ${finding.message} (${finding.rule})`) + (finding.fix ? ui.dim(` — ${finding.fix}`) : ""));
+          }
+          console.log();
+          console.log(ui.dim("  Run again with --force to write anyway, or fix the spec/design system first."));
+          console.log();
+          process.exit(1);
+        }
+
         const payload = buildGeneratePayload({
           mode: "single",
           target: specName,
@@ -219,14 +306,17 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
             all: false,
             json: Boolean(opts.json),
             preview: false,
+            force,
           },
           results: [{
             name: specName,
             status: "generated",
-            entryFile,
+            entryFile: result.entryFile,
             error: null,
+            findings: result.findings,
+            critique: result.critique ? { score: result.critique.score, summary: result.critique.summary } : undefined,
           }],
-          generatedFiles: [entryFile],
+          generatedFiles: [result.entryFile],
           elapsedMs: Date.now() - startedAt,
         });
 
@@ -236,7 +326,13 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
         }
 
         console.log();
-        console.log(ui.ok(entryFile));
+        console.log(ui.ok(result.entryFile));
+        for (const finding of result.findings.filter((f) => f.severity === "warning")) {
+          console.log(ui.dim(`  Quality: ${finding.message} (${finding.rule})`));
+        }
+        if (result.critique) {
+          console.log(ui.dim(`  Critique: ${result.critique.summary} (score ${result.critique.score}/100)`));
+        }
         console.log();
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -249,12 +345,14 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
               all: generateAll,
               json: Boolean(opts.json),
               preview: false,
+              force,
             },
             results: [{
               name: specName ?? "all",
               status: "failed",
               entryFile: null,
               error: msg,
+              findings: [],
             }],
             generatedFiles: [],
             elapsedMs: Date.now() - startedAt,
@@ -286,6 +384,7 @@ function buildGeneratePayload(input: {
 }): GeneratePayload {
   const generated = input.results.filter((result) => result.status === "generated").length;
   const failed = input.results.filter((result) => result.status === "failed").length;
+  const blocked = input.results.filter((result) => result.status === "blocked").length;
   const totalSpecs = input.mode === "single"
     ? 1
     : input.results.length;
@@ -294,7 +393,7 @@ function buildGeneratePayload(input: {
     mode: input.mode,
     status: totalSpecs === 0
       ? "empty"
-      : failed > 0
+      : (failed > 0 || blocked > 0)
         ? generated > 0
           ? "partial"
           : "failed"
@@ -306,6 +405,7 @@ function buildGeneratePayload(input: {
       attempted: input.results.length,
       generated,
       failed,
+      blocked,
     },
     results: input.results,
     generatedFiles: input.generatedFiles,

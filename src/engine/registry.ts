@@ -8,6 +8,8 @@ import { readFile, writeFile, readdir, mkdir, rename } from "fs/promises";
 import { join, resolve } from "path";
 import { createLogger } from "./logger.js";
 import { ComponentSpec, PageSpec, DataVizSpec, DesignSpec, IASpec, AnySpec } from "../specs/types.js";
+import type { Finding } from "../codegen/generator.js";
+import type { LayoutCritique } from "../codegen/layout-critic.js";
 
 const log = createLogger("registry");
 
@@ -46,6 +48,10 @@ export interface GenerationState {
   generatedAt: string;
   files: string[];
   specHash: string; // detect if spec changed since last gen
+  /** Quality-gate findings from the generation that produced this state. Never set for a blocked generation — see CodeGenerator.generate(). */
+  findings?: Finding[];
+  /** AI layout critique (page specs only, when an API key was configured). */
+  critique?: LayoutCritique;
 }
 
 /** Validate spec name is safe for use in file paths */

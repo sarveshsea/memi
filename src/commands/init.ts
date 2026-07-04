@@ -161,6 +161,7 @@ export function registerInitCommand(program: Command, engine: MemoireEngine) {
         accessibility: { language: "en", landmarks: true, skipLink: true, headingHierarchy: true, consistentNav: true, consistentHelp: true },
         meta: { title: "Dashboard", description: "Overview of key metrics" },
         tags: ["dashboard"],
+        layoutLocked: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -181,9 +182,13 @@ export function registerInitCommand(program: Command, engine: MemoireEngine) {
         for (const specName of createdSpecs) {
           const gen = ora({ text: specName, indent: 2, color: "cyan" }).start();
           try {
-            await engine.generateFromSpec(specName);
+            const result = await engine.generateFromSpec(specName);
             gen.stop();
-            console.log(ui.ok(specName));
+            if (result.blocked) {
+              console.log(ui.warn(specName + ui.dim("  blocked by quality gate")));
+            } else {
+              console.log(ui.ok(specName));
+            }
           } catch (err) {
             gen.stop();
             const msg = err instanceof Error ? err.message : String(err);

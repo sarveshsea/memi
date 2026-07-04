@@ -64,8 +64,13 @@ export function registerWatchCommand(program: Command, engine: MemoireEngine) {
 
         try {
           console.log(`  ~ Regenerating ${specName}...`);
-          const entryFile = await engine.generateFromSpec(specName);
-          console.log(`  + ${specName} -> ${entryFile}`);
+          const result = await engine.generateFromSpec(specName);
+          if (result.blocked) {
+            console.log(ui.fail(`  ${specName} blocked by quality gate: ` +
+              result.findings.filter((f) => f.severity === "critical").map((f) => f.message).join("; ")));
+          } else {
+            console.log(`  + ${specName} -> ${result.entryFile}`);
+          }
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
           console.log(ui.fail(`Failed to regenerate ${specName}: ${msg}`));

@@ -17,7 +17,7 @@ export interface GoPayload {
     init: boolean;
     figma: { connected: boolean; skipped: boolean; error?: string };
     pull: { completed: boolean; tokens: number; components: number };
-    generate: { completed: boolean; skipped: boolean; generated: number; failed: number };
+    generate: { completed: boolean; skipped: boolean; generated: number; failed: number; blocked: number };
     preview: { started: boolean; skipped: boolean; port?: number };
   };
   elapsedMs: number;
@@ -43,7 +43,7 @@ export function registerGoCommand(program: Command, engine: MemoireEngine) {
         init: false,
         figma: { connected: false, skipped: false },
         pull: { completed: false, tokens: 0, components: 0 },
-        generate: { completed: false, skipped: false, generated: 0, failed: 0 },
+        generate: { completed: false, skipped: false, generated: 0, failed: 0, blocked: 0 },
         preview: { started: false, skipped: false },
       };
 
@@ -135,6 +135,7 @@ export function registerGoCommand(program: Command, engine: MemoireEngine) {
         const specs = await engine.registry.getAllSpecs();
         let generated = 0;
         let failed = 0;
+        let blocked = 0;
 
         if (!json) {
           console.log(ui.section("CODEGEN"));
@@ -142,19 +143,24 @@ export function registerGoCommand(program: Command, engine: MemoireEngine) {
 
         const genSpecs = specs.filter(s => s.type !== "design" && s.type !== "ia");
         const results = await Promise.allSettled(
-          genSpecs.map(spec => engine.generateFromSpec(spec.name).then(() => spec.name)),
+          genSpecs.map(spec => engine.generateFromSpec(spec.name).then((result) => ({ name: spec.name, result }))),
         );
-        for (const result of results) {
-          if (result.status === "fulfilled") {
-            generated++;
-            if (!json) console.log(ui.ok(result.value));
+        for (const outcome of results) {
+          if (outcome.status === "fulfilled") {
+            if (outcome.value.result.blocked) {
+              blocked++;
+              if (!json) console.log(ui.warn(`${outcome.value.name}  blocked by quality gate`));
+            } else {
+              generated++;
+              if (!json) console.log(ui.ok(outcome.value.name));
+            }
           } else {
             failed++;
-            if (!json) console.log(ui.warn(ui.dim("  " + result.reason?.message)));
+            if (!json) console.log(ui.warn(ui.dim("  " + outcome.reason?.message)));
           }
         }
 
-        steps.generate = { completed: true, skipped: false, generated, failed };
+        steps.generate = { completed: true, skipped: false, generated, failed, blocked };
       } else {
         steps.generate.skipped = true;
         if (!json) console.log(ui.skip("Code generation"));
@@ -187,7 +193,7 @@ export function registerGoCommand(program: Command, engine: MemoireEngine) {
         steps.preview.skipped = true;
       }
 
-      const hasError = steps.figma.error || steps.generate.failed > 0;
+      const hasError = steps.figma.error || steps.generate.failed > 0 || steps.generate.blocked > 0;
       const payload: GoPayload = {
         status: hasError ? "partial" : "completed",
         steps,

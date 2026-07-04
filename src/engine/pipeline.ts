@@ -48,7 +48,7 @@ export interface PipelineEvent {
 export type PipelineEventType =
   | "pull-started" | "pull-completed" | "pull-failed"
   | "spec-created" | "spec-updated"
-  | "generate-started" | "generate-completed" | "generate-failed"
+  | "generate-started" | "generate-completed" | "generate-failed" | "generate-blocked"
   | "token-diff-detected"
   | "component-diff-detected"
   | "pipeline-error";
@@ -266,7 +266,16 @@ export class EventPipeline extends EventEmitter {
         if (!task.target) break;
         this.emitPipelineEvent("generate-started", `Generating code for ${task.target}...`);
         try {
-          await this.engine.generateFromSpec(task.target);
+          const result = await this.engine.generateFromSpec(task.target);
+          if (result.blocked) {
+            this.emitPipelineEvent(
+              "generate-blocked",
+              `Generation blocked for ${task.target}: ` +
+                result.findings.filter((f) => f.severity === "critical").map((f) => f.message).join("; "),
+              result,
+            );
+            break;
+          }
           this.stats.generateCount++;
           this.stats.lastGenerateAt = new Date().toISOString();
           this.emitPipelineEvent("generate-completed", `Code generated for ${task.target}`);

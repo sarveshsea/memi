@@ -2,17 +2,28 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { Command } from "commander";
 import { registerGenerateCommand } from "../generate.js";
 import { captureLogs, lastLog } from "./test-helpers.js";
+import type { CodegenResult } from "../../codegen/generator.js";
 
 afterEach(() => {
   vi.restoreAllMocks();
   process.exitCode = 0;
 });
 
+function okResult(entryFile: string): CodegenResult {
+  return {
+    entryFile,
+    files: [{ path: entryFile, content: "" }],
+    spec: { name: entryFile, type: "page" } as never,
+    findings: [],
+    blocked: false,
+  };
+}
+
 describe("generate --json", () => {
   it("emits a structured success payload for a single spec", async () => {
     const logs = captureLogs();
     const engine = makeGenerateEngine({
-      generateFromSpec: vi.fn(async (name: string) => `generated/pages/${name}.tsx`),
+      generateFromSpec: vi.fn(async (name: string) => okResult(`generated/pages/${name}.tsx`)),
     });
     const program = new Command();
 
@@ -33,6 +44,7 @@ describe("generate --json", () => {
         attempted: 1,
         generated: 1,
         failed: 0,
+        blocked: 0,
       },
       generatedFiles: ["generated/pages/LoginPage.tsx"],
     });
@@ -42,6 +54,7 @@ describe("generate --json", () => {
         status: "generated",
         entryFile: "generated/pages/LoginPage.tsx",
         error: null,
+        findings: [],
       },
     ]);
   });
@@ -54,7 +67,7 @@ describe("generate --json", () => {
         if (name === "BrokenSpec") {
           throw new Error("missing purpose");
         }
-        return `generated/${name}.tsx`;
+        return okResult(`generated/${name}.tsx`);
       }),
     });
     const program = new Command();
@@ -76,6 +89,7 @@ describe("generate --json", () => {
         attempted: 3,
         generated: 2,
         failed: 1,
+        blocked: 0,
       },
       generatedFiles: ["generated/Button.tsx", "generated/Dashboard.tsx"],
     });
@@ -85,18 +99,21 @@ describe("generate --json", () => {
         status: "generated",
         entryFile: "generated/Button.tsx",
         error: null,
+        findings: [],
       },
       {
         name: "Dashboard",
         status: "generated",
         entryFile: "generated/Dashboard.tsx",
         error: null,
+        findings: [],
       },
       {
         name: "BrokenSpec",
         status: "failed",
         entryFile: null,
         error: "missing purpose",
+        findings: [],
       },
     ]);
   });
@@ -123,6 +140,7 @@ describe("generate --json", () => {
         attempted: 1,
         generated: 0,
         failed: 1,
+        blocked: 0,
       },
       error: {
         message: "spec not found",
@@ -134,6 +152,7 @@ describe("generate --json", () => {
         status: "failed",
         entryFile: null,
         error: "spec not found",
+        findings: [],
       },
     ]);
     expect(process.exitCode).toBe(1);
@@ -142,7 +161,7 @@ describe("generate --json", () => {
 
 function makeGenerateEngine(input?: {
   specs?: Array<{ name: string }>;
-  generateFromSpec?: (name: string) => Promise<string>;
+  generateFromSpec?: (name: string) => Promise<CodegenResult>;
 }) {
   return {
     async init() {},
@@ -158,7 +177,7 @@ function makeGenerateEngine(input?: {
       if (input?.generateFromSpec) {
         return input.generateFromSpec(name);
       }
-      return `generated/${name}.tsx`;
+      return okResult(`generated/${name}.tsx`);
     },
   };
 }

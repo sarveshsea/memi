@@ -130,9 +130,10 @@ describe("E2E Pipeline", () => {
 
     // Step 4: Generate code for each spec
     for (const spec of allSpecs) {
-      const entryFile = await engine.generateFromSpec(spec.name);
-      expect(entryFile).toBeTruthy();
-      expect(entryFile.endsWith(".tsx")).toBe(true);
+      const result = await engine.generateFromSpec(spec.name);
+      expect(result.blocked).toBe(false);
+      expect(result.entryFile).toBeTruthy();
+      expect(result.entryFile.endsWith(".tsx")).toBe(true);
     }
 
     // Step 5: Verify generated files exist

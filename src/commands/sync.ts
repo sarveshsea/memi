@@ -113,8 +113,8 @@ export function registerSyncCommand(program: Command, engine: MemoireEngine) {
       let regenerated = 0;
       for (const spec of specs) {
         try {
-          await engine.generateFromSpec(spec.name);
-          regenerated++;
+          const result = await engine.generateFromSpec(spec.name);
+          if (!result.blocked) regenerated++;
         } catch {
           // individual spec failures don't halt the sync
         }

@@ -235,19 +235,37 @@ Schemas — component: name, type, atomicLevel ("atom"|"molecule"|"organism"|"te
     "generate_code",
     `Generate shadcn/ui + Tailwind code from a saved spec and write files into atomic design folders (atoms → components/ui/, molecules/organisms/templates → components/<level>/).
 
-Returns: { entryFile, files[], generatedAt }.
-Errors: isError if specName is not found or generation fails. Run npm install afterwards for any missing shadcn deps.`,
-    { specName: z.string().describe("Name of the spec to generate code for (case-sensitive, must match a spec returned by get_specs).") },
-    async ({ specName }) => {
-      const entryFile = await engine.generateFromSpec(specName);
+Returns: { entryFile, files[], generatedAt, findings[], critique? }. For page specs, critique is an AI layout score (0-100) + hierarchy/spacing/consistency notes when ANTHROPIC_API_KEY is set — informational only, never blocks.
+Errors: isError if specName is not found. isError with { blocked: true, findings } if a critical quality-gate finding (raw hex/color when tokens exist, a token-pair contrast failure, or a strict-mode skill-compliance violation) prevented the write — pass force:true to write anyway after reviewing the findings.`,
+    {
+      specName: z.string().describe("Name of the spec to generate code for (case-sensitive, must match a spec returned by get_specs)."),
+      force: z.boolean().optional().describe("Set true to write files despite critical quality-gate findings. Only pass this after reviewing the findings and intentionally deciding to override them."),
+    },
+    async ({ specName, force }) => {
+      const result = await engine.generateFromSpec(specName, { force });
+      if (result.blocked) {
+        return {
+          isError: true,
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              blocked: true,
+              findings: result.findings,
+              message: "Generation blocked by quality gate. Fix the issue(s) below in the spec/design system, or call generate_code again with force: true to write anyway.",
+            }),
+          }],
+        };
+      }
       const gen = engine.registry.getGenerationState(specName);
       return {
         content: [{
           type: "text" as const,
           text: JSON.stringify({
-            entryFile,
+            entryFile: result.entryFile,
             files: gen?.files ?? [],
             generatedAt: gen?.generatedAt,
+            findings: gen?.findings ?? result.findings,
+            critique: gen?.critique ?? result.critique ?? null,
           }),
         }],
       };
@@ -352,6 +370,31 @@ Use this tool: before planning UI fixes, exporting a registry, or giving an AI e
         write: false,
       });
       return { content: [{ type: "text" as const, text: JSON.stringify(diagnosis) }] };
+    },
+  );
+
+  // ── check_skill_compliance ──────────────────────────────
+  server.tool(
+    "check_skill_compliance",
+    `Check real source files for the objectively-checkable rules in skills/ATOMIC_DESIGN.md (composition, state, data-fetching, naming) and skills/MOTION_VIDEO_DESIGN.md (motion tokens, reduced-motion, GPU-safe properties) — a post-hoc, deterministic verification pass, the same mechanism a linter uses to enforce a style guide.
+
+This does not read the skill docs at check time or make an agent obey markdown — the checkable rules are hand-extracted into regex/string checks. It closes the gap where nothing downstream ever notices whether an agent actually followed those docs. skills/DESIGN_SYSTEM_REFERENCE.md is a pure external-system catalog with zero checkable rules and contributes nothing here.
+
+Prereq: none — no Figma, no AI, works entirely offline.
+Returns: { version, target, generatedAt, findings: [{ severity, rule, file, message, fix?, docRef }], summary: { critical, warning, filesChecked } }.
+Real enforcement requires wiring \`memi audit --skill-compliance\` into CI or a pre-commit hook — this MCP tool remains something an agent can choose not to call, same as any other tool.`,
+    {
+      target: z.string().optional().describe("Local path to scan. Defaults to the current project root."),
+      maxFiles: z.number().int().min(1).max(5000).default(500).describe("Maximum source files to scan."),
+    },
+    async ({ target, maxFiles }) => {
+      const diagnosis = await diagnoseAppQuality({
+        projectRoot: engine.config.projectRoot,
+        target,
+        maxFiles,
+        write: false,
+      });
+      return { content: [{ type: "text" as const, text: JSON.stringify(diagnosis.compliance) }] };
     },
   );
 
@@ -600,12 +643,14 @@ Examples: "create a dashboard page with KPI cards, a chart, and a data table"; "
     `Run a deterministic design-system audit (WCAG contrast, token completeness, spec accessibility) and return structured findings.
 
 Prereq: none — token/spec level, no Figma, no AI.
-Returns: { success, results: issues[], score, level, summary }. focus="contrast" narrows to token contrast pairs.
+Returns: { success, results: issues[], score, level, summary }. focus="contrast" narrows to token contrast pairs; focus="skill-compliance" checks real source files against ATOMIC_DESIGN.md/MOTION_VIDEO_DESIGN.md's checkable rules.
 vs analyze_design: run_audit = systematic spec/token compliance; analyze_design = AI vision review of a live Figma frame.`,
     {
-      focus: z.string().optional().describe("Optional focus area to narrow the audit scope. Examples: 'accessibility' (runs all 5 WCAG checks), 'token coverage' (checks which components use design tokens vs hardcoded values), 'naming' (validates spec name conventions), 'contrast' (color contrast only), 'touch-targets' (interactive element sizing only). Omit to run the full default audit suite."),
+      focus: z.string().optional().describe("Optional focus area to narrow the audit scope. Examples: 'accessibility' (runs all 5 WCAG checks), 'token coverage' (checks which components use design tokens vs hardcoded values), 'naming' (validates spec name conventions), 'contrast' (color contrast only), 'skill-compliance' (checks ATOMIC_DESIGN.md composition/state/data-fetching/naming rules and MOTION_VIDEO_DESIGN.md token/reduced-motion/GPU-property rules against real source files), 'touch-targets' (interactive element sizing only). Omit to run the full default audit suite."),
+      target: z.string().optional().describe("Local path to scan when focus='skill-compliance'. Defaults to the current project root."),
+      maxFiles: z.number().int().min(1).max(5000).default(500).describe("Maximum source files to scan when focus='skill-compliance'."),
     },
-    async ({ focus }) => {
+    async ({ focus, target, maxFiles }) => {
       try {
         // Deterministic path — run the real checkers directly instead of
         // routing a deterministic-sounding contract through an LLM planner.
@@ -621,6 +666,28 @@ vs analyze_design: run_audit = systematic spec/token compliance; analyze_design 
                 success: true,
                 results: issues,
                 summary: `${issues.length} contrast issue(s) across ${designSystem.tokens.length} tokens`,
+              }),
+            }],
+          };
+        }
+
+        if (focus === "skill-compliance") {
+          const diagnosis = await diagnoseAppQuality({
+            projectRoot: engine.config.projectRoot,
+            target,
+            maxFiles,
+            write: false,
+          });
+          const compliance = diagnosis.compliance;
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                success: true,
+                results: compliance?.findings ?? [],
+                summary: compliance
+                  ? `${compliance.summary.critical} critical, ${compliance.summary.warning} warning finding(s) across ${compliance.summary.filesChecked} files`
+                  : "No files scanned",
               }),
             }],
           };
