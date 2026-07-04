@@ -10,6 +10,32 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 No unreleased changes.
 
+## v2.1.0 — 2026-07-03
+
+Quality release across three axes: designs that stay on-brand, a harness agents can trust, and a much leaner runtime.
+
+### Better designer, always
+- Contrast auditing now parses `oklch()`, `hsl()`, and `rgb()` colors via a shared parser — Tailwind v4 / shadcn token sets were previously skipped entirely by the WCAG checks, silently reporting clean scores. Theme validation gets the same treatment.
+- Codegen cache fingerprints the full token set (names, types, values) instead of the token *count* — a rebrand now regenerates components instead of silently keeping old-brand output.
+- `substituteTokensInClasses` prefers the project's own token CSS variables over the generic Tailwind palette (brand colors no longer approximate to `bg-blue-500`) and accepts oklch token values.
+- Generated pages derive gap/padding/vertical rhythm from the project's spacing tokens instead of hardcoded `gap-4`/`p-6`.
+- Codegen quality gate: generated files are scanned for raw hex and inline color literals; findings surface as `CodegenResult.warnings`.
+- `run_audit` executes the deterministic WCAG/token checkers directly instead of routing through the LLM orchestrator — same contract, reproducible results, zero AI cost.
+
+### More capable harness
+- All 16 dotted tool names (`simulation.*`, `research.*`, `mermaid_jam.export`) renamed to underscore form — dots are rejected by Anthropic's tool-name pattern, which made those tools unusable in strict MCP clients.
+- Every MCP tool now returns structured `{ isError: true }` results on unexpected throws (including "Figma not connected") instead of raw protocol errors.
+- Numeric params gain real bounds (`maxFiles` ≤ 5000, `depth` ≤ 8, `scale` ≤ 4); caller-supplied ResearchStore JSON is structurally validated with readable errors.
+- `update_token` reports `{ updated, pushedToFigma, reason }` — a requested-but-skipped Figma push is never silently dropped.
+- New `simulation_list_runs` tool so agents can discover run ids instead of guessing them.
+- Fixed root `.mcp.json` to launch `memi mcp start` (bare `memi mcp` was a no-op parent command); the MCP server now reports the real package version instead of a hardcoded 0.6.0.
+
+### Efficiency
+- CLI fast path: hot commands (`status`, `tokens`, `mcp`, `pull`, `theme`, `diagnose`, `ux`, `fix`, `add`, `generate`, `design-doc`, `audit`, `studio`) import only their own module instead of all ~48 — `diagnose` cold start dropped from ~1.5s to ~150ms, `status` to ~100ms. Bench thresholds tightened to lock the gains in.
+- MCP responses drop pretty-printing (~30–50% fewer response tokens on every tool call). `get_tokens` gains type/name filters, `get_research` returns a summary-plus-counts overview unless specific sections are requested, and `simulation_stream` is paginated.
+- AI client: large system prompts are sent with `cache_control` (Anthropic prompt caching), and vision JSON retries no longer re-send the base64 screenshot.
+- `exceljs` is imported lazily at .xlsx parse time; the bench harness now reports payload sizes instead of discarding them.
+
 ## v2.0.0 — 2026-07-03
 
 ### Version 2 package release
