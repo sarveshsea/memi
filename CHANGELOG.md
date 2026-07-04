@@ -10,6 +10,11 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 No unreleased changes.
 
+## v2.1.1 — 2026-07-03
+
+### Efficiency
+- Trimmed the 23 most verbose MCP tool descriptions to compact Prereq/Returns/Errors contracts — the static tool schema every agent session loads dropped from ~26KB to ~13.5KB (roughly 3,000 fewer context tokens per session) while keeping every return shape, error contract, and cross-tool disambiguation hint.
+
 ## v2.1.0 — 2026-07-03
 
 Quality release across three axes: designs that stay on-brand, a harness agents can trust, and a much leaner runtime.

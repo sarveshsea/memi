@@ -3,7 +3,7 @@
   "name": "io.github.sarveshsea/memi",
   "title": "memi",
   "description": "Design-system memory for coding agents — Figma tokens, shadcn/ui codegen, Tailwind audits.",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "websiteUrl": "https://memoire.cv",
   "repository": {
     "url": "https://github.com/sarveshsea/memi",
@@ -14,7 +14,7 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@memi-design/cli",
-      "version": "2.1.0",
+      "version": "2.1.1",
       "transport": {
         "type": "stdio"
       },
@@ -37,7 +37,7 @@
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
       "tool": "memi-release",
-      "version": "2.1.0"
+      "version": "2.1.1"
     }
   }
 }

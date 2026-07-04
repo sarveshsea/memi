@@ -391,7 +391,7 @@ a:hover { text-decoration: underline; }
     </nav>
     <div class="hdr-stats">
       <span><span class="n" id="stat-commits">242</span> commits</span>
-      <span><span class="n" id="stat-versions">30</span> versions</span>
+      <span><span class="n" id="stat-versions">31</span> versions</span>
       <span><span class="n" id="stat-latest">2026-07-03</span> latest</span>
     </div>
   </header>
@@ -407,8 +407,8 @@ a:hover { text-decoration: underline; }
         <div class="hero-kpis">
           <div class="summary-card">
             <span class="summary-kicker">Current release</span>
-            <strong class="summary-value">v2.1.0</strong>
-            <div class="summary-caption">0 commits tracked in v2.1.0 from CHANGELOG.md.</div>
+            <strong class="summary-value">v2.1.1</strong>
+            <div class="summary-caption">0 commits tracked in v2.1.1 from CHANGELOG.md.</div>
           </div>
           <div class="summary-card">
             <span class="summary-kicker">Biggest theme</span>
@@ -434,10 +434,21 @@ a:hover { text-decoration: underline; }
     <section class="release-list" id="release-list"></section>
   </main>
 
-  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v2.1.0</footer>
+  <footer class="footer">memoire changelog - synced with CHANGELOG.md through v2.1.1</footer>
 
 <script>
 const releases = [
+  {
+    "version": "v2.1.1",
+    "date": "2026-07-03",
+    "tag": "fix",
+    "summary": "Trimmed the 23 most verbose MCP tool descriptions to compact Prereq/Returns/Errors contracts — the static tool schema every agent session loads dropped from ~26KB to ~13.5KB (roughly 3,000 fewer context tokens per session) while keeping every return shape, error contract, and cross-tool disambiguation hint.",
+    "commits": [],
+    "decisions": [],
+    "changes": [
+      "Trimmed the 23 most verbose MCP tool descriptions to compact Prereq/Returns/Errors contracts — the static tool schema every agent session loads dropped from ~26KB to ~13.5KB (roughly 3,000 fewer context tokens per session) while keeping every return shape, error contract, and cross-tool disambiguation hint."
+    ]
+  },
   {
     "version": "v2.1.0",
     "date": "2026-07-03",
