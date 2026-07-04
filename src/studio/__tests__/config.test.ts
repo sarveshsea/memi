@@ -1,4 +1,4 @@
-import { mkdtemp, rm, readFile } from "node:fs/promises";
+import { mkdtemp, rm, readFile, mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, expect, it } from "vitest";
@@ -23,7 +23,12 @@ describe("studio config", () => {
         "hermes",
         "shell",
       ]);
-      expect(config.enabledTools.shell).toBe(true);
+      expect(config.enabledTools).toEqual({
+        shell: false,
+        browser: false,
+        figma: false,
+        mcp: true,
+      });
       expect(config.ui).toMatchObject({
         theme: "dark",
         inputMode: "agent",
@@ -48,14 +53,14 @@ describe("studio config", () => {
         "codex",
       ]);
       expect(config.permissions).toMatchObject({
-        workspaceWrite: "allow",
-        shell: "allow",
-        computer: "allow",
-        figma: "allow",
+        workspaceWrite: "approval",
+        shell: "block",
+        computer: "approval",
+        figma: "approval",
       });
       expect(config.computer).toMatchObject({
-        enabled: process.platform === "darwin",
-        requireApproval: false,
+        enabled: false,
+        requireApproval: true,
       });
       expect(config.computer.allowedApps).toEqual(expect.arrayContaining([
         "Figma",
@@ -69,18 +74,19 @@ describe("studio config", () => {
       ]));
       expect(config.setup).toMatchObject({
         wizardVersion: 1,
+        securityDefaultsVersion: 2,
         completedAt: null,
         downloadReadyAcknowledged: false,
       });
       expect(config.codex).toMatchObject({
         model: "gpt-5.5",
         reasoningEffort: "xhigh",
-        approvalPolicy: "never",
-        webSearch: true,
+        approvalPolicy: "on-request",
+        webSearch: false,
         skipGitRepoCheck: true,
         includeMemoireCommands: true,
         includeCodexCommands: true,
-        planModeDefault: false,
+        planModeDefault: true,
       });
     } finally {
       await rm(root, { recursive: true, force: true });
@@ -132,13 +138,16 @@ describe("studio config", () => {
       expect(loaded.ui.inputMode).toBe("agent");
       expect(loaded.agentProfiles[0]).toMatchObject({ id: "design", defaultHarness: "codex" });
       expect(loaded.permissions.denylist).toEqual([]);
-      expect(loaded.permissions.shell).toBe("allow");
+      expect(loaded.permissions.shell).toBe("block");
       expect(loaded.computer.allowedApps).toEqual(expect.arrayContaining(["Figma"]));
-      expect(loaded.computer.requireApproval).toBe(false);
+      expect(loaded.computer.enabled).toBe(false);
+      expect(loaded.computer.requireApproval).toBe(true);
       expect(loaded.setup.completedAt).toBeNull();
+      expect(loaded.setup.securityDefaultsVersion).toBe(2);
       expect(loaded.codex.model).toBe("gpt-5.5");
       expect(loaded.codex.reasoningEffort).toBe("xhigh");
-      expect(loaded.codex.approvalPolicy).toBe("never");
+      expect(loaded.codex.approvalPolicy).toBe("on-request");
+      expect(loaded.codex.webSearch).toBe(false);
     } finally {
       await rm(root, { recursive: true, force: true });
     }
@@ -177,6 +186,59 @@ describe("studio config", () => {
       await rm(root, { recursive: true, force: true });
     }
   });
+
+  it("hardens legacy Codex never/web-search defaults while preserving versioned explicit settings", async () => {
+    const root = await mkdtemp(join(tmpdir(), "memoire-studio-config-"));
+    try {
+      await mkdir(join(root, ".memoire", "studio"), { recursive: true });
+      await writeFile(studioConfigPath(root), JSON.stringify({
+        schemaVersion: 1,
+        workspaceRoots: [root],
+        defaultHarness: "codex",
+        setup: {
+          wizardVersion: 1,
+          completedAt: "2026-05-07T22:27:59.096Z",
+          dismissedAt: null,
+          lastCheckedAt: "2026-05-07T22:27:59.096Z",
+          downloadReadyAcknowledged: true,
+        },
+        codex: {
+          model: "gpt-5.5",
+          reasoningEffort: "xhigh",
+          approvalPolicy: "never",
+          webSearch: true,
+          skipGitRepoCheck: true,
+          includeMemoireCommands: true,
+          includeCodexCommands: true,
+          planModeDefault: true,
+        },
+      }, null, 2));
+
+      const legacyLoaded = await loadStudioConfig(root);
+      expect(legacyLoaded.codex.approvalPolicy).toBe("on-request");
+      expect(legacyLoaded.codex.webSearch).toBe(false);
+
+      await saveStudioConfig(root, {
+        ...legacyLoaded,
+        setup: {
+          ...legacyLoaded.setup,
+          securityDefaultsVersion: 2,
+        },
+        codex: {
+          ...legacyLoaded.codex,
+          approvalPolicy: "never",
+          webSearch: true,
+        },
+      });
+
+      const explicitLoaded = await loadStudioConfig(root);
+      expect(explicitLoaded.codex.approvalPolicy).toBe("never");
+      expect(explicitLoaded.codex.webSearch).toBe(true);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
 
   it("refreshes harness execution metadata from the manifest while preserving user enabled state", async () => {
     const root = await mkdtemp(join(tmpdir(), "memoire-studio-config-"));
@@ -217,6 +279,7 @@ describe("studio config", () => {
         ...defaultStudioConfig(root),
         setup: {
           wizardVersion: 1,
+          securityDefaultsVersion: 2,
           completedAt: "2026-05-06T12:00:00.000Z",
           dismissedAt: null,
           lastCheckedAt: "2026-05-06T12:00:00.000Z",

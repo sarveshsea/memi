@@ -10,6 +10,73 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 No unreleased changes.
 
+## v2.1.1 — 2026-07-03
+
+### Efficiency
+- Trimmed the 23 most verbose MCP tool descriptions to compact Prereq/Returns/Errors contracts — the static tool schema every agent session loads dropped from ~26KB to ~13.5KB (roughly 3,000 fewer context tokens per session) while keeping every return shape, error contract, and cross-tool disambiguation hint.
+
+## v2.1.0 — 2026-07-03
+
+Quality release across three axes: designs that stay on-brand, a harness agents can trust, and a much leaner runtime.
+
+### Better designer, always
+- Contrast auditing now parses `oklch()`, `hsl()`, and `rgb()` colors via a shared parser — Tailwind v4 / shadcn token sets were previously skipped entirely by the WCAG checks, silently reporting clean scores. Theme validation gets the same treatment.
+- Codegen cache fingerprints the full token set (names, types, values) instead of the token *count* — a rebrand now regenerates components instead of silently keeping old-brand output.
+- `substituteTokensInClasses` prefers the project's own token CSS variables over the generic Tailwind palette (brand colors no longer approximate to `bg-blue-500`) and accepts oklch token values.
+- Generated pages derive gap/padding/vertical rhythm from the project's spacing tokens instead of hardcoded `gap-4`/`p-6`.
+- Codegen quality gate: generated files are scanned for raw hex and inline color literals; findings surface as `CodegenResult.warnings`.
+- `run_audit` executes the deterministic WCAG/token checkers directly instead of routing through the LLM orchestrator — same contract, reproducible results, zero AI cost.
+
+### More capable harness
+- All 16 dotted tool names (`simulation.*`, `research.*`, `mermaid_jam.export`) renamed to underscore form — dots are rejected by Anthropic's tool-name pattern, which made those tools unusable in strict MCP clients.
+- Every MCP tool now returns structured `{ isError: true }` results on unexpected throws (including "Figma not connected") instead of raw protocol errors.
+- Numeric params gain real bounds (`maxFiles` ≤ 5000, `depth` ≤ 8, `scale` ≤ 4); caller-supplied ResearchStore JSON is structurally validated with readable errors.
+- `update_token` reports `{ updated, pushedToFigma, reason }` — a requested-but-skipped Figma push is never silently dropped.
+- New `simulation_list_runs` tool so agents can discover run ids instead of guessing them.
+- Fixed root `.mcp.json` to launch `memi mcp start` (bare `memi mcp` was a no-op parent command); the MCP server now reports the real package version instead of a hardcoded 0.6.0.
+
+### Efficiency
+- CLI fast path: hot commands (`status`, `tokens`, `mcp`, `pull`, `theme`, `diagnose`, `ux`, `fix`, `add`, `generate`, `design-doc`, `audit`, `studio`) import only their own module instead of all ~48 — `diagnose` cold start dropped from ~1.5s to ~150ms, `status` to ~100ms. Bench thresholds tightened to lock the gains in.
+- MCP responses drop pretty-printing (~30–50% fewer response tokens on every tool call). `get_tokens` gains type/name filters, `get_research` returns a summary-plus-counts overview unless specific sections are requested, and `simulation_stream` is paginated.
+- AI client: large system prompts are sent with `cache_control` (Anthropic prompt caching), and vision JSON retries no longer re-send the base64 screenshot.
+- `exceljs` is imported lazily at .xlsx parse time; the bench harness now reports payload sizes instead of discarding them.
+
+## v2.0.0 — 2026-07-03
+
+### Version 2 package release
+This major release makes `@memi-design/cli` feel like the real install surface for memi, not just a CLI wrapper. Version 2 bundles the MCP server, standard Agent Skills package, Codex plugin, Studio harness runtime, UX audit layer, and design-system registry workflow behind one npm package.
+
+### New
+- Added `memi agent brief [target]` and the MCP `prepare_design_agent_brief` tool so agents can start UI work with a cost-aware preflight contract: evidence commands, design rules, compatibility installs, MCP/Agent Skills setup, and handoff requirements.
+- Added `memi craft audit [target]` and MCP `audit_interface_craft` so interface craft is a first-class local gate across visual design, focusing mechanism, hierarchy, spacing rhythm, conventions, responsive resilience, and user context.
+- Added a standard Agent Skills package at `skills/memoire-design-tooling/SKILL.md` so users can install memi through the broader skills ecosystem with `npx skills add sarveshsea/memi --skill memoire-design-tooling`.
+- Added `memi agent install universal --project .`, which writes `.agents/skills/memoire-design-tooling` for agents that read the universal Agent Skills path.
+- Added release gates that keep the root Agent Skills package, Codex skill kit, and bundled Codex plugin skill in sync.
+- Promoted the Figma-independent MCP server path as a first-class package surface: `memi mcp start --no-figma` remains the registry-safe startup command for clients and crawlers.
+- Reworked the package documentation around the v2 category: interface understanding for AI coding agents. The root README now leads with install proof, while deeper docs cover agent stacks, ECC-style workflows, UX/research audits, package positioning, and growth operations.
+- Added `sarveshsea/design-sandbox` as the public proof repo for memi v2: a Next.js, Tailwind, shadcn, MCP, and Agent Skills workspace that demonstrates the interface-understanding loop in a real repository.
+
+### Studio and harness
+- Ships the newer Studio harness layer with Codex, Claude Code, OpenCode, Gemini, Ollama, Hermes, and memi-native metadata, compatibility checks, and trace-friendly runtime events.
+- Keeps Codex plugin distribution packaged with skills, MCP wiring, marketplace metadata, privacy and terms URLs, and PNG storefront assets.
+- Includes the improved app-quality and UX Tenets and Traps audit flow across CLI, Studio, and MCP tools.
+
+### Packaging and trust
+- Bumps package, lockfile, MCP registry manifest, Codex plugin manifest, and example registry metadata to `2.0.0`.
+- Keeps npm install side-effect free: no public lifecycle scripts, explicit Figma plugin setup, and explicit agent-kit install writes.
+- Documents the safer trust ladder: dry-run native installer first, skills ecosystem install path second, and npm publish/public release checks last.
+- Ships the v2 docs needed inside the npm tarball: docs map, interface-understanding protocol, agent stack guide, package positioning, growth plan, proof notes, release gates, and NOTICE attribution.
+- Ships a public repo distribution playbook with GitHub topics, hashtags, proof commands, cost posture, compatibility surfaces, and the design-sandbox promotion path.
+
+### Verification
+- `npm run lint` passed.
+- `npm test` passed with 205 files and 1572 tests.
+- `npm run build` passed.
+- `npm run check:release` passed.
+- `npm run smoke:mcp` passed with 43 MCP tools.
+- `npx skills@1.5.14 add . --list` found exactly `memoire-design-tooling`.
+- `node dist/index.js agent install universal --dry-run --json` returned the expected `.agents/skills/memoire-design-tooling` plan.
+
 ## v1.1.1 — 2026-06-15
 
 ### Product Hunt launch alignment

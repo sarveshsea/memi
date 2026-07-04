@@ -1,7 +1,9 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { getHarnessManifest } from "./harnesses.js";
-import type { StudioConfig } from "./types.js";
+import type { StudioCodexConfig, StudioConfig, StudioSetupConfig } from "./types.js";
+
+const SECURITY_DEFAULTS_VERSION = 2;
 
 export function studioConfigPath(projectRoot: string): string {
   return join(projectRoot, ".memoire", "studio", "config.json");
@@ -23,12 +25,12 @@ export function defaultStudioConfig(projectRoot: string): StudioConfig {
     codex: {
       model: "gpt-5.5",
       reasoningEffort: "xhigh",
-      approvalPolicy: "never",
-      webSearch: true,
+      approvalPolicy: "on-request",
+      webSearch: false,
       skipGitRepoCheck: true,
       includeMemoireCommands: true,
       includeCodexCommands: true,
-      planModeDefault: false,
+      planModeDefault: true,
     },
     ui: {
       theme: "dark",
@@ -45,17 +47,17 @@ export function defaultStudioConfig(projectRoot: string): StudioConfig {
       autonomy: "autonomous",
     }],
     permissions: {
-      workspaceWrite: "allow",
-      shell: "allow",
-      computer: "allow",
-      figma: "allow",
+      workspaceWrite: "approval",
+      shell: "block",
+      computer: "approval",
+      figma: "approval",
       allowlist: [],
       denylist: [],
     },
     computer: {
-      enabled: process.platform === "darwin",
+      enabled: false,
       allowedApps: ["Figma", "Google Chrome", "Safari", "Finder", "Terminal", "iTerm", "Visual Studio Code", "Cursor"],
-      requireApproval: false,
+      requireApproval: true,
       permissions: {
         accessibility: "unknown",
         screenRecording: "unknown",
@@ -65,6 +67,7 @@ export function defaultStudioConfig(projectRoot: string): StudioConfig {
     },
     setup: {
       wizardVersion: 1,
+      securityDefaultsVersion: SECURITY_DEFAULTS_VERSION,
       completedAt: null,
       dismissedAt: null,
       lastCheckedAt: null,
@@ -81,9 +84,9 @@ export function defaultStudioConfig(projectRoot: string): StudioConfig {
       command: harness.id === "shell" ? (process.env.SHELL || harness.command) : harness.command,
     })),
     enabledTools: {
-      shell: true,
-      browser: true,
-      figma: true,
+      shell: false,
+      browser: false,
+      figma: false,
       mcp: true,
     },
     figma: {
@@ -131,10 +134,7 @@ function mergeStudioConfig(defaults: StudioConfig, raw: Partial<StudioConfig>): 
       ...defaults.enabledTools,
       ...(raw.enabledTools ?? {}),
     },
-    codex: {
-      ...defaults.codex,
-      ...(raw.codex ?? {}),
-    },
+    codex: mergeCodexConfig(defaults.codex, raw.codex, raw.setup),
     ui: {
       ...defaults.ui,
       ...(raw.ui ?? {}),
@@ -161,6 +161,7 @@ function mergeStudioConfig(defaults: StudioConfig, raw: Partial<StudioConfig>): 
       ...defaults.setup,
       ...(raw.setup ?? {}),
       wizardVersion: 1,
+      securityDefaultsVersion: raw.setup?.securityDefaultsVersion ?? SECURITY_DEFAULTS_VERSION,
     },
     usageBudgets: {
       warningThreshold: raw.usageBudgets?.warningThreshold ?? defaults.usageBudgets.warningThreshold,
@@ -189,4 +190,20 @@ function mergeStudioConfig(defaults: StudioConfig, raw: Partial<StudioConfig>): 
       };
     }),
   };
+}
+
+function mergeCodexConfig(
+  defaults: StudioCodexConfig,
+  rawCodex: Partial<StudioCodexConfig> | undefined,
+  rawSetup: Partial<StudioSetupConfig> | undefined,
+): StudioCodexConfig {
+  const merged = {
+    ...defaults,
+    ...(rawCodex ?? {}),
+  };
+  if ((rawSetup?.securityDefaultsVersion ?? 1) < SECURITY_DEFAULTS_VERSION) {
+    if (rawCodex?.approvalPolicy === "never") merged.approvalPolicy = defaults.approvalPolicy;
+    if (rawCodex?.webSearch === true) merged.webSearch = defaults.webSearch;
+  }
+  return merged;
 }

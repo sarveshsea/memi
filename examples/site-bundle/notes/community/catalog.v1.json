@@ -1,6 +1,377 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-16T17:37:19.258Z",
+  "generatedAt": "2026-07-04T01:03:46.614Z",
   "baseUrl": "https://www.memoire.cv/notes/community",
-  "notes": []
+  "notes": [
+    {
+      "id": "design-sandbox-proof",
+      "name": "design-sandbox-proof",
+      "title": "Design Sandbox Proof",
+      "version": "1.0.0",
+      "description": "Use the public design-sandbox repo to prove memi, MCP, Agent Skills, Tailwind, shadcn, UX audit, and interface craft together.",
+      "category": "craft",
+      "tags": [
+        "design-sandbox",
+        "proof-repo",
+        "nextjs",
+        "tailwind",
+        "shadcn",
+        "mcp",
+        "agent-skills",
+        "interface-craft"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/design-sandbox",
+        "https://github.com/sarveshsea/memi",
+        "https://www.npmjs.com/package/@memi-design/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/memoire-community-notes",
+      "sourcePath": "notes/design-sandbox-proof",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/design-sandbox-proof",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/design-sandbox-proof/design-sandbox-proof-1.0.0.tgz",
+        "sha256": "b0d8f9cdf50a95508108d653fe3e8dbf38a9ddffe1b2f0743f063222fa1f311b",
+        "size": 1489
+      },
+      "manifest": {
+        "name": "design-sandbox-proof",
+        "version": "1.0.0",
+        "description": "Use the public design-sandbox repo to prove memi, MCP, Agent Skills, Tailwind, shadcn, UX audit, and interface craft together.",
+        "category": "craft",
+        "tags": [
+          "design-sandbox",
+          "proof-repo",
+          "nextjs",
+          "tailwind",
+          "shadcn",
+          "mcp",
+          "agent-skills",
+          "interface-craft"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/design-sandbox",
+          "https://github.com/sarveshsea/memi",
+          "https://www.npmjs.com/package/@memi-design/cli"
+        ],
+        "lastResearchedAt": "2026-07-04T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "design-sandbox-proof.md",
+            "name": "Design Sandbox Proof",
+            "activateOn": "design sandbox, proof repo, memi verify, sandbox setup, public demo",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [
+          "memoire-v2-surface-map",
+          "interface-craft-gate"
+        ],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-04T00:00:00.000Z",
+        "updatedAt": "2026-07-04T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-04T00:00:00.000Z"
+    },
+    {
+      "id": "interface-craft-gate",
+      "name": "interface-craft-gate",
+      "title": "Interface Craft Gate",
+      "version": "1.0.0",
+      "description": "Make interface craft a first-class gate for design agents using memi craft audit, UX traps, tokens, and screenshot evidence.",
+      "category": "craft",
+      "tags": [
+        "interface-craft",
+        "visual-design",
+        "ux-audit",
+        "hierarchy",
+        "spacing",
+        "tokens",
+        "screenshots",
+        "design-review"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi",
+        "https://www.npmjs.com/package/@memi-design/cli",
+        "https://github.com/sarveshsea/design-sandbox"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/memoire-community-notes",
+      "sourcePath": "notes/interface-craft-gate",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/interface-craft-gate",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/interface-craft-gate/interface-craft-gate-1.0.0.tgz",
+        "sha256": "97752197688905fa58ef75f40a1ad66591eac2933805232704ec0590550675e1",
+        "size": 1823
+      },
+      "manifest": {
+        "name": "interface-craft-gate",
+        "version": "1.0.0",
+        "description": "Make interface craft a first-class gate for design agents using memi craft audit, UX traps, tokens, and screenshot evidence.",
+        "category": "craft",
+        "tags": [
+          "interface-craft",
+          "visual-design",
+          "ux-audit",
+          "hierarchy",
+          "spacing",
+          "tokens",
+          "screenshots",
+          "design-review"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi",
+          "https://www.npmjs.com/package/@memi-design/cli",
+          "https://github.com/sarveshsea/design-sandbox"
+        ],
+        "lastResearchedAt": "2026-07-04T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "interface-craft-gate.md",
+            "name": "Interface Craft Gate",
+            "activateOn": "interface craft, visual polish, design review, screenshot critique, UI polish, craft audit",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [
+          "memoire-v2-surface-map"
+        ],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-04T00:00:00.000Z",
+        "updatedAt": "2026-07-04T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-04T00:00:00.000Z"
+    },
+    {
+      "id": "memoire-mcp-agent-skills",
+      "name": "memoire-mcp-agent-skills",
+      "title": "Memoire MCP And Agent Skills",
+      "version": "1.0.0",
+      "description": "Set up memi MCP and Agent Skills so coding agents start UI work from local design evidence instead of prompts alone.",
+      "category": "connect",
+      "tags": [
+        "mcp",
+        "agent-skills",
+        "codex",
+        "claude-code",
+        "cursor",
+        "opencode",
+        "design-agent"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi/blob/main/server.json",
+        "https://github.com/sarveshsea/memi/tree/main/skills/memoire-design-tooling",
+        "https://www.npmjs.com/package/@memi-design/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/memoire-community-notes",
+      "sourcePath": "notes/memoire-mcp-agent-skills",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/memoire-mcp-agent-skills",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/memoire-mcp-agent-skills/memoire-mcp-agent-skills-1.0.0.tgz",
+        "sha256": "017d50429a6e4b3e78ea20b0bc2d0320b2a52ef34fa6e49bd3731e921cdff81e",
+        "size": 1650
+      },
+      "manifest": {
+        "name": "memoire-mcp-agent-skills",
+        "version": "1.0.0",
+        "description": "Set up memi MCP and Agent Skills so coding agents start UI work from local design evidence instead of prompts alone.",
+        "category": "connect",
+        "tags": [
+          "mcp",
+          "agent-skills",
+          "codex",
+          "claude-code",
+          "cursor",
+          "opencode",
+          "design-agent"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi/blob/main/server.json",
+          "https://github.com/sarveshsea/memi/tree/main/skills/memoire-design-tooling",
+          "https://www.npmjs.com/package/@memi-design/cli"
+        ],
+        "lastResearchedAt": "2026-07-04T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "memoire-mcp-agent-skills.md",
+            "name": "Memoire MCP And Agent Skills",
+            "activateOn": "mcp setup, agent skills install, codex plugin, claude code mcp, cursor mcp, design agent setup",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [
+          "memoire-v2-surface-map"
+        ],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-04T00:00:00.000Z",
+        "updatedAt": "2026-07-04T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-04T00:00:00.000Z"
+    },
+    {
+      "id": "memoire-studio-macos",
+      "name": "memoire-studio-macos",
+      "title": "Memoire Studio macOS",
+      "version": "1.0.0",
+      "description": "Connect the Tauri/Rust macOS Memoire Studio app to the memi CLI, MCP server, receipts, artifacts, and design-agent handoffs.",
+      "category": "connect",
+      "tags": [
+        "macos",
+        "tauri",
+        "rust",
+        "studio",
+        "codex",
+        "claude-code",
+        "receipts"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi-studio",
+        "https://github.com/sarveshsea/memi",
+        "https://www.npmjs.com/package/@memi-design/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/memoire-community-notes",
+      "sourcePath": "notes/memoire-studio-macos",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/memoire-studio-macos",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/memoire-studio-macos/memoire-studio-macos-1.0.0.tgz",
+        "sha256": "de432a42b27529f748a949b1e9099fd00782742baf92603702cf896084ab4c0d",
+        "size": 1655
+      },
+      "manifest": {
+        "name": "memoire-studio-macos",
+        "version": "1.0.0",
+        "description": "Connect the Tauri/Rust macOS Memoire Studio app to the memi CLI, MCP server, receipts, artifacts, and design-agent handoffs.",
+        "category": "connect",
+        "tags": [
+          "macos",
+          "tauri",
+          "rust",
+          "studio",
+          "codex",
+          "claude-code",
+          "receipts"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi-studio",
+          "https://github.com/sarveshsea/memi",
+          "https://www.npmjs.com/package/@memi-design/cli"
+        ],
+        "lastResearchedAt": "2026-07-04T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "memoire-studio-macos.md",
+            "name": "Memoire Studio macOS",
+            "activateOn": "macOS app, memi studio, tauri app, rust app, supervised agent run, product design workbench",
+            "freedomLevel": "read-only"
+          }
+        ],
+        "dependencies": [
+          "memoire-v2-surface-map",
+          "memoire-mcp-agent-skills"
+        ],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-04T00:00:00.000Z",
+        "updatedAt": "2026-07-04T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-04T00:00:00.000Z"
+    },
+    {
+      "id": "memoire-v2-surface-map",
+      "name": "memoire-v2-surface-map",
+      "title": "Memoire v2 Surface Map",
+      "version": "1.0.0",
+      "description": "Connect the memi v2 public surfaces: npm CLI, MCP server, Agent Skills, Codex plugin, macOS Studio, design sandbox, and community Notes.",
+      "category": "connect",
+      "tags": [
+        "memi",
+        "surface-map",
+        "npm",
+        "mcp",
+        "agent-skills",
+        "macos",
+        "sandbox",
+        "community-notes"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi",
+        "https://www.npmjs.com/package/@memi-design/cli",
+        "https://github.com/sarveshsea/memi-studio",
+        "https://github.com/sarveshsea/design-sandbox",
+        "https://github.com/sarveshsea/memoire-community-notes"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/memoire-community-notes",
+      "sourcePath": "notes/memoire-v2-surface-map",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/memoire-v2-surface-map",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/memoire-v2-surface-map/memoire-v2-surface-map-1.0.0.tgz",
+        "sha256": "b3bb4846dd9f6684b785aa0038da9cbcb702074cea4f26611d420a9b21b58203",
+        "size": 2031
+      },
+      "manifest": {
+        "name": "memoire-v2-surface-map",
+        "version": "1.0.0",
+        "description": "Connect the memi v2 public surfaces: npm CLI, MCP server, Agent Skills, Codex plugin, macOS Studio, design sandbox, and community Notes.",
+        "category": "connect",
+        "tags": [
+          "memi",
+          "surface-map",
+          "npm",
+          "mcp",
+          "agent-skills",
+          "macos",
+          "sandbox",
+          "community-notes"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi",
+          "https://www.npmjs.com/package/@memi-design/cli",
+          "https://github.com/sarveshsea/memi-studio",
+          "https://github.com/sarveshsea/design-sandbox",
+          "https://github.com/sarveshsea/memoire-community-notes"
+        ],
+        "lastResearchedAt": "2026-07-04T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "memoire-v2-surface-map.md",
+            "name": "Memoire v2 Surface Map",
+            "activateOn": "memi setup, memoire surface map, package launch, distribution links, agent ecosystem",
+            "freedomLevel": "read-only"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-04T00:00:00.000Z",
+        "updatedAt": "2026-07-04T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-04T00:00:00.000Z"
+    }
+  ]
 }

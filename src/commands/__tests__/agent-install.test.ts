@@ -22,6 +22,40 @@ afterEach(async () => {
 });
 
 describe("agent install command", () => {
+  it("emits a design agent brief for local-first UI work", async () => {
+    const logs = captureLogs();
+    const program = new Command();
+    registerAgentCommand(program, makeAgentEngine(projectRoot) as never);
+
+    await program.parseAsync([
+      "agent",
+      "brief",
+      ".",
+      "--intent",
+      "Improve the pricing page hierarchy",
+      "--agent",
+      "codex",
+      "--json",
+    ], { from: "user" });
+
+    const payload = JSON.parse(lastLog(logs));
+    expect(payload).toMatchObject({
+      action: "brief",
+      schemaVersion: 1,
+      target: ".",
+      intent: "Improve the pricing page hierarchy",
+      agent: "codex",
+      mode: "local",
+    });
+    expect(payload.evidenceCommands.map((command: { command: string }) => command.command)).toEqual(expect.arrayContaining([
+      "memi diagnose . --json",
+      "memi ux audit . --json",
+      "memi tokens --from ./src --report",
+      "memi agent install --dry-run --json --project .",
+    ]));
+    expect(payload.handoffChecklist).toContain("List the exact evidence commands run and summarize the resulting design risks.");
+  });
+
   it("emits a dry-run JSON plan for every supported agent when target is omitted", async () => {
     const logs = captureLogs();
     const program = new Command();
@@ -43,6 +77,7 @@ describe("agent install command", () => {
       exists: false,
     });
     expect(payload.plans.map((plan: { target: string }) => plan.target)).toEqual([
+      "universal",
       "hermes",
       "openclaw",
       "claude-code",
@@ -54,6 +89,34 @@ describe("agent install command", () => {
       .toContain(".hermes/skills/memoire/memoire-design-tooling");
     expect(payload.plans.find((plan: { target: string }) => plan.target === "openclaw").destination)
       .toBe(join(projectRoot, "skills", "memoire", "memoire-design-tooling"));
+    expect(payload.plans.find((plan: { target: string }) => plan.target === "universal").destination)
+      .toBe(join(projectRoot, ".agents", "skills", "memoire-design-tooling"));
+  });
+
+  it("writes a standard Agent Skills package for universal agent discovery", async () => {
+    const logs = captureLogs();
+    const program = new Command();
+    registerAgentCommand(program, makeAgentEngine(projectRoot) as never);
+
+    await program.parseAsync(["agent", "install", "universal", "--project", projectRoot, "--json"], { from: "user" });
+
+    const payload = JSON.parse(lastLog(logs));
+    expect(payload).toMatchObject({
+      action: "install",
+      status: "completed",
+      target: "universal",
+      plans: [{
+        target: "universal",
+        kind: "skill",
+        source: expect.stringContaining("skills/memoire-design-tooling"),
+        destination: join(projectRoot, ".agents", "skills", "memoire-design-tooling"),
+      }],
+    });
+
+    const skill = await readFile(join(projectRoot, ".agents", "skills", "memoire-design-tooling", "SKILL.md"), "utf-8");
+    expect(skill).toContain("name: memoire-design-tooling");
+    expect(skill).toContain("memi mcp start --no-figma");
+    expect(skill).toContain("memi agent install --dry-run --json");
   });
 
   it("plans the Hermes skill install path and source asset", async () => {

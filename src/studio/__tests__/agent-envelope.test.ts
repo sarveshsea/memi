@@ -156,7 +156,7 @@ describe("studio design agent envelope", () => {
         risks: ["Risk review skipped"],
         metrics: ["Decision confidence"],
         latestSimulationRunId: "run-swarm",
-        suggestedTools: ["research.design_package", "research.generate_specs", "mermaid_jam.export"],
+        suggestedTools: ["research_design_package", "research_generate_specs", "mermaid_jam_export"],
       },
     }));
 
@@ -164,7 +164,7 @@ describe("studio design agent envelope", () => {
     expect(envelope).toContain("Product manager");
     expect(envelope).toContain("finding-evidence");
     expect(envelope).toContain("run-swarm");
-    expect(envelope).toContain("research.design_package");
-    expect(envelope).toContain("mermaid_jam.export");
+    expect(envelope).toContain("research_design_package");
+    expect(envelope).toContain("mermaid_jam_export");
   });
 });

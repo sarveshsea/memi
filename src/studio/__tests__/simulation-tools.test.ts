@@ -17,21 +17,21 @@ describe("studio simulation tools", () => {
       });
 
       expect(broker.listTools().map((tool) => tool.id)).toEqual(expect.arrayContaining([
-        "simulation.models",
-        "simulation.generate_agents",
-        "simulation.plan",
-        "simulation.run",
-        "simulation.run_matrix",
-        "simulation.stream",
-        "simulation.transcript",
-        "simulation.compare",
-        "simulation.costs",
-        "simulation.interview",
-        "simulation.report",
-        "simulation.export_spec",
-        "research.design_package",
-        "research.generate_specs",
-        "mermaid_jam.export",
+        "simulation_models",
+        "simulation_generate_agents",
+        "simulation_plan",
+        "simulation_run",
+        "simulation_run_matrix",
+        "simulation_stream",
+        "simulation_transcript",
+        "simulation_compare",
+        "simulation_costs",
+        "simulation_interview",
+        "simulation_report",
+        "simulation_export_spec",
+        "research_design_package",
+        "research_generate_specs",
+        "mermaid_jam_export",
         "board.create",
         "board.add_node",
         "board.update_node",
@@ -44,7 +44,7 @@ describe("studio simulation tools", () => {
       ]));
 
       const planned = await broker.call({
-        toolId: "simulation.plan",
+        toolId: "simulation_plan",
         cwd: root,
         input: {
           name: "Agent-native PM lab",
@@ -72,23 +72,23 @@ describe("studio simulation tools", () => {
 
       expect(planned).toMatchObject({
         status: "completed",
-        toolId: "simulation.plan",
+        toolId: "simulation_plan",
         data: { scenario: { name: "Agent-native PM lab" } },
       });
 
       const scenarioId = (planned.data as { scenario: { id: string } }).scenario.id;
       await expect(broker.call({
-        toolId: "simulation.run",
+        toolId: "simulation_run",
         cwd: root,
         input: { scenarioId },
       })).resolves.toMatchObject({
         status: "completed",
-        toolId: "simulation.run",
+        toolId: "simulation_run",
         data: { run: { status: "completed" } },
       });
 
       await expect(broker.call({
-        toolId: "simulation.models",
+        toolId: "simulation_models",
         cwd: root,
         input: {},
       })).resolves.toMatchObject({
@@ -97,7 +97,7 @@ describe("studio simulation tools", () => {
       });
 
       await expect(broker.call({
-        toolId: "simulation.generate_agents",
+        toolId: "simulation_generate_agents",
         cwd: root,
         input: {
           adapter: "model-swarm",
@@ -110,7 +110,7 @@ describe("studio simulation tools", () => {
       });
 
       const swarmPlan = await broker.call({
-        toolId: "simulation.plan",
+        toolId: "simulation_plan",
         cwd: root,
         input: {
           adapter: "model-swarm",
@@ -122,30 +122,30 @@ describe("studio simulation tools", () => {
       });
       const swarmScenarioId = (swarmPlan.data as { scenario: { id: string } }).scenario.id;
       const swarmRun = await broker.call({
-        toolId: "simulation.run",
+        toolId: "simulation_run",
         cwd: root,
         input: { scenarioId: swarmScenarioId, adapter: "model-swarm", maxAgents: 20, rounds: 2 },
       });
       const swarmRunId = (swarmRun.data as { run: { id: string } }).run.id;
 
-      await expect(broker.call({ toolId: "simulation.stream", cwd: root, input: { runId: swarmRunId } })).resolves.toMatchObject({
+      await expect(broker.call({ toolId: "simulation_stream", cwd: root, input: { runId: swarmRunId } })).resolves.toMatchObject({
         status: "completed",
         data: { events: expect.arrayContaining([expect.objectContaining({ kind: "model-response" })]) },
       });
-      await expect(broker.call({ toolId: "simulation.transcript", cwd: root, input: { runId: swarmRunId } })).resolves.toMatchObject({
+      await expect(broker.call({ toolId: "simulation_transcript", cwd: root, input: { runId: swarmRunId } })).resolves.toMatchObject({
         status: "completed",
         data: { transcripts: expect.arrayContaining([expect.objectContaining({ modelProfileId: expect.any(String) })]) },
       });
-      await expect(broker.call({ toolId: "simulation.costs", cwd: root, input: { runId: swarmRunId } })).resolves.toMatchObject({
+      await expect(broker.call({ toolId: "simulation_costs", cwd: root, input: { runId: swarmRunId } })).resolves.toMatchObject({
         status: "completed",
         data: { costs: expect.objectContaining({ estimatedCostUsd: 0 }) },
       });
-      await expect(broker.call({ toolId: "simulation.compare", cwd: root, input: { runIds: [swarmRunId, swarmRunId] } })).resolves.toMatchObject({
+      await expect(broker.call({ toolId: "simulation_compare", cwd: root, input: { runIds: [swarmRunId, swarmRunId] } })).resolves.toMatchObject({
         status: "completed",
         data: { comparison: expect.objectContaining({ winnerRunId: swarmRunId }) },
       });
       await expect(broker.call({
-        toolId: "simulation.run_matrix",
+        toolId: "simulation_run_matrix",
         cwd: root,
         input: { adapter: "model-swarm", hypotheses: ["A better spec", "A safer roadmap"], maxAgents: 20, rounds: 1 },
       })).resolves.toMatchObject({
@@ -155,7 +155,7 @@ describe("studio simulation tools", () => {
 
       const research = makeResearchStore();
       const designPackage = await broker.call({
-        toolId: "research.design_package",
+        toolId: "research_design_package",
         cwd: root,
         input: {
           intent: "Design an evidence-backed planning board",
@@ -174,7 +174,7 @@ describe("studio simulation tools", () => {
       });
 
       await expect(broker.call({
-        toolId: "research.generate_specs",
+        toolId: "research_generate_specs",
         cwd: root,
         input: { research },
       })).resolves.toMatchObject({
@@ -182,7 +182,7 @@ describe("studio simulation tools", () => {
       });
 
       await expect(broker.call({
-        toolId: "research.generate_specs",
+        toolId: "research_generate_specs",
         cwd: root,
         approved: true,
         input: { research },
@@ -192,7 +192,7 @@ describe("studio simulation tools", () => {
       });
 
       const figjamExport = await broker.call({
-        toolId: "mermaid_jam.export",
+        toolId: "mermaid_jam_export",
         cwd: root,
         input: { source: "research", research },
       });

@@ -13,25 +13,27 @@ const warmups = Number.parseInt(process.env.MEMOIRE_BENCH_WARMUPS || "1", 10);
 const shouldFail = process.env.MEMOIRE_BENCH_NO_FAIL !== "1";
 
 const cases = [
+  // Thresholds tightened in 2.1 after lazy command loading — hot commands
+  // load one module instead of ~48. Keep headroom for slower CI machines.
   {
     name: "help",
     args: ["--help"],
-    thresholdMs: 300,
+    thresholdMs: 150,
   },
   {
     name: "diagnose-no-write",
     args: ["diagnose", "--no-write"],
-    thresholdMs: 1800,
+    thresholdMs: 700,
   },
   {
     name: "tokens-from-src-no-inferred",
     args: ["tokens", "--from", "src", "--no-inferred", "--json"],
-    thresholdMs: 2200,
+    thresholdMs: 1200,
   },
   {
     name: "status-json",
     args: ["status", "--json"],
-    thresholdMs: 1800,
+    thresholdMs: 600,
   },
 ];
 
@@ -56,6 +58,8 @@ for (const benchCase of cases) {
     thresholdMs: benchCase.thresholdMs,
     medianMs: Math.round(medianMs),
     maxMs: Math.round(maxMs),
+    stdoutBytes: Math.round(median(samples.map((sample) => sample.stdoutBytes))),
+    stderrBytes: Math.round(median(samples.map((sample) => sample.stderrBytes))),
     failed,
   });
 }

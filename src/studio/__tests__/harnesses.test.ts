@@ -92,7 +92,7 @@ describe("studio harnesses", () => {
       agentContext: agentContext(root, "audit the app"),
     })).toMatchObject({
       command: "codex",
-      args: expect.arrayContaining(["--search", "exec", "--json", "--model", "gpt-5.5", "-c", 'model_reasoning_effort="xhigh"', "-c", 'approval_policy="never"', "--sandbox", "workspace-write", "--skip-git-repo-check"]),
+      args: expect.arrayContaining(["exec", "--json", "--model", "gpt-5.5", "-c", 'model_reasoning_effort="xhigh"', "-c", 'approval_policy="on-request"', "--sandbox", "workspace-write", "--skip-git-repo-check"]),
       cwd: root,
       outputParser: "codex-jsonl",
     });
@@ -302,6 +302,27 @@ describe("studio harnesses", () => {
       expect(first.find((harness) => harness.id === "codex")?.authStatus).toBe("signed_in");
       expect(second.find((harness) => harness.id === "codex")?.authStatus).toBe("signed_in");
       expect(await readFile(probeLog, "utf-8")).toBe("x");
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("surfaces Codex config parse failures separately from login failures", async () => {
+    const root = await mkdtemp(join(tmpdir(), "memoire-studio-codex-config-error-"));
+    try {
+      const codexProbe = join(root, "codex");
+      await writeFile(codexProbe, `#!/bin/sh\necho "Error loading configuration: ${root}/.codex/config.toml:38:16: unknown variant \\\`default\\\`, expected \\\`fast\\\` or \\\`flex\\\`" >&2\nexit 1\n`);
+      await chmod(codexProbe, 0o755);
+      const config = defaultStudioConfig(root);
+      const harnesses = listHarnesses(config, {
+        resolveCommand: (command) => command === "codex" ? codexProbe : null,
+      });
+
+      expect(harnesses.find((harness) => harness.id === "codex")).toMatchObject({
+        authStatus: "config_error",
+        authMessage: expect.stringContaining("Fix Codex config"),
+      });
+      expect(harnesses.find((harness) => harness.id === "codex")?.authMessage).not.toMatch(/login/i);
     } finally {
       await rm(root, { recursive: true, force: true });
     }

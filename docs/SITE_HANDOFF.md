@@ -13,7 +13,7 @@ These are the external-surface updates for the Studio-first Product Hunt launch.
 - Subhead: `Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.`
 - Primary CTA: `https://github.com/sarveshsea/memi-studio/releases/latest`
 - Secondary CTA: `https://www.npmjs.com/package/@memi-design/cli`
-- Proof line: `Open source · Apple-signed by Humyn LLC · Studio 1.0.4 · npm latest 1.1.1`
+- Proof line: `Open source · Apple-signed by Humyn LLC · Studio 1.0.4 · npm latest 2.0.0`
 
 ## Product Hunt Surface
 
@@ -31,6 +31,7 @@ These are the external-surface updates for the Studio-first Product Hunt launch.
 npm i -g @memi-design/cli
 memi diagnose
 memi ux audit --json
+memi craft audit --json
 memi mcp start --no-figma
 ```
 
@@ -38,9 +39,9 @@ memi mcp start --no-figma
 
 ## Release Checklist
 
-- Publish `@memi-design/cli@1.1.1`.
+- Publish `@memi-design/cli@2.0.0`.
 - Verify `npm run check:public-release`.
 - Publish `server.json` to the MCP Registry.
-- Create GitHub tag/release `v1.1.1`.
-- Confirm the homepage shows Studio `1.0.4`, Homebrew cask `1.0.4`, and npm `1.1.1`.
+- Create GitHub tag/release `v2.0.0`.
+- Confirm the homepage shows Studio `1.0.4`, Homebrew cask `1.0.4`, and npm `2.0.0`.
 - Confirm no first-fold public install path points to deprecated `@sarveshsea/memoire`.

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>memi visual parity dashboard</title>
+  <link rel="stylesheet" href="./dashboard.tokens.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--dashboard-bg); color: var(--dashboard-text); }
+    .shell { min-height: 100vh; display: grid; grid-template-columns: 248px minmax(0, 1fr); gap: 24px; padding: 24px; }
+    .panel { background: var(--dashboard-surface); border: 1px solid var(--dashboard-border); border-radius: var(--dashboard-radius); box-shadow: var(--dashboard-shadow); }
+    .sidebar { padding: 18px; }
+    .brand { font-size: 14px; font-weight: 700; }
+    .nav { margin-top: 28px; display: grid; gap: 8px; font-size: 14px; color: var(--dashboard-muted); }
+    .nav span { padding: 10px 12px; border-radius: 6px; }
+    .nav .active { color: var(--dashboard-accent); background: #eaf0ff; }
+    .workspace { display: grid; gap: 22px; }
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    .eyebrow { margin: 0 0 8px; color: var(--dashboard-muted); font-size: 13px; }
+    h1 { margin: 0; font-size: 36px; letter-spacing: 0; }
+    button { border: 0; border-radius: 7px; background: var(--dashboard-accent); color: white; padding: 11px 16px; font-weight: 700; }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .metric { padding: 20px; }
+    .metric p { margin: 0; color: var(--dashboard-muted); font-size: 13px; }
+    .metric strong { display: block; margin-top: 14px; font-size: 34px; }
+    .metric span { color: var(--dashboard-positive); font-weight: 700; }
+    .content { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(360px, 0.7fr); gap: 16px; }
+    .chart { padding: 20px; min-height: 340px; }
+    .chart-bars { display: grid; grid-template-columns: repeat(8, 1fr); align-items: end; gap: 12px; height: 220px; margin-top: 32px; border-bottom: 1px solid var(--dashboard-border); }
+    .chart-bars i { display: block; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, #6289f3, var(--dashboard-accent)); }
+    .table { padding: 20px; }
+    .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 13px 0; border-top: 1px solid var(--dashboard-border); font-size: 14px; }
+    .status { color: var(--dashboard-positive); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <aside class="panel sidebar">
+      <div class="brand">Northstar</div>
+      <nav class="nav">
+        <span class="active">Overview</span>
+        <span>Customers</span>
+        <span>Signals</span>
+        <span>Reports</span>
+      </nav>
+    </aside>
+    <section class="workspace">
+      <header class="header">
+        <div>
+          <p class="eyebrow">Product dashboard</p>
+          <h1>Growth operating room</h1>
+        </div>
+        <button>Share brief</button>
+      </header>
+      <section class="metrics">
+        <article class="panel metric"><p>Pipeline</p><strong>$2.4M</strong><span>+18%</span></article>
+        <article class="panel metric"><p>Activation</p><strong>68%</strong><span>+7 pts</span></article>
+        <article class="panel metric"><p>Open risk</p><strong>12</strong><span>-4</span></article>
+      </section>
+      <section class="content">
+        <article class="panel chart">
+          <p class="eyebrow">Revenue trend</p>
+          <h2>Expansion momentum</h2>
+          <div class="chart-bars">
+            <i style="height:42%"></i><i style="height:56%"></i><i style="height:48%"></i><i style="height:68%"></i>
+            <i style="height:62%"></i><i style="height:78%"></i><i style="height:72%"></i><i style="height:88%"></i>
+          </div>
+        </article>
+        <article class="panel table">
+          <p class="eyebrow">Priority accounts</p>
+          <h2>Today</h2>
+          <div class="row"><span>Acme onboarding</span><span class="status">Healthy</span></div>
+          <div class="row"><span>Northwind renewal</span><span>Review</span></div>
+          <div class="row"><span>Globex expansion</span><span class="status">Ready</span></div>
+          <div class="row"><span>Initech risk</span><span>Escalate</span></div>
+        </article>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

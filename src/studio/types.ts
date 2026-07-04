@@ -63,7 +63,7 @@ export type StudioFigmaAction =
   | "fullSync";
 export type StudioHarnessProvider = "memoire" | "anthropic" | "openai" | "google" | "local" | "shell";
 export type StudioUsageProviderId = "anthropic" | "openai" | "openai-compatible" | "google" | "local" | "memoire" | "shell";
-export type StudioHarnessAuthStatus = "missing" | "needs_login" | "signed_in" | "ready" | "not_required";
+export type StudioHarnessAuthStatus = "missing" | "needs_login" | "config_error" | "signed_in" | "ready" | "not_required";
 export type StudioEnvPolicy = "provider" | "local-model" | "safe-inherit" | "shell";
 export type StudioWorkspacePolicy = "workspace-required" | "trusted-shell";
 export type StudioSetupStatus = "ready" | "needs_action" | "optional" | "blocked";
@@ -245,6 +245,7 @@ export interface StudioComputerConfig {
 
 export interface StudioSetupConfig {
   wizardVersion: 1;
+  securityDefaultsVersion: number;
   completedAt: string | null;
   dismissedAt: string | null;
   lastCheckedAt: string | null;

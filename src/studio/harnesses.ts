@@ -36,12 +36,12 @@ const PROBE_TTL_MS = 5_000;
 const DEFAULT_CODEX_CONFIG: StudioCodexConfig = {
   model: "gpt-5.5",
   reasoningEffort: "xhigh",
-  approvalPolicy: "never",
-  webSearch: true,
+  approvalPolicy: "on-request",
+  webSearch: false,
   skipGitRepoCheck: true,
   includeMemoireCommands: true,
   includeCodexCommands: true,
-  planModeDefault: false,
+  planModeDefault: true,
 };
 const CODEX_WEB_SEARCH_ACTIONS = new Set<StudioRunAction>([
   "compose",
@@ -148,7 +148,18 @@ function probeCliAuth(command: string, args: string[], label: string): HarnessAu
     return { authStatus: "signed_in", authMessage: output || `${label} signed in` };
   }
   if (result.status === 0) return { authStatus: "ready", authMessage: output || `${label} ready` };
+  if (/error loading configuration|invalid configuration|unknown variant/i.test(output)) {
+    return {
+      authStatus: "config_error",
+      authMessage: formatCliConfigError(label, output),
+    };
+  }
   return { authStatus: "needs_login", authMessage: output || `Run ${label.toLowerCase()} login` };
+}
+
+function formatCliConfigError(label: string, output: string): string {
+  const firstLine = output.split(/\r?\n/).find((line) => line.trim().length > 0)?.trim() ?? output.trim();
+  return `Fix ${label} config before Studio can run live sessions: ${firstLine}`;
 }
 
 function resolveHarnessInstallPath(

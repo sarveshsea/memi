@@ -4,6 +4,7 @@ import type { DesignSystem, DesignToken } from "../engine/registry.js";
 import { generateShadcnTokenMapping } from "../codegen/tailwind-tokens.js";
 import { generateTailwindV4Theme } from "../codegen/tailwind-v4.js";
 import { fetchTweakcnTheme, parseTweakcnCss } from "../integrations/tweakcn.js";
+import { parseCssColorToRgb } from "../utils/color.js";
 
 const THEME_SCHEMA_VERSION = 1;
 const DEFAULT_THEME_VARIANTS: ThemeVariantRecipe[] = ["dark", "warm", "enterprise", "high-contrast"];
@@ -973,7 +974,8 @@ function parseCssColor(input: string): ParsedRgb | null {
   if (/^#[0-9a-f]{3,8}$/i.test(value)) return parseHex(value);
   if (value.startsWith("hsl(") || value.startsWith("hsla(")) return parseHslColor(value);
   if (value.startsWith("rgb(") || value.startsWith("rgba(")) return parseRgbColor(value);
-  return null;
+  // oklch and anything else the shared parser understands (Tailwind v4 tokens)
+  return parseCssColorToRgb(value);
 }
 
 function parseHex(value: string): ParsedRgb | null {

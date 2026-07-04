@@ -2,7 +2,7 @@
   "mcpServers": {
     "memoire": {
       "command": "memi",
-      "args": ["mcp"],
+      "args": ["mcp", "start"],
       "env": {
         "FIGMA_TOKEN": "${FIGMA_TOKEN}",
         "FIGMA_FILE_KEY": "${FIGMA_FILE_KEY}"

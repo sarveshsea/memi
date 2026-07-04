@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-30T17:35:10.203Z",
+  "name": "ProductDashboardPage",
+  "level": "page",
+  "atomicDesign": {
+    "template": "DashboardTemplate",
+    "organisms": [
+      "InsightSidebar",
+      "KpiOverview",
+      "RevenuePanel",
+      "ActivityTable"
+    ],
+    "molecules": [
+      "MetricCard",
+      "SegmentedToolbar",
+      "ChartCard",
+      "StatusRow"
+    ],
+    "atoms": [
+      "Button",
+      "Badge",
+      "Avatar",
+      "Icon",
+      "Label"
+    ]
+  },
+  "layout": "dashboard",
+  "tokens": [
+    "--dashboard-bg",
+    "--dashboard-surface",
+    "--dashboard-text",
+    "--dashboard-muted",
+    "--dashboard-accent",
+    "--dashboard-positive",
+    "--dashboard-warning"
+  ],
+  "acceptanceCriteria": [
+    "Preview is inspectable without a running provider.",
+    "Dashboard code and page spec are editable files.",
+    "Visual hierarchy includes nav, KPI cards, chart panel, table, and action rail.",
+    "Handoff and continuation notes explain next design iteration."
+  ]
+}

@@ -57,14 +57,26 @@ describe("MCP tools registration", () => {
 
   it("registers research design and Mermaid Jam export tools", async () => {
     const src = await readToolsSrc();
-    expect(src).toContain('"research.design_package"');
-    expect(src).toContain('"research.generate_specs"');
-    expect(src).toContain('"mermaid_jam.export"');
+    expect(src).toContain('"research_design_package"');
+    expect(src).toContain('"research_generate_specs"');
+    expect(src).toContain('"mermaid_jam_export"');
   });
 
   it("registers UX tenets and traps audit tool", async () => {
     const src = await readToolsSrc();
     expect(src).toContain('"audit_ux_tenets_traps"');
     expect(src).toContain("screenshotPath");
+  });
+
+  it("registers a design agent brief tool for agent preflight context", async () => {
+    const src = await readToolsSrc();
+    expect(src).toContain('"prepare_design_agent_brief"');
+    expect(src).toContain("buildDesignAgentBrief");
+  });
+
+  it("registers an interface craft audit tool", async () => {
+    const src = await readToolsSrc();
+    expect(src).toContain('"audit_interface_craft"');
+    expect(src).toContain("buildInterfaceCraftReport");
   });
 });

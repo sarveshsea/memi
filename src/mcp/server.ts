@@ -12,6 +12,7 @@ import type { MemoireEngine } from "../engine/core.js";
 import { registerTools } from "./tools.js";
 import { registerResources } from "./resources.js";
 import { createLogger } from "../engine/logger.js";
+import { getMemoirePackageVersion } from "../utils/package-version.js";
 
 const log = createLogger("mcp-server");
 
@@ -24,7 +25,7 @@ export function createMemoireMcpServer(engine: MemoireEngine): McpServer {
   const server = new McpServer(
     {
       name: "memoire",
-      version: "0.6.0",
+      version: getMemoirePackageVersion(),
     },
     {
       capabilities: {

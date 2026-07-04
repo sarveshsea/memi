@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Command } from "commander";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { registerStudioCommand } from "../studio.js";
@@ -52,6 +52,31 @@ describe("studio command JSON", () => {
     const run = command?.commands.find((candidate) => candidate.name() === "run");
 
     expect(run?.options.map((option) => option.long)).toContain("--action");
+  });
+
+  it("creates a visual parity proof artifact set in JSON mode", async () => {
+    const logs = captureLogs();
+    const program = new Command();
+    const outDir = join(projectRoot, "visual-proof");
+
+    registerStudioCommand(program, makeEngine(projectRoot) as never);
+    await program.parseAsync(["studio", "visual-parity", "--out", outDir, "--json"], { from: "user" });
+
+    const payload = JSON.parse(lastLog(logs));
+    expect(payload.status).toBe("completed");
+    expect(payload.proof).toMatchObject({
+      mode: "deterministic-proof",
+      liveHarness: false,
+      outDir,
+      grade: {
+        passed: true,
+        score: 100,
+        missingCriteria: [],
+      },
+    });
+    expect(payload.proof.previewUrl).toMatch(/^file:\/\//);
+    await expect(readFile(join(outDir, "dashboard-preview.html"), "utf-8")).resolves.toContain("Growth operating room");
+    await expect(readFile(join(outDir, "dashboard-screenshot.svg"), "utf-8")).resolves.toContain("<svg");
   });
 });
 

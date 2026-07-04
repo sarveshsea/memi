@@ -44,7 +44,7 @@ describe.skipIf(process.platform !== "darwin")("studio compatibility and compute
     }
   });
 
-  it("exposes full-access computer status and auditable native actions", async () => {
+  it("exposes disabled-by-default computer status and auditable native failures", async () => {
     const root = await mkdtemp(join(tmpdir(), "memoire-studio-computer-route-"));
     try {
       const server = new StudioRuntimeServer({ projectRoot: root, port: 0 });
@@ -53,9 +53,9 @@ describe.skipIf(process.platform !== "darwin")("studio compatibility and compute
 
       const status = await fetch(`${runtime.url}/api/computer/status`).then((res) => res.json());
       expect(status).toMatchObject({
-        enabled: process.platform === "darwin",
+        enabled: false,
         platform: process.platform,
-        mode: "full-access-native",
+        mode: "guarded-native",
         permissions: expect.objectContaining({
           accessibility: expect.any(String),
           screenRecording: expect.any(String),
@@ -69,8 +69,9 @@ describe.skipIf(process.platform !== "darwin")("studio compatibility and compute
       }).then((res) => res.json());
       expect(openUrl.result).toMatchObject({
         action: "openUrl",
-        status: "completed",
+        status: "unavailable",
         requiresApproval: false,
+        executed: false,
       });
 
       const capture = await fetch(`${runtime.url}/api/computer/action`, {
@@ -80,14 +81,11 @@ describe.skipIf(process.platform !== "darwin")("studio compatibility and compute
       }).then((res) => res.json());
       expect(capture.result).toMatchObject({
         action: "captureScreen",
-        requiresApproval: false,
+        status: "unavailable",
+        requiresApproval: true,
+        executed: false,
       });
-      expect(process.platform === "darwin" ? ["completed", "failed"] : ["unavailable"]).toContain(capture.result.status);
-      if (capture.result.status === "completed") {
-        expect(capture.result.artifactPath).toEqual(expect.any(String));
-      } else {
-        expect(capture.result.message).toEqual(expect.any(String));
-      }
+      expect(capture.result.message).toEqual(expect.any(String));
     } finally {
       await rm(root, { recursive: true, force: true });
     }

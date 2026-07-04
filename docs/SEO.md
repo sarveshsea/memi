@@ -1,52 +1,51 @@
 # SEO Handoff
 
-Use this copy on the website repo, GitHub metadata, and launch pages until `memoire.cv/components` is healthy. The conversion URL is the npm package page.
+Use this copy on the website repo, GitHub metadata, npm README sections, launch pages, examples, and directory submissions. The conversion URL is the npm package page until the website is fully synced with the v2 story.
 
-## Primary Search Phrase
+## Primary search phrase
 
-`Shadcn-native Design CI for Tailwind apps`
+`Interface understanding for AI coding agents`
 
-## 0.14.1 Search Wedge
+## Secondary search phrases
 
-- `shadcn registry generator`
-- `v0 design system registry`
-- `install shadcn registry from npm`
+- `Design-system memory for coding agents`
+- `UX audit for AI agents`
 - `Tailwind token extraction`
-- `UI fix plan`
-- `shadcn-native registry bridge`
-- `AI editor design system context`
-
-## Marketplace Search Phrases
-
+- `shadcn registry generator`
 - `shadcn registry marketplace`
 - `installable shadcn design systems`
-- `Tailwind design system registry`
-- `AI chat shadcn registry`
-- `auth UI shadcn registry`
-- `landing page shadcn registry`
-- `ecommerce shadcn registry`
-- `tweakcn registry publishing`
-- `Open in v0 registry`
-- `shadcn registry item JSON`
+- `v0 design system registry`
+- `MCP server for design systems`
+- `Agent Skills design tooling`
+- `Codex design-system plugin`
+- `Hermes design tooling`
+- `ECC UI audit workflow`
+- `research-backed design specs`
+- `Figma FigJam agent handoff`
+- `design sandbox for AI agents`
+- `design engineering sandbox`
 
-## Title Tags
+## Title tags
 
-- Homepage: `Memoire - Shadcn-native Design CI for Tailwind apps`
-- Components fallback: `Shadcn registry marketplace - Memoire`
-- Docs: `Memoire docs - Export shadcn registries from real apps`
-- Launch page: `Memoire 0.14.1 - Shadcn registry generator for Tailwind apps`
+- Homepage: `memi - Interface understanding for AI coding agents`
+- npm/docs: `memi docs - Design-system memory for AI coding agents`
+- Components: `shadcn registry marketplace - memi`
+- Codex plugin: `memi Codex plugin - Design-system memory before frontend edits`
+- Launch page: `memi v2 - Interface understanding for AI coding agents`
 
-## Meta Descriptions
+## Meta descriptions
 
-- Homepage: `Memoire diagnoses UI debt in real shadcn/Tailwind codebases, extracts tokens, exports shadcn-native registries, and generates UI fix plans.`
-- Components fallback: `Explore installable shadcn/Tailwind design systems for SaaS, docs, dashboards, landing pages, auth, AI chat, ecommerce, and tweakcn-inspired themes.`
-- Docs: `Install Memoire, run memi diagnose, export /r/*.json shadcn registry items, and install from npm, URLs, GitHub, or aliases.`
-- Launch page: `Memoire 0.14.1 is a shadcn-native registry bridge for Tailwind apps, v0, AI editors, npm, and UI fix planning.`
+- Homepage: `memi gives AI coding agents interface understanding before frontend work: UX audits, Tailwind tokens, shadcn registries, MCP tools, Agent Skills, research-backed specs, and Figma/FigJam handoff.`
+- Docs: `Install memi, run diagnose and UX audits, extract Tailwind tokens, export shadcn registries, and install agent kits for Codex, Claude Code, Cursor, Hermes, OpenClaw, OpenCode, and Agent Skills.`
+- Components: `Explore installable shadcn/Tailwind design systems for SaaS, docs, dashboards, landing pages, auth, AI chat, ecommerce, and tweakcn-inspired themes.`
+- Codex plugin: `Install memi in Codex to audit UI quality, inspect Tailwind tokens, use shadcn registry context, and ground frontend edits in design-system evidence.`
+- Launch page: `memi v2 is an interface-understanding stack for AI coding agents working on product UI.`
+- Design sandbox: `Clone a memi-ready Next.js, Tailwind, shadcn, MCP, and Agent Skills sandbox for design-to-code exploration.`
 
 ## OpenGraph
 
-- `og:title`: `Memoire - Shadcn-native Design CI for Tailwind apps`
-- `og:description`: `Turn existing apps into shadcn registries for shadcn, v0, AI editors, npm, and UI fix planning.`
+- `og:title`: `memi - Interface understanding for AI coding agents`
+- `og:description`: `Run UX audits, extract Tailwind tokens, export shadcn registries, and give Codex, Claude Code, Cursor, Hermes, OpenClaw, OpenCode, and MCP clients design-system memory.`
 - `og:url`: `https://www.npmjs.com/package/@memi-design/cli`
 - `og:type`: `website`
 - `og:image`: `https://raw.githubusercontent.com/sarveshsea/memi/main/assets/theme-workflow-demo.svg`
@@ -54,8 +53,8 @@ Use this copy on the website repo, GitHub metadata, and launch pages until `memo
 ## Twitter Card
 
 - `twitter:card`: `summary_large_image`
-- `twitter:title`: `Memoire - Shadcn-native Design CI for Tailwind apps`
-- `twitter:description`: `Run memi diagnose, memi shadcn export, and memi fix plan to bridge real Tailwind apps into registry workflows.`
+- `twitter:title`: `memi - Interface understanding for AI coding agents`
+- `twitter:description`: `Design-system memory, UX audit evidence, Tailwind tokens, shadcn registries, MCP tools, Agent Skills, and research-backed specs before agents edit UI.`
 - `twitter:image`: `https://raw.githubusercontent.com/sarveshsea/memi/main/assets/theme-workflow-demo.svg`
 
 ## JSON-LD
@@ -64,30 +63,29 @@ Use this copy on the website repo, GitHub metadata, and launch pages until `memo
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "Memoire",
+  "name": "memi",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "macOS, Linux, Windows",
-  "description": "Shadcn-native Design CI for Tailwind apps: diagnose UI debt, extract tokens, export shadcn registries, and plan safe UI fixes.",
-  "softwareVersion": "0.14.1",
+  "description": "Interface understanding and design-system memory for AI coding agents: UX audits, Tailwind token extraction, shadcn registry generation, MCP tools, Agent Skills, research-backed specs, and Figma/FigJam handoff.",
+  "softwareVersion": "2.0.0",
   "url": "https://www.npmjs.com/package/@memi-design/cli",
   "codeRepository": "https://github.com/sarveshsea/memi",
   "programmingLanguage": "TypeScript",
   "keywords": [
-    "design-ci",
-    "ui-quality",
-    "shadcn-audit",
-    "tailwind-audit",
-    "token-extraction",
-    "design-tokens",
+    "interface-understanding",
+    "design-system-memory",
+    "ux-audit",
+    "tailwind-token-extraction",
     "shadcn-registry",
     "shadcn-registry-generator",
     "v0-design-system-registry",
-    "install-shadcn-registry-from-npm",
-    "ui-fix-plan",
-    "shadcn-registry-marketplace",
-    "installable-shadcn-design-systems",
-    "tailwind-design-system-registry",
-    "tweakcn"
+    "mcp-server",
+    "agent-skills",
+    "codex-plugin",
+    "hermes",
+    "user-research",
+    "figma-to-code",
+    "figjam"
   ],
   "offers": {
     "@type": "Offer",
@@ -97,19 +95,23 @@ Use this copy on the website repo, GitHub metadata, and launch pages until `memo
 }
 ```
 
-## Sitemap Priorities
+## Website acceptance criteria
+
+- The first screen says `Interface understanding for AI coding agents`.
+- The primary command block starts with `npm i -g @memi-design/cli`.
+- The first proof path works without Figma: `memi diagnose`, `memi ux audit --json`, `memi craft audit --json`, `memi tokens --from ./src --report`, `memi shadcn export --out public/r`.
+- Agent setup links include `npx skills add sarveshsea/memi --skill memoire-design-tooling`.
+- Public proof links include `https://github.com/sarveshsea/design-sandbox`.
+- MCP setup includes `memi mcp start --no-figma`.
+- `/components` renders `examples/marketplace-catalog.v1.json`; if that fails, it falls back to `examples/featured-registries.json`.
+- Footer links use `@memi-design/cli`, not legacy package names.
+- Product Hunt and Studio pages can mention the macOS workbench, but the package/docs story stays engine-first.
+
+## Sitemap priorities
 
 - `/` priority `1.0`, changefreq `weekly`
 - `/docs` priority `0.8`, changefreq `weekly`
+- `/codex-plugin` priority `0.8`, changefreq `weekly`
 - `/components` priority `0.9`, changefreq `daily` once the registry index is stable
 - `/components/starter-saas`, `/components/docs-blog`, `/components/dashboard`, `/components/landing-page`, `/components/auth-flow`, `/components/ai-chat`, `/components/ecommerce` priority `0.8`, changefreq `weekly`
 - `/components/starter`, `/components/tweakcn-vercel`, `/components/tweakcn-supabase`, `/components/tweakcn-linear` priority `0.7`, changefreq `weekly`
-
-## Website Acceptance Criteria
-
-- The first screen says `Shadcn-native Design CI for Tailwind apps`.
-- The only primary CTA is `https://www.npmjs.com/package/@memi-design/cli`.
-- The first code block uses `npm i -g @memi-design/cli`, `memi diagnose`, `memi tokens --from ./src --report`, `memi shadcn export --out public/r`, and `memi publish --name @you/ds`.
-- `/components` renders `examples/marketplace-catalog.v1.json`; if that fails, it falls back to `examples/featured-registries.json` instead of an empty state.
-- Footer links use `@memi-design/cli`, not an unscoped package name.
-- Individual registry pages use the page templates in [`MARKETPLACE_SEO.md`](./MARKETPLACE_SEO.md).

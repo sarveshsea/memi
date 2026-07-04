@@ -40,7 +40,7 @@ export class AnthropicClient {
           model: modelId,
           max_tokens: maxTokens,
           temperature: opts.temperature ?? 0.3,
-          system: opts.system,
+          system: serializeSystem(opts.system),
           messages: opts.messages.map(m => ({
             role: m.role,
             content: serializeContent(m.content),
@@ -92,7 +92,7 @@ export class AnthropicClient {
       model: modelId,
       max_tokens: maxTokens,
       temperature: opts.temperature ?? 0.3,
-      system: opts.system,
+      system: serializeSystem(opts.system),
       messages: opts.messages.map(m => ({
         role: m.role,
         content: serializeContent(m.content),
@@ -184,20 +184,16 @@ export class AnthropicClient {
       parsed = parseJSONFromResponse(response.content);
     } catch {
       log.warn("Vision JSON parse failed, retrying");
+      // Text-only correction — re-sending the base64 image would double the
+      // most expensive part of the request for no accuracy gain.
       const retry = await this.complete({
         system: systemWithJSON,
         model: opts.model ?? "deep",
         maxTokens: opts.maxTokens,
         messages: [
-          {
-            role: "user",
-            content: [
-              { type: "image", source: { type: "base64", media_type: opts.mediaType ?? "image/png", data: opts.imageBase64 } },
-              { type: "text", text: opts.prompt },
-            ],
-          },
+          { role: "user", content: opts.prompt },
           { role: "assistant", content: response.content },
-          { role: "user", content: "That was not valid JSON. Return ONLY valid JSON." },
+          { role: "user", content: "That was not valid JSON. Return ONLY valid JSON with the same analysis." },
         ],
       });
       parsed = parseJSONFromResponse(retry.content);
@@ -239,6 +235,17 @@ export class AnthropicClient {
     }
     return parsed as T;
   }
+}
+
+/**
+ * Serialize the system prompt, opting large prompts into Anthropic prompt
+ * caching — design-system context is resent verbatim across calls, so a
+ * cache_control breakpoint cuts repeat input cost and latency.
+ */
+function serializeSystem(system: string | undefined): Anthropic.MessageCreateParams["system"] {
+  if (!system) return undefined;
+  if (system.length < 4096) return system;
+  return [{ type: "text" as const, text: system, cache_control: { type: "ephemeral" as const } }];
 }
 
 /** Convert AIMessage content to Anthropic SDK format (handles multimodal). */

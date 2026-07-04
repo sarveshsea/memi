@@ -10,6 +10,13 @@
   "mirrorRepository": "sarveshsea/memoire-agent-skills",
   "targets": [
     {
+      "id": "universal",
+      "kind": "skill",
+      "source": "skills/memoire-design-tooling",
+      "sourceBase": "package",
+      "defaultDestination": "<project>/.agents/skills/memoire-design-tooling"
+    },
+    {
       "id": "hermes",
       "kind": "skill",
       "source": "hermes/memoire-design-tooling",

@@ -1,5 +1,5 @@
 import { access, mkdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { isAbsolute, join, resolve } from "node:path";
 import { performance } from "node:perf_hooks";
 import { scanSources, type ScannedSourceFile } from "../utils/source-scanner.js";
 import { buildAppGraph, type AppGraph } from "./app-graph.js";
@@ -103,14 +103,23 @@ const SOURCE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx", ".html", ".css"
 const MAX_BYTES_PER_FILE = 750_000;
 const IGNORE_DIRS = new Set([
   ".git",
+  ".astro",
   ".next",
   ".turbo",
   ".vite",
+  "agent-kits",
   "coverage",
   "dist",
+  "dist-runtime-resources",
+  "examples",
+  "generated",
+  "notes",
+  "plugin",
+  "plugins",
   "build",
   "node_modules",
   "out",
+  "target",
 ]);
 
 const CATEGORY_BASE: Record<AppQualityCategory, number> = {
@@ -193,7 +202,7 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
 }
 
 async function scanTargetSources(projectRoot: string, target: string, maxFiles: number): Promise<ScannedSourceFile[]> {
-  return scanSources({
+  const sources = await scanSources({
     projectRoot,
     target,
     extensions: SOURCE_EXTENSIONS,
@@ -206,6 +215,24 @@ async function scanTargetSources(projectRoot: string, target: string, maxFiles: 
     includeLinkedStyles: false,
     userAgent: "Memoire-Diagnose/1.0",
   });
+  return shouldApplyDefaultNoiseFilters(projectRoot, target)
+    ? sources.filter((source) => !isDefaultNoisePath(source.projectPath))
+    : sources;
+}
+
+function shouldApplyDefaultNoiseFilters(projectRoot: string, target: string): boolean {
+  if (/^https?:\/\//i.test(target)) return false;
+  const root = resolve(projectRoot);
+  const resolvedTarget = isAbsolute(target) ? resolve(target) : resolve(root, target);
+  return resolvedTarget === root;
+}
+
+function isDefaultNoisePath(path: string): boolean {
+  const normalized = path.replace(/\\/g, "/");
+  return normalized.startsWith(".superpowers/")
+    || normalized.startsWith("docs/audits/artifacts/")
+    || normalized.startsWith("examples/site-bundle/")
+    || normalized.includes("/src-tauri/resources/memoire-runtime/");
 }
 
 function sourceToRawFile(source: ScannedSourceFile): RawFile {
@@ -234,6 +261,7 @@ function analyzeFile(file: RawFile): AppQualityFileSignal {
 }
 
 function classifyFile(path: string): AppQualityFileSignal["kind"] {
+  if (/\.(test|spec)\.(tsx?|jsx?)$/.test(path) || path.includes("/__tests__/")) return "config";
   if (/(\.css|tailwind\.config|components\.json)$/.test(path)) return "style";
   if (/(^|\/)(app|pages|routes)\//.test(path) || /page\.(tsx|jsx|ts|js|html)$/.test(path)) return "route";
   if (/(^|\/)components\//.test(path)) return "component";
@@ -257,8 +285,11 @@ function extractClassTokens(content: string): string[] {
 }
 
 function aggregateSignals(files: RawFile[], fileSignals: AppQualityFileSignal[]) {
-  const allContent = files.map((file) => file.content).join("\n");
-  const classTokens = files.flatMap((file) => extractClassTokens(file.content));
+  const scopedPairs = uiSignalPairs(files, fileSignals);
+  const scopedFiles = scopedPairs.map((pair) => pair.file);
+  const scopedSignals = scopedPairs.map((pair) => pair.signal);
+  const allContent = scopedFiles.map((file) => file.content).join("\n");
+  const classTokens = scopedFiles.flatMap((file) => extractClassTokens(file.content));
   const spacing = classTokens.filter((token) => /^(p|px|py|pt|pr|pb|pl|m|mx|my|mt|mr|mb|ml|gap|space-[xy])-/.test(stripVariants(token)));
   const textSizes = classTokens.filter((token) => /^text-(xs|sm|base|lg|xl|[2-9]xl|\[[^\]]+\])$/.test(stripVariants(token)));
   const colors = classTokens.filter((token) => /(bg|text|border|ring|from|to|via)-/.test(stripVariants(token)));
@@ -266,14 +297,17 @@ function aggregateSignals(files: RawFile[], fileSignals: AppQualityFileSignal[])
   const shadows = classTokens.filter((token) => /^shadow/.test(stripVariants(token)));
   const responsive = classTokens.filter((token) => /^(sm|md|lg|xl|2xl):/.test(token));
   const arbitrary = classTokens.filter((token) => /\[[^\]]+\]/.test(token));
-  const shadcnImports = fileSignals.flatMap((file) => file.shadcnImports);
-  const hexColors = fileSignals.flatMap((file) => file.hexColors);
-  const cssVariables = fileSignals.flatMap((file) => file.cssVariables);
+  const shadcnImports = scopedSignals.flatMap((file) => file.shadcnImports);
+  const hexColors = scopedSignals.flatMap((file) => file.hexColors);
+  const cssVariables = scopedSignals.flatMap((file) => file.cssVariables);
   const buttons = (allContent.match(/<button\b|<Button\b/g) ?? []).length;
   const images = (allContent.match(/<img\b|<Image\b/g) ?? []).length;
   const imagesWithAlt = (allContent.match(/<(?:img|Image)\b[^>]*\salt=/g) ?? []).length;
   const interactive = (allContent.match(/onClick=|<button\b|<Button\b|role=["']button/g) ?? []).length;
-  const focusClasses = classTokens.filter((token) => /focus:|focus-visible:/.test(token));
+  const focusClasses = [
+    ...classTokens.filter((token) => /focus:|focus-visible:/.test(token)),
+    ...scopedFiles.flatMap((file) => file.content.match(/:focus-visible\b|:focus\b/g) ?? []),
+  ];
 
   return {
     classTokens,
@@ -292,10 +326,18 @@ function aggregateSignals(files: RawFile[], fileSignals: AppQualityFileSignal[])
     imagesWithAlt,
     interactive,
     focusClasses,
-    styleFiles: fileSignals.filter((file) => file.kind === "style"),
-    componentFiles: fileSignals.filter((file) => file.kind === "component"),
-    routeFiles: fileSignals.filter((file) => file.kind === "route"),
+    styleFiles: scopedSignals.filter((file) => file.kind === "style"),
+    componentFiles: scopedSignals.filter((file) => file.kind === "component"),
+    routeFiles: scopedSignals.filter((file) => file.kind === "route"),
   };
+}
+
+function uiSignalPairs(files: RawFile[], fileSignals: AppQualityFileSignal[]): Array<{ file: RawFile; signal: AppQualityFileSignal }> {
+  const pairs = files
+    .map((file, index) => ({ file, signal: fileSignals[index] }))
+    .filter((pair): pair is { file: RawFile; signal: AppQualityFileSignal } => Boolean(pair.signal));
+  const uiPairs = pairs.filter((pair) => pair.signal.kind !== "config");
+  return uiPairs.length > 0 ? uiPairs : pairs;
 }
 
 function stripVariants(token: string): string {
@@ -383,7 +425,8 @@ function enrichIssues(issues: AppQualityIssue[], graph: AppGraph, files: RawFile
 }
 
 function affectedFilesForIssue(issue: AppQualityIssue, graph: AppGraph): string[] {
-  const files = graph.files.filter((file) => {
+  const graphFiles = scopedGraphFiles(graph);
+  const files = graphFiles.filter((file) => {
     if (issue.id === "color.raw-hex") return file.hexColors.length > 0;
     if (issue.id === "maintainability.arbitrary-tailwind") return file.tailwindClasses.some((token) => /\[[^\]]+\]/.test(token));
     if (issue.id.startsWith("a11y.")) return file.componentRefs.length > 0 || file.kind === "route" || file.kind === "component";
@@ -393,6 +436,11 @@ function affectedFilesForIssue(issue: AppQualityIssue, graph: AppGraph): string[
     return file.kind === "route" || file.kind === "component" || file.kind === "style";
   });
   return files.map((file) => file.path).slice(0, 12);
+}
+
+function scopedGraphFiles(graph: AppGraph): AppGraph["files"] {
+  const uiFiles = graph.files.filter((file) => file.kind !== "config" && file.kind !== "test" && file.kind !== "other");
+  return uiFiles.length > 0 ? uiFiles : graph.files;
 }
 
 function evidenceLocationsForIssue(issue: AppQualityIssue, files: RawFile[], affectedFiles: string[]): Array<{ file: string; line?: number; excerpt?: string }> {

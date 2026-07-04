@@ -14,12 +14,12 @@ const KIND_LABELS: Record<ProjectMemoryKind, string> = {
 const DEFAULT_CODEX_CONFIG: StudioCodexConfig = {
   model: "gpt-5.5",
   reasoningEffort: "xhigh",
-  approvalPolicy: "never",
-  webSearch: true,
+  approvalPolicy: "on-request",
+  webSearch: false,
   skipGitRepoCheck: true,
   includeMemoireCommands: true,
   includeCodexCommands: true,
-  planModeDefault: false,
+  planModeDefault: true,
 };
 
 export function createDesignAgentSystemPrompt(context: StudioAgentContext): string {
@@ -227,7 +227,7 @@ export function basicAgentContext(input: {
       risks: [],
       metrics: [],
       latestSimulationRunId: null,
-      suggestedTools: ["research.design_package", "research.generate_specs", "mermaid_jam.export"],
+      suggestedTools: ["research_design_package", "research_generate_specs", "mermaid_jam_export"],
     },
   };
 }
@@ -241,7 +241,7 @@ function researchDesignLines(context: StudioAgentContext): string[] {
   if (!design) {
     return [
       "- Research design context was not indexed for this run.",
-      "- Suggested tools: research.design_package, research.generate_specs, mermaid_jam.export",
+      "- Suggested tools: research_design_package, research_generate_specs, mermaid_jam_export",
     ];
   }
   return [
@@ -250,7 +250,7 @@ function researchDesignLines(context: StudioAgentContext): string[] {
     `- Risks: ${formatContextList(design.risks, "none indexed")}`,
     `- Metrics: ${formatContextList(design.metrics, "none indexed")}`,
     `- Latest simulation run: ${design.latestSimulationRunId ?? "none"}`,
-    `- Suggested tools: ${formatContextList(design.suggestedTools, "research.design_package, research.generate_specs, mermaid_jam.export")}`,
+    `- Suggested tools: ${formatContextList(design.suggestedTools, "research_design_package, research_generate_specs, mermaid_jam_export")}`,
   ];
 }
 

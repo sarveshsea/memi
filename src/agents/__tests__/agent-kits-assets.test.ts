@@ -17,6 +17,7 @@ interface AgentKitManifest {
     id: string;
     kind: string;
     source: string;
+    sourceBase?: string;
     defaultDestination: string;
   }>;
 }
@@ -71,6 +72,7 @@ describe("packaged agent kits", () => {
     expect(manifest.suiteManifest).toBe("memoire.agent.yaml");
     expect(manifest.daemon.status).toBe("memi daemon status --json");
     expect(manifest.targets.map((target) => target.id)).toEqual([
+      "universal",
       "hermes",
       "openclaw",
       "claude-code",
@@ -80,10 +82,25 @@ describe("packaged agent kits", () => {
     ]);
 
     for (const target of manifest.targets) {
-      const sourcePath = join(root, "agent-kits", target.source);
+      const sourcePath = target.sourceBase === "package"
+        ? join(root, target.source)
+        : join(root, "agent-kits", target.source);
       const sourceStat = await stat(sourcePath);
       expect(sourceStat.isFile() || sourceStat.isDirectory()).toBe(true);
     }
+  });
+
+  it("ships a root Agent Skills package discoverable by npx skills add", async () => {
+    const root = process.cwd();
+    const rootSkill = await readFile(join(root, "skills", "memoire-design-tooling", "SKILL.md"), "utf-8");
+    const codexSkill = await readFile(join(root, "agent-kits", "codex", "memoire-design-tooling", "SKILL.md"), "utf-8");
+    const pkg = JSON.parse(await readFile(join(root, "package.json"), "utf-8"));
+
+    expect(pkg.files).toContain("skills");
+    expect(rootSkill).toBe(codexSkill);
+    expect(rootSkill).toContain("name: memoire-design-tooling");
+    expect(rootSkill).toContain("memi agent install --dry-run --json");
+    expect(rootSkill).toContain("memi mcp start --no-figma");
   });
 
   it("ships valid SKILL.md frontmatter for Hermes and OpenClaw", async () => {
@@ -229,6 +246,7 @@ describe("packaged agent kits", () => {
     }>;
     const paths = new Set(packageInfo.files.map((file) => file.path));
     expect(paths).toContain("agent-kits/manifest.json");
+    expect(paths).toContain("skills/memoire-design-tooling/SKILL.md");
     expect(paths).toContain("agent-kits/hermes/memoire-design-tooling/SKILL.md");
     expect(paths).toContain("agent-kits/openclaw/memoire-design-tooling/SKILL.md");
     expect(paths).toContain("agent-kits/mirror/README.md");
