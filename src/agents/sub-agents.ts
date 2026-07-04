@@ -310,8 +310,12 @@ export class SubAgentRunner {
 
     for (const specName of targetSpecs) {
       try {
-        const file = await this.engine.generateFromSpec(specName);
-        generated.push(file);
+        const result = await this.engine.generateFromSpec(specName);
+        if (result.blocked) {
+          log.warn({ spec: specName, findings: result.findings }, "Generation blocked by quality gate");
+          continue;
+        }
+        generated.push(result.entryFile);
       } catch (err) {
         log.warn({ spec: specName, err }, "Failed to generate");
       }
@@ -1043,6 +1047,7 @@ export class SubAgentRunner {
         description: intent,
       },
       tags: ["compose-generated"],
+      layoutLocked: false,
       createdAt: now,
       updatedAt: now,
     };

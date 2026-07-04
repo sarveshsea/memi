@@ -234,6 +234,7 @@ export const PageSpecSchema = z.object({
     consistentHelp: z.boolean().default(true).describe("Help mechanisms in same relative position (WCAG 3.2.6 — new in 2.2)"),
   }).default({}),
   tags: z.array(z.string()).default([]),
+  layoutLocked: z.boolean().default(false).describe("When true, skip AI/heuristic layout composition and use layout/section.layout exactly as authored."),
   createdAt: z.string().default(() => new Date().toISOString()),
   updatedAt: z.string().default(() => new Date().toISOString()),
 });

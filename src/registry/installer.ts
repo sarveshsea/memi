@@ -114,10 +114,16 @@ async function installMemoireRegistryComponent(
     generatedFiles.push(codePath);
   } else {
     // No bundled code (or --regenerate) — run local codegen
-    const entryFile = await engine.generateFromSpec(spec.name);
-    if (entryFile) {
-      codePath = entryFile;
-      generatedFiles.push(entryFile);
+    const result = await engine.generateFromSpec(spec.name);
+    if (result.blocked) {
+      throw new Error(
+        `Install blocked by the codegen quality gate for "${spec.name}": ` +
+        result.findings.filter((f) => f.severity === "critical").map((f) => f.message).join("; "),
+      );
+    }
+    if (result.entryFile) {
+      codePath = result.entryFile;
+      generatedFiles.push(result.entryFile);
     }
   }
 

@@ -163,6 +163,7 @@ export function registerSpecCommand(program: Command, engine: MemoireEngine) {
         accessibility: { language: "en", landmarks: true, skipLink: true, headingHierarchy: true, consistentNav: true, consistentHelp: true },
         meta: {},
         tags: [],
+        layoutLocked: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };

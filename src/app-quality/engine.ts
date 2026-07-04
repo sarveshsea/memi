@@ -4,6 +4,7 @@ import { performance } from "node:perf_hooks";
 import { scanSources, type ScannedSourceFile } from "../utils/source-scanner.js";
 import { buildAppGraph, type AppGraph } from "./app-graph.js";
 import { buildUxAuditReport, type UxAuditReport } from "../ux/tenets-traps.js";
+import { checkSkillCompliance, type ComplianceReport } from "../ux/skill-compliance.js";
 
 export type AppQualitySeverity = "critical" | "high" | "medium" | "low";
 export type AppQualityCategory =
@@ -82,6 +83,8 @@ export interface AppQualityDiagnosis {
     package: AppGraph["package"];
     graphMs?: number;
   };
+  /** Post-hoc verification of real source files against skills/ATOMIC_DESIGN.md and skills/MOTION_VIDEO_DESIGN.md's checkable rules. */
+  compliance?: ComplianceReport;
 }
 
 interface ScanOptions {
@@ -154,6 +157,7 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
   const score = Math.round(Object.values(scores).reduce((sum, value) => sum + value, 0) / Object.values(scores).length);
   const analysisMs = performance.now() - startedAt;
   const ux = buildUxAuditReport({ target, issues, appQualityScore: score });
+  const compliance = checkSkillCompliance(files, { target });
 
   const diagnosis: AppQualityDiagnosis = {
     version: 1,
@@ -192,6 +196,7 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
       package: appGraph.package,
       graphMs: Math.round(graphMs),
     },
+    compliance,
   };
 
   if (options.write !== false) {

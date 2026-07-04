@@ -17,6 +17,7 @@
 import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
 import type { ComponentSpec } from "../specs/types.js";
+import { diagnoseAppQuality } from "../app-quality/engine.js";
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -224,10 +225,47 @@ export function registerAuditCommand(program: Command, engine: MemoireEngine): v
     .description("Run WCAG 2.2 accessibility audit on component specs")
     .option("--wcag", "Run the 5-check WCAG accessibility audit")
     .option("--unused", "List specs with no generated code (never generated or stale)")
+    .option("--skill-compliance", "Check real source files against ATOMIC_DESIGN.md/MOTION_VIDEO_DESIGN.md's checkable rules — the CI/pre-commit enforcement surface")
+    .option("--target <path>", "Local path to scan for --skill-compliance. Defaults to the current project root.")
     .option("--component <name>", "Audit only specs matching this name (case-insensitive substring)")
     .option("--json", "Output audit results as JSON")
-    .action(async (opts: { wcag?: boolean; unused?: boolean; component?: string; json?: boolean }) => {
+    .action(async (opts: { wcag?: boolean; unused?: boolean; skillCompliance?: boolean; target?: string; component?: string; json?: boolean }) => {
       await engine.init();
+
+      // ── Skill-compliance audit — the real CI enforcement surface. Every
+      // other skill-compliance entry point (the MCP tool, run_audit's focus
+      // value) is something an agent can choose not to call; this is the one
+      // that gives a real, non-zero exit code a CI step or pre-commit hook
+      // can depend on. ─────────────────────────────────────────────────
+      if (opts.skillCompliance) {
+        const diagnosis = await diagnoseAppQuality({
+          projectRoot: engine.config.projectRoot,
+          target: opts.target,
+          maxFiles: 500,
+          write: false,
+        });
+        const compliance = diagnosis.compliance;
+
+        if (opts.json) {
+          console.log(JSON.stringify(compliance, null, 2));
+        } else {
+          console.log("\n  memi audit --skill-compliance\n");
+          if (!compliance || compliance.findings.length === 0) {
+            console.log("  No skill-compliance findings\n");
+          } else {
+            for (const finding of compliance.findings) {
+              console.log(`  ${finding.severity === "critical" ? "x" : "!"}  [${finding.severity}] ${finding.file}`);
+              console.log(`     ${finding.message}`);
+              if (finding.fix) console.log(`     fix: ${finding.fix}`);
+              console.log(`     ${finding.docRef}`);
+            }
+            console.log(`\n  summary  ${compliance.summary.critical} critical  ${compliance.summary.warning} warning  (${compliance.summary.filesChecked} files checked)\n`);
+          }
+        }
+
+        if (compliance && compliance.summary.critical > 0) process.exitCode = 1;
+        return;
+      }
 
       // ── Unused specs audit ────────────────────────────────────────
       if (opts.unused) {
@@ -282,10 +320,12 @@ export function registerAuditCommand(program: Command, engine: MemoireEngine): v
 
       if (!opts.wcag) {
         console.log("\n  Usage: memi audit --wcag [--component <name>] [--json]");
-        console.log("         memi audit --unused [--json]\n");
+        console.log("         memi audit --unused [--json]");
+        console.log("         memi audit --skill-compliance [--target <path>] [--json]\n");
         console.log("  Options:");
         console.log("    --wcag               Run the 5-check WCAG accessibility audit");
         console.log("    --unused             List specs with no generated code");
+        console.log("    --skill-compliance   Check real source files against ATOMIC_DESIGN.md/MOTION_VIDEO_DESIGN.md");
         console.log("    --component <name>   Filter to specs matching name (case-insensitive)");
         console.log("    --json               Output results as JSON\n");
         return;

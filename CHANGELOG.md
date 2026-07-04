@@ -10,6 +10,28 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 No unreleased changes.
 
+## v2.2.0 — 2026-07-04
+
+Three structural fixes to real gaps: codegen was purely deterministic with no design judgment, the quality gate warned instead of blocking, and skill docs (Atomic Design, motion, design-system reference) were prose an agent could ignore with nothing downstream noticing. This release is a real engineering change, not a patch — several pieces are genuinely new capability, not tuning.
+
+### Generative layout + design judgment
+- New AI-assisted **layout composer** (`src/codegen/layout-composer.ts`): chooses a page's layout template and each section's grid arrangement/order, grounded in memi's own UX tenets/traps, instead of requiring the spec author to hardcode every value. Falls back to a deterministic keyword heuristic with zero AI dependency when no `ANTHROPIC_API_KEY` is set, honors a new `layoutLocked` spec field to opt out entirely, and respects `MEMOIRE_DISABLE_LAYOUT_AI=1` for CI/batch `generate --all` runs that don't want extra LLM round-trips. Output stays deterministic shadcn/Tailwind — composition only picks among already-safe options, it does not generate arbitrary JSX.
+- New AI **layout critic** (`src/codegen/layout-critic.ts`): scores already-generated page output (hierarchy, spacing rhythm, consistency, tenet risk) — genuine qualitative judgment, distinct from the regex rule-checker. Advisory only, never blocks; returns `null` (not an error) with no API key.
+- `CodegenResult` gains an optional `critique` field, surfaced through `generate_code`'s MCP response and the CLI's `generate` output.
+
+### Blocking quality gate
+- `auditGeneratedFiles` now returns severity-classified `Finding[]` instead of plain warning strings. Raw hex/color findings and a new **token-pair contrast check** (reusing the existing name-convention pairing in `engine/accessibility.ts`) are `critical`; skill-compliance findings default to `warning` unless `--strict-skill-compliance` is set.
+- **A critical finding now actually blocks the write** — no files written, no generation recorded — unless `force: true` (MCP) / `--force` (CLI) is passed. This is the core fix for "the quality gate warns, it doesn't block."
+- `MemoireEngine.generateFromSpec` now returns the full `CodegenResult` (was: the entry file path as a bare string) so `blocked`/`findings`/`critique` survive to every caller — a breaking signature change, updated at all 9 call sites (CLI commands, MCP tools, the agent orchestrator, the autonomous pipeline, the registry installer).
+- `generate_code` returns `isError: true` with the blocking findings when blocked — a real stop the calling agent must react to, not a warning buried in a success payload. The CLI's `generate` command exits non-zero on a blocked write.
+
+### Skill-compliance enforcement
+- New deterministic checker (`src/ux/skill-compliance.ts`) that verifies real source files — not just spec JSON — against the objectively-checkable rules in `skills/ATOMIC_DESIGN.md` (atom state/data-fetching/naming) and `skills/MOTION_VIDEO_DESIGN.md` (hardcoded durations, missing `prefers-reduced-motion`, non-GPU animated properties). This is the same mechanism a linter uses to enforce a style guide — it does not read the docs at runtime and does not make an agent "obey" markdown; it verifies compliance after the fact, whether the file was memi-generated or hand-written.
+- `skills/DESIGN_SYSTEM_REFERENCE.md` has zero checkable rules (a pure external-system catalog) and is wired in only as a read-only benchmark annotation (`getReferenceCoverage`), never a pass/fail input — no fake rules were manufactured for it.
+- New MCP tool `check_skill_compliance` and a new `run_audit` focus value (`"skill-compliance"`).
+- New `memi audit --skill-compliance` CLI command — the one enforcement surface with real teeth: a non-zero exit code a CI step or pre-commit hook can actually depend on, since every other entry point (the MCP tool, the codegen gate's default non-strict mode) remains something an agent can choose not to call.
+- Wired into `diagnoseAppQuality` (`AppQualityDiagnosis.compliance`) so the full project-quality scan covers it too.
+
 ## v2.1.1 — 2026-07-03
 
 ### Efficiency

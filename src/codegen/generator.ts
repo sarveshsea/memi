@@ -33,6 +33,10 @@ import { generateVueComponent } from "./vue-mapper.js";
 import { generateSvelteComponent } from "./svelte-mapper.js";
 import { generateDataViz } from "./dataviz-generator.js";
 import { generatePage } from "./page-generator.js";
+import { composeLayout, applyComposition } from "./layout-composer.js";
+import { critiquePage, type LayoutCritique } from "./layout-critic.js";
+import { checkSkillCompliance } from "../ux/skill-compliance.js";
+import { auditTokenContrast } from "../engine/accessibility.js";
 import { atomicLevelToFolder } from "../utils/naming.js";
 import { expandAxes } from "../specs/variations.js";
 
@@ -114,14 +118,34 @@ export interface CodegenConfig {
   noStories?: boolean;
   /** Output framework: react (default), vue, svelte */
   framework?: "react" | "vue" | "svelte";
+  /**
+   * When true, skill-compliance findings (atomic composition, motion tokens)
+   * are promoted to critical severity and can block a write. Off by default —
+   * those findings stay advisory (warning) so the gate only ever blocks on
+   * the two hex/color checks and the token-pair contrast check.
+   */
+  strictSkillCompliance?: boolean;
+}
+
+export interface Finding {
+  severity: "critical" | "warning";
+  rule: string;
+  file: string;
+  message: string;
+  fix?: string;
+  docRef?: string;
 }
 
 export interface CodegenResult {
   entryFile: string;
   files: { path: string; content: string }[];
   spec: AnySpec;
-  /** Design-quality findings on the generated output (raw hex, off-token values). */
-  warnings?: string[];
+  /** Severity-classified quality-gate findings. Always present. */
+  findings: Finding[];
+  /** True when a critical finding prevented this generation from writing files. */
+  blocked: boolean;
+  /** AI layout critique (page specs only, when an API key is configured). Advisory — never blocks. */
+  critique?: LayoutCritique;
 }
 
 export interface CodegenContext {
@@ -137,22 +161,26 @@ export class CodeGenerator {
     this.config = config;
   }
 
-  /** Override generation options at runtime (e.g. --no-stories, --framework from CLI). */
-  setOptions(opts: Partial<Pick<CodegenConfig, "noStories" | "framework">>): void {
+  /** Override generation options at runtime (e.g. --no-stories, --framework, --strict-skill-compliance from CLI). */
+  setOptions(opts: Partial<Pick<CodegenConfig, "noStories" | "framework" | "strictSkillCompliance">>): void {
     if (opts.noStories !== undefined) this.config.noStories = opts.noStories;
     if (opts.framework !== undefined) this.config.framework = opts.framework;
+    if (opts.strictSkillCompliance !== undefined) this.config.strictSkillCompliance = opts.strictSkillCompliance;
   }
 
   /**
    * Generate code from a spec and write all output files to disk.
    *
    * Skips generation when spec + design system hash matches a previous run.
-   * Returns a CodegenResult describing the written files.
+   * A critical quality-gate finding (raw hex/color when tokens exist, a
+   * token-pair contrast failure, or — in strict mode — a skill-compliance
+   * violation) blocks the write: no files are written and no generation is
+   * recorded. Pass opts.force to write anyway.
    *
    * @param spec - Any Mémoire spec (component, page, dataviz, design, ia).
    * @param ctx  - Codegen context with project and design system data.
    */
-  async generate(spec: AnySpec, ctx: CodegenContext): Promise<CodegenResult> {
+  async generate(spec: AnySpec, ctx: CodegenContext, opts?: { force?: boolean }): Promise<CodegenResult> {
     // Hash-based caching — skip generation when spec + design system unchanged
     const specHash = computeSpecHash(spec, ctx);
     const previousState = this.config.registry.getGenerationState(spec.name);
@@ -162,6 +190,9 @@ export class CodeGenerator {
         entryFile: previousState.files[0] ?? "",
         files: previousState.files.map((path) => ({ path, content: "" })),
         spec,
+        findings: previousState.findings ?? [],
+        blocked: false,
+        critique: previousState.critique,
       };
     }
 
@@ -182,22 +213,36 @@ export class CodeGenerator {
       case "design":
       case "ia":
         this.emitEvent("info", `Skipping "${spec.name}" — ${spec.type} specs are reference-only, no code generated`);
-        return {
-          entryFile: "",
-          files: [],
-          spec,
-        };
+        return { entryFile: "", files: [], spec, findings: [], blocked: false };
       default:
         throw new Error(`Unknown spec type: ${(spec as { type: string }).type}`);
     }
 
     // Quality gate — the generator must not ship output its own audit calls bad.
-    const warnings = auditGeneratedFiles(result.files, ctx);
-    if (warnings.length > 0) {
-      result.warnings = warnings;
-      for (const warning of warnings) {
-        this.emitEvent("info", `Quality: ${warning}`);
+    const findings = auditGeneratedFiles(result.files, ctx, { strictSkillCompliance: this.config.strictSkillCompliance });
+
+    // AI layout critique — advisory only, never gates. Page specs only.
+    if (spec.type === "page") {
+      const pageFile = result.files.find((f) => f.path.endsWith(`${spec.name}.tsx`));
+      const critique = pageFile ? await critiquePage(pageFile.content, spec, ctx) : null;
+      if (critique) {
+        result.critique = critique;
+        this.emitEvent("info", `Critique: ${critique.summary} (score ${critique.score}/100)`);
       }
+    }
+
+    const blocked = findings.some((f) => f.severity === "critical") && !opts?.force;
+
+    if (blocked) {
+      for (const finding of findings.filter((f) => f.severity === "critical")) {
+        this.emitEvent("error", `Blocked: ${finding.message} [${finding.rule}] (${finding.file})`);
+      }
+      this.emitEvent("error", `Generation blocked for "${spec.name}" — fix the issue(s) above, or call again with force: true.`);
+      return { ...result, findings, blocked: true };
+    }
+
+    for (const finding of findings.filter((f) => f.severity === "warning")) {
+      this.emitEvent("info", `Quality: ${finding.message} [${finding.rule}] (${finding.file})`);
     }
 
     // Write all files
@@ -207,39 +252,52 @@ export class CodeGenerator {
       await writeFile(fullPath, file.content);
     }
 
-    // Record generation
+    // Record generation — never called for a blocked result (see early return above).
     await this.config.registry.recordGeneration({
       specName: spec.name,
       generatedAt: new Date().toISOString(),
       files: result.files.map((f) => f.path),
       specHash,
+      findings,
+      critique: result.critique,
     });
 
     this.emitEvent("success", `Generated ${result.files.length} files for "${spec.name}"`);
-    return result;
+    return { ...result, findings, blocked: false };
   }
 
   /**
    * Preview mode — generates code in memory without writing files to disk.
-   * Returns the same CodegenResult so callers can inspect file paths and contents.
+   * Returns the same CodegenResult so callers can inspect file paths and
+   * contents. Quality-gate findings ARE computed here (so --preview isn't
+   * blind to what would block a real generate), but the AI critique is not
+   * run in preview, to avoid burning an AI call on every dry-run iteration.
    */
   async preview(spec: AnySpec, ctx: CodegenContext): Promise<CodegenResult> {
     this.emitEvent("info", `Previewing code for "${spec.name}" (${spec.type})...`);
 
+    let result: CodegenResult;
+
     switch (spec.type) {
       case "component":
-        return this.generateComponentFiles(spec, ctx);
+        result = await this.generateComponentFiles(spec, ctx);
+        break;
       case "page":
-        return this.generatePageFiles(spec, ctx);
+        result = await this.generatePageFiles(spec, ctx);
+        break;
       case "dataviz":
-        return this.generateDataVizFiles(spec, ctx);
+        result = await this.generateDataVizFiles(spec, ctx);
+        break;
       case "design":
       case "ia":
         this.emitEvent("info", `Skipping "${spec.name}" — ${spec.type} specs are reference-only, no code generated`);
-        return { entryFile: "", files: [], spec };
+        return { entryFile: "", files: [], spec, findings: [], blocked: false };
       default:
         throw new Error(`Unknown spec type: ${(spec as { type: string }).type}`);
     }
+
+    const findings = auditGeneratedFiles(result.files, ctx, { strictSkillCompliance: this.config.strictSkillCompliance });
+    return { ...result, findings, blocked: false };
   }
 
   /**
@@ -333,6 +391,8 @@ export class CodeGenerator {
       entryFile: `${dir}/${spec.name}.tsx`,
       files,
       spec,
+      findings: [],
+      blocked: false,
     };
   }
 
@@ -364,6 +424,8 @@ export class CodeGenerator {
           { path: `${dir}/index.ts`, content: code.barrel },
         ],
         spec,
+        findings: [],
+        blocked: false,
       };
     }
 
@@ -459,6 +521,8 @@ export class CodeGenerator {
       entryFile: `${dir}/variants/${variants[0].id}.tsx`,
       files,
       spec,
+      findings: [],
+      blocked: false,
     };
   }
 
@@ -466,7 +530,13 @@ export class CodeGenerator {
     spec: PageSpec,
     ctx: CodegenContext
   ): Promise<CodegenResult> {
-    const code = generatePage(spec, ctx);
+    // AI-assisted (or heuristic-fallback) layout composition — chooses among
+    // page-generator.ts's existing, already-safe templates/grid options
+    // instead of requiring the spec author to hardcode every choice. Output
+    // stays deterministic shadcn/Tailwind either way; see layout-composer.ts.
+    const composition = await composeLayout(spec, ctx);
+    const composedSpec = applyComposition(spec, composition);
+    const code = generatePage(composedSpec, ctx);
     const dir = `pages/${spec.name}`;
 
     return {
@@ -476,6 +546,8 @@ export class CodeGenerator {
         { path: `${dir}/index.ts`, content: code.barrel },
       ],
       spec,
+      findings: [],
+      blocked: false,
     };
   }
 
@@ -493,6 +565,8 @@ export class CodeGenerator {
         { path: `${dir}/index.ts`, content: code.barrel },
       ],
       spec,
+      findings: [],
+      blocked: false,
     };
   }
 
@@ -507,16 +581,20 @@ export class CodeGenerator {
 }
 
 /**
- * Scan generated file contents for design-quality violations: raw hex colors
- * in className strings (should be token CSS variables or semantic classes)
- * and inline style color literals. Warnings, not failures — templates are
- * trusted, but spec-supplied values can smuggle raw colors through.
+ * Scan generated files and severity-classify every finding: the two
+ * hex/color regex checks and the token-pair contrast check are critical
+ * (they block a write unless force:true is passed); skill-compliance
+ * findings (atomic composition, motion tokens) are advisory (warning)
+ * unless strictSkillCompliance is set, in which case they are promoted to
+ * critical too. This is the single source of Finding[] CodeGenerator.generate()
+ * gates on.
  */
 function auditGeneratedFiles(
   files: { path: string; content: string }[],
   ctx: CodegenContext,
-): string[] {
-  const warnings: string[] = [];
+  opts?: { strictSkillCompliance?: boolean },
+): Finding[] {
+  const findings: Finding[] = [];
   const hasTokens = (ctx.designSystem?.tokens?.length ?? 0) > 0;
 
   for (const file of files) {
@@ -524,20 +602,64 @@ function auditGeneratedFiles(
 
     const rawHexInClasses = file.content.match(/className=["'{][^"'}]*#[0-9a-fA-F]{3,8}\b[^"'}]*/g) ?? [];
     if (rawHexInClasses.length > 0 && hasTokens) {
-      warnings.push(
-        `${file.path}: ${rawHexInClasses.length} raw hex color(s) in className — use token CSS variables instead`,
-      );
+      findings.push({
+        severity: "critical",
+        rule: "raw-hex-in-classname",
+        file: file.path,
+        message: `${rawHexInClasses.length} raw hex color(s) in className — use token CSS variables instead`,
+        fix: "Replace raw hex values with the project's token CSS variables (e.g. bg-[var(--color-primary)]).",
+      });
     }
 
     const inlineStyleColors = file.content.match(/style=\{\{[^}]*(?:#[0-9a-fA-F]{3,8}\b|rgb\(|oklch\()[^}]*\}\}/g) ?? [];
     if (inlineStyleColors.length > 0 && hasTokens) {
-      warnings.push(
-        `${file.path}: ${inlineStyleColors.length} hardcoded color literal(s) in inline style — use var(--token) references`,
-      );
+      findings.push({
+        severity: "critical",
+        rule: "hardcoded-color-in-inline-style",
+        file: file.path,
+        message: `${inlineStyleColors.length} hardcoded color literal(s) in inline style — use var(--token) references`,
+        fix: "Replace hardcoded color literals with var(--token) references.",
+      });
     }
   }
 
-  return warnings;
+  findings.push(...checkTokenPairContrast(ctx));
+
+  const compliance = checkSkillCompliance(files, { rulesets: ["atomic", "motion"] });
+  for (const cf of compliance.findings) {
+    findings.push({
+      severity: opts?.strictSkillCompliance ? "critical" : "warning",
+      rule: cf.rule,
+      file: cf.file,
+      message: cf.message,
+      fix: cf.fix,
+      docRef: cf.docRef,
+    });
+  }
+
+  return findings;
+}
+
+/**
+ * Contrast-check the active design system's own foreground/background token
+ * pairs, reusing the existing name-convention pairing already proven in
+ * engine/accessibility.ts — the only reliable way to identify fg/bg pairs
+ * today, since DesignToken carries no explicit role metadata. This checks
+ * the design system a generation was built against, not per-file JSX color
+ * literals: reliably deciding "is this text color's nearby background
+ * low-contrast" from generated markup alone (no DOM, no cascade resolution)
+ * is not attempted here.
+ */
+function checkTokenPairContrast(ctx: CodegenContext): Finding[] {
+  const tokens = ctx.designSystem?.tokens ?? [];
+  if (tokens.length === 0) return [];
+  return auditTokenContrast(tokens).map((issue) => ({
+    severity: "critical" as const,
+    rule: "token-pair-contrast",
+    file: "design-system",
+    message: issue.message,
+    fix: issue.fix,
+  }));
 }
 
 /**
