@@ -50,7 +50,7 @@ describe("studio autonomous lab routes", () => {
 
       const status = await fetch(`${runtime.url}/api/browser/status`).then((res) => res.json());
       expect(status).toMatchObject({
-        enabled: true,
+        enabled: false,
         installed: expect.any(Boolean),
         activeSessions: 0,
       });
@@ -60,7 +60,7 @@ describe("studio autonomous lab routes", () => {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ action: "snapshot", sessionId: "missing" }),
       });
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(403);
     } finally {
       await rm(root, { recursive: true, force: true });
     }

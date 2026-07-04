@@ -1,6 +1,6 @@
 # memi Product Hunt Launch Pack
 
-Use one message everywhere for the `1.1.1` launch:
+Use one message everywhere for the `2.0.0` launch:
 
 > memi is the AI workbench for product designers. Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
 
@@ -9,11 +9,12 @@ Primary CTA: <https://www.memoire.cv>
 ## Launch Baseline
 
 - Product Hunt story: Studio-first, with the npm CLI/MCP engine underneath.
-- Release target: `@memi-design/cli@1.1.1`.
+- Release target: `@memi-design/cli@2.0.0`.
 - Studio download: `memi-studio v1.0.4` signed macOS app from GitHub Releases.
 - Homebrew: `brew install --cask sarveshsea/memi/memi-studio`.
 - MCP Registry: `io.github.sarveshsea/memi`.
 - Codex plugin: `codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire`.
+- Public proof repo: `https://github.com/sarveshsea/design-sandbox`.
 
 ## Product Hunt Copy
 
@@ -46,7 +47,16 @@ The npm package is still the engine underneath:
 npm i -g @memi-design/cli
 memi diagnose
 memi ux audit --json
+memi craft audit --json
 memi mcp start --no-figma
+
+Try the proof repo:
+git clone https://github.com/sarveshsea/design-sandbox.git
+cd design-sandbox
+pnpm install
+pnpm memi:diagnose
+pnpm memi:ux
+pnpm verify
 
 Today’s launch is the workbench story: a calmer place for product designers to supervise AI work, keep evidence, and turn useful output into durable design memory.
 ```
@@ -73,9 +83,13 @@ memi Studio is the workbench.
 npm i -g @memi-design/cli
 memi diagnose
 memi ux audit --json
+memi craft audit --json
 memi mcp start --no-figma
 
 The goal: agents start from the product system, not a blank prompt.
+
+Proof repo:
+https://github.com/sarveshsea/design-sandbox
 ```
 
 ### Codex / Claude
@@ -110,10 +124,11 @@ The handoff remains inspectable.
 
 ## Launch Checklist
 
-- [ ] Publish `@memi-design/cli@1.1.1`.
+- [ ] Publish `@memi-design/cli@2.0.0`.
 - [ ] Verify npm install smoke with `npm run check:public-release`.
 - [ ] Republish `server.json` to the MCP Registry.
-- [ ] Create GitHub tag/release `v1.1.1`.
+- [ ] Create GitHub tag/release `v2.0.0`.
+- [ ] Push and verify `sarveshsea/design-sandbox`.
 - [ ] Confirm homepage still shows Studio `1.0.4`, npm latest, and the macOS download.
 - [ ] Submit Product Hunt with the exact name, tagline, description, and CTA above.
 - [ ] Post the main launch thread and one engine-underneath reply.

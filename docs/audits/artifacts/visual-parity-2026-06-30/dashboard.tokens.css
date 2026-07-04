@@ -1,0 +1,12 @@
+:root {
+  --dashboard-bg: #f6f7f9;
+  --dashboard-surface: #ffffff;
+  --dashboard-text: #16202a;
+  --dashboard-muted: #66717f;
+  --dashboard-border: #d9dee7;
+  --dashboard-accent: #2457d6;
+  --dashboard-positive: #14855f;
+  --dashboard-warning: #aa6a12;
+  --dashboard-radius: 8px;
+  --dashboard-shadow: 0 16px 48px rgba(22, 32, 42, 0.10);
+}

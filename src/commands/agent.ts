@@ -13,6 +13,7 @@ import type { MemoireEngine } from "../engine/core.js";
 import type { AgentRole } from "../plugin/shared/contracts.js";
 import { AgentWorker } from "../agents/agent-worker.js";
 import { AGENT_INSTALL_TARGETS, installAgentKits, normalizeAgentInstallTarget } from "../agents/agent-kits.js";
+import { buildDesignAgentBrief, normalizeDesignAgentBriefMode } from "../agents/design-agent-brief.js";
 import { ui } from "../tui/format.js";
 
 const VALID_ROLES: AgentRole[] = [
@@ -30,12 +31,80 @@ const VALID_ROLES: AgentRole[] = [
 export function registerAgentCommand(program: Command, engine: MemoireEngine): void {
   const agent = program
     .command("agent")
-    .description("Manage multi-Claude agent instances");
+    .description("Manage design-agent briefs, agent kits, and multi-Claude agent instances");
+
+  // ── agent brief ────────────────────────────────────────
+  agent
+    .command("brief [target]")
+    .description("Create a cost-aware design-agent preflight brief for UI work")
+    .option("--intent <intent>", "Design intent or product task the agent should perform")
+    .option("--agent <agent>", "Agent stack to optimize install guidance for", "design-agent")
+    .option("--mode <mode>", "Evidence mode: local, figma, research, or full", "local")
+    .option("--project <path>", "Project/workspace root for the brief")
+    .option("--json", "Output the brief as JSON")
+    .action((target: string | undefined, opts: {
+      intent?: string;
+      agent?: string;
+      mode?: string;
+      project?: string;
+      json?: boolean;
+    }) => {
+      try {
+        const brief = buildDesignAgentBrief({
+          projectRoot: opts.project ?? engine.config.projectRoot,
+          target,
+          intent: opts.intent,
+          agent: opts.agent,
+          mode: normalizeDesignAgentBriefMode(opts.mode),
+        });
+
+        if (opts.json) {
+          console.log(JSON.stringify(brief, null, 2));
+          return;
+        }
+
+        console.log();
+        console.log(ui.section("DESIGN AGENT BRIEF"));
+        console.log(ui.dots("agent", brief.agent));
+        console.log(ui.dots("mode", brief.mode));
+        console.log(ui.dots("target", brief.target));
+        console.log(ui.dots("intent", brief.intent));
+        console.log();
+        console.log(ui.section("EVIDENCE COMMANDS"));
+        for (const command of brief.evidenceCommands) {
+          console.log(`  ${command.command}`);
+          console.log(`    ${ui.dim(command.why)} ${ui.dim(`[${command.cost}]`)}`);
+        }
+        console.log();
+        console.log(ui.section("DESIGN RULES"));
+        for (const rule of brief.designRules) {
+          console.log(`  - ${rule}`);
+        }
+        console.log();
+        console.log(ui.section("HANDOFF"));
+        for (const item of brief.handoffChecklist) {
+          console.log(`  - ${item}`);
+        }
+        console.log();
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (opts.json) {
+          console.log(JSON.stringify({
+            action: "brief",
+            status: "failed",
+            error: { message: msg },
+          }, null, 2));
+        } else {
+          console.log(ui.fail(msg));
+        }
+        process.exitCode = 1;
+      }
+    });
 
   // ── agent install ───────────────────────────────────────
   agent
     .command("install [target]")
-    .description("Install Memoire agent kits for Hermes, OpenClaw, Claude Code, Cursor, Codex, Codex plugin, or OpenCode")
+    .description("Install Memoire agent kits for universal Agent Skills, Hermes, OpenClaw, Claude Code, Cursor, Codex, Codex plugin, or OpenCode")
     .option("--dry-run", "Show the install plan without writing files")
     .option("--json", "Output install result as JSON")
     .option("--force", "Overwrite an existing Memoire kit or MCP server entry")

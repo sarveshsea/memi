@@ -4,6 +4,7 @@ import { homedir } from "node:os";
 import { packagePath } from "../utils/asset-path.js";
 
 export const AGENT_INSTALL_TARGETS = [
+  "universal",
   "hermes",
   "openclaw",
   "claude-code",
@@ -79,6 +80,19 @@ const MCP_SERVER_CONFIG = {
 };
 
 const KIT_DEFINITIONS: AgentKitDefinition[] = [
+  {
+    target: "universal",
+    kind: "skill",
+    source: "skills/memoire-design-tooling",
+    sourceBase: "package",
+    note: "Standard Agent Skills package for agents that read .agents/skills.",
+    destination: ({ projectRoot, homeDir, global }) => join(
+      global ? homeDir : projectRoot,
+      ".agents",
+      "skills",
+      "memoire-design-tooling",
+    ),
+  },
   {
     target: "hermes",
     kind: "skill",

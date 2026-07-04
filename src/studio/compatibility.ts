@@ -32,6 +32,7 @@ export function createStudioCompatibilitySnapshot(input: StudioCompatibilityInpu
         ...(!harness.enabled ? ["Enable harness in Studio settings"] : []),
         ...(!harness.installed ? [`Install ${harness.command}`] : []),
         ...(harness.authStatus === "needs_login" ? [harness.authMessage] : []),
+        ...(harness.authStatus === "config_error" ? [harness.authMessage] : []),
       ];
       const setup = setupForHarness(harness.id, harness.command, harness.enabled, harness.installed, harness.authStatus, harness.authMessage);
       return {
@@ -60,7 +61,7 @@ export function createStudioCompatibilitySnapshot(input: StudioCompatibilityInpu
         message: input.browser.message,
         permissionKind: "none",
         readyAction: "Browser adapter ready",
-        action: "Install browser adapter dependencies",
+        action: input.config.enabledTools.browser ? "Install browser adapter dependencies" : "Enable browser in Studio settings",
         command: "npm install",
       }),
       figma: setupTool({
@@ -71,7 +72,11 @@ export function createStudioCompatibilitySnapshot(input: StudioCompatibilityInpu
         permissionKind: "figma",
         ready: input.figma.running && input.figma.pluginStatus === "connected",
         readyAction: "Figma bridge and plugin connected",
-        action: input.figma.running ? "Open Figma and connect the Mémoire plugin" : "Start the Figma bridge",
+        action: input.config.enabledTools.figma
+          ? input.figma.running
+            ? "Open Figma and connect the Mémoire plugin"
+            : "Start the Figma bridge"
+          : "Enable Figma in Studio settings",
         canAutoOpen: true,
       }),
       computer: setupTool({
@@ -82,7 +87,11 @@ export function createStudioCompatibilitySnapshot(input: StudioCompatibilityInpu
         permissionKind: "macos",
         ready: input.computer.available && permissionsReady(input.computer.permissions),
         readyAction: "Computer permissions ready",
-        action: input.computer.available ? "Grant macOS Screen Recording, Accessibility, Automation, and file access" : "Use the macOS desktop app for Computer permissions",
+        action: input.config.computer.enabled
+          ? input.computer.available
+            ? "Grant macOS Screen Recording, Accessibility, Automation, and file access"
+            : "Use the macOS desktop app for Computer permissions"
+          : "Enable Computer in Studio settings",
         canAutoOpen: input.computer.available,
       }),
       mcp: setupTool({
@@ -100,7 +109,7 @@ export function createStudioCompatibilitySnapshot(input: StudioCompatibilityInpu
         state: input.config.enabledTools.shell ? "full-access" : "disabled",
         message: input.config.enabledTools.shell ? "Shell is enabled and every command is traced" : "Shell is disabled",
         permissionKind: "workspace",
-        ready: true,
+        ready: input.config.enabledTools.shell,
         readyAction: input.config.enabledTools.shell ? "Shell full-access tracing enabled" : "Shell disabled by default",
         action: "Enable shell in Studio settings for terminal workflows",
       }),
@@ -148,6 +157,15 @@ function setupForHarness(
       setupCommand: loginCommandForHarness(id),
       canAutoOpen: true,
       permissionKind: "provider",
+    };
+  }
+  if (authStatus === "config_error") {
+    return {
+      setupStatus: "blocked",
+      setupAction: authMessage,
+      setupCommand: null,
+      canAutoOpen: false,
+      permissionKind: "cli",
     };
   }
   return {

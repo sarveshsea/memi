@@ -86,11 +86,14 @@ for (const file of await collectPackagedFiles(packageJson.files ?? [])) {
 
 const readme = await readFile(join(root, "README.md"), "utf-8");
 const readmeTopFold = readme.slice(0, 3000);
+const skillsPackageInstallCommand = "npx skills add sarveshsea/memi --skill memoire-design-tooling";
 const requiredReadmeTerms = [
+  "Interface understanding for AI coding agents",
   "Design-system memory for coding agents",
   "npm i -g @memi-design/cli",
   "memi diagnose",
   "memi ux audit",
+  "memi craft audit",
   "memi shadcn export",
   "memoire.cv",
   "https://ui.shadcn.com/docs/registry/getting-started",
@@ -100,6 +103,32 @@ for (const term of requiredReadmeTerms) {
   if (!readmeTopFold.includes(term)) {
     fail(`README top fold is missing required conversion term: ${term}`);
   }
+}
+if (!readme.includes(skillsPackageInstallCommand)) {
+  fail("README is missing the public Agent Skills install command");
+}
+const requiredPackagedDocs = [
+  ["docs/README.md", "Memoire is interface understanding for AI coding agents"],
+  ["docs/INTERFACE_UNDERSTANDING.md", "Interface understanding is the memi v2 core loop"],
+  ["docs/AGENT_STACKS.md", "ECC / AGENTS.md stacks"],
+  ["docs/V2_PACKAGE_POSITIONING.md", "High-download package bar"],
+  ["docs/GROWTH_TO_1M_NPM.md", "interface understanding for AI coding agents"],
+  ["docs/PUBLIC_REPOS.md", "sarveshsea/design-sandbox"],
+  ["docs/RELEASE_GATES.md", "Local Publish-Ready Gate"],
+  ["docs/PROOF.md", "No-Figma"],
+];
+for (const [docPath, requiredTerm] of requiredPackagedDocs) {
+  if (!packageJson.files?.includes(docPath)) {
+    fail(`package.json files must include ${docPath}`);
+    continue;
+  }
+  const doc = await readFile(join(root, docPath), "utf-8");
+  if (!doc.includes(requiredTerm)) {
+    fail(`${docPath} is missing required term: ${requiredTerm}`);
+  }
+}
+if (!packageJson.files?.includes("NOTICE")) {
+  fail("package.json files must include NOTICE for attribution");
 }
 
 const codexInstallCommand = "codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire";
@@ -113,6 +142,17 @@ if (!packageJson.scripts?.["smoke:codex-plugin"]) {
 
 const codexPluginManifest = await readJson(join(root, "plugins", "memoire", ".codex-plugin", "plugin.json"));
 const codexInterface = codexPluginManifest.interface ?? {};
+const rootAgentSkill = await readFile(join(root, "skills", "memoire-design-tooling", "SKILL.md"), "utf-8");
+const codexAgentSkill = await readFile(join(root, "agent-kits", "codex", "memoire-design-tooling", "SKILL.md"), "utf-8");
+const pluginAgentSkill = await readFile(join(root, "plugins", "memoire", "skills", "memoire-design-tooling", "SKILL.md"), "utf-8");
+if (rootAgentSkill !== codexAgentSkill || pluginAgentSkill !== codexAgentSkill) {
+  fail("root, Codex, and Codex plugin memoire-design-tooling skills must stay in sync");
+}
+for (const term of ["name: memoire-design-tooling", "memi agent brief", "memi craft audit", "memi agent install --dry-run --json", "memi mcp start --no-figma"]) {
+  if (!rootAgentSkill.includes(term)) {
+    fail(`root Agent Skills package is missing required term: ${term}`);
+  }
+}
 if (codexPluginManifest.homepage !== "https://www.memoire.cv/codex-plugin") {
   fail("Codex plugin manifest homepage must point to https://www.memoire.cv/codex-plugin");
 }
@@ -152,7 +192,7 @@ if (!codexTermsPage.includes("Memoire terms of service")) {
 }
 
 const cliEntry = await readFile(join(root, "src", "index.ts"), "utf-8");
-for (const command of ["diagnose [target]", "ux audit [target]", "tokens", "publish", "shadcn <subcommand>", "fix <subcommand>", "add <component>", "registry <subcommand>"]) {
+for (const command of ["diagnose [target]", "ux audit [target]", "craft audit [target]", "tokens", "publish", "shadcn <subcommand>", "fix <subcommand>", "add <component>", "registry <subcommand>", "agent brief [target]"]) {
   if (!cliEntry.includes(command)) {
     fail(`fast CLI help is missing command: ${command}`);
   }

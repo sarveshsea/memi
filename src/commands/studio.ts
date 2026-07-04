@@ -15,6 +15,7 @@ import { listHarnesses } from "../studio/harnesses.js";
 import { StudioRuntimeServer } from "../studio/server.js";
 import { StudioSessionStore } from "../studio/session-store.js";
 import { renderStudioTuiSnapshot } from "../studio/tui.js";
+import { createVisualParityProof } from "../studio/visual-parity.js";
 import type { StudioEvent, StudioHarnessId, StudioRunAction, StudioSession, StudioSessionMode } from "../studio/types.js";
 import { ui } from "../tui/format.js";
 
@@ -124,6 +125,36 @@ export function registerStudioCommand(program: Command, engine: MemoireEngine): 
         console.log(finalSession.status === "completed" ? ui.ok("Studio run completed") : ui.fail(`Studio run ${finalSession.status}`));
       } finally {
         await server.stop();
+      }
+    });
+
+  studio
+    .command("visual-parity")
+    .description("Create and grade the canonical no-install visual parity dashboard proof")
+    .option("--out <path>", "Output directory for preview, screenshot, spec, code, tokens, and handoff artifacts")
+    .option("--json", "Output proof metadata as JSON")
+    .action(async (opts: { out?: string; json?: boolean }) => {
+      await engine.init("minimal");
+      const proof = await createVisualParityProof({
+        projectRoot: engine.config.projectRoot,
+        outDir: opts.out,
+      });
+      const payload = {
+        status: proof.grade.passed ? "completed" : "failed",
+        proof,
+      };
+
+      if (opts.json) {
+        console.log(JSON.stringify(payload, null, 2));
+        return;
+      }
+
+      console.log(proof.grade.passed ? ui.ok("Visual parity proof created") : ui.fail("Visual parity proof incomplete"));
+      console.log(ui.dots("Score", `${proof.grade.score}/100`));
+      console.log(ui.dots("Preview", proof.previewUrl));
+      console.log(ui.dots("Artifacts", proof.outDir));
+      if (proof.grade.missingCriteria.length > 0) {
+        console.log(ui.warn(`Missing: ${proof.grade.missingCriteria.join(", ")}`));
       }
     });
 

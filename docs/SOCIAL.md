@@ -33,6 +33,7 @@ The CLI is still there for teams who want the engine directly:
 npm i -g @memi-design/cli
 memi diagnose
 memi ux audit --json
+memi craft audit --json
 memi mcp start --no-figma
 ```
 

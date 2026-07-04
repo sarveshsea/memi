@@ -10,6 +10,42 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 No unreleased changes.
 
+## v2.0.0 — 2026-07-03
+
+### Version 2 package release
+This major release makes `@memi-design/cli` feel like the real install surface for memi, not just a CLI wrapper. Version 2 bundles the MCP server, standard Agent Skills package, Codex plugin, Studio harness runtime, UX audit layer, and design-system registry workflow behind one npm package.
+
+### New
+- Added `memi agent brief [target]` and the MCP `prepare_design_agent_brief` tool so agents can start UI work with a cost-aware preflight contract: evidence commands, design rules, compatibility installs, MCP/Agent Skills setup, and handoff requirements.
+- Added `memi craft audit [target]` and MCP `audit_interface_craft` so interface craft is a first-class local gate across visual design, focusing mechanism, hierarchy, spacing rhythm, conventions, responsive resilience, and user context.
+- Added a standard Agent Skills package at `skills/memoire-design-tooling/SKILL.md` so users can install memi through the broader skills ecosystem with `npx skills add sarveshsea/memi --skill memoire-design-tooling`.
+- Added `memi agent install universal --project .`, which writes `.agents/skills/memoire-design-tooling` for agents that read the universal Agent Skills path.
+- Added release gates that keep the root Agent Skills package, Codex skill kit, and bundled Codex plugin skill in sync.
+- Promoted the Figma-independent MCP server path as a first-class package surface: `memi mcp start --no-figma` remains the registry-safe startup command for clients and crawlers.
+- Reworked the package documentation around the v2 category: interface understanding for AI coding agents. The root README now leads with install proof, while deeper docs cover agent stacks, ECC-style workflows, UX/research audits, package positioning, and growth operations.
+- Added `sarveshsea/design-sandbox` as the public proof repo for memi v2: a Next.js, Tailwind, shadcn, MCP, and Agent Skills workspace that demonstrates the interface-understanding loop in a real repository.
+
+### Studio and harness
+- Ships the newer Studio harness layer with Codex, Claude Code, OpenCode, Gemini, Ollama, Hermes, and memi-native metadata, compatibility checks, and trace-friendly runtime events.
+- Keeps Codex plugin distribution packaged with skills, MCP wiring, marketplace metadata, privacy and terms URLs, and PNG storefront assets.
+- Includes the improved app-quality and UX Tenets and Traps audit flow across CLI, Studio, and MCP tools.
+
+### Packaging and trust
+- Bumps package, lockfile, MCP registry manifest, Codex plugin manifest, and example registry metadata to `2.0.0`.
+- Keeps npm install side-effect free: no public lifecycle scripts, explicit Figma plugin setup, and explicit agent-kit install writes.
+- Documents the safer trust ladder: dry-run native installer first, skills ecosystem install path second, and npm publish/public release checks last.
+- Ships the v2 docs needed inside the npm tarball: docs map, interface-understanding protocol, agent stack guide, package positioning, growth plan, proof notes, release gates, and NOTICE attribution.
+- Ships a public repo distribution playbook with GitHub topics, hashtags, proof commands, cost posture, compatibility surfaces, and the design-sandbox promotion path.
+
+### Verification
+- `npm run lint` passed.
+- `npm test` passed with 205 files and 1572 tests.
+- `npm run build` passed.
+- `npm run check:release` passed.
+- `npm run smoke:mcp` passed with 43 MCP tools.
+- `npx skills@1.5.14 add . --list` found exactly `memoire-design-tooling`.
+- `node dist/index.js agent install universal --dry-run --json` returned the expected `.agents/skills/memoire-design-tooling` plan.
+
 ## v1.1.1 — 2026-06-15
 
 ### Product Hunt launch alignment

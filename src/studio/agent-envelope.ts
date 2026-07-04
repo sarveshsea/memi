@@ -14,12 +14,12 @@ const KIND_LABELS: Record<ProjectMemoryKind, string> = {
 const DEFAULT_CODEX_CONFIG: StudioCodexConfig = {
   model: "gpt-5.5",
   reasoningEffort: "xhigh",
-  approvalPolicy: "never",
-  webSearch: true,
+  approvalPolicy: "on-request",
+  webSearch: false,
   skipGitRepoCheck: true,
   includeMemoireCommands: true,
   includeCodexCommands: true,
-  planModeDefault: false,
+  planModeDefault: true,
 };
 
 export function createDesignAgentSystemPrompt(context: StudioAgentContext): string {

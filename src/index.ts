@@ -6,6 +6,7 @@
  * Commands:
  *    memoire diagnose          Diagnose design debt in an existing web app
  *    memoire ux audit          Audit UX tenets and traps from code or screenshots
+ *    memoire craft audit       Audit interface craft from code or screenshots
  *    memoire connect           Connect to Figma Desktop Bridge
  *    memoire pull              Pull design system from Figma
  *    memoire research <sub>    Run research pipeline
@@ -25,10 +26,12 @@
  *    memoire shadcn            Export and serve shadcn-native registry files
  *    memoire fix               Plan and apply safe UI quality fixes
  *    memoire ux audit          Audit UX tenets and traps from code or screenshots
+ *    memoire craft audit       Audit interface craft from code or screenshots
  *    memoire registry          Discover installable registries
  *    memoire pull --rest       Pull design system via Figma REST API (no plugin)
  *    memoire design-doc <url>  Extract design system from any URL → DESIGN.md
  *    memoire extract <url>    Alias for design-doc
+ *    memoire agent brief      Create a cost-aware design-agent preflight brief
  *    memoire studio           Run the desktop/web agent design shell runtime
  *    memoire mermaid-jam      Open Mermaid Jam for Mermaid/markdown → FigJam
  *    memoire video            Create Remotion/HyperFrames motion projects
@@ -103,6 +106,7 @@ const [
   { registerUpdateCommand },
   { registerDiagnoseCommand },
   { registerUxCommand },
+  { registerCraftCommand },
   { registerStudioCommand },
   { registerMermaidJamCommand },
   { registerVideoCommand },
@@ -152,6 +156,7 @@ const [
   import("./commands/update.js"),
   import("./commands/diagnose.js"),
   import("./commands/ux.js"),
+  import("./commands/craft.js"),
   import("./commands/studio.js"),
   import("./commands/mermaid-jam.js"),
   import("./commands/video.js"),
@@ -197,6 +202,7 @@ if (!mcpMode) {
 // `memi --help` leads with the new product surface instead of the long tail.
 registerDiagnoseCommand(program, engine);
 registerUxCommand(program, engine);
+registerCraftCommand(program, engine);
 registerStudioCommand(program, engine);
 registerMermaidJamCommand(program, engine);
 registerVideoCommand(program, engine);
@@ -327,6 +333,7 @@ function printFastHelp(version: string): void {
     "Hero workflow:",
     "  diagnose [target]       Diagnose design debt in code or a URL",
     "  ux audit [target]       Audit UX tenets and traps from code or screenshots",
+    "  craft audit [target]    Audit interface craft, hierarchy, visual polish, conventions, and user context",
     "  tokens                  Extract or export design tokens",
     "  publish                 Package the design system as an installable registry",
     "  shadcn <subcommand>     Export, serve, and validate shadcn-native registry files",
@@ -356,6 +363,7 @@ function printFastHelp(version: string): void {
     "  pull                    Pull design system data from Figma or REST",
     "  sync                    Pull and regenerate code",
     "  mcp                     Configure or start the MCP server",
+    "  agent brief [target]    Create a cost-aware design-agent preflight brief",
     "  agent install [target]  Install Memoire kits for Hermes, OpenClaw, Claude, Codex, Codex plugin, Cursor, or OpenCode",
     "  research                Run the research pipeline",
     "  simulate                Run product scenario simulations from research",

@@ -12,6 +12,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { MemoireEngine } from "../engine/core.js";
 import { AgentOrchestrator } from "../agents/orchestrator.js";
 import { DesignAnalyzer } from "../agents/design-analyzer.js";
+import { buildDesignAgentBrief, DESIGN_AGENT_BRIEF_MODES } from "../agents/design-agent-brief.js";
 import { getAI, getTracker } from "../ai/index.js";
 import { ComponentSpecSchema, PageSpecSchema, DataVizSpecSchema, type ComponentSpec } from "../specs/types.js";
 import { fetchPageAssets, parseCSSTokens } from "../research/css-extractor.js";
@@ -19,6 +20,7 @@ import { buildShadcnRegistry, toShadcnItemName } from "../shadcn/index.js";
 import { diagnoseAppQuality } from "../app-quality/engine.js";
 import { buildUiFixPlan } from "../app-quality/fix-plan.js";
 import { buildUxAuditReport } from "../ux/tenets-traps.js";
+import { buildInterfaceCraftReport } from "../ux/interface-craft.js";
 import { resolveMermaidJamIntegration } from "../integrations/mermaid-jam.js";
 import {
   buildResearchDesignPackage,
@@ -397,6 +399,74 @@ Use this tool: when an agent needs a focused design critique packet for clarity,
         })
         : diagnosis.ux;
       return { content: [{ type: "text" as const, text: JSON.stringify(report, null, 2) }] };
+    },
+  );
+
+  // ── audit_interface_craft ──────────────────────────────
+  server.tool(
+    "audit_interface_craft",
+    `Audit first-class interface design craft from local app-quality evidence or a screenshot artifact.
+
+Returns on success: InterfaceCraftReport JSON with score, critique, dimensions, findings, and topOpportunities. Lenses cover visual design, interface design, conventions, and user context.
+
+Use this tool: before an agent edits UI, after a redesign pass, or whenever the task requires visual polish beyond generic UX checks. Pair it with diagnose_app_quality and audit_ux_tenets_traps for the full local evidence loop.`,
+    {
+      target: z.string().optional().describe("Local path or public URL to scan. Defaults to the current project root."),
+      screenshotPath: z.string().optional().describe("Optional screenshot artifact path to attach to the craft audit."),
+      maxFiles: z.number().int().min(1).max(5000).default(500).describe("Maximum source files to scan when target evidence is used."),
+    },
+    async ({ target, screenshotPath, maxFiles }) => {
+      if (screenshotPath) await assertReadableArtifact(screenshotPath);
+
+      if (screenshotPath && !target) {
+        const report = buildInterfaceCraftReport({
+          target: "screenshot",
+          artifactPath: screenshotPath,
+          source: "mcp",
+        });
+        return { content: [{ type: "text" as const, text: JSON.stringify(report, null, 2) }] };
+      }
+
+      const diagnosis = await diagnoseAppQuality({
+        projectRoot: engine.config.projectRoot,
+        target,
+        maxFiles,
+        write: false,
+      });
+      const report = buildInterfaceCraftReport({
+        target: diagnosis.target,
+        issues: diagnosis.issues,
+        appQualityScore: diagnosis.summary.score,
+        artifactPath: screenshotPath,
+        source: "mcp",
+      });
+      return { content: [{ type: "text" as const, text: JSON.stringify(report, null, 2) }] };
+    },
+  );
+
+  // ── prepare_design_agent_brief ─────────────────────────
+  server.tool(
+    "prepare_design_agent_brief",
+    `Prepare a cost-aware design-agent brief before editing UI.
+
+Returns on success: JSON with mission, evidenceCommands, designRules, costControls, compatibility installs, MCP command, Agent Skills command, and handoffChecklist.
+
+Use this tool: as the first MCP call when a coding agent is asked to design, polish, audit, refactor, or generate interface code. It is local-first and does not call Figma, browsers, or models.`,
+    {
+      target: z.string().optional().describe("Local path or URL the agent should inspect. Defaults to '.'."),
+      intent: z.string().optional().describe("Natural language product/design task to optimize the brief around."),
+      mode: z.enum(DESIGN_AGENT_BRIEF_MODES).default("local").describe("Evidence mode: local, figma, research, or full."),
+      agent: z.string().default("design-agent").describe("Agent stack to prioritize in compatibility guidance, such as codex, hermes, openclaw, cursor, or claude-code."),
+    },
+    async ({ target, intent, mode, agent }) => {
+      const brief = buildDesignAgentBrief({
+        projectRoot: engine.config.projectRoot,
+        target,
+        intent,
+        mode,
+        agent,
+      });
+      return { content: [{ type: "text" as const, text: JSON.stringify(brief, null, 2) }] };
     },
   );
 

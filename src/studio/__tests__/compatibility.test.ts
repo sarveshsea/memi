@@ -52,24 +52,53 @@ describe.skipIf(process.platform !== "darwin")("studio compatibility snapshot", 
       permissionKind: "provider",
     });
     expect(snapshot.tools).toMatchObject({
-      browser: { enabled: true, available: true, setupStatus: "ready" },
+      browser: { enabled: false, available: true, setupStatus: "optional" },
       figma: {
-        enabled: true,
+        enabled: false,
         available: true,
         state: "running/disconnected",
-        setupStatus: "needs_action",
-        setupAction: "Open Figma and connect the Mémoire plugin",
+        setupStatus: "optional",
+        setupAction: "Enable Figma in Studio settings",
         permissionKind: "figma",
       },
       computer: {
-        enabled: true,
+        enabled: false,
         available: process.platform === "darwin",
-        setupAction: process.platform === "darwin"
-          ? "Grant macOS Screen Recording, Accessibility, Automation, and file access"
-          : "Use the macOS desktop app for Computer permissions",
+        setupAction: "Enable Computer in Studio settings",
         permissionKind: "macos",
       },
-      shell: { enabled: true, available: true, setupStatus: "ready", permissionKind: "workspace" },
+      shell: { enabled: false, available: false, setupStatus: "optional", permissionKind: "workspace" },
+    });
+  });
+
+  it("treats CLI configuration failures as blocked setup instead of provider login", () => {
+    const root = "/tmp/memoire-compat";
+    const config = defaultStudioConfig(root);
+    const snapshot = createStudioCompatibilitySnapshot({
+      config,
+      harnesses: [
+        {
+          ...config.harnesses.find((harness) => harness.id === "codex")!,
+          installed: true,
+          resolvedPath: "/usr/local/bin/codex",
+          probeAgeMs: 10,
+          authStatus: "config_error",
+          authMessage: "Fix Codex config: /Users/me/.codex/config.toml uses invalid service_tier.",
+        },
+      ],
+      figma: figmaStatus(),
+      browser: browserStatus(),
+      computer: computerStatus(),
+    });
+
+    expect(snapshot.harnesses.find((harness) => harness.id === "codex")).toMatchObject({
+      authStatus: "config_error",
+      requiredSetup: ["Fix Codex config: /Users/me/.codex/config.toml uses invalid service_tier."],
+      setupStatus: "blocked",
+      setupAction: "Fix Codex config: /Users/me/.codex/config.toml uses invalid service_tier.",
+      setupCommand: null,
+      canAutoOpen: false,
+      permissionKind: "cli",
     });
     expect(snapshot.providers.openai).toMatchObject({ enabled: true, envKey: "OPENAI_API_KEY" });
   });

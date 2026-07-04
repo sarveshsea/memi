@@ -1,6 +1,6 @@
 # Memoire Agent Recipes
 
-Memoire is for coding agents first: it gives Claude Code, Codex, Cursor, OpenCode, Hermes, and OpenClaw a repeatable way to inspect UI quality, design tokens, shadcn registries, Figma context, and project memory before editing files.
+Memoire is for coding agents first: it gives Claude Code, Codex, Cursor, OpenCode, Hermes, OpenClaw, ECC-style AGENTS.md repos, MCP clients, and `.agents/skills` compatible agents a repeatable way to inspect UI quality, design tokens, shadcn registries, Figma context, user research, UX tenets and traps, interface craft, and project memory before editing files.
 
 ## Before Any UI Patch
 
@@ -9,13 +9,39 @@ npm i -g @memi-design/cli
 memi suite init --project .
 memi daemon start --project . --port auto
 memi daemon status --json
+memi agent brief . --intent "Improve this interface" --json
 memi diagnose
 memi ux audit --json
+memi craft audit --json
 memi tokens --from ./src --report
 memi shadcn export --out public/r
 ```
 
-Use this when an agent is asked to fix layout, polish visual design, remove Tailwind drift, improve accessibility, convert Figma to code, critique screenshots, or create a component registry. Treat `memoire.agent.yaml` as the workspace contract and the reports under `.memoire/app-quality/` as evidence for the patch plan, including UX Tenets and Traps when `ux` appears in diagnosis or fix-plan JSON.
+Use this when an agent is asked to fix layout, polish visual design, remove Tailwind drift, improve accessibility, convert Figma to code, critique screenshots, or create a component registry. Treat `memi agent brief` as the preflight contract, `memoire.agent.yaml` as the workspace contract, and the reports under `.memoire/app-quality/` as evidence for the patch plan, including UX Tenets and Traps plus interface craft dimensions when they appear in JSON.
+
+## ECC / AGENTS.md Repos
+
+```bash
+memi suite init --project .
+memi agent install universal --project .
+memi agent brief . --intent "Improve this interface" --json
+memi diagnose .
+memi ux audit . --json
+memi craft audit . --json
+memi tokens --from ./src --report
+memi suite run design-audit --project . --json
+```
+
+Use this in repos that enforce planning, TDD, review, security, and release gates through `AGENTS.md`. Add a local rule that broad UI edits must start from Memoire evidence and end with the artifacts and verification commands that were used.
+
+## Universal Agent Skills
+
+```bash
+memi agent install universal --project .
+npx skills add sarveshsea/memi --skill memoire-design-tooling
+```
+
+`memi agent install universal` writes a standard project skill at `.agents/skills/memoire-design-tooling`. The root package also ships `skills/memoire-design-tooling/SKILL.md`, so the same instructions can be installed through the broader Agent Skills ecosystem.
 
 ## Claude Code
 
@@ -32,14 +58,17 @@ memi mcp start --no-figma
 Recommended prompt:
 
 ```text
-Before changing UI code, use the Memoire MCP server to diagnose app quality, inspect tokens, audit UX tenets and traps, and read shadcn registry context. Ground every UI patch in Memoire evidence.
+Before changing UI code, use the Memoire MCP server to diagnose app quality, audit UX tenets and traps, audit interface craft, inspect tokens, and read shadcn registry context. Ground every UI patch in Memoire evidence.
 ```
+
+MCP equivalent: call `prepare_design_agent_brief` first, then run the evidence tools it returns.
 
 ## Codex
 
 ```bash
 memi agent install codex
 memi agent install codex-plugin
+memi agent brief . --agent codex --intent "Prepare a UI patch plan" --json
 ```
 
 `memi agent install codex` installs the skill-only context pack at `~/.codex/skills/memoire/memoire-design-tooling`. `memi agent install codex-plugin` installs the full home-local Codex plugin at `~/plugins/memoire` and updates `~/.agents/plugins/marketplace.json` so Codex can discover the bundled skill and Memoire MCP server wiring.
@@ -55,7 +84,7 @@ Then open `/plugins` in Codex and install Memoire from the marketplace list.
 Recommended prompt:
 
 ```text
-Use the Memoire skill before frontend changes. Run memi diagnose, memi ux audit, and memi tokens when UI quality, Tailwind, shadcn/ui, accessibility, component registry, screenshot critique, or Figma context matters.
+Use the Memoire skill before frontend changes. Run memi diagnose, memi ux audit, memi craft audit, and memi tokens when UI quality, Tailwind, shadcn/ui, accessibility, component registry, screenshot critique, or Figma context matters.
 ```
 
 ## Cursor

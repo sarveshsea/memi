@@ -23,8 +23,8 @@ const DEFAULT_SCHEDULER_INTERVAL_SECONDS = 300;
 const DEFAULT_CODEX_AUTOMATION_CONFIG: Partial<StudioCodexConfig> = {
   model: "gpt-5.5",
   reasoningEffort: "xhigh",
-  approvalPolicy: "never",
-  webSearch: true,
+  approvalPolicy: "on-request",
+  webSearch: false,
   skipGitRepoCheck: true,
   includeMemoireCommands: true,
   includeCodexCommands: true,
