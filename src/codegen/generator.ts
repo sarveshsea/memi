@@ -120,6 +120,8 @@ export interface CodegenResult {
   entryFile: string;
   files: { path: string; content: string }[];
   spec: AnySpec;
+  /** Design-quality findings on the generated output (raw hex, off-token values). */
+  warnings?: string[];
 }
 
 export interface CodegenContext {
@@ -187,6 +189,15 @@ export class CodeGenerator {
         };
       default:
         throw new Error(`Unknown spec type: ${(spec as { type: string }).type}`);
+    }
+
+    // Quality gate — the generator must not ship output its own audit calls bad.
+    const warnings = auditGeneratedFiles(result.files, ctx);
+    if (warnings.length > 0) {
+      result.warnings = warnings;
+      for (const warning of warnings) {
+        this.emitEvent("info", `Quality: ${warning}`);
+      }
     }
 
     // Write all files
@@ -493,6 +504,40 @@ export class CodeGenerator {
       timestamp: new Date(),
     });
   }
+}
+
+/**
+ * Scan generated file contents for design-quality violations: raw hex colors
+ * in className strings (should be token CSS variables or semantic classes)
+ * and inline style color literals. Warnings, not failures — templates are
+ * trusted, but spec-supplied values can smuggle raw colors through.
+ */
+function auditGeneratedFiles(
+  files: { path: string; content: string }[],
+  ctx: CodegenContext,
+): string[] {
+  const warnings: string[] = [];
+  const hasTokens = (ctx.designSystem?.tokens?.length ?? 0) > 0;
+
+  for (const file of files) {
+    if (!/\.(tsx|jsx|vue|svelte)$/.test(file.path)) continue;
+
+    const rawHexInClasses = file.content.match(/className=["'{][^"'}]*#[0-9a-fA-F]{3,8}\b[^"'}]*/g) ?? [];
+    if (rawHexInClasses.length > 0 && hasTokens) {
+      warnings.push(
+        `${file.path}: ${rawHexInClasses.length} raw hex color(s) in className — use token CSS variables instead`,
+      );
+    }
+
+    const inlineStyleColors = file.content.match(/style=\{\{[^}]*(?:#[0-9a-fA-F]{3,8}\b|rgb\(|oklch\()[^}]*\}\}/g) ?? [];
+    if (inlineStyleColors.length > 0 && hasTokens) {
+      warnings.push(
+        `${file.path}: ${inlineStyleColors.length} hardcoded color literal(s) in inline style — use var(--token) references`,
+      );
+    }
+  }
+
+  return warnings;
 }
 
 /**

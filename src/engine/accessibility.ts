@@ -8,6 +8,7 @@
 
 import type { DesignToken, DesignSystem } from "./registry.js";
 import type { AnySpec, ComponentSpec, PageSpec } from "../specs/types.js";
+import { parseCssColorToRgb } from "../utils/color.js";
 
 // ── Types ──────────────────────────────────────────────────
 
@@ -74,10 +75,10 @@ export function relativeLuminance(r: number, g: number, b: number): number {
   return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
 }
 
-/** Compute WCAG contrast ratio between two colors. */
-export function contrastRatio(hex1: string, hex2: string): number {
-  const c1 = parseHex(hex1);
-  const c2 = parseHex(hex2);
+/** Compute WCAG contrast ratio between two colors (hex, rgb, hsl, or oklch). */
+export function contrastRatio(color1: string, color2: string): number {
+  const c1 = parseCssColorToRgb(color1);
+  const c2 = parseCssColorToRgb(color2);
   if (!c1 || !c2) return 0;
 
   const l1 = relativeLuminance(c1.r, c1.g, c1.b);
@@ -123,7 +124,8 @@ export function auditTokenContrast(tokens: DesignToken[]): A11yIssue[] {
       for (const mode of Object.keys(fg.values)) {
         const fgVal = String(fg.values[mode]);
         const bgVal = bg.values[mode] !== undefined ? String(bg.values[mode]) : null;
-        if (!bgVal || !fgVal.startsWith("#") || !bgVal.startsWith("#")) continue;
+        // Any parseable CSS color counts — oklch/hsl token sets must not be skipped.
+        if (!bgVal || !parseCssColorToRgb(fgVal) || !parseCssColorToRgb(bgVal)) continue;
 
         const result = checkContrast(fgVal, bgVal);
         if (!result.passesAA) {

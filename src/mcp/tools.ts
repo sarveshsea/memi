@@ -18,6 +18,7 @@ import { ComponentSpecSchema, PageSpecSchema, DataVizSpecSchema, type ComponentS
 import { fetchPageAssets, parseCSSTokens } from "../research/css-extractor.js";
 import { buildShadcnRegistry, toShadcnItemName } from "../shadcn/index.js";
 import { diagnoseAppQuality } from "../app-quality/engine.js";
+import { runFullAudit, auditTokenContrast } from "../engine/accessibility.js";
 import { buildUiFixPlan } from "../app-quality/fix-plan.js";
 import { buildUxAuditReport } from "../ux/tenets-traps.js";
 import { buildInterfaceCraftReport } from "../ux/interface-craft.js";
@@ -586,7 +587,7 @@ Be specific — vague intents like "make something nice" produce generic plans. 
   // ── run_audit ───────────────────────────────────────────
   server.tool(
     "run_audit",
-    `Run a design system audit through the agent orchestrator and return a structured findings report.
+    `Run a deterministic design system audit (WCAG contrast, token completeness, spec accessibility) and return a structured findings report.
 
 Prerequisites: No Figma connection required for spec-level audits. For visual/contrast checks, the bridge must be running (WCAG contrast checks query the design system tokens; pixel-level checks use AI vision via analyze_design).
 
@@ -606,10 +607,45 @@ Use this tool vs analyze_design: run_audit operates on specs and the token regis
       focus: z.string().optional().describe("Optional focus area to narrow the audit scope. Examples: 'accessibility' (runs all 5 WCAG checks), 'token coverage' (checks which components use design tokens vs hardcoded values), 'naming' (validates spec name conventions), 'contrast' (color contrast only), 'touch-targets' (interactive element sizing only). Omit to run the full default audit suite."),
     },
     async ({ focus }) => {
-      const intent = focus ? `design-audit focusing on ${focus}` : "design-audit";
-      const orchestrator = new AgentOrchestrator(engine);
-      const result = await orchestrator.execute(intent);
-      return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+      try {
+        // Deterministic path — run the real checkers directly instead of
+        // routing a deterministic-sounding contract through an LLM planner.
+        const designSystem = engine.registry.designSystem;
+        const specs = await engine.registry.getAllSpecs();
+
+        if (focus === "contrast") {
+          const issues = auditTokenContrast(designSystem.tokens);
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({
+                success: true,
+                results: issues,
+                summary: `${issues.length} contrast issue(s) across ${designSystem.tokens.length} tokens`,
+              }),
+            }],
+          };
+        }
+
+        const report = runFullAudit(designSystem, specs);
+        return {
+          content: [{
+            type: "text" as const,
+            text: JSON.stringify({
+              success: true,
+              results: report.issues,
+              score: report.score,
+              level: report.level,
+              summary: `Score ${report.score}/100 (WCAG ${report.level}) — ${report.failed} failed, ${report.warnings} warnings across ${specs.length} specs and ${designSystem.tokens.length} tokens${focus ? ` (focus: ${focus})` : ""}`,
+            }),
+          }],
+        };
+      } catch (err) {
+        return {
+          isError: true,
+          content: [{ type: "text" as const, text: `run_audit failed: ${(err as Error).message}` }],
+        };
+      }
     },
   );
 

@@ -643,16 +643,10 @@ export function substituteTokensInClasses(classes: string, tokens: DesignToken[]
     const value = Object.values(token.values)[0];
     if (typeof value !== "string") continue;
     const hex = value.trim();
-    if (!hex.startsWith("#") && !hex.startsWith("rgb") && !hex.startsWith("hsl")) continue;
+    if (!hex.startsWith("#") && !hex.startsWith("rgb") && !hex.startsWith("hsl") && !hex.startsWith("oklch")) continue;
 
-    // First check if we have a standard Tailwind class for this hex
-    const twClass = HEX_TO_TAILWIND[hex.toUpperCase()];
-    if (twClass) {
-      result = result.replace(new RegExp(hex.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), twClass.replace("bg-", ""));
-      continue;
-    }
-
-    // Otherwise substitute with the token's CSS variable
+    // The project's own token always wins over the generic Tailwind palette —
+    // approximating a brand color to bg-blue-500 is off-brand by construction.
     if (token.cssVariable) {
       const escaped = hex.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       // Replace bg-[#hex] → bg-[var(--token)]

@@ -24,14 +24,55 @@ interface PageCode {
   barrel: string;
 }
 
-const LAYOUT_TEMPLATES: Record<string, { imports: string[]; wrapper: (content: string) => string }> = {
+/** Spacing classes resolved from the project's own spacing tokens. */
+interface SpacingScale {
+  /** grid/flex gap suffix, e.g. "4" or "[18px]" */
+  gap: string;
+  /** main padding suffix, e.g. "6" */
+  pad: string;
+  /** vertical rhythm suffix for stacked sections */
+  stackGap: string;
+}
+
+const DEFAULT_SPACING: SpacingScale = { gap: "4", pad: "6", stackGap: "6" };
+
+/**
+ * Derive gap/padding classes from the design system's spacing tokens instead
+ * of hardcoding gap-4/p-6 — generated pages should inherit the project's
+ * spacing rhythm. Falls back to shadcn defaults when no tokens exist.
+ */
+function resolveSpacing(ctx: CodegenContext): SpacingScale {
+  const px: number[] = [];
+  for (const token of ctx.designSystem?.tokens ?? []) {
+    if (token.type !== "spacing") continue;
+    for (const raw of Object.values(token.values)) {
+      const n = typeof raw === "number" ? raw : parseFloat(String(raw));
+      if (!Number.isNaN(n) && n > 0 && n <= 128) px.push(n);
+    }
+  }
+  if (px.length === 0) return DEFAULT_SPACING;
+
+  const suffix = (targetPx: number, fallback: string): string => {
+    const nearest = px.reduce((a, b) => (Math.abs(b - targetPx) < Math.abs(a - targetPx) ? b : a));
+    if (Math.abs(nearest - targetPx) > targetPx) return fallback;
+    return nearest % 4 === 0 ? String(nearest / 4) : `[${nearest}px]`;
+  };
+
+  return {
+    gap: suffix(16, DEFAULT_SPACING.gap),
+    pad: suffix(24, DEFAULT_SPACING.pad),
+    stackGap: suffix(24, DEFAULT_SPACING.stackGap),
+  };
+}
+
+const LAYOUT_TEMPLATES: Record<string, { imports: string[]; wrapper: (content: string, s: SpacingScale) => string }> = {
   "sidebar-main": {
     imports: [
       `import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"`,
       `import { AppSidebar } from "@/components/app-sidebar"`,
       `import { Separator } from "@/components/ui/separator"`,
     ],
-    wrapper: (content) => [
+    wrapper: (content, s) => [
       "    <SidebarProvider>",
       "      <AppSidebar />",
       "      <SidebarInset>",
@@ -40,7 +81,7 @@ const LAYOUT_TEMPLATES: Record<string, { imports: string[]; wrapper: (content: s
       "          <Separator orientation=\"vertical\" className=\"mr-2 h-4\" />",
       "          <h1 className=\"text-lg font-semibold\">Page Title</h1>",
       "        </header>",
-      "        <main className=\"flex-1 p-6\">",
+      `        <main className="flex-1 p-${s.pad}">`,
       content,
       "        </main>",
       "      </SidebarInset>",
@@ -49,9 +90,9 @@ const LAYOUT_TEMPLATES: Record<string, { imports: string[]; wrapper: (content: s
   },
   "full-width": {
     imports: [],
-    wrapper: (content) => [
+    wrapper: (content, s) => [
       "    <div className=\"min-h-screen\">",
-      "      <main className=\"container mx-auto p-6\">",
+      `      <main className="container mx-auto p-${s.pad}">`,
       content,
       "      </main>",
       "    </div>",
@@ -59,9 +100,9 @@ const LAYOUT_TEMPLATES: Record<string, { imports: string[]; wrapper: (content: s
   },
   "centered": {
     imports: [],
-    wrapper: (content) => [
+    wrapper: (content, s) => [
       "    <div className=\"min-h-screen flex items-center justify-center\">",
-      "      <div className=\"w-full max-w-4xl p-6\">",
+      `      <div className="w-full max-w-4xl p-${s.pad}">`,
       content,
       "      </div>",
       "    </div>",
@@ -72,11 +113,11 @@ const LAYOUT_TEMPLATES: Record<string, { imports: string[]; wrapper: (content: s
       `import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"`,
       `import { AppSidebar } from "@/components/app-sidebar"`,
     ],
-    wrapper: (content) => [
+    wrapper: (content, s) => [
       "    <SidebarProvider>",
       "      <AppSidebar />",
       "      <SidebarInset>",
-      "        <main className=\"flex-1 p-6 space-y-6\">",
+      `        <main className="flex-1 p-${s.pad} space-y-${s.stackGap}">`,
       content,
       "        </main>",
       "      </SidebarInset>",
@@ -85,7 +126,7 @@ const LAYOUT_TEMPLATES: Record<string, { imports: string[]; wrapper: (content: s
   },
   "split": {
     imports: [],
-    wrapper: (content) => [
+    wrapper: (content, _s) => [
       "    <div className=\"min-h-screen grid grid-cols-2\">",
       content,
       "    </div>",
@@ -93,7 +134,7 @@ const LAYOUT_TEMPLATES: Record<string, { imports: string[]; wrapper: (content: s
   },
   "marketing": {
     imports: [],
-    wrapper: (content) => [
+    wrapper: (content, _s) => [
       "    <div className=\"min-h-screen\">",
       "      <main className=\"space-y-24\">",
       content,
@@ -112,9 +153,10 @@ const LAYOUT_TEMPLATES: Record<string, { imports: string[]; wrapper: (content: s
  */
 export function generatePage(spec: PageSpec, ctx: CodegenContext): PageCode {
   const layout = LAYOUT_TEMPLATES[spec.layout] ?? LAYOUT_TEMPLATES["full-width"];
+  const spacing = resolveSpacing(ctx);
   const sectionImports = new Set<string>();
-  const sectionCode = buildSections(spec, sectionImports);
-  const wrappedContent = layout.wrapper(sectionCode);
+  const sectionCode = buildSections(spec, sectionImports, spacing);
+  const wrappedContent = layout.wrapper(sectionCode, spacing);
 
   const lines: string[] = [];
 
@@ -156,7 +198,7 @@ export function generatePage(spec: PageSpec, ctx: CodegenContext): PageCode {
   return { page: lines.join("\n"), barrel };
 }
 
-function buildSections(spec: PageSpec, imports: Set<string>): string {
+function buildSections(spec: PageSpec, imports: Set<string>, spacing: SpacingScale): string {
   if (spec.sections.length === 0) {
     return "";
   }
@@ -167,7 +209,7 @@ function buildSections(spec: PageSpec, imports: Set<string>): string {
     // Add import for the component
     imports.add(`import { ${section.component} } from "@/generated/components/${section.component}"`);
 
-    const gridClass = layoutToGridClass(section.layout);
+    const gridClass = layoutToGridClass(section.layout, spacing);
     const responsiveClass = buildResponsiveClasses(spec.responsive);
 
     if (section.repeat > 1) {
@@ -194,17 +236,18 @@ function buildSections(spec: PageSpec, imports: Set<string>): string {
   return lines.join("\n");
 }
 
-function layoutToGridClass(layout: string): string {
+function layoutToGridClass(layout: string, spacing: SpacingScale): string {
+  const gap = `gap-${spacing.gap}`;
   const map: Record<string, string> = {
     "full-width": "w-full",
-    "half": "grid grid-cols-2 gap-4",
-    "third": "grid grid-cols-3 gap-4",
-    "quarter": "grid grid-cols-4 gap-4",
-    "grid-2": "grid grid-cols-2 gap-4",
-    "grid-3": "grid grid-cols-3 gap-4",
-    "grid-4": "grid grid-cols-4 gap-4",
-    "stack": "flex flex-col gap-4",
-    "inline": "flex flex-row gap-4",
+    "half": `grid grid-cols-2 ${gap}`,
+    "third": `grid grid-cols-3 ${gap}`,
+    "quarter": `grid grid-cols-4 ${gap}`,
+    "grid-2": `grid grid-cols-2 ${gap}`,
+    "grid-3": `grid grid-cols-3 ${gap}`,
+    "grid-4": `grid grid-cols-4 ${gap}`,
+    "stack": `flex flex-col ${gap}`,
+    "inline": `flex flex-row ${gap}`,
   };
   return map[layout] ?? "w-full";
 }
