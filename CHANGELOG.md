@@ -10,6 +10,45 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 No unreleased changes.
 
+## v2.3.0 — 2026-07-06 — the mandate release
+
+memi 2.3 turns the audit you can run into a gate a team can require. The through-line is determinism and honesty: every finding cites file:line and re-runs identically, checkers check, gates gate, and no LLM sits in the enforcement path. Scores are only ever compared under the same committed policy; anything the scanner cannot see is reported "not-assessed", never scored.
+
+### Report honesty + schema v2 (breaking for report consumers)
+- UX tenets/traps and interface-craft reports move to **schemaVersion 2**: dimensions and tenets with no static evidence path now report `"not-assessed"` (craft scores become `number | null`) instead of "protected"/100. Every finding carries a `provenance` field (`static-scan` today; rendered-probe/vision/manual reserved).
+- Deleted the fabricated screenshot findings (stat()-only checks that reported confidence 0.7) and renamed visual-parity's self-graded `deterministic-proof` mode to `demo-fixture` with an explicit disclaimer.
+
+### CI gate that actually gates (bug fix)
+- `memi diagnose --fail-on <severity>` — the old gate required a "critical" severity the engine never emits, and JSON mode had no gate at all, so CI exit codes were decorative. The gate now fires on real severities, works in JSON mode, and defaults from the committed policy.
+
+### memoire.policy.json + committed baseline
+- `memoire.policy.json` (presets `memi-recommended`/`strict`/`lenient`, 8 tunable thresholds, per-rule overrides) with a canonical sha256 **policy hash** stamped into every report. A malformed policy is a loud error, never a silent fallback.
+- `memi baseline accept|status`: accept existing debt by line-number-independent content fingerprints; gates then fail only on NEW findings. Suppressed counts stay visible everywhere; stale fingerprints are listed as safe to prune.
+
+### PR-scoped audits + score history
+- `memi diagnose --changed/--files/--expand-imports`: whole-tree stats always computed (ratio thresholds stay valid) while emitted findings are scoped to the diff — a PR is only blamed for files it touched.
+- Score history ledger (`.memoire/app-quality/history.jsonl`) with `--trend` and `--fail-on-regression`; regression checks only compare full scans under the same policy hash and honestly report "not comparable" otherwise.
+
+### memi report + memi ci + shipped GitHub Action
+- `memi report`: one self-contained design-health.html (+ markdown twin, deterministic SVG badge) composed from all persisted audits, with provenance badges and a not-assessed legend. `--redact` strips excerpts for NDA-safe sharing.
+- `memi ci`: full-tree scan → PR scope → baseline filter → severity/minScore/regression gates → SARIF 2.1.0 (GitHub code-scanning annotations) + $GITHUB_STEP_SUMMARY scorecard + report artifact. Aggregate rules gate via score budgets, never per-file blame.
+- Shipped composite action (`action.yml`, `uses: sarveshsea/memi@v2`) pinning the CLI version — gate behavior never drifts under a team. Dogfooded: memi's own CI runs `memi ci` against its committed policy and honestly-accepted baseline (2 findings in generated preview shells).
+
+### memi init --team + doctor team checks
+- `memi init --team`: committed policy + first scan with loudly-accepted baseline + managed .gitignore block (`.memoire/*` local, `baseline.json` shared, conflicting lines detected) + agent kit. Teammate re-runs preserve shared state and report policy drift.
+- `memi doctor` gains a Team gate section: policy committed/parses, baseline present and policy-aligned, gitignore block current.
+
+### Research data-safety + traceability
+- Snapshot-before-purge: destructive re-ingests archive the research store to `research/snapshots/` (retention 20) before purging — expensive research data can no longer be silently destroyed.
+- Selective `researchBacking`: research-design components now cite only the evidence backing their role instead of a blanket all-findings stamp; empty means honestly unbacked.
+- `memi research trace|coverage` + `memi audit --research-traceability`: per-spec citation resolution (backed/unbacked/stale); the strict preset fails on stale citations.
+
+### W3C Design Tokens (DTCG)
+- Native DTCG read/write: `get_tokens` format `"dtcg"` exports a spec-compliant document; `sync_design_tokens` imports a `.tokens.json` (alias resolution with cycle guard, warnings never silently dropped); `update_token` matches DTCG dot-paths. Round-trips are lossless via a `cv.memoire` `$extensions` block.
+
+### Docs
+- New `docs/TEAM_ROLLOUT.md`, `docs/CI_RECIPES.md`, `docs/PRIVATE_REGISTRY.md`; README gains the mandate-loop section.
+
 ## v2.2.0 — 2026-07-04
 
 Three structural fixes to real gaps: codegen was purely deterministic with no design judgment, the quality gate warned instead of blocking, and skill docs (Atomic Design, motion, design-system reference) were prose an agent could ignore with nothing downstream noticing. This release is a real engineering change, not a patch — several pieces are genuinely new capability, not tuning.
