@@ -637,6 +637,12 @@ async function writeDiagnosis(projectRoot: string, diagnosis: AppQualityDiagnosi
   await mkdir(outDir, { recursive: true });
   await writeFile(join(outDir, "diagnosis.json"), JSON.stringify(diagnosis, null, 2) + "\n", "utf-8");
   await writeFile(join(outDir, "diagnosis.md"), renderDiagnosisMarkdown(diagnosis), "utf-8");
+  // Append to the score-history ledger — delivers the "track design debt over
+  // time" this file has promised in nextActions since v2.0.
+  const { appendHistory } = await import("./history.js");
+  await appendHistory(projectRoot, diagnosis).catch(() => {
+    // History is best-effort — a ledger write failure must not fail the scan.
+  });
 }
 
 function renderDiagnosisMarkdown(diagnosis: AppQualityDiagnosis): string {

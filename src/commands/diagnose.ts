@@ -15,6 +15,8 @@ interface DiagnoseOptions {
   base?: string;
   files?: string[];
   expandImports?: boolean;
+  trend?: boolean;
+  failOnRegression?: string | boolean;
 }
 
 const SEVERITY_RANK: Record<AppQualitySeverity, number> = { critical: 4, high: 3, medium: 2, low: 1 };
@@ -45,6 +47,8 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
     .option("--base <ref>", "Base ref for --changed (merge-base semantics)", "origin/main")
     .option("--files <paths...>", "Explicit file scope (repo-relative paths) instead of git diff")
     .option("--expand-imports", "Expand the scope with one hop of dependents via the import graph")
+    .option("--trend", "Show the score trend from .memoire/app-quality/history.jsonl (comparable runs only: same policy hash, full scans)")
+    .option("--fail-on-regression [points]", "Exit non-zero when the score drops more than [points] (default 0) vs the last comparable full-scan entry")
     .action(async (target: string | undefined, opts: DiagnoseOptions) => {
       try {
         const policy = await loadPolicy(engine.config.projectRoot);
@@ -87,12 +91,33 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
 
         const failed = shouldFail(gatingIssues, failOn);
 
+        // Regression check vs the last comparable full-scan history entry.
+        let regression: import("../app-quality/history.js").RegressionCheck | undefined;
+        if (opts.failOnRegression !== undefined || opts.trend) {
+          const { readHistory, checkRegression, entryFromDiagnosis, renderTrend } = await import("../app-quality/history.js");
+          const history = await readHistory(engine.config.projectRoot);
+          if (opts.failOnRegression !== undefined) {
+            const budget = typeof opts.failOnRegression === "string" ? Number.parseInt(opts.failOnRegression, 10) : 0;
+            regression = checkRegression(entryFromDiagnosis(diagnosis), history, Number.isFinite(budget) ? budget : 0);
+          }
+          if (opts.trend && !opts.json) {
+            const lines = renderTrend(history, diagnosis.policy?.hash);
+            console.log(ui.section("Score trend (comparable runs)"));
+            if (lines.length === 0) {
+              console.log(ui.dim("  No comparable history yet — entries accrue on every non---no-write full scan under the same policy."));
+            } else {
+              for (const line of lines) console.log(ui.dim(`  ${line}`));
+            }
+          }
+        }
+        const regressionFailed = regression?.comparable === true && regression.regressed === true;
+
         if (opts.json) {
           console.log(JSON.stringify({
             ...diagnosis,
-            gate: { failOn, failed, baselineApplied: Boolean(opts.baseline), gatingIssues: gatingIssues.length, suppressedByBaseline: suppressedCount },
+            gate: { failOn, failed, baselineApplied: Boolean(opts.baseline), gatingIssues: gatingIssues.length, suppressedByBaseline: suppressedCount, regression },
           }, null, 2));
-          if (failed) process.exitCode = 1;
+          if (failed || regressionFailed) process.exitCode = 1;
           return;
         }
 
@@ -103,9 +128,17 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
         if (suppressedCount > 0) {
           console.log(ui.dim(`  Baseline: ${suppressedCount} accepted finding(s) suppressed from gating (still counted above)`));
         }
+        if (regression && !regression.comparable) {
+          console.log(ui.dim(`  Regression check skipped: ${regression.reason}`));
+        }
+        if (regressionFailed && regression?.previous) {
+          console.log(ui.fail(`Regression: score ${diagnosis.summary.score} dropped ${Math.abs(regression.delta ?? 0)} point(s) vs ${regression.previous.sha ?? regression.previous.at} (${regression.previous.score})`));
+        }
         if (failed) {
           console.log(ui.fail(`Gate: at least one ${opts.baseline ? "new (non-baselined) " : ""}issue at or above "${failOn}" severity (--fail-on ${failOn})`));
           console.log();
+        }
+        if (failed || regressionFailed) {
           process.exitCode = 1;
         }
       } catch (err) {
