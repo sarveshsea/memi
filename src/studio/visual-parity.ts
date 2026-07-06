@@ -38,7 +38,9 @@ export interface VisualParityProofOptions {
 
 export interface VisualParityProof {
   challenge: typeof VISUAL_PARITY_CHALLENGE;
-  mode: "deterministic-proof";
+  /** "demo-fixture" — this module writes canned artifacts and grades its own output. It is not a measurement. */
+  mode: "demo-fixture";
+  demoDisclaimer: string;
   liveHarness: false;
   outDir: string;
   previewUrl: string;
@@ -106,11 +108,17 @@ export async function createVisualParityProof(options: VisualParityProofOptions)
     { kind: "handoff", path: paths.handoff },
     { kind: "continuation", path: paths.continuation },
   ];
+  // DEMO FIXTURE, not a measurement: this writes a canned dashboard and then
+  // grades its own output. The visualQualityScore below is asserted by this
+  // fixture, not measured by any renderer or vision pass — the grade only
+  // demonstrates what the artifact checklist looks like.
   const grade = gradeVisualParityEvidence({ artifacts, visualQualityScore: 95 });
 
   return {
     challenge: VISUAL_PARITY_CHALLENGE,
-    mode: "deterministic-proof",
+    mode: "demo-fixture",
+    demoDisclaimer:
+      "Demo fixture: canned artifacts graded against the artifact checklist. The visual quality score is asserted, not measured — do not cite this as evidence of rendering quality.",
     liveHarness: false,
     outDir,
     previewUrl,

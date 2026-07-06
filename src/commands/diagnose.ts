@@ -1,12 +1,37 @@
 import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
-import { diagnoseAppQuality, type AppQualityDiagnosis } from "../app-quality/engine.js";
+import { diagnoseAppQuality, type AppQualityDiagnosis, type AppQualitySeverity, type AppQualityIssue } from "../app-quality/engine.js";
+import { loadPolicy } from "../app-quality/policy.js";
+import { filterWithBaseline, readBaseline } from "../app-quality/baseline.js";
 import { ui } from "../tui/format.js";
 
 interface DiagnoseOptions {
   json?: boolean;
   maxFiles?: string;
   noWrite?: boolean;
+  failOn?: string;
+  baseline?: boolean;
+  changed?: boolean;
+  base?: string;
+  files?: string[];
+  expandImports?: boolean;
+  trend?: boolean;
+  failOnRegression?: string | boolean;
+}
+
+const SEVERITY_RANK: Record<AppQualitySeverity, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+const FAIL_ON_VALUES = new Set(["critical", "high", "medium", "low", "none"]);
+
+/**
+ * Exit non-zero when any gating issue meets the threshold. Runs in BOTH output
+ * modes — the previous gate only ran in human mode and only on "critical", a
+ * severity the engine never emits, so `memi diagnose` shipped a CI gate that
+ * could mathematically never fail.
+ */
+function shouldFail(gatingIssues: AppQualityIssue[], failOn: string): boolean {
+  if (failOn === "none") return false;
+  const threshold = SEVERITY_RANK[failOn as AppQualitySeverity];
+  return gatingIssues.some((issue) => SEVERITY_RANK[issue.severity] >= threshold);
 }
 
 export function registerDiagnoseCommand(program: Command, engine: MemoireEngine): void {
@@ -16,23 +41,104 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
     .option("--json", "Output the diagnosis as JSON")
     .option("--max-files <count>", "Maximum source files to scan", "500")
     .option("--no-write", "Do not write .memoire/app-quality reports")
+    .option("--fail-on <severity>", "Exit non-zero when any issue is at or above this severity: critical, high, medium, low, or none. Defaults to the policy's gates.failOn (high without a policy).")
+    .option("--baseline", "Gate only on findings NOT accepted in .memoire/baseline.json (suppressed counts always shown)")
+    .option("--changed", "PR scope: emit only issues touching files changed vs --base (whole-tree stats still computed — this reduces noise, not runtime)")
+    .option("--base <ref>", "Base ref for --changed (merge-base semantics)", "origin/main")
+    .option("--files <paths...>", "Explicit file scope (repo-relative paths) instead of git diff")
+    .option("--expand-imports", "Expand the scope with one hop of dependents via the import graph")
+    .option("--trend", "Show the score trend from .memoire/app-quality/history.jsonl (comparable runs only: same policy hash, full scans)")
+    .option("--fail-on-regression [points]", "Exit non-zero when the score drops more than [points] (default 0) vs the last comparable full-scan entry")
     .action(async (target: string | undefined, opts: DiagnoseOptions) => {
       try {
+        const policy = await loadPolicy(engine.config.projectRoot);
+        // Precedence: explicit CLI flag > committed policy > built-in default.
+        const failOn = (opts.failOn ?? policy.gates.failOn).toLowerCase();
+        if (!FAIL_ON_VALUES.has(failOn)) {
+          throw new Error(`Invalid --fail-on value "${opts.failOn}". Use one of: critical, high, medium, low, none.`);
+        }
+
+        let scope: { files: string[]; base?: string; expandImports?: boolean } | undefined;
+        if (opts.files && opts.files.length > 0) {
+          scope = { files: opts.files, expandImports: opts.expandImports };
+        } else if (opts.changed) {
+          const { resolveGitScope } = await import("../app-quality/git-scope.js");
+          const gitScope = await resolveGitScope({ projectRoot: engine.config.projectRoot, base: opts.base ?? "origin/main" });
+          scope = { files: gitScope.files, base: gitScope.base, expandImports: opts.expandImports };
+        }
+
         const maxFiles = Number.parseInt(opts.maxFiles ?? "500", 10);
         const diagnosis = await diagnoseAppQuality({
           projectRoot: engine.config.projectRoot,
           target,
           maxFiles: Number.isFinite(maxFiles) ? maxFiles : 500,
           write: opts.noWrite ? false : true,
+          policy,
+          scope,
         });
 
+        let gatingIssues = diagnosis.issues;
+        let suppressedCount = 0;
+        if (opts.baseline) {
+          const baseline = await readBaseline(engine.config.projectRoot);
+          if (!baseline) {
+            throw new Error("--baseline was passed but .memoire/baseline.json does not exist. Run `memi baseline accept` first.");
+          }
+          const filtered = filterWithBaseline(diagnosis.issues, baseline);
+          gatingIssues = filtered.active;
+          suppressedCount = filtered.suppressed.length;
+        }
+
+        const failed = shouldFail(gatingIssues, failOn);
+
+        // Regression check vs the last comparable full-scan history entry.
+        let regression: import("../app-quality/history.js").RegressionCheck | undefined;
+        if (opts.failOnRegression !== undefined || opts.trend) {
+          const { readHistory, checkRegression, entryFromDiagnosis, renderTrend } = await import("../app-quality/history.js");
+          const history = await readHistory(engine.config.projectRoot);
+          if (opts.failOnRegression !== undefined) {
+            const budget = typeof opts.failOnRegression === "string" ? Number.parseInt(opts.failOnRegression, 10) : 0;
+            regression = checkRegression(entryFromDiagnosis(diagnosis), history, Number.isFinite(budget) ? budget : 0);
+          }
+          if (opts.trend && !opts.json) {
+            const lines = renderTrend(history, diagnosis.policy?.hash);
+            console.log(ui.section("Score trend (comparable runs)"));
+            if (lines.length === 0) {
+              console.log(ui.dim("  No comparable history yet — entries accrue on every non---no-write full scan under the same policy."));
+            } else {
+              for (const line of lines) console.log(ui.dim(`  ${line}`));
+            }
+          }
+        }
+        const regressionFailed = regression?.comparable === true && regression.regressed === true;
+
         if (opts.json) {
-          console.log(JSON.stringify(diagnosis, null, 2));
+          console.log(JSON.stringify({
+            ...diagnosis,
+            gate: { failOn, failed, baselineApplied: Boolean(opts.baseline), gatingIssues: gatingIssues.length, suppressedByBaseline: suppressedCount, regression },
+          }, null, 2));
+          if (failed || regressionFailed) process.exitCode = 1;
           return;
         }
 
         printDiagnosis(diagnosis, opts.noWrite !== true);
-        if (diagnosis.issues.some((issue) => issue.severity === "critical")) {
+        if (diagnosis.scope) {
+          console.log(ui.dim(`  Scope: ${diagnosis.scope.emittedIssues} issue(s) touching ${diagnosis.scope.effectiveFiles} scoped file(s); ${diagnosis.scope.filteredOutIssues} out-of-scope issue(s) hidden (still reflected in scores)`));
+        }
+        if (suppressedCount > 0) {
+          console.log(ui.dim(`  Baseline: ${suppressedCount} accepted finding(s) suppressed from gating (still counted above)`));
+        }
+        if (regression && !regression.comparable) {
+          console.log(ui.dim(`  Regression check skipped: ${regression.reason}`));
+        }
+        if (regressionFailed && regression?.previous) {
+          console.log(ui.fail(`Regression: score ${diagnosis.summary.score} dropped ${Math.abs(regression.delta ?? 0)} point(s) vs ${regression.previous.sha ?? regression.previous.at} (${regression.previous.score})`));
+        }
+        if (failed) {
+          console.log(ui.fail(`Gate: at least one ${opts.baseline ? "new (non-baselined) " : ""}issue at or above "${failOn}" severity (--fail-on ${failOn})`));
+          console.log();
+        }
+        if (failed || regressionFailed) {
           process.exitCode = 1;
         }
       } catch (err) {

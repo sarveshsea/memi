@@ -22,6 +22,9 @@ export type InterfaceCraftDimensionId =
 export type InterfaceCraftLens = "visual-design" | "interface-design" | "conventions" | "user-context";
 export type InterfaceCraftFindingSource = "app-quality" | "screenshot" | "manual" | "mcp";
 
+/** 2.3 only emits "static-scan"; other values reserved for 2.4 rendered probes / vision. */
+export type InterfaceCraftProvenance = "static-scan" | "rendered-probe" | "vision" | "manual";
+
 export interface InterfaceCraftDimensionDefinition {
   id: InterfaceCraftDimensionId;
   name: string;
@@ -39,6 +42,7 @@ export interface InterfaceCraftFinding {
   evidence: string[];
   recommendation: string;
   source: InterfaceCraftFindingSource;
+  provenance: InterfaceCraftProvenance;
   artifactPath?: string;
   confidence?: number;
   affectedFiles?: string[];
@@ -48,8 +52,14 @@ export interface InterfaceCraftDimensionAssessment {
   dimensionId: InterfaceCraftDimensionId;
   name: string;
   lens: InterfaceCraftLens;
-  status: "strong" | "watch" | "needs-work" | "unknown";
-  score: number;
+  /**
+   * "not-assessed" — no static-scan evidence path can ever reach this
+   * dimension; it is unverified, NOT verified-good. "strong" is only claimed
+   * for dimensions the scan can actually violate and found clean.
+   */
+  status: "strong" | "watch" | "needs-work" | "unknown" | "not-assessed";
+  /** null when status is "not-assessed" — an unassessed dimension has no score, not a perfect one. */
+  score: number | null;
   findingIds: string[];
   notes: string[];
 }
@@ -63,7 +73,7 @@ export interface InterfaceCraftCritique {
 }
 
 export interface InterfaceCraftReport {
-  schemaVersion: 1;
+  schemaVersion: 2;
   target: string;
   generatedAt: string;
   score: number;
@@ -72,6 +82,8 @@ export interface InterfaceCraftReport {
   findings: InterfaceCraftFinding[];
   topOpportunities: string[];
   artifactPath?: string;
+  /** Present when a screenshot was attached: recorded, not analyzed — no vision pass runs in 2.3. */
+  artifactNote?: string;
   metadata?: {
     issueCount?: number;
     appQualityScore?: number;
@@ -276,6 +288,19 @@ const SEVERITY_PENALTY: Record<AppQualitySeverity, number> = {
   low: 5,
 };
 
+/**
+ * Dimensions the static scan can actually evidence, computed from the mapping
+ * tables — dimensions outside this set (e.g. icon-consistency, motion-restraint)
+ * can never fire from a scan and must report "not-assessed", never "strong 100/100".
+ */
+const ASSESSABLE_DIMENSION_IDS = new Set<InterfaceCraftDimensionId>();
+for (const mapping of [...Object.values(ISSUE_MAPPINGS), ...Object.values(CATEGORY_MAPPINGS)]) {
+  for (const dimensionId of mapping.dimensionIds) ASSESSABLE_DIMENSION_IDS.add(dimensionId);
+}
+
+const NOT_ASSESSED_DIMENSION_NOTE =
+  "Not assessable by static scan — needs rendered/visual evidence. Unverified, not verified-good.";
+
 export function mapAppQualityIssueToInterfaceCraftFinding(issue: AppQualityIssue): InterfaceCraftFinding {
   const mapping = ISSUE_MAPPINGS[issue.id] ?? CATEGORY_MAPPINGS[issue.category];
   return {
@@ -291,6 +316,7 @@ export function mapAppQualityIssueToInterfaceCraftFinding(issue: AppQualityIssue
     ],
     recommendation: mapping.recommendation ?? issue.recommendation,
     source: "app-quality",
+    provenance: "static-scan",
     confidence: issue.confidence,
     affectedFiles: issue.affectedFiles,
   };
@@ -298,15 +324,16 @@ export function mapAppQualityIssueToInterfaceCraftFinding(issue: AppQualityIssue
 
 export function buildInterfaceCraftReport(input: BuildInterfaceCraftReportInput): InterfaceCraftReport {
   const target = input.target ?? input.artifactPath ?? "workspace";
-  const issueFindings = (input.issues ?? []).map(mapAppQualityIssueToInterfaceCraftFinding);
-  const screenshotFinding = input.artifactPath && issueFindings.length === 0
-    ? [buildScreenshotCraftFinding(input.artifactPath, input.source ?? "screenshot")]
-    : [];
-  const findings = [...issueFindings, ...screenshotFinding].sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
+  // Screenshots are recorded, never analyzed — no finding is fabricated from
+  // a screenshot's mere existence (the previous placeholder invented one with
+  // a hardcoded confidence).
+  const findings = (input.issues ?? [])
+    .map(mapAppQualityIssueToInterfaceCraftFinding)
+    .sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
   const generatedAt = input.generatedAt ?? new Date().toISOString();
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     target,
     generatedAt,
     score: scoreInterfaceCraft(findings, input.appQualityScore),
@@ -315,6 +342,9 @@ export function buildInterfaceCraftReport(input: BuildInterfaceCraftReportInput)
     findings,
     topOpportunities: buildTopOpportunities(findings),
     artifactPath: input.artifactPath ?? undefined,
+    artifactNote: input.artifactPath
+      ? "Screenshot attached for reference only — it was not analyzed. Static-scan findings come from source code, not pixels."
+      : undefined,
     metadata: {
       issueCount: input.issues?.length ?? 0,
       appQualityScore: input.appQualityScore,
@@ -344,6 +374,12 @@ export function renderInterfaceCraftMarkdown(report: InterfaceCraftReport): stri
     `Generated: ${report.generatedAt}`,
   ];
   if (report.artifactPath) lines.push(`Artifact: \`${report.artifactPath}\``);
+  if (report.artifactNote) lines.push(`> ${report.artifactNote}`);
+
+  lines.push(
+    "",
+    "> Statuses: **needs-work/watch** = static-scan findings exist · **strong** = the scan can detect violations and found none · **not-assessed** = no static evidence path exists (unverified, NOT verified-good).",
+  );
 
   lines.push("", "## Critique", "");
   lines.push(`- **First impression:** ${report.critique.firstImpression}`);
@@ -354,7 +390,8 @@ export function renderInterfaceCraftMarkdown(report: InterfaceCraftReport): stri
 
   lines.push("", "## Craft Dimensions", "");
   for (const dimension of report.dimensions) {
-    lines.push(`- **${dimension.name}**: ${dimension.status} (${dimension.score}/100)`);
+    const scoreLabel = dimension.score === null ? "no score — not assessed" : `${dimension.score}/100`;
+    lines.push(`- **${dimension.name}**: ${dimension.status} (${scoreLabel})`);
     if (dimension.notes[0]) lines.push(`  Note: ${dimension.notes[0]}`);
   }
 
@@ -378,24 +415,20 @@ export function renderInterfaceCraftMarkdown(report: InterfaceCraftReport): stri
   return lines.join("\n");
 }
 
-function buildScreenshotCraftFinding(artifactPath: string, source: InterfaceCraftFindingSource): InterfaceCraftFinding {
-  return {
-    id: "craft.screenshot.review-required",
-    title: "Screenshot needs interface craft critique",
-    severity: "medium",
-    lens: "interface-design",
-    dimensionIds: ["focusing-mechanism", "visual-weight", "user-context-care"],
-    evidence: [`Screenshot artifact: ${artifactPath}`],
-    recommendation: "Review the screenshot through visual design, interface design, conventions, and user-context lenses before patching UI.",
-    source,
-    artifactPath,
-    confidence: 0.72,
-  };
-}
-
 function buildDimensionAssessments(findings: InterfaceCraftFinding[]): InterfaceCraftDimensionAssessment[] {
   return INTERFACE_CRAFT_DIMENSIONS.map((dimension) => {
     const related = findings.filter((finding) => finding.dimensionIds.includes(dimension.id));
+    if (related.length === 0 && !ASSESSABLE_DIMENSION_IDS.has(dimension.id)) {
+      return {
+        dimensionId: dimension.id,
+        name: dimension.name,
+        lens: dimension.lens,
+        status: "not-assessed" as const,
+        score: null,
+        findingIds: [],
+        notes: [NOT_ASSESSED_DIMENSION_NOTE],
+      };
+    }
     const penalty = related.reduce((sum, finding) => sum + SEVERITY_PENALTY[finding.severity], 0);
     const highestSeverity = related.map((finding) => finding.severity).sort((a, b) => severityRank(b) - severityRank(a))[0];
     return {

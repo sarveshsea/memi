@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mkdir, rm } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
-import { ResearchTraceability } from "../traceability.js";
+import { ResearchTraceability, buildTraceabilityReport } from "../traceability.js";
 import type { ResearchFinding } from "../engine.js";
 
 let testDir: string;
@@ -117,5 +117,62 @@ describe("ResearchTraceability", () => {
     const orphaned = trace.getOrphanedFindings(findings);
     expect(orphaned).toHaveLength(1);
     expect(orphaned[0].id).toBe("finding-2");
+  });
+});
+
+describe("buildTraceabilityReport", () => {
+  const liveFinding: ResearchFinding = {
+    id: "finding-live",
+    statement: "Users abandon checkout when shipping cost appears late.",
+    category: "general",
+    confidence: "high",
+    themeIds: [],
+    evidenceObservationIds: [],
+    evidenceSourceIds: [],
+    sourceTypeCount: 1,
+    method: "qualitative",
+    caveats: [],
+    tags: [],
+    entities: [],
+    signalTags: [],
+    createdAt: "",
+  };
+
+  it("classifies backed, unbacked, and stale specs honestly", () => {
+    const report = buildTraceabilityReport([
+      makeSpec("BackedCard", ["finding-live"]),
+      makeSpec("UnbackedCard", []),
+      makeSpec("StaleCard", ["finding-purged"]),
+      { name: "NoBackingField", type: "design" } as any, // cannot carry researchBacking → excluded
+    ], [liveFinding]);
+
+    expect(report.totalSpecs).toBe(3);
+    expect(report.backedSpecs).toBe(1);
+    expect(report.unbackedSpecs).toBe(2);
+    expect(report.staleCitations).toBe(1);
+    expect(report.coverage).toBe(33);
+
+    const stale = report.entries.find((entry) => entry.spec === "StaleCard");
+    expect(stale?.backed).toBe(false);
+    expect(stale?.unresolved).toEqual(["finding-purged"]);
+    const backed = report.entries.find((entry) => entry.spec === "BackedCard");
+    expect(backed?.resolved[0]).toMatchObject({ id: "finding-live", confidence: "high" });
+  });
+
+  it("returns null coverage when no spec can carry researchBacking", () => {
+    const report = buildTraceabilityReport([{ name: "OnlyDesign", type: "design" } as any], []);
+    expect(report.totalSpecs).toBe(0);
+    expect(report.coverage).toBeNull();
+  });
+
+  it("resolves a mixed citation list partially — spec counts as backed but stale ids stay visible", () => {
+    const report = buildTraceabilityReport([
+      makeSpec("Mixed", ["finding-live", "finding-gone"]),
+    ], [liveFinding]);
+    const entry = report.entries[0];
+    expect(entry.backed).toBe(true);
+    expect(entry.resolved).toHaveLength(1);
+    expect(entry.unresolved).toEqual(["finding-gone"]);
+    expect(report.staleCitations).toBe(1);
   });
 });

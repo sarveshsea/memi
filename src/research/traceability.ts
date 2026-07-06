@@ -122,3 +122,72 @@ export class ResearchTraceability {
     return this.index;
   }
 }
+
+// ── Citation validation report ─────────────────────────────────
+//
+// The index above tracks WHICH findings a spec cites; the report below asks
+// whether those citations still RESOLVE. Three honest states per spec:
+//   backed   — at least one citation resolves to a live finding
+//   unbacked — the spec cites nothing (design happened without research)
+//   stale    — cited ids no longer exist (evidence purged/re-ingested;
+//              the citation is a dead link, not proof)
+
+export interface SpecTraceEntry {
+  spec: string;
+  type: string;
+  cited: string[];
+  resolved: Array<{ id: string; statement: string; confidence: string }>;
+  unresolved: string[];
+  backed: boolean;
+}
+
+export interface TraceabilityReport {
+  generatedAt: string;
+  /** Specs that can carry researchBacking (components + pages). */
+  totalSpecs: number;
+  backedSpecs: number;
+  unbackedSpecs: number;
+  /** Citations pointing at finding ids that no longer exist in the store. */
+  staleCitations: number;
+  /** backedSpecs / totalSpecs as 0-100; null when there is nothing to measure. */
+  coverage: number | null;
+  storeAvailable: boolean;
+  entries: SpecTraceEntry[];
+}
+
+export function buildTraceabilityReport(specs: AnySpec[], findings: ResearchFinding[] | null): TraceabilityReport {
+  const findingById = new Map<string, ResearchFinding>((findings ?? []).map((finding) => [finding.id, finding]));
+
+  const entries: SpecTraceEntry[] = [];
+  for (const spec of specs) {
+    if (!("researchBacking" in spec) || !Array.isArray((spec as { researchBacking?: unknown }).researchBacking)) continue;
+    const cited = (spec as { researchBacking: string[] }).researchBacking;
+
+    const resolved: SpecTraceEntry["resolved"] = [];
+    const unresolved: string[] = [];
+    for (const id of cited) {
+      const finding = findingById.get(id);
+      if (finding) {
+        resolved.push({ id, statement: finding.statement, confidence: finding.confidence });
+      } else {
+        unresolved.push(id);
+      }
+    }
+
+    entries.push({ spec: spec.name, type: spec.type, cited, resolved, unresolved, backed: resolved.length > 0 });
+  }
+
+  const backedSpecs = entries.filter((entry) => entry.backed).length;
+  const staleCitations = entries.reduce((sum, entry) => sum + entry.unresolved.length, 0);
+
+  return {
+    generatedAt: new Date().toISOString(),
+    totalSpecs: entries.length,
+    backedSpecs,
+    unbackedSpecs: entries.length - backedSpecs,
+    staleCitations,
+    coverage: entries.length > 0 ? Math.round((backedSpecs / entries.length) * 100) : null,
+    storeAvailable: findings !== null,
+    entries,
+  };
+}

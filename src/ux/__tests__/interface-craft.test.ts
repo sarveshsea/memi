@@ -20,7 +20,7 @@ describe("interface craft report", () => {
     });
 
     expect(report).toMatchObject({
-      schemaVersion: 1,
+      schemaVersion: 2,
       target: ".",
       score: expect.any(Number),
     });
@@ -45,21 +45,32 @@ describe("interface craft report", () => {
     expect(report.topOpportunities[0]).toContain("Resolve");
   });
 
-  it("creates a screenshot review finding when visual evidence is attached without code issues", () => {
+  it("records screenshots without fabricating findings, and marks unassessable dimensions as not-assessed", () => {
     const report = buildInterfaceCraftReport({
       target: "screenshot",
       artifactPath: "/tmp/screen.png",
       generatedAt: "2026-07-04T00:00:00.000Z",
     });
 
-    expect(report.findings).toEqual([
-      expect.objectContaining({
-        id: "craft.screenshot.review-required",
-        dimensionIds: expect.arrayContaining(["focusing-mechanism", "visual-weight", "user-context-care"]),
-        artifactPath: "/tmp/screen.png",
-      }),
-    ]);
-    expect(report.topOpportunities).toContain("Review the screenshot through visual design, interface design, conventions, and user-context lenses before patching UI.");
+    // No vision pass exists — a screenshot's mere existence must not become a finding.
+    expect(report.findings).toHaveLength(0);
+    expect(report.artifactNote).toMatch(/not analyzed/i);
+
+    // icon-consistency and motion-restraint have no static-scan evidence path —
+    // they must read not-assessed with no score, never "strong 100/100".
+    const iconDim = report.dimensions.find((d) => d.dimensionId === "icon-consistency");
+    expect(iconDim).toMatchObject({ status: "not-assessed", score: null });
+    const motionDim = report.dimensions.find((d) => d.dimensionId === "motion-restraint");
+    expect(motionDim).toMatchObject({ status: "not-assessed", score: null });
+  });
+
+  it("stamps static-scan provenance on every mapped finding", () => {
+    const report = buildInterfaceCraftReport({
+      target: ".",
+      issues: [makeIssue("color.raw-hex", "color", "medium", "Raw color literals", "src/app/page.tsx")],
+      generatedAt: "2026-07-04T00:00:00.000Z",
+    });
+    expect(report.findings.every((finding) => finding.provenance === "static-scan")).toBe(true);
   });
 });
 

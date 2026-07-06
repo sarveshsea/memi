@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "acceptedAt": "2026-07-06T02:45:59.710Z",
+  "policyHash": "ed7c24df38c392fe",
+  "entries": [
+    {
+      "fingerprint": "2b99b25ef74cd8643e2e",
+      "ruleId": "color.raw-hex",
+      "file": "preview/changelog.html"
+    },
+    {
+      "fingerprint": "51acc607c8aa3d3801f8",
+      "ruleId": "color.raw-hex",
+      "file": "preview/design-system.html"
+    },
+    {
+      "fingerprint": "2f146f4cb2763cbed704",
+      "ruleId": "color.raw-hex",
+      "file": "preview/index.html"
+    },
+    {
+      "fingerprint": "48c9fbe5f70d41bcc831",
+      "ruleId": "color.raw-hex",
+      "file": "preview/monitor.html"
+    },
+    {
+      "fingerprint": "ac6f18e8b2d82fcab1e4",
+      "ruleId": "color.raw-hex",
+      "file": "preview/research.html"
+    },
+    {
+      "fingerprint": "346cc8637183db5652c5",
+      "ruleId": "responsive.coverage-low"
+    }
+  ]
+}

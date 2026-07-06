@@ -130,7 +130,7 @@ export function registerStudioCommand(program: Command, engine: MemoireEngine): 
 
   studio
     .command("visual-parity")
-    .description("Create and grade the canonical no-install visual parity dashboard proof")
+    .description("DEMO: write a canned dashboard fixture and grade it against the artifact checklist (not a rendering-quality measurement)")
     .option("--out <path>", "Output directory for preview, screenshot, spec, code, tokens, and handoff artifacts")
     .option("--json", "Output proof metadata as JSON")
     .action(async (opts: { out?: string; json?: boolean }) => {
@@ -149,8 +149,9 @@ export function registerStudioCommand(program: Command, engine: MemoireEngine): 
         return;
       }
 
-      console.log(proof.grade.passed ? ui.ok("Visual parity proof created") : ui.fail("Visual parity proof incomplete"));
-      console.log(ui.dots("Score", `${proof.grade.score}/100`));
+      console.log(proof.grade.passed ? ui.ok("Visual parity demo fixture created") : ui.fail("Visual parity demo fixture incomplete"));
+      console.log(ui.dim(`  ${proof.demoDisclaimer}`));
+      console.log(ui.dots("Checklist score", `${proof.grade.score}/100`));
       console.log(ui.dots("Preview", proof.previewUrl));
       console.log(ui.dots("Artifacts", proof.outDir));
       if (proof.grade.missingCriteria.length > 0) {

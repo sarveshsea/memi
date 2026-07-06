@@ -510,6 +510,70 @@ export function registerResearchCommand(program: Command, engine: MemoireEngine)
     });
 
   research
+    .command("trace [spec]")
+    .description("Show which research findings back each spec — and which citations no longer resolve")
+    .option("--json", "Output the traceability report as JSON")
+    .action(async (specName: string | undefined, opts: { json?: boolean }) => {
+      const { buildTraceabilityReport } = await import("../research/traceability.js");
+      await engine.init();
+      await engine.research.load();
+      const store = engine.research.getStore();
+      const specs = await engine.registry.getAllSpecs();
+      const report = buildTraceabilityReport(specs, store.findings);
+      const entries = specName
+        ? report.entries.filter((entry) => entry.spec.toLowerCase().includes(specName.toLowerCase()))
+        : report.entries;
+
+      if (opts.json) {
+        console.log(JSON.stringify({ ...report, entries }, null, 2));
+        return;
+      }
+
+      console.log(ui.brand("Research Traceability"));
+      if (report.coverage !== null) console.log(ui.dots("Coverage", `${report.coverage}% (${report.backedSpecs}/${report.totalSpecs} specs backed)`));
+      if (report.staleCitations > 0) console.log(ui.warn(`${report.staleCitations} stale citation(s) — cited findings no longer exist in the store`));
+      for (const entry of entries) {
+        const marker = entry.backed ? "[+]" : entry.cited.length > 0 ? "[x]" : "[-]";
+        console.log(`  ${marker} ${entry.spec} (${entry.type}) — ${entry.resolved.length} resolved${entry.unresolved.length ? `, ${entry.unresolved.length} stale` : ""}${entry.cited.length === 0 ? ", no citations" : ""}`);
+        for (const finding of entry.resolved.slice(0, 3)) {
+          console.log(ui.dim(`      ${finding.id} (${finding.confidence}) ${finding.statement.slice(0, 70)}`));
+        }
+        for (const stale of entry.unresolved.slice(0, 3)) {
+          console.log(ui.dim(`      ${stale} — NOT FOUND in research store`));
+        }
+      }
+      console.log();
+    });
+
+  research
+    .command("coverage")
+    .description("Summary of research-backing coverage across all specs")
+    .option("--json", "Output coverage as JSON")
+    .action(async (opts: { json?: boolean }) => {
+      const { buildTraceabilityReport } = await import("../research/traceability.js");
+      await engine.init();
+      await engine.research.load();
+      const store = engine.research.getStore();
+      const specs = await engine.registry.getAllSpecs();
+      const report = buildTraceabilityReport(specs, store.findings);
+
+      if (opts.json) {
+        const { entries: _entries, ...summary } = report;
+        console.log(JSON.stringify(summary, null, 2));
+        return;
+      }
+
+      console.log(ui.brand("Research Coverage"));
+      console.log(ui.dots("Specs with researchBacking", String(report.totalSpecs)));
+      console.log(ui.dots("Backed by live findings", String(report.backedSpecs)));
+      console.log(ui.dots("Unbacked", String(report.unbackedSpecs)));
+      console.log(ui.dots("Stale citations", String(report.staleCitations)));
+      if (report.coverage !== null) console.log(ui.dots("Coverage", `${report.coverage}%`));
+      if (report.totalSpecs === 0) console.log(ui.dim("  No specs carry researchBacking yet — nothing to measure."));
+      console.log();
+    });
+
+  research
     .command("design")
     .description("Generate research-backed Atomic Design specs and Mermaid Jam-ready FigJam source")
     .option("--intent <text>", "Design intent for the generated package")

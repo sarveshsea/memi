@@ -9,12 +9,29 @@ import { ui } from "../tui/format.js";
 import { publishRegistry } from "../registry/publisher.js";
 import { getMemoirePackageVersion } from "../utils/package-version.js";
 
+interface InitOptions {
+  dir?: string;
+  team?: boolean;
+  kit?: string;
+  maxFiles?: string;
+  json?: boolean;
+}
+
 export function registerInitCommand(program: Command, engine: MemoireEngine) {
   program
     .command("init [name]")
     .description("Scaffold a design system registry package (or initialize a Memoire project)")
     .option("--dir <path>", "Output directory (defaults to ./<name>)")
-    .action(async (name: string | undefined, opts: { dir?: string }) => {
+    .option("--team", "Team setup: commit policy + baseline, gitignore rules, and an agent kit — the repeatable design gate")
+    .option("--kit <target>", "Agent kit to install with --team (universal, claude-code, cursor, …; 'none' skips)", "universal")
+    .option("--max-files <count>", "Maximum source files to scan with --team", "500")
+    .option("--json", "Output --team setup results as JSON")
+    .action(async (name: string | undefined, opts: InitOptions) => {
+      // Team setup mode — `memi init --team`
+      if (opts.team) {
+        await initTeam(engine, opts);
+        return;
+      }
       // Registry scaffold mode — `memi init <name>`
       if (name) {
         await scaffoldRegistry(engine, name, opts.dir);
@@ -349,4 +366,123 @@ async function scaffoldRegistry(engine: MemoireEngine, name: string, dirOpt?: st
   console.log(ui.dim("  Or add components from another source first:"));
   console.log(`    memi publish --figma <url> --name ${name} --dir ${outDir}`);
   console.log();
+}
+
+// ── Team setup ─────────────────────────────────────────────────
+//
+// One command from "designer chaos" to a repeatable gate: commit a policy,
+// accept the honest baseline (loudly), fix .gitignore so the baseline is
+// shared while workspace state stays local, and install an agent kit.
+// Re-running on a repo a teammate already set up is safe: existing policy
+// and baseline are preserved and reported, never overwritten.
+
+async function initTeam(engine: MemoireEngine, opts: InitOptions): Promise<void> {
+  const { loadPolicy, POLICY_FILE_NAME } = await import("../app-quality/policy.js");
+  const { diagnoseAppQuality } = await import("../app-quality/engine.js");
+  const { buildBaseline, filterWithBaseline, readBaseline, writeBaseline } = await import("../app-quality/baseline.js");
+  const { ensureGitignorePolicy } = await import("../utils/gitignore-policy.js");
+
+  const json = opts.json === true;
+  const log = (line: string) => { if (!json) console.log(line); };
+  const result: Record<string, unknown> = { status: "completed" };
+
+  try {
+    const root = engine.config.projectRoot;
+    log(ui.brand("Team Design Gate Setup"));
+
+    // 1. Policy — write the recommended preset unless the team already has one.
+    const policyPath = join(root, POLICY_FILE_NAME);
+    const policyExisted = existsSync(policyPath);
+    if (!policyExisted) {
+      await writeFile(policyPath, `${JSON.stringify({ schemaVersion: 1, preset: "memi-recommended" }, null, 2)}\n`, "utf-8");
+    }
+    const policy = await loadPolicy(root);
+    result.policy = { path: policyPath, created: !policyExisted, preset: policy.preset, hash: policy.policyHash };
+    log(policyExisted
+      ? ui.skip(POLICY_FILE_NAME + ui.dim(`  already committed (${policy.preset}, ${policy.policyHash})`))
+      : ui.ok(POLICY_FILE_NAME + ui.dim(`  created (preset ${policy.preset}, hash ${policy.policyHash})`)));
+
+    // 2. First scan → baseline. Loud about how much debt gets accepted.
+    const maxFiles = Number.parseInt(opts.maxFiles ?? "500", 10);
+    const diagnosis = await diagnoseAppQuality({
+      projectRoot: root,
+      maxFiles: Number.isFinite(maxFiles) ? maxFiles : 500,
+      write: true,
+      policy,
+    });
+    log(ui.dots("Score", `${diagnosis.summary.score}/100 (${diagnosis.summary.verdict})`));
+
+    const existingBaseline = await readBaseline(root);
+    if (!existingBaseline) {
+      const file = buildBaseline(diagnosis.issues, { policyHash: policy.policyHash, note: "accepted by memi init --team" });
+      const baselinePath = await writeBaseline(root, file);
+      result.baseline = { path: baselinePath, created: true, acceptedFindings: diagnosis.issues.length, acceptedFingerprints: file.entries.length };
+      if (diagnosis.issues.length > 0) {
+        log(ui.warn(`Accepted existing debt: ${diagnosis.issues.length} finding(s) → ${file.entries.length} fingerprint(s)`));
+        log(ui.dim("  From here, gates only fail on NEW findings. Burn this debt down over time."));
+      } else {
+        log(ui.ok("Baseline created" + ui.dim("  no existing debt — clean start")));
+      }
+    } else {
+      // Teammate #2: the baseline is shared state — report it, don't re-accept.
+      const filtered = filterWithBaseline(diagnosis.issues, existingBaseline);
+      result.baseline = { created: false, suppressed: filtered.suppressed.length, active: filtered.active.length, policyHashMatches: existingBaseline.policyHash === policy.policyHash };
+      log(ui.skip(".memoire/baseline.json" + ui.dim(`  already committed — ${filtered.suppressed.length} accepted, ${filtered.active.length} new active`)));
+      if (existingBaseline.policyHash !== policy.policyHash) {
+        log(ui.warn(`Baseline was accepted under a different policy (${existingBaseline.policyHash ?? "unknown"} vs ${policy.policyHash}) — re-run \`memi baseline accept\` after aligning the policy`));
+      }
+    }
+
+    // 3. .gitignore — baseline is shared, the rest of .memoire/ stays local.
+    const gitignore = await ensureGitignorePolicy(root);
+    result.gitignore = gitignore;
+    log(gitignore.action === "unchanged"
+      ? ui.skip(".gitignore" + ui.dim("  managed block already present"))
+      : ui.ok(".gitignore" + ui.dim(`  managed block ${gitignore.action} (.memoire/* local, baseline.json shared)`)));
+    if (gitignore.conflictingLine) {
+      log(ui.warn(`.gitignore has a "${gitignore.conflictingLine}" line outside the managed block — remove it, or git will keep ignoring the baseline`));
+    }
+
+    // 4. Agent kit — so every teammate's coding agent gets the same tooling.
+    const kit = (opts.kit ?? "universal").toLowerCase();
+    if (kit === "none") {
+      result.kit = { target: "none", installed: false };
+      log(ui.skip("agent kit" + ui.dim("  skipped (--kit none)")));
+    } else {
+      const { installAgentKits, normalizeAgentInstallTarget } = await import("../agents/agent-kits.js");
+      try {
+        const install = await installAgentKits({ target: normalizeAgentInstallTarget(kit), projectRoot: root });
+        result.kit = { target: kit, installed: true, files: install.plans.map((plan) => plan.destination) };
+        log(ui.ok(`agent kit (${kit})` + ui.dim(`  ${install.plans.length} artifact(s) installed`)));
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (/already exists/i.test(message)) {
+          result.kit = { target: kit, installed: false, reason: "already installed" };
+          log(ui.skip(`agent kit (${kit})` + ui.dim("  already installed")));
+        } else {
+          throw err;
+        }
+      }
+    }
+
+    if (json) {
+      console.log(JSON.stringify(result, null, 2));
+      return;
+    }
+
+    log(ui.section("NEXT"));
+    log(ui.guide(`git add ${POLICY_FILE_NAME} .memoire/baseline.json .gitignore`, "commit the shared gate"));
+    log(ui.guide("memi ci", "run the gate locally (SARIF + step summary in CI)"));
+    log(ui.guide("memi baseline status", "watch accepted debt burn down"));
+    log(ui.guide("memi report --badge", "share the design-health report"));
+    log("");
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (json) {
+      console.log(JSON.stringify({ status: "failed", error: message }));
+    } else {
+      console.log(ui.fail(message));
+    }
+    process.exitCode = 1;
+  }
 }

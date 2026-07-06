@@ -49,7 +49,7 @@ describe("UX tenets and traps", () => {
     expect(finding.evidence.join("\n")).toContain("2 raw colors");
   });
 
-  it("scores trap risk and keeps screenshot audits actionable", () => {
+  it("scores trap risk and records screenshots without fabricating findings", () => {
     const report = buildUxAuditReport({
       target: "current-screen",
       artifactPath: "/tmp/memoire-screen.png",
@@ -64,9 +64,10 @@ describe("UX tenets and traps", () => {
       }],
     });
 
-    expect(report.schemaVersion).toBe(1);
+    expect(report.schemaVersion).toBe(2);
     expect(report.score).toBeLessThan(100);
     expect(report.artifactPath).toBe("/tmp/memoire-screen.png");
+    expect(report.artifactNote).toMatch(/not analyzed/i);
     expect(report.tenetCoverage.find((tenet) => tenet.tenetId === "accessibility")).toMatchObject({
       status: "at-risk",
     });
@@ -74,6 +75,49 @@ describe("UX tenets and traps", () => {
       status: "present",
     });
     expect(report.findings.map((finding) => finding.id)).toContain("ux.a11y.focus-missing");
+    expect(report.findings.every((finding) => finding.provenance === "static-scan")).toBe(true);
     expect(report.recommendedTweaks[0]).toMatch(/focus/i);
+  });
+
+  it("never fabricates a finding from a screenshot alone", () => {
+    const report = buildUxAuditReport({
+      target: "screenshot",
+      artifactPath: "/tmp/memoire-screen.png",
+      issues: [],
+    });
+
+    expect(report.findings).toHaveLength(0);
+    expect(report.artifactNote).toMatch(/not analyzed/i);
+  });
+
+  it("reports unreachable tenets and traps as not-assessed, never protected/clear", () => {
+    const report = buildUxAuditReport({
+      target: "workspace",
+      issues: [{
+        id: "color.raw-hex",
+        category: "color",
+        severity: "high",
+        title: "Raw colors are leaking into UI code",
+        detail: "Hardcoded hex values make redesigns brittle.",
+        evidence: ["2 raw colors"],
+        recommendation: "Move recurring colors into tokens.",
+      }],
+    });
+
+    // context-leak and destructive-default have no static-scan evidence path.
+    expect(report.trapRisks.find((trap) => trap.trapId === "context-leak")).toMatchObject({
+      status: "not-assessed",
+    });
+    expect(report.trapRisks.find((trap) => trap.trapId === "destructive-default")).toMatchObject({
+      status: "not-assessed",
+    });
+    // feedback/error-recovery/progressive-disclosure are unreachable tenets.
+    expect(report.tenetCoverage.find((tenet) => tenet.tenetId === "feedback")).toMatchObject({
+      status: "not-assessed",
+    });
+    // A tenet the scan CAN violate and found clean may read protected.
+    expect(report.tenetCoverage.find((tenet) => tenet.tenetId === "accessibility")).toMatchObject({
+      status: "protected",
+    });
   });
 });

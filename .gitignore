@@ -6,7 +6,9 @@ target/
 apps/studio/src-tauri/binaries/
 apps/studio/src-tauri/resources/memoire-runtime/
 apps/studio/src-tauri/gen/
-.memoire/
+# Workspace state stays local, but the accepted-debt baseline is shared team state
+.memoire/*
+!.memoire/baseline.json
 .superpowers/
 .codex/
 .noche/

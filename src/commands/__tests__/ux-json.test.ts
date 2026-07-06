@@ -24,7 +24,7 @@ export default function Page() {
       await program.parseAsync(["ux", "audit", "--json", "--no-write"], { from: "user" });
       const payload = JSON.parse(lastLog(logs));
 
-      expect(payload.schemaVersion).toBe(1);
+      expect(payload.schemaVersion).toBe(2);
       expect(payload.score).toBeLessThan(100);
       expect(payload.tenetCoverage.map((tenet: { tenetId: string }) => tenet.tenetId)).toContain("consistency");
       expect(payload.trapRisks.map((trap: { trapId: string }) => trap.trapId)).toContain("token-drift");
