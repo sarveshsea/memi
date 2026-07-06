@@ -1,12 +1,28 @@
 import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
-import { diagnoseAppQuality, type AppQualityDiagnosis } from "../app-quality/engine.js";
+import { diagnoseAppQuality, type AppQualityDiagnosis, type AppQualitySeverity } from "../app-quality/engine.js";
 import { ui } from "../tui/format.js";
 
 interface DiagnoseOptions {
   json?: boolean;
   maxFiles?: string;
   noWrite?: boolean;
+  failOn?: string;
+}
+
+const SEVERITY_RANK: Record<AppQualitySeverity, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+const FAIL_ON_VALUES = new Set(["critical", "high", "medium", "low", "none"]);
+
+/**
+ * Exit non-zero when any issue meets the threshold. Runs in BOTH output modes —
+ * the previous gate only ran in human mode and only on "critical", a severity
+ * the engine never emits, so `memi diagnose` shipped a CI gate that could
+ * mathematically never fail.
+ */
+function shouldFail(diagnosis: AppQualityDiagnosis, failOn: string): boolean {
+  if (failOn === "none") return false;
+  const threshold = SEVERITY_RANK[failOn as AppQualitySeverity];
+  return diagnosis.issues.some((issue) => SEVERITY_RANK[issue.severity] >= threshold);
 }
 
 export function registerDiagnoseCommand(program: Command, engine: MemoireEngine): void {
@@ -16,8 +32,13 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
     .option("--json", "Output the diagnosis as JSON")
     .option("--max-files <count>", "Maximum source files to scan", "500")
     .option("--no-write", "Do not write .memoire/app-quality reports")
+    .option("--fail-on <severity>", "Exit non-zero when any issue is at or above this severity: critical, high, medium, low, or none", "high")
     .action(async (target: string | undefined, opts: DiagnoseOptions) => {
       try {
+        const failOn = (opts.failOn ?? "high").toLowerCase();
+        if (!FAIL_ON_VALUES.has(failOn)) {
+          throw new Error(`Invalid --fail-on value "${opts.failOn}". Use one of: critical, high, medium, low, none.`);
+        }
         const maxFiles = Number.parseInt(opts.maxFiles ?? "500", 10);
         const diagnosis = await diagnoseAppQuality({
           projectRoot: engine.config.projectRoot,
@@ -26,13 +47,18 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
           write: opts.noWrite ? false : true,
         });
 
+        const failed = shouldFail(diagnosis, failOn);
+
         if (opts.json) {
           console.log(JSON.stringify(diagnosis, null, 2));
+          if (failed) process.exitCode = 1;
           return;
         }
 
         printDiagnosis(diagnosis, opts.noWrite !== true);
-        if (diagnosis.issues.some((issue) => issue.severity === "critical")) {
+        if (failed) {
+          console.log(ui.fail(`Gate: at least one issue at or above "${failOn}" severity (--fail-on ${failOn})`));
+          console.log();
           process.exitCode = 1;
         }
       } catch (err) {
