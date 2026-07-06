@@ -32,3 +32,32 @@ jobs:
             exit 1
           fi
           echo "Plugin version $META_VERSION matches package.json"
+
+  # Dogfood: memi gates its own repo with its own policy + committed baseline.
+  # Runs the CLI built from HEAD (not the published package) so the gate tests
+  # the code under review.
+  memi-ci:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+      - run: npm install --ignore-scripts
+      - run: npm run build
+      - name: memi ci (self-gate)
+        run: node dist/index.js ci
+      - name: Upload SARIF to code scanning
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: .memoire/app-quality/memi-results.sarif
+          category: memi-design

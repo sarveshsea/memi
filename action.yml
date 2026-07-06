@@ -1,0 +1,74 @@
+name: "memi design CI"
+description: >-
+  Run the memi design gate: full-tree scan, PR-scoped gating, baseline filter,
+  SARIF annotations, and a design-health report artifact. Every finding cites
+  file:line and re-runs identically — no LLM in the enforcement path.
+  Requires `security-events: write` permission for SARIF upload.
+author: "memi"
+branding:
+  icon: "layout"
+  color: "purple"
+
+inputs:
+  version:
+    description: "Pinned @memi-design/cli version. Deliberately not 'latest': gate behavior must not change under a team without a reviewed bump."
+    required: false
+    default: "2.3.0"
+  fail-on:
+    description: "Override the policy gate severity (critical|high|medium|low|none). Empty = use memoire.policy.json."
+    required: false
+    default: ""
+  base:
+    description: "Base ref for PR scoping. Empty = origin/$GITHUB_BASE_REF, then origin/main."
+    required: false
+    default: ""
+  target:
+    description: "Directory to scan (relative to the workspace). Empty = repo root."
+    required: false
+    default: ""
+  report:
+    description: "Also upload the design-health HTML report as a workflow artifact."
+    required: false
+    default: "true"
+  upload-sarif:
+    description: "Upload SARIF to GitHub code scanning (needs security-events: write; set to false on forks)."
+    required: false
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install memi (pinned)
+      shell: bash
+      run: npm install -g "@memi-design/cli@${{ inputs.version }}"
+
+    - name: Run memi ci
+      shell: bash
+      run: |
+        ARGS=()
+        [ -n "${{ inputs['fail-on'] }}" ] && ARGS+=(--fail-on "${{ inputs['fail-on'] }}")
+        [ -n "${{ inputs.base }}" ] && ARGS+=(--base "${{ inputs.base }}")
+        [ "${{ inputs.report }}" = "true" ] && ARGS+=(--report)
+        memi ci ${{ inputs.target }} "${ARGS[@]}"
+
+    - name: Upload SARIF to code scanning
+      if: ${{ always() && inputs['upload-sarif'] == 'true' }}
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: .memoire/app-quality/memi-results.sarif
+        category: memi-design
+
+    - name: Upload design-health report artifact
+      if: ${{ always() && inputs.report == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: memi-design-health
+        path: |
+          .memoire/app-quality/design-health.html
+          .memoire/app-quality/design-health.md
+          .memoire/app-quality/design-health-badge.svg
+        if-no-files-found: ignore
