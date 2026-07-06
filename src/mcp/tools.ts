@@ -375,6 +375,34 @@ Use this tool: before planning UI fixes, exporting a registry, or giving an AI e
     },
   );
 
+  // ── generate_health_report ──────────────────────────────
+  server.tool(
+    "generate_health_report",
+    `Compose one self-contained design-health report (HTML + markdown) from all persisted .memoire audits — app quality, UX tenets/traps, interface craft, skill compliance, and the score trend, with provenance badges, the not-assessed legend, and the active policy hash.
+
+Prereq: run diagnose_app_quality (or the CLI audits) first so artifacts exist; missing sections are listed, never silently omitted.
+Returns: { html, markdown, score, sections[], missing[] }. Static content — write it wherever needed. redact=true strips evidence excerpts (paths stay) for NDA-safe sharing.`,
+    {
+      redact: z.boolean().optional().describe("Strip evidence excerpts — paths and counts only."),
+    },
+    async ({ redact }) => {
+      const { composeReport } = await import("../reporters/report-html.js");
+      const composed = await composeReport({ projectRoot: engine.config.projectRoot, redact });
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            html: composed.html,
+            markdown: composed.markdown,
+            score: composed.score,
+            sections: composed.sections,
+            missing: composed.missing,
+          }),
+        }],
+      };
+    },
+  );
+
   // ── check_skill_compliance ──────────────────────────────
   server.tool(
     "check_skill_compliance",

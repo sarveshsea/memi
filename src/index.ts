@@ -90,6 +90,7 @@ const FAST_COMMANDS: Record<string, () => Promise<RegisterFn>> = {
   "fix": async () => (await import("./commands/fix.js")).registerFixCommand,
   "audit": async () => (await import("./commands/audit.js")).registerAuditCommand,
   "baseline": async () => (await import("./commands/baseline.js")).registerBaselineCommand,
+  "report": async () => (await import("./commands/report.js")).registerReportCommand,
   "studio": async () => (await import("./commands/studio.js")).registerStudioCommand,
 };
 
@@ -126,6 +127,7 @@ async function registerAllCommands(program: CliProgram, engine: CliEngine): Prom
     { registerSuiteCommand },
     { registerAuditCommand },
     { registerBaselineCommand },
+    { registerReportCommand },
     { registerDiffCommand },
     { registerAddCommand },
     { registerPublishCommand },
@@ -175,6 +177,7 @@ async function registerAllCommands(program: CliProgram, engine: CliEngine): Prom
     import("./commands/suite.js"),
     import("./commands/audit.js"),
     import("./commands/baseline.js"),
+    import("./commands/report.js"),
     import("./commands/diff.js"),
     import("./commands/add.js"),
     import("./commands/publish.js"),
@@ -232,6 +235,7 @@ async function registerAllCommands(program: CliProgram, engine: CliEngine): Prom
   registerWatchCommand(program, engine);
   registerAuditCommand(program, engine);
   registerBaselineCommand(program, engine);
+  registerReportCommand(program, engine);
   registerComposeCommand(program, engine);
   registerAgentCommand(program, engine);
   registerDaemonCommand(program, engine);
