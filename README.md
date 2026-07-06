@@ -71,6 +71,23 @@ Modern UI agents can write code, but they usually do not know the product system
 
 The wedge is simple: run memi before broad frontend work so every agent starts from the product system instead of a blank prompt.
 
+## The mandate loop
+
+v2.3 turns memi from an audit you can run into a gate a team can require. Every finding cites `file:line` and re-runs identically — checkers check, gates gate, and no LLM sits in the enforcement path.
+
+```bash
+memi init --team     # committed policy + loudly-accepted baseline + gitignore rules + agent kit
+memi ci              # full-tree scan, PR-scoped blame, SARIF annotations, step summary — exit 1 on new debt
+memi baseline status # accepted debt stays visible while it burns down
+memi report --badge  # one self-contained design-health.html + SVG badge
+```
+
+- **Deterministic**: same commit + same `memoire.policy.json` = same result. Scores stamp the policy hash; runs under different rules are reported "not comparable" instead of pretending.
+- **Fair to PRs**: whole-tree stats keep ratio thresholds valid, but a PR is only blamed for files it touched. Aggregate rules gate through score budgets, never per-file blame.
+- **Honest by construction**: baselines suppress loudly (counts in every report), unassessable dimensions say "not-assessed" instead of inventing a score, and every finding carries provenance (`static-scan` today).
+
+One workflow line wires it into GitHub: `uses: sarveshsea/memi@v2` — SARIF PR annotations, a score summary, and a report artifact. Recipes for every other CI in [docs/CI_RECIPES.md](docs/CI_RECIPES.md); the rollout path for teams in [docs/TEAM_ROLLOUT.md](docs/TEAM_ROLLOUT.md).
+
 ## Public proof repo
 
 Use [`sarveshsea/design-sandbox`](https://github.com/sarveshsea/design-sandbox) as the reference workspace for memi v2. It is a small Next.js 16 + Tailwind 4 + shadcn repo wired with MCP, Agent Skills, Claude Code subagents, `memoire.agent.yaml`, UX audit commands, token extraction, and no-hex verification.
@@ -248,6 +265,9 @@ Studio interface references and adapted components are documented in [NOTICE](NO
 | Start here | When you need |
 | --- | --- |
 | [Quickstart](docs/README.md) | The shortest path from install to proof. |
+| [Team Rollout](docs/TEAM_ROLLOUT.md) | Zero to a shared, enforced design gate: policy, baseline, CI, debt burn-down. |
+| [CI Recipes](docs/CI_RECIPES.md) | `memi ci`, the GitHub Action, SARIF annotations, and non-GitHub CI wiring. |
+| [Private Registry](docs/PRIVATE_REGISTRY.md) | Ship your design system on infra you control; DTCG token interop. |
 | [Interface Understanding](docs/INTERFACE_UNDERSTANDING.md) | The full evidence loop for UI agents. |
 | [Agent Stacks](docs/AGENT_STACKS.md) | ECC, Hermes, OpenClaw, Codex, Claude Code, Cursor, OpenCode, MCP, and skills workflows. |
 | [Agent Recipes](docs/AGENT_RECIPES.md) | Copy-paste prompts and setup commands. |
@@ -265,6 +285,10 @@ Studio interface references and adapted components are documented in [NOTICE](NO
 
 | Command | What it does |
 | --- | --- |
+| `memi init --team` | One-command shared design gate: policy, baseline, gitignore, agent kit. |
+| `memi ci` | CI design gate: scan, PR scope, baseline filter, SARIF + step summary. |
+| `memi baseline accept|status` | Accept existing debt loudly; watch it burn down. |
+| `memi report --badge` | Compose one self-contained design-health artifact + SVG badge. |
 | `memi diagnose [target]` | Diagnose UI debt from code, route, or URL. |
 | `memi ux audit [target]` | Audit UX tenet coverage and trap risks. |
 | `memi craft audit [target]` | Audit interface craft across visual design, hierarchy, conventions, and user context. |

@@ -279,17 +279,23 @@ Errors: isError if specName is not found. isError with { blocked: true, findings
 
 Prereq: none — local read; run pull_design_system if empty.
 Returns: [{ name, type: "color"|"spacing"|"typography"|"radius"|"shadow"|"other", values (keyed by mode), cssVariable? }]; [] when none.
+format "dtcg" returns the same tokens as a W3C Design Tokens (DTCG) document instead — nested groups, $type/$value, lossless via $extensions.
 Filter by type/name to keep payloads small on large token sets. For a Tailwind-ready mapping use sync_design_tokens.`,
     {
       type: z.enum(["color", "spacing", "typography", "radius", "shadow", "other"]).optional().describe("Only return tokens of this type."),
       name: z.string().optional().describe("Case-insensitive substring filter on token names (e.g. 'primary')."),
+      format: z.enum(["memi", "dtcg"]).default("memi").describe("Output format: \"memi\" = flat token array (default); \"dtcg\" = W3C Design Tokens document for interop with other DTCG tooling."),
     },
-    async ({ type, name }) => {
+    async ({ type, name, format }) => {
       let tokens = engine.registry.designSystem.tokens;
       if (type) tokens = tokens.filter((t) => t.type === type);
       if (name) {
         const needle = name.toLowerCase();
         tokens = tokens.filter((t) => t.name.toLowerCase().includes(needle));
+      }
+      if (format === "dtcg") {
+        const { toDtcg } = await import("../tokens/dtcg.js");
+        return { content: [{ type: "text" as const, text: JSON.stringify(toDtcg(tokens)) }] };
       }
       return {
         content: [{
@@ -570,12 +576,14 @@ Prereq: token must exist (names via get_tokens); Figma connection only for pushT
 Returns: { updated: true, name, pushedToFigma, reason? } — a requested-but-skipped or failed push is reported in reason, never silently dropped.
 Errors: isError if the token name is not found. For bulk Tailwind mapping use sync_design_tokens.`,
     {
-      name: z.string().describe("Exact token name as it appears in get_tokens output (e.g. \"Colors/Primary\", \"Spacing/XS\"). Case-sensitive."),
+      name: z.string().describe("Token name as it appears in get_tokens output (e.g. \"Colors/Primary\") or as a DTCG dot-path (e.g. \"colors.primary\") — exact match tried first, then case-insensitive path match."),
       values: z.record(z.union([z.string(), z.number()])).describe("Mode-to-value map to merge into existing values (e.g. { \"Light\": \"#FF0000\", \"Dark\": \"#FF6666\" }). Only the modes you provide are updated — other modes are preserved."),
       pushToFigma: z.boolean().default(false).describe("If true and Figma is connected, push this token change to the Figma file immediately. Defaults to false (local registry only)."),
     },
     async ({ name, values, pushToFigma }) => {
-      const token = engine.registry.designSystem.tokens.find((t) => t.name === name);
+      const { normalizeTokenPath } = await import("../tokens/dtcg.js");
+      const token = engine.registry.designSystem.tokens.find((t) => t.name === name)
+        ?? engine.registry.designSystem.tokens.find((t) => normalizeTokenPath(t.name) === normalizeTokenPath(name));
       if (!token) {
         return { isError: true, content: [{ type: "text" as const, text: `Token "${name}" not found` }] };
       }
@@ -1232,13 +1240,35 @@ Use to verify labels or body copy fit fixed containers or maxLines constraints b
   // ── sync_design_tokens ─────────────────────────────────
   server.tool(
     "sync_design_tokens",
-    `Map registry tokens to a Tailwind theme.extend object.
+    `Map registry tokens to a Tailwind theme.extend object; optionally import a W3C DTCG token file first.
 
-Prereq: tokens in the registry (pull_design_system first). Never throws — returns {} when empty.
-Returns: partial theme (colors, spacing, fontSize, borderRadius, boxShadow) using var(--token) references; keys from the last token-name segment; "other" tokens skipped.
-vs get_tokens: get_tokens = raw data for inspection; this = paste-ready Tailwind patch.`,
-    {},
-    async () => {
+Prereq: tokens in the registry (pull_design_system first) — or pass dtcgFile to import them here. Never throws — returns {} when empty.
+Returns: partial theme (colors, spacing, fontSize, borderRadius, boxShadow) using var(--token) references; keys from the last token-name segment; "other" tokens skipped. With dtcgFile also { imported, warnings }.
+vs get_tokens: get_tokens = raw data for inspection (format "dtcg" exports the DTCG document); this = paste-ready Tailwind patch.`,
+    {
+      dtcgFile: z.string().optional().describe("Path to a W3C Design Tokens (.tokens.json / DTCG) file to import into the registry before mapping. Upserts by token name; parse warnings are returned, never silently dropped."),
+    },
+    async ({ dtcgFile }) => {
+      let imported: number | undefined;
+      let importWarnings: string[] | undefined;
+      if (dtcgFile) {
+        const { readFile } = await import("node:fs/promises");
+        const { fromDtcg, isDtcgDocument } = await import("../tokens/dtcg.js");
+        let parsed: unknown;
+        try {
+          parsed = JSON.parse(await readFile(dtcgFile, "utf-8"));
+        } catch (err) {
+          return { isError: true, content: [{ type: "text" as const, text: `Could not read DTCG file "${dtcgFile}": ${(err as Error).message}` }] };
+        }
+        if (!isDtcgDocument(parsed)) {
+          return { isError: true, content: [{ type: "text" as const, text: `"${dtcgFile}" is not a DTCG document — no member with a $value was found.` }] };
+        }
+        const result = fromDtcg(parsed);
+        for (const token of result.tokens) engine.registry.addToken(token);
+        imported = result.tokens.length;
+        importWarnings = result.warnings;
+      }
+
       const tokens = engine.registry.designSystem.tokens;
       const patch: Record<string, Record<string, string>> = {
         colors: {},
@@ -1292,7 +1322,7 @@ vs get_tokens: get_tokens = raw data for inspection; this = paste-ready Tailwind
       return {
         content: [{
           type: "text" as const,
-          text: JSON.stringify(patch),
+          text: JSON.stringify(imported !== undefined ? { ...patch, imported, warnings: importWarnings } : patch),
         }],
       };
     },
