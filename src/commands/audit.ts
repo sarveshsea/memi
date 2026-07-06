@@ -226,11 +226,45 @@ export function registerAuditCommand(program: Command, engine: MemoireEngine): v
     .option("--wcag", "Run the 5-check WCAG accessibility audit")
     .option("--unused", "List specs with no generated code (never generated or stale)")
     .option("--skill-compliance", "Check real source files against ATOMIC_DESIGN.md/MOTION_VIDEO_DESIGN.md's checkable rules — the CI/pre-commit enforcement surface")
+    .option("--research-traceability", "Verify every spec's researchBacking citation resolves to a live finding (warnings; strict policy preset promotes stale citations to failures)")
     .option("--target <path>", "Local path to scan for --skill-compliance. Defaults to the current project root.")
     .option("--component <name>", "Audit only specs matching this name (case-insensitive substring)")
     .option("--json", "Output audit results as JSON")
-    .action(async (opts: { wcag?: boolean; unused?: boolean; skillCompliance?: boolean; target?: string; component?: string; json?: boolean }) => {
+    .action(async (opts: { wcag?: boolean; unused?: boolean; skillCompliance?: boolean; researchTraceability?: boolean; target?: string; component?: string; json?: boolean }) => {
       await engine.init();
+
+      // ── Research traceability audit ───────────────────────────────
+      if (opts.researchTraceability) {
+        const { buildTraceabilityReport } = await import("../research/traceability.js");
+        const { loadPolicy } = await import("../app-quality/policy.js");
+        await engine.research.load();
+        const specs = await engine.registry.getAllSpecs();
+        const report = buildTraceabilityReport(specs, engine.research.getStore().findings);
+        const policy = await loadPolicy(engine.config.projectRoot);
+        // Warning severity by default; the strict preset treats a stale
+        // citation as a broken promise and fails the audit.
+        const failed = policy.preset === "strict" && report.staleCitations > 0;
+
+        if (opts.json) {
+          console.log(JSON.stringify({ ...report, policyPreset: policy.preset, failed }, null, 2));
+        } else {
+          console.log("\n  memi audit --research-traceability\n");
+          if (report.totalSpecs === 0) {
+            console.log("  No specs carry researchBacking — nothing to verify\n");
+          } else {
+            for (const entry of report.entries.filter((item) => !item.backed || item.unresolved.length > 0)) {
+              const kind = entry.unresolved.length > 0 ? "stale citation(s)" : "no research backing";
+              console.log(`  !  [warning] ${entry.spec} (${entry.type}) — ${kind}${entry.unresolved.length ? `: ${entry.unresolved.slice(0, 3).join(", ")}` : ""}`);
+            }
+            console.log(`\n  summary  ${report.backedSpecs}/${report.totalSpecs} backed  ${report.staleCitations} stale citation(s)  coverage ${report.coverage ?? 0}%`);
+            if (failed) console.log("  strict policy: stale citations fail this audit");
+            console.log();
+          }
+        }
+
+        if (failed) process.exitCode = 1;
+        return;
+      }
 
       // ── Skill-compliance audit — the real CI enforcement surface. Every
       // other skill-compliance entry point (the MCP tool, run_audit's focus

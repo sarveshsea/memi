@@ -257,6 +257,30 @@ function buildSpecs(input: {
   report: SimulationReport | null;
 }): ResearchDesignPackageSpecs {
   const backing = input.evidenceIds;
+
+  // Selective research backing: each component cites only the evidence that
+  // actually backs its role, not a blanket stamp of every finding id. An
+  // empty list is honest — it means "no research backs this yet", and the
+  // traceability audit surfaces it instead of a fabricated citation hiding it.
+  const validIds = new Set(input.evidenceIds);
+  const keep = (ids: Array<string | undefined>) =>
+    unique(ids.filter((id): id is string => Boolean(id) && validIds.has(id as string)));
+  const findingBacking = keep(input.findings.map((finding) => finding.id));
+  const personaBacking = keep(input.personas.flatMap((persona) => persona.evidenceFindingIds ?? []));
+  const riskBacking = keep(input.risks.flatMap((risk) => risk.evidenceFindingIds));
+  const reportBacking = keep(input.report?.evidenceFindingIds ?? []);
+  const backingByComponent: Record<string, string[]> = {
+    EvidenceCard: findingBacking,
+    PersonaChip: personaBacking,
+    AssumptionRow: riskBacking,
+    MetricTile: reportBacking,
+    ResearchHero: findingBacking.slice(0, 3),
+    DecisionPanel: findingBacking,
+    ScenarioTimeline: reportBacking,
+    RiskReviewPanel: keep([...riskBacking, ...findingBacking.slice(0, 2)]),
+    ProductDecisionTemplate: keep([...findingBacking, ...personaBacking, ...riskBacking, ...reportBacking]),
+  };
+
   const design = [DesignSpecSchema.parse({
     name: "ResearchVibeDirection",
     type: "design",
@@ -297,7 +321,7 @@ function buildSpecs(input: {
     tags: ["research-vibe-design"],
   })];
 
-  const components = componentSpecs(backing);
+  const components = componentSpecs(backingByComponent);
   const pages = [PageSpecSchema.parse({
     name: "ProductDecisionPage",
     type: "page",
@@ -332,17 +356,18 @@ function buildSpecs(input: {
   return { design, ia, pages, components, dataviz };
 }
 
-function componentSpecs(researchBacking: string[]): ComponentSpec[] {
+function componentSpecs(backingByComponent: Record<string, string[]>): ComponentSpec[] {
+  const backingFor = (name: string): string[] => backingByComponent[name] ?? [];
   return [
-    component("EvidenceCard", "atom", "Compact evidence citation card with finding id, confidence, and source cue.", researchBacking),
-    component("PersonaChip", "atom", "Persona badge that keeps audience and pain point visible during design review.", researchBacking),
-    component("AssumptionRow", "atom", "Single unresolved assumption row with owner and decision state.", researchBacking),
-    component("MetricTile", "atom", "Metric tile for confidence, adoption, risk, or quality signals.", researchBacking),
-    component("ResearchHero", "molecule", "Research-backed hero summarizing audience, hypothesis, and strongest evidence.", researchBacking, ["EvidenceCard", "PersonaChip"]),
-    component("DecisionPanel", "organism", "Decision workspace for recommendations, acceptance criteria, and evidence links.", researchBacking, ["EvidenceCard", "AssumptionRow", "MetricTile"]),
-    component("ScenarioTimeline", "organism", "Round-by-round model-swarm or local scenario timeline.", researchBacking, ["EvidenceCard", "MetricTile"]),
-    component("RiskReviewPanel", "organism", "Risk and contradiction review panel before product-spec handoff.", researchBacking, ["AssumptionRow", "EvidenceCard"]),
-    component("ProductDecisionTemplate", "template", "Page template for research-backed product decision work.", researchBacking, ["ResearchHero", "DecisionPanel", "ScenarioTimeline", "RiskReviewPanel"]),
+    component("EvidenceCard", "atom", "Compact evidence citation card with finding id, confidence, and source cue.", backingFor("EvidenceCard")),
+    component("PersonaChip", "atom", "Persona badge that keeps audience and pain point visible during design review.", backingFor("PersonaChip")),
+    component("AssumptionRow", "atom", "Single unresolved assumption row with owner and decision state.", backingFor("AssumptionRow")),
+    component("MetricTile", "atom", "Metric tile for confidence, adoption, risk, or quality signals.", backingFor("MetricTile")),
+    component("ResearchHero", "molecule", "Research-backed hero summarizing audience, hypothesis, and strongest evidence.", backingFor("ResearchHero"), ["EvidenceCard", "PersonaChip"]),
+    component("DecisionPanel", "organism", "Decision workspace for recommendations, acceptance criteria, and evidence links.", backingFor("DecisionPanel"), ["EvidenceCard", "AssumptionRow", "MetricTile"]),
+    component("ScenarioTimeline", "organism", "Round-by-round model-swarm or local scenario timeline.", backingFor("ScenarioTimeline"), ["EvidenceCard", "MetricTile"]),
+    component("RiskReviewPanel", "organism", "Risk and contradiction review panel before product-spec handoff.", backingFor("RiskReviewPanel"), ["AssumptionRow", "EvidenceCard"]),
+    component("ProductDecisionTemplate", "template", "Page template for research-backed product decision work.", backingFor("ProductDecisionTemplate"), ["ResearchHero", "DecisionPanel", "ScenarioTimeline", "RiskReviewPanel"]),
   ];
 }
 

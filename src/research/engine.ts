@@ -9,7 +9,7 @@
  */
 
 import { createHash } from "crypto";
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, readdir, readFile, rm, writeFile } from "fs/promises";
 import { join } from "path";
 import type { MemoireEvent } from "../engine/core.js";
 import { createLogger } from "../engine/logger.js";
@@ -32,6 +32,7 @@ import type { WebResearchResult } from "./web-researcher.js";
 
 const STORE_FILENAME = "store.v2.json";
 const LEGACY_STORE_FILENAME = "insights.json";
+const SNAPSHOT_RETENTION = 20;
 
 export interface ResearchConfig {
   outputDir: string;
@@ -368,6 +369,7 @@ export class ResearchEngine {
       sampleSize: stickies.length,
       notes: [],
     });
+    await this.snapshotBeforePurge("figjam-stickies-reingest");
     this.purgeSourceData([source.id], [source.name]);
 
     const observationByStickyId = new Map<string, ResearchObservation>();
@@ -450,6 +452,7 @@ export class ResearchEngine {
       itemCount: data.rows.length,
       notes: [],
     });
+    await this.snapshotBeforePurge(`${sourceType}-reingest`);
     this.purgeSourceData([source.id], [source.name]);
 
     const headers = data.headers.map((header) => header.toLowerCase());
@@ -635,6 +638,7 @@ export class ResearchEngine {
       sampleSize: analysis.speakers.length,
       notes: [],
     });
+    await this.snapshotBeforePurge("transcript-reingest");
     this.purgeSourceData([source.id], [source.name]);
 
     const segmentObservationIds: string[] = [];
@@ -719,6 +723,7 @@ export class ResearchEngine {
     const result = await executeWebResearch(topic, urls);
 
     const sourceIdByUrl = new Map<string, string>();
+    await this.snapshotBeforePurge("web-research-reingest");
     for (const webSource of result.sources) {
       const source = this.upsertSource({
         name: webSource.url,
@@ -954,6 +959,40 @@ export class ResearchEngine {
       ...this.store.quantitativeMetrics.filter((metric) => metric.source !== sourceName),
       ...metrics,
     ];
+  }
+
+  /**
+   * Archive the current store before a destructive re-ingest purges prior
+   * observations/findings for a source. Research data is expensive to
+   * collect — a re-import must never be able to silently destroy it.
+   * Snapshots land in research/snapshots/ with a retention cap.
+   */
+  private async snapshotBeforePurge(reason: string): Promise<string | null> {
+    const hasData = this.store.sources.length > 0
+      || this.store.observations.length > 0
+      || this.store.findings.length > 0;
+    if (!hasData) return null;
+
+    const dir = join(this.config.outputDir, "snapshots");
+    await mkdir(dir, { recursive: true });
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const safeReason = reason.replace(/[^a-zA-Z0-9-]/g, "-").slice(0, 40);
+    const path = join(dir, `${stamp}-${safeReason}.json`);
+    await writeFile(path, JSON.stringify({
+      snapshotOf: STORE_FILENAME,
+      reason,
+      at: new Date().toISOString(),
+      store: this.store,
+    }, null, 2));
+
+    // Retention: keep the newest SNAPSHOT_RETENTION, delete the rest.
+    const entries = (await readdir(dir)).filter((file) => file.endsWith(".json")).sort();
+    for (const stale of entries.slice(0, Math.max(0, entries.length - SNAPSHOT_RETENTION))) {
+      await rm(join(dir, stale), { force: true });
+    }
+
+    this.emitEvent("info", `Pre-ingest snapshot saved: ${path}`);
+    return path;
   }
 
   private purgeSourceData(sourceIds: string[], sourceNames: string[]): void {
