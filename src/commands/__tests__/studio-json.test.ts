@@ -65,7 +65,7 @@ describe("studio command JSON", () => {
     const payload = JSON.parse(lastLog(logs));
     expect(payload.status).toBe("completed");
     expect(payload.proof).toMatchObject({
-      mode: "deterministic-proof",
+      mode: "demo-fixture",
       liveHarness: false,
       outDir,
       grade: {

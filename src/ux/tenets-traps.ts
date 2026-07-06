@@ -43,6 +43,13 @@ export interface UxTrapDefinition {
 
 export type UxFindingSource = "app-quality" | "screenshot" | "manual" | "mcp";
 
+/**
+ * How a finding was evidenced. 2.3 only ever emits "static-scan" — the other
+ * values are reserved so 2.4's rendered probes / vision critique can slot in
+ * without another schema bump.
+ */
+export type UxFindingProvenance = "static-scan" | "rendered-probe" | "vision" | "manual";
+
 export interface UxAuditFinding {
   id: string;
   title: string;
@@ -52,6 +59,7 @@ export interface UxAuditFinding {
   evidence: string[];
   recommendation: string;
   source: UxFindingSource;
+  provenance: UxFindingProvenance;
   artifactPath?: string;
   confidence?: number;
   affectedFiles?: string[];
@@ -60,7 +68,12 @@ export interface UxAuditFinding {
 export interface UxTenetCoverage {
   tenetId: UxTenetId;
   name: string;
-  status: "protected" | "at-risk" | "unknown";
+  /**
+   * "not-assessed" means no static-scan evidence path can ever evidence this
+   * tenet — it is NOT the same as "protected". Only tenets the scan can
+   * actually violate may read "protected" when clean.
+   */
+  status: "protected" | "at-risk" | "unknown" | "not-assessed";
   findingIds: string[];
   notes: string[];
 }
@@ -68,14 +81,16 @@ export interface UxTenetCoverage {
 export interface UxTrapRisk {
   trapId: UxTrapId;
   name: string;
-  status: "clear" | "watch" | "present";
+  /** "not-assessed" — no static-scan evidence path exists for this trap; see UxTenetCoverage.status. */
+  status: "clear" | "watch" | "present" | "not-assessed";
   riskScore: number;
   findingIds: string[];
   defaultFix: string;
+  note?: string;
 }
 
 export interface UxAuditReport {
-  schemaVersion: 1;
+  schemaVersion: 2;
   target: string;
   generatedAt: string;
   score: number;
@@ -84,6 +99,8 @@ export interface UxAuditReport {
   findings: UxAuditFinding[];
   recommendedTweaks: string[];
   artifactPath?: string;
+  /** Present when a screenshot was attached: it is recorded, not analyzed — no vision pass runs in 2.3. */
+  artifactNote?: string;
   metadata?: {
     issueCount?: number;
     appQualityScore?: number;
@@ -316,6 +333,24 @@ const SEVERITY_PENALTY: Record<AppQualitySeverity, number> = {
   low: 5,
 };
 
+/**
+ * Tenets/traps the static scan can actually evidence, computed from the
+ * mapping tables — anything outside these sets can never fire from a scan
+ * and must report "not-assessed", never "protected"/"clear". Self-maintaining:
+ * adding a mapping automatically makes its tenets/traps assessable.
+ */
+const ASSESSABLE_TENET_IDS = new Set<UxTenetId>();
+const ASSESSABLE_TRAP_IDS = new Set<UxTrapId>();
+for (const mapping of [...Object.values(ISSUE_MAPPINGS), ...Object.values(CATEGORY_MAPPINGS)]) {
+  for (const tenetId of mapping.tenetIds) ASSESSABLE_TENET_IDS.add(tenetId);
+  for (const trapId of mapping.trapIds) ASSESSABLE_TRAP_IDS.add(trapId);
+}
+
+const NOT_ASSESSED_TENET_NOTE =
+  "Not assessable by static scan — needs rendered/behavioral evidence (screenshots analyzed by vision, interaction probes). Planned for a future release; until then this tenet is unverified, not verified-good.";
+const NOT_ASSESSED_TRAP_NOTE =
+  "No static-scan evidence path exists for this trap — 'not-assessed' means unverified, not clear.";
+
 export function mapAppQualityIssueToUxFinding(issue: AppQualityIssue): UxAuditFinding {
   const mapping = ISSUE_MAPPINGS[issue.id] ?? CATEGORY_MAPPINGS[issue.category];
   return {
@@ -331,6 +366,7 @@ export function mapAppQualityIssueToUxFinding(issue: AppQualityIssue): UxAuditFi
     ],
     recommendation: mapping.recommendation ?? issue.recommendation,
     source: "app-quality",
+    provenance: "static-scan",
     confidence: issue.confidence,
     affectedFiles: issue.affectedFiles,
   };
@@ -338,16 +374,17 @@ export function mapAppQualityIssueToUxFinding(issue: AppQualityIssue): UxAuditFi
 
 export function buildUxAuditReport(input: BuildUxAuditReportInput): UxAuditReport {
   const target = input.target ?? input.artifactPath ?? "workspace";
-  const issueFindings = (input.issues ?? []).map(mapAppQualityIssueToUxFinding);
-  const screenshotFinding = input.artifactPath && issueFindings.length === 0
-    ? [buildScreenshotAuditFinding(input.artifactPath, input.source ?? "screenshot")]
-    : [];
-  const findings = [...issueFindings, ...screenshotFinding].sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
+  // Screenshots are recorded, never analyzed — 2.3 has no vision pass, so no
+  // finding is fabricated from a screenshot's mere existence. (The previous
+  // placeholder emitted a fixed medium finding with an invented confidence.)
+  const findings = (input.issues ?? [])
+    .map(mapAppQualityIssueToUxFinding)
+    .sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
   const score = scoreUx(findings, input.appQualityScore);
   const generatedAt = input.generatedAt ?? new Date().toISOString();
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     target,
     generatedAt,
     score,
@@ -356,6 +393,9 @@ export function buildUxAuditReport(input: BuildUxAuditReportInput): UxAuditRepor
     findings,
     recommendedTweaks: recommendedTweaks(findings),
     artifactPath: input.artifactPath ?? undefined,
+    artifactNote: input.artifactPath
+      ? "Screenshot attached for reference only — it was not analyzed. Static-scan findings above come from source code, not pixels."
+      : undefined,
     metadata: {
       issueCount: input.issues?.length ?? 0,
       appQualityScore: input.appQualityScore,
@@ -382,6 +422,12 @@ export function renderUxAuditMarkdown(report: UxAuditReport): string {
     `Generated: ${report.generatedAt}`,
   ];
   if (report.artifactPath) lines.push(`Artifact: \`${report.artifactPath}\``);
+  if (report.artifactNote) lines.push(`> ${report.artifactNote}`);
+
+  lines.push(
+    "",
+    "> Statuses: **at-risk** = static-scan findings exist · **protected** = the scan can detect violations and found none · **not-assessed** = no static evidence path exists (unverified, NOT verified-good).",
+  );
 
   lines.push("", "## Tenet Coverage", "");
   for (const tenet of report.tenetCoverage) {
@@ -389,11 +435,17 @@ export function renderUxAuditMarkdown(report: UxAuditReport): string {
   }
 
   lines.push("", "## Trap Risks", "");
-  for (const trap of report.trapRisks.filter((risk) => risk.status !== "clear")) {
+  for (const trap of report.trapRisks.filter((risk) => risk.status !== "clear" && risk.status !== "not-assessed")) {
     lines.push(`- **${trap.name}**: ${trap.status} (${trap.riskScore}/100)`);
     lines.push(`  Fix: ${trap.defaultFix}`);
   }
-  if (!report.trapRisks.some((risk) => risk.status !== "clear")) lines.push("- No major trap risk detected.");
+  const notAssessedTraps = report.trapRisks.filter((risk) => risk.status === "not-assessed");
+  if (notAssessedTraps.length > 0) {
+    lines.push(`- Not assessed by static scan: ${notAssessedTraps.map((t) => t.name).join(", ")}`);
+  }
+  if (!report.trapRisks.some((risk) => risk.status === "present" || risk.status === "watch")) {
+    lines.push("- No trap risk detected among statically-assessable traps.");
+  }
 
   lines.push("", "## Findings", "");
   if (report.findings.length === 0) {
@@ -414,32 +466,36 @@ export function renderUxAuditMarkdown(report: UxAuditReport): string {
   return lines.join("\n");
 }
 
-function buildScreenshotAuditFinding(artifactPath: string, source: UxFindingSource): UxAuditFinding {
-  return {
-    id: "ux.screenshot.review-required",
-    title: "Screenshot needs tenets/traps review",
-    severity: "medium",
-    tenetIds: ["clarity", "feedback", "workflow-fit", "trust"],
-    trapIds: ["ambiguous-affordance", "missing-state", "silent-system"],
-    evidence: [`Screenshot artifact: ${artifactPath}`],
-    recommendation: "Review hierarchy, primary action, state visibility, empty/loading/error affordances, and next-step receipts against the tenets.",
-    source,
-    artifactPath,
-    confidence: 0.7,
-  };
-}
-
 function buildTenetCoverage(findings: UxAuditFinding[]): UxTenetCoverage[] {
   return UX_TENETS.map((tenet) => {
     const related = findings.filter((finding) => finding.tenetIds.includes(tenet.id));
+    if (related.length > 0) {
+      return {
+        tenetId: tenet.id,
+        name: tenet.name,
+        status: "at-risk" as const,
+        findingIds: related.map((finding) => finding.id),
+        notes: related.map((finding) => finding.title).slice(0, 3),
+      };
+    }
+    // No findings for this tenet. Only claim "protected" when the scan could
+    // actually have violated it — an unassessable tenet must never read as
+    // verified-good just because other findings exist.
+    if (!ASSESSABLE_TENET_IDS.has(tenet.id)) {
+      return {
+        tenetId: tenet.id,
+        name: tenet.name,
+        status: "not-assessed" as const,
+        findingIds: [],
+        notes: [NOT_ASSESSED_TENET_NOTE],
+      };
+    }
     return {
       tenetId: tenet.id,
       name: tenet.name,
-      status: related.length > 0 ? "at-risk" : findings.length > 0 ? "protected" : "unknown",
-      findingIds: related.map((finding) => finding.id),
-      notes: related.length > 0
-        ? related.map((finding) => finding.title).slice(0, 3)
-        : tenet.protectBy.slice(0, 2),
+      status: findings.length > 0 ? ("protected" as const) : ("unknown" as const),
+      findingIds: [],
+      notes: tenet.protectBy.slice(0, 2),
     };
   });
 }
@@ -449,6 +505,17 @@ function buildTrapRisks(findings: UxAuditFinding[]): UxTrapRisk[] {
     const related = findings.filter((finding) => finding.trapIds.includes(trap.id));
     const riskScore = Math.min(100, related.reduce((sum, finding) => sum + SEVERITY_PENALTY[finding.severity], 0) * 3);
     const highestSeverity = related.map((finding) => finding.severity).sort((a, b) => severityRank(b) - severityRank(a))[0];
+    if (related.length === 0 && !ASSESSABLE_TRAP_IDS.has(trap.id)) {
+      return {
+        trapId: trap.id,
+        name: trap.name,
+        status: "not-assessed" as const,
+        riskScore: 0,
+        findingIds: [],
+        defaultFix: trap.defaultFix,
+        note: NOT_ASSESSED_TRAP_NOTE,
+      };
+    }
     return {
       trapId: trap.id,
       name: trap.name,

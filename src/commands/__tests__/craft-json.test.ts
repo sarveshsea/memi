@@ -24,7 +24,7 @@ export default function Page() {
       await program.parseAsync(["craft", "audit", "--json", "--no-write"], { from: "user" });
       const payload = JSON.parse(lastLog(logs));
 
-      expect(payload.schemaVersion).toBe(1);
+      expect(payload.schemaVersion).toBe(2);
       expect(payload.score).toBeLessThan(100);
       expect(payload.dimensions.map((dimension: { dimensionId: string }) => dimension.dimensionId)).toContain("spacing-rhythm");
       expect(payload.findings.length).toBeGreaterThan(0);

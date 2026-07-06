@@ -70,7 +70,8 @@ describe("studio visual parity challenge", () => {
         generatedAt: "2026-06-30T00:00:00.000Z",
       });
 
-      expect(proof.mode).toBe("deterministic-proof");
+      expect(proof.mode).toBe("demo-fixture");
+      expect(proof.demoDisclaimer).toMatch(/asserted, not measured/i);
       expect(proof.liveHarness).toBe(false);
       expect(proof.grade).toMatchObject({ passed: true, score: 100, missingCriteria: [] });
       expect(proof.previewUrl).toMatch(/^file:\/\//);

@@ -192,7 +192,7 @@ describe("studio tool broker", () => {
         artifactPath: expect.stringMatching(/ux-audit\.json$/),
         data: {
           report: {
-            schemaVersion: 1,
+            schemaVersion: 2,
             artifactPath: screenshotPath,
             findings: expect.any(Array),
             recommendedTweaks: expect.any(Array),

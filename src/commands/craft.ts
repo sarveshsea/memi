@@ -105,17 +105,24 @@ function printInterfaceCraftAudit(report: InterfaceCraftReport, wroteReports: bo
   console.log(ui.dots("Target", report.target));
   console.log(ui.dots("Score", `${report.score}/100`));
   if (report.artifactPath) console.log(ui.dots("Artifact", report.artifactPath));
+  if (report.artifactNote) console.log(ui.dim(`  ${report.artifactNote}`));
   console.log();
 
-  const dimensions = report.dimensions.filter((dimension) => dimension.status !== "strong").slice(0, 8);
+  const atRisk = report.dimensions
+    .filter((dimension) => dimension.status === "watch" || dimension.status === "needs-work" || dimension.status === "unknown")
+    .slice(0, 8);
+  const notAssessed = report.dimensions.filter((dimension) => dimension.status === "not-assessed");
   console.log(ui.section("Craft dimensions"));
-  if (dimensions.length === 0) {
-    console.log(ui.ok("No major craft dimension risk detected from local evidence"));
+  if (atRisk.length === 0) {
+    console.log(ui.ok("No craft dimension risk detected among statically-assessable dimensions"));
   } else {
-    for (const dimension of dimensions) {
+    for (const dimension of atRisk) {
       console.log(`  [${dimension.status.toUpperCase()}] ${dimension.name}`);
       console.log(ui.dim(`      ${dimension.notes[0] ?? dimension.lens}`));
     }
+  }
+  if (notAssessed.length > 0) {
+    console.log(ui.dim(`  Not assessed by static scan (${notAssessed.length}): ${notAssessed.map((d) => d.name).join(", ")} — unverified, not verified-good`));
   }
 
   console.log(ui.section("Top opportunities"));
