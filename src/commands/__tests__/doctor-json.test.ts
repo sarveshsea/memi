@@ -72,10 +72,10 @@ describe("doctor --json", () => {
     const checks = getChecks(payload);
     const summary = getSummary(payload, checks);
 
-    expect(checks).toHaveLength(14);
+    expect(checks).toHaveLength(17);
     expect(summary).toMatchObject({
       fail: 1,
-      total: 14,
+      total: 17,
     });
     expect(statusMap(checks)).toEqual({
       "Project detected": "pass",
@@ -92,6 +92,10 @@ describe("doctor --json", () => {
       ".env.local": expect.stringMatching(/^(pass|warn)$/),
       "REST credentials": "warn",
       Workspace: "fail",
+      // Team gate: bare test repo has no committed policy/baseline/managed block
+      Policy: "warn",
+      Baseline: "warn",
+      Gitignore: "warn",
     });
     expect(detailMap(checks).get("Specs")).toContain("missing shadcnBase");
   });

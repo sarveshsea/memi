@@ -14,7 +14,7 @@ import { BRIDGE_PORT_START, BRIDGE_PORT_END } from "../figma/port-scanner.js";
 import { formatElapsed } from "../utils/format.js";
 
 type CheckStatus = "pass" | "warn" | "fail";
-type CheckCategory = "project" | "design" | "plugin" | "bridge" | "runtime" | "workspace";
+type CheckCategory = "project" | "design" | "plugin" | "bridge" | "runtime" | "workspace" | "team";
 
 interface CheckResult {
   code: string;
@@ -414,6 +414,46 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
         push("workspace.memoire", "workspace", "fail", "Workspace", ".memoire/ missing or not writable");
       }
 
+      // 14. Team gate: committed policy, shared baseline, gitignore rules.
+      try {
+        const { loadPolicy, POLICY_FILE_NAME } = await import("../app-quality/policy.js");
+        const { readBaseline } = await import("../app-quality/baseline.js");
+        const { checkGitignorePolicy } = await import("../utils/gitignore-policy.js");
+
+        let policyHash: string | undefined;
+        try {
+          const policy = await loadPolicy(engine.config.projectRoot);
+          policyHash = policy.policyHash;
+          if (policy.source === "file") {
+            push("team.policy", "team", "pass", "Policy", `${POLICY_FILE_NAME} committed (${policy.preset}, ${policy.policyHash})`);
+          } else {
+            push("team.policy", "team", "warn", "Policy", `No ${POLICY_FILE_NAME} — using defaults. Run \`memi init --team\` to commit one.`);
+          }
+        } catch (err) {
+          push("team.policy", "team", "fail", "Policy", err instanceof Error ? err.message : String(err));
+        }
+
+        const baseline = await readBaseline(engine.config.projectRoot);
+        if (!baseline) {
+          push("team.baseline", "team", "warn", "Baseline", "No .memoire/baseline.json — every historical finding gates. Run `memi baseline accept` or `memi init --team`.");
+        } else if (policyHash && baseline.policyHash && baseline.policyHash !== policyHash) {
+          push("team.baseline", "team", "warn", "Baseline", `Accepted under policy ${baseline.policyHash}, current is ${policyHash} — fingerprints may not match; re-accept after aligning`);
+        } else {
+          push("team.baseline", "team", "pass", "Baseline", `${baseline.entries.length} accepted fingerprint(s) — only NEW findings gate`);
+        }
+
+        const gitignore = await checkGitignorePolicy(engine.config.projectRoot);
+        if (gitignore.conflictingLine) {
+          push("team.gitignore", "team", "warn", "Gitignore", `"${gitignore.conflictingLine}" outside the managed block keeps the baseline ignored — remove it`);
+        } else if (!gitignore.present) {
+          push("team.gitignore", "team", "warn", "Gitignore", "No managed memi block — baseline.json may be gitignored. Run `memi init --team`.");
+        } else {
+          push("team.gitignore", "team", gitignore.upToDate ? "pass" : "warn", "Gitignore", gitignore.upToDate ? "Managed block present (.memoire/* local, baseline.json shared)" : "Managed block present but stale — run `memi init --team` to refresh");
+        }
+      } catch (err) {
+        push("team.checks", "team", "warn", "Team checks", err instanceof Error ? err.message : String(err));
+      }
+
       const payload = buildDoctorPayload(results);
 
       if (opts.json) {
@@ -424,7 +464,7 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
       // Print results
       console.log("\n  Memoire Doctor\n");
 
-      const categories: CheckCategory[] = ["project", "design", "plugin", "bridge", "runtime", "workspace"];
+      const categories: CheckCategory[] = ["project", "design", "plugin", "bridge", "runtime", "workspace", "team"];
       const labels: Record<CheckCategory, string> = {
         project: "Project",
         design: "Design",
@@ -432,6 +472,7 @@ export function registerDoctorCommand(program: Command, engine: MemoireEngine): 
         bridge: "Bridge",
         runtime: "Runtime",
         workspace: "Workspace",
+        team: "Team gate",
       };
 
       for (const category of categories) {
