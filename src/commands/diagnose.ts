@@ -11,6 +11,10 @@ interface DiagnoseOptions {
   noWrite?: boolean;
   failOn?: string;
   baseline?: boolean;
+  changed?: boolean;
+  base?: string;
+  files?: string[];
+  expandImports?: boolean;
 }
 
 const SEVERITY_RANK: Record<AppQualitySeverity, number> = { critical: 4, high: 3, medium: 2, low: 1 };
@@ -37,6 +41,10 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
     .option("--no-write", "Do not write .memoire/app-quality reports")
     .option("--fail-on <severity>", "Exit non-zero when any issue is at or above this severity: critical, high, medium, low, or none. Defaults to the policy's gates.failOn (high without a policy).")
     .option("--baseline", "Gate only on findings NOT accepted in .memoire/baseline.json (suppressed counts always shown)")
+    .option("--changed", "PR scope: emit only issues touching files changed vs --base (whole-tree stats still computed — this reduces noise, not runtime)")
+    .option("--base <ref>", "Base ref for --changed (merge-base semantics)", "origin/main")
+    .option("--files <paths...>", "Explicit file scope (repo-relative paths) instead of git diff")
+    .option("--expand-imports", "Expand the scope with one hop of dependents via the import graph")
     .action(async (target: string | undefined, opts: DiagnoseOptions) => {
       try {
         const policy = await loadPolicy(engine.config.projectRoot);
@@ -45,6 +53,16 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
         if (!FAIL_ON_VALUES.has(failOn)) {
           throw new Error(`Invalid --fail-on value "${opts.failOn}". Use one of: critical, high, medium, low, none.`);
         }
+
+        let scope: { files: string[]; base?: string; expandImports?: boolean } | undefined;
+        if (opts.files && opts.files.length > 0) {
+          scope = { files: opts.files, expandImports: opts.expandImports };
+        } else if (opts.changed) {
+          const { resolveGitScope } = await import("../app-quality/git-scope.js");
+          const gitScope = await resolveGitScope({ projectRoot: engine.config.projectRoot, base: opts.base ?? "origin/main" });
+          scope = { files: gitScope.files, base: gitScope.base, expandImports: opts.expandImports };
+        }
+
         const maxFiles = Number.parseInt(opts.maxFiles ?? "500", 10);
         const diagnosis = await diagnoseAppQuality({
           projectRoot: engine.config.projectRoot,
@@ -52,6 +70,7 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
           maxFiles: Number.isFinite(maxFiles) ? maxFiles : 500,
           write: opts.noWrite ? false : true,
           policy,
+          scope,
         });
 
         let gatingIssues = diagnosis.issues;
@@ -78,6 +97,9 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
         }
 
         printDiagnosis(diagnosis, opts.noWrite !== true);
+        if (diagnosis.scope) {
+          console.log(ui.dim(`  Scope: ${diagnosis.scope.emittedIssues} issue(s) touching ${diagnosis.scope.effectiveFiles} scoped file(s); ${diagnosis.scope.filteredOutIssues} out-of-scope issue(s) hidden (still reflected in scores)`));
+        }
         if (suppressedCount > 0) {
           console.log(ui.dim(`  Baseline: ${suppressedCount} accepted finding(s) suppressed from gating (still counted above)`));
         }

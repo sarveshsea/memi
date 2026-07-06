@@ -83,6 +83,43 @@ describe("memi diagnose", () => {
     }
   });
 
+  it("scopes emitted issues to --files while keeping whole-tree scores", async () => {
+    const root = await makeDebtRepo();
+    try {
+      // Second file with no debt — scoping to it should hide the debt issues
+      // from the emitted list while whole-tree scores still reflect them.
+      await writeFile(join(root, "src", "app", "clean.tsx"), `
+export function Clean() {
+  return <p className="p-2">clean</p>;
+}
+`, "utf-8");
+
+      const logs = captureLogs();
+      const program = new Command();
+      registerDiagnoseCommand(program, { config: { projectRoot: root } } as never);
+
+      await program.parseAsync([
+        "diagnose", "--json", "--no-write", "--fail-on", "none",
+        "--files", "src/app/clean.tsx",
+      ], { from: "user" });
+      const payload = JSON.parse(lastLog(logs));
+
+      expect(payload.scope).toMatchObject({
+        requestedFiles: 1,
+        expandedWithDependents: false,
+      });
+      // The raw-hex debt lives in page.tsx, out of scope → not emitted...
+      expect(payload.issues.every((issue: { affectedFiles?: string[] }) =>
+        (issue.affectedFiles ?? []).includes("src/app/clean.tsx") || false,
+      )).toBe(true);
+      // ...but whole-tree score still reflects it.
+      expect(payload.summary.score).toBeLessThan(100);
+      expect(payload.scope.filteredOutIssues).toBeGreaterThan(0);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it("rejects an invalid --fail-on value", async () => {
     const root = await makeDebtRepo();
     try {

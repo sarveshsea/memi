@@ -361,13 +361,15 @@ Use this tool: before planning UI fixes, exporting a registry, or giving an AI e
     {
       target: z.string().optional().describe("Local path or public URL to scan. Defaults to the current project root."),
       maxFiles: z.number().int().min(1).max(5000).default(500).describe("Maximum source files to scan."),
+      files: z.array(z.string()).optional().describe("PR scope: emit only issues touching these repo-relative files. Whole-tree stats/scores are still computed — this reduces noise, not runtime."),
     },
-    async ({ target, maxFiles }) => {
+    async ({ target, maxFiles, files }) => {
       const diagnosis = await diagnoseAppQuality({
         projectRoot: engine.config.projectRoot,
         target,
         maxFiles,
         write: false,
+        scope: files && files.length > 0 ? { files } : undefined,
       });
       return { content: [{ type: "text" as const, text: JSON.stringify(diagnosis) }] };
     },

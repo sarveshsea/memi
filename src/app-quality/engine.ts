@@ -92,6 +92,18 @@ export interface AppQualityDiagnosis {
     source: "default" | "file";
     preset: string;
   };
+  /**
+   * Present when the scan was PR-scoped. Scores remain whole-tree (labeled
+   * scan-scoped for trend purposes); `issues` contains only scoped findings.
+   */
+  scope?: {
+    base?: string;
+    requestedFiles: number;
+    effectiveFiles: number;
+    expandedWithDependents: boolean;
+    emittedIssues: number;
+    filteredOutIssues: number;
+  };
 }
 
 interface ScanOptions {
@@ -101,6 +113,18 @@ interface ScanOptions {
   write?: boolean;
   /** Resolved policy (thresholds, rule overrides). Defaults to the built-in memi-recommended policy. */
   policy?: ResolvedPolicy;
+  /**
+   * PR scope: whole-tree stats/scores are STILL computed (thresholds stay
+   * meaningful), but emitted issues are filtered to those touching these
+   * repo-relative files. Aggregate issues with no file anchor are dropped
+   * from the scoped issue list — they gate via score budgets, not per-file
+   * blame. expandImports adds one hop of dependents via the app graph.
+   */
+  scope?: {
+    files: string[];
+    base?: string;
+    expandImports?: boolean;
+  };
 }
 
 interface RawFile {
@@ -165,8 +189,30 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
   // Policy overrides apply BEFORE enrichment/scoring so severities, scores,
   // and downstream UX reports all reflect the team's policy, not the defaults.
   const policyAdjusted = applyPolicyToIssues(buildIssues(aggregate, policy.thresholds), policy);
-  const issues = enrichIssues(policyAdjusted, appGraph, files);
-  const scores = scoreCategories(issues);
+  const allIssues = enrichIssues(policyAdjusted, appGraph, files);
+  // Whole-tree scores stay valid regardless of scope — scope only filters
+  // which issues are EMITTED (noise reduction), never the statistics.
+  const scores = scoreCategories(allIssues);
+
+  let issues = allIssues;
+  let scopeMetadata: AppQualityDiagnosis["scope"];
+  if (options.scope) {
+    let effectiveFiles = options.scope.files;
+    if (options.scope.expandImports) {
+      const { expandScopeWithDependents } = await import("./git-scope.js");
+      effectiveFiles = expandScopeWithDependents(effectiveFiles, appGraph.files);
+    }
+    const scopeSet = new Set(effectiveFiles);
+    issues = allIssues.filter((current) => current.affectedFiles?.some((file) => scopeSet.has(file)));
+    scopeMetadata = {
+      base: options.scope.base,
+      requestedFiles: options.scope.files.length,
+      effectiveFiles: effectiveFiles.length,
+      expandedWithDependents: options.scope.expandImports === true,
+      emittedIssues: issues.length,
+      filteredOutIssues: allIssues.length - issues.length,
+    };
+  }
   const score = Math.round(Object.values(scores).reduce((sum, value) => sum + value, 0) / Object.values(scores).length);
   const analysisMs = performance.now() - startedAt;
   const ux = buildUxAuditReport({ target, issues, appQualityScore: score });
@@ -215,6 +261,7 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
       source: policy.source,
       preset: policy.preset,
     },
+    scope: scopeMetadata,
   };
 
   if (options.write !== false) {
