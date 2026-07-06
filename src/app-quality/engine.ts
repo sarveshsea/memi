@@ -5,6 +5,7 @@ import { scanSources, type ScannedSourceFile } from "../utils/source-scanner.js"
 import { buildAppGraph, type AppGraph } from "./app-graph.js";
 import { buildUxAuditReport, type UxAuditReport } from "../ux/tenets-traps.js";
 import { checkSkillCompliance, type ComplianceReport } from "../ux/skill-compliance.js";
+import { defaultPolicy, applyPolicyToIssues, type ResolvedPolicy, type PolicyThresholds } from "./policy.js";
 
 export type AppQualitySeverity = "critical" | "high" | "medium" | "low";
 export type AppQualityCategory =
@@ -85,6 +86,12 @@ export interface AppQualityDiagnosis {
   };
   /** Post-hoc verification of real source files against skills/ATOMIC_DESIGN.md and skills/MOTION_VIDEO_DESIGN.md's checkable rules. */
   compliance?: ComplianceReport;
+  /** The policy this diagnosis was produced under — scores are only comparable across identical policy hashes. */
+  policy?: {
+    hash: string;
+    source: "default" | "file";
+    preset: string;
+  };
 }
 
 interface ScanOptions {
@@ -92,6 +99,8 @@ interface ScanOptions {
   projectRoot: string;
   maxFiles?: number;
   write?: boolean;
+  /** Resolved policy (thresholds, rule overrides). Defaults to the built-in memi-recommended policy. */
+  policy?: ResolvedPolicy;
 }
 
 interface RawFile {
@@ -150,9 +159,13 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
     sources,
   });
   const graphMs = performance.now() - graphStartedAt;
+  const policy = options.policy ?? defaultPolicy();
   const fileSignals = files.map(analyzeFile);
   const aggregate = aggregateSignals(files, fileSignals);
-  const issues = enrichIssues(buildIssues(aggregate), appGraph, files);
+  // Policy overrides apply BEFORE enrichment/scoring so severities, scores,
+  // and downstream UX reports all reflect the team's policy, not the defaults.
+  const policyAdjusted = applyPolicyToIssues(buildIssues(aggregate, policy.thresholds), policy);
+  const issues = enrichIssues(policyAdjusted, appGraph, files);
   const scores = scoreCategories(issues);
   const score = Math.round(Object.values(scores).reduce((sum, value) => sum + value, 0) / Object.values(scores).length);
   const analysisMs = performance.now() - startedAt;
@@ -197,6 +210,11 @@ export async function diagnoseAppQuality(options: ScanOptions): Promise<AppQuali
       graphMs: Math.round(graphMs),
     },
     compliance,
+    policy: {
+      hash: policy.policyHash,
+      source: policy.source,
+      preset: policy.preset,
+    },
   };
 
   if (options.write !== false) {
@@ -350,7 +368,7 @@ function stripVariants(token: string): string {
   return parts.at(-1) ?? token;
 }
 
-function buildIssues(aggregate: ReturnType<typeof aggregateSignals>): AppQualityIssue[] {
+function buildIssues(aggregate: ReturnType<typeof aggregateSignals>, thresholds: PolicyThresholds): AppQualityIssue[] {
   const issues: AppQualityIssue[] = [];
   const spacingScale = new Set(aggregate.spacing.map(stripVariants));
   const textScale = new Set(aggregate.textSizes.map(stripVariants));
@@ -361,32 +379,32 @@ function buildIssues(aggregate: ReturnType<typeof aggregateSignals>): AppQuality
   if (aggregate.classTokens.length === 0) {
     issues.push(issue("scan.empty", "visual-system", "high", "No UI class signal found", "Memoire could not find Tailwind or HTML class usage in the scanned target.", ["0 class tokens"], "Run this against a route, app directory, or built HTML page with visible UI."));
   }
-  if (aggregate.cssVariables.length < 8 && aggregate.classTokens.length > 5) {
+  if (aggregate.cssVariables.length < thresholds.minCssVariables && aggregate.classTokens.length > 5) {
     issues.push(issue("system.tokens.missing", "visual-system", "high", "Weak token backbone", "The app has enough UI surface to need a token layer, but very few CSS variables were detected.", [`${aggregate.cssVariables.length} CSS variable references`], "Define color, radius, spacing, and font variables before widening the visual system."));
   }
   if (aggregate.hexColors.length > 0) {
-    const severity: AppQualitySeverity = new Set(aggregate.hexColors).size > 4 ? "high" : "medium";
+    const severity: AppQualitySeverity = new Set(aggregate.hexColors).size > thresholds.rawHexHighThreshold ? "high" : "medium";
     issues.push(issue("color.raw-hex", "color", severity, "Raw colors are leaking into UI code", "Hardcoded hex values make redesigns brittle and block consistent theme generation.", [`${new Set(aggregate.hexColors).size} unique hex colors`], "Move recurring colors into CSS variables or Tailwind theme tokens."));
   }
-  if (colorScale.size > 28) {
+  if (colorScale.size > thresholds.maxColorUtilities) {
     issues.push(issue("color.scale-wide", "color", "medium", "Color utility surface is too wide", "A broad color utility set usually means states and surfaces are being styled case by case.", [`${colorScale.size} unique color utilities`], "Collapse colors into semantic roles: background, surface, foreground, muted, primary, destructive, success, warning."));
   }
-  if (textScale.size > 7) {
+  if (textScale.size > thresholds.maxTextSizes) {
     issues.push(issue("type.scale-wide", "typography", "medium", "Typography scale is drifting", "Many text sizes make hierarchy harder to read and harder to maintain.", [`${textScale.size} text size utilities`], "Use a tighter type ramp and reserve large sizes for page-level hierarchy."));
   }
-  if (spacingScale.size > 22) {
+  if (spacingScale.size > thresholds.maxSpacingUtilities) {
     issues.push(issue("spacing.scale-wide", "spacing", "medium", "Spacing scale is too loose", "Large spacing variety creates an uneven rhythm across routes and components.", [`${spacingScale.size} spacing utilities`], "Normalize spacing around a smaller set of layout and component gaps."));
   }
-  if (radiusScale.size > 5) {
+  if (radiusScale.size > thresholds.maxRadiusUtilities) {
     issues.push(issue("shape.radius-drift", "visual-system", "medium", "Radius styles are inconsistent", "Too many radius values makes primitives feel like they came from different systems.", [`${radiusScale.size} radius utilities`], "Pick one default radius, one small radius, and one full radius for pills/avatars."));
   }
-  if (shadowScale.size > 4) {
+  if (shadowScale.size > thresholds.maxShadowUtilities) {
     issues.push(issue("depth.shadow-drift", "visual-system", "medium", "Shadow styles are inconsistent", "Many shadow treatments create noisy depth and weak hierarchy.", [`${shadowScale.size} shadow utilities`], "Define one elevation scale and reserve shadows for layered surfaces."));
   }
-  if (aggregate.shadcnImports.length > 4 && aggregate.cssVariables.length < 8) {
+  if (aggregate.shadcnImports.length > 4 && aggregate.cssVariables.length < thresholds.minCssVariables) {
     issues.push(issue("components.default-shadcn", "components", "high", "shadcn primitives look under-branded", "The app uses shadcn primitives but does not expose enough token signal to make them feel custom.", [`${aggregate.shadcnImports.length} shadcn imports`, `${aggregate.cssVariables.length} CSS variables`], "Customize shadcn variables, component variants, and state styles before generating more screens."));
   }
-  if (aggregate.arbitrary.length > 12) {
+  if (aggregate.arbitrary.length > thresholds.maxArbitraryValues) {
     issues.push(issue("maintainability.arbitrary-tailwind", "maintainability", "medium", "Too many arbitrary Tailwind values", "Arbitrary values are useful during exploration but become design debt when repeated.", [`${aggregate.arbitrary.length} arbitrary utilities`], "Promote repeated arbitrary values into tokens or named utilities."));
   }
   if (aggregate.routeFiles.length > 1 && aggregate.responsive.length < Math.max(4, aggregate.routeFiles.length * 2)) {

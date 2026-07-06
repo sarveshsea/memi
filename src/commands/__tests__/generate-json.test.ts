@@ -165,6 +165,9 @@ function makeGenerateEngine(input?: {
 }) {
   return {
     async init() {},
+    // loadPolicy(projectRoot) falls back to the default policy when no
+    // memoire.policy.json exists at this path.
+    config: { projectRoot: "/nonexistent-memoire-test-root" },
     codegen: {
       setOptions() {},
     },

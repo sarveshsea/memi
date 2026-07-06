@@ -1,6 +1,8 @@
 import type { Command } from "commander";
 import type { MemoireEngine } from "../engine/core.js";
-import { diagnoseAppQuality, type AppQualityDiagnosis, type AppQualitySeverity } from "../app-quality/engine.js";
+import { diagnoseAppQuality, type AppQualityDiagnosis, type AppQualitySeverity, type AppQualityIssue } from "../app-quality/engine.js";
+import { loadPolicy } from "../app-quality/policy.js";
+import { filterWithBaseline, readBaseline } from "../app-quality/baseline.js";
 import { ui } from "../tui/format.js";
 
 interface DiagnoseOptions {
@@ -8,21 +10,22 @@ interface DiagnoseOptions {
   maxFiles?: string;
   noWrite?: boolean;
   failOn?: string;
+  baseline?: boolean;
 }
 
 const SEVERITY_RANK: Record<AppQualitySeverity, number> = { critical: 4, high: 3, medium: 2, low: 1 };
 const FAIL_ON_VALUES = new Set(["critical", "high", "medium", "low", "none"]);
 
 /**
- * Exit non-zero when any issue meets the threshold. Runs in BOTH output modes —
- * the previous gate only ran in human mode and only on "critical", a severity
- * the engine never emits, so `memi diagnose` shipped a CI gate that could
- * mathematically never fail.
+ * Exit non-zero when any gating issue meets the threshold. Runs in BOTH output
+ * modes — the previous gate only ran in human mode and only on "critical", a
+ * severity the engine never emits, so `memi diagnose` shipped a CI gate that
+ * could mathematically never fail.
  */
-function shouldFail(diagnosis: AppQualityDiagnosis, failOn: string): boolean {
+function shouldFail(gatingIssues: AppQualityIssue[], failOn: string): boolean {
   if (failOn === "none") return false;
   const threshold = SEVERITY_RANK[failOn as AppQualitySeverity];
-  return diagnosis.issues.some((issue) => SEVERITY_RANK[issue.severity] >= threshold);
+  return gatingIssues.some((issue) => SEVERITY_RANK[issue.severity] >= threshold);
 }
 
 export function registerDiagnoseCommand(program: Command, engine: MemoireEngine): void {
@@ -32,10 +35,13 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
     .option("--json", "Output the diagnosis as JSON")
     .option("--max-files <count>", "Maximum source files to scan", "500")
     .option("--no-write", "Do not write .memoire/app-quality reports")
-    .option("--fail-on <severity>", "Exit non-zero when any issue is at or above this severity: critical, high, medium, low, or none", "high")
+    .option("--fail-on <severity>", "Exit non-zero when any issue is at or above this severity: critical, high, medium, low, or none. Defaults to the policy's gates.failOn (high without a policy).")
+    .option("--baseline", "Gate only on findings NOT accepted in .memoire/baseline.json (suppressed counts always shown)")
     .action(async (target: string | undefined, opts: DiagnoseOptions) => {
       try {
-        const failOn = (opts.failOn ?? "high").toLowerCase();
+        const policy = await loadPolicy(engine.config.projectRoot);
+        // Precedence: explicit CLI flag > committed policy > built-in default.
+        const failOn = (opts.failOn ?? policy.gates.failOn).toLowerCase();
         if (!FAIL_ON_VALUES.has(failOn)) {
           throw new Error(`Invalid --fail-on value "${opts.failOn}". Use one of: critical, high, medium, low, none.`);
         }
@@ -45,19 +51,38 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
           target,
           maxFiles: Number.isFinite(maxFiles) ? maxFiles : 500,
           write: opts.noWrite ? false : true,
+          policy,
         });
 
-        const failed = shouldFail(diagnosis, failOn);
+        let gatingIssues = diagnosis.issues;
+        let suppressedCount = 0;
+        if (opts.baseline) {
+          const baseline = await readBaseline(engine.config.projectRoot);
+          if (!baseline) {
+            throw new Error("--baseline was passed but .memoire/baseline.json does not exist. Run `memi baseline accept` first.");
+          }
+          const filtered = filterWithBaseline(diagnosis.issues, baseline);
+          gatingIssues = filtered.active;
+          suppressedCount = filtered.suppressed.length;
+        }
+
+        const failed = shouldFail(gatingIssues, failOn);
 
         if (opts.json) {
-          console.log(JSON.stringify(diagnosis, null, 2));
+          console.log(JSON.stringify({
+            ...diagnosis,
+            gate: { failOn, failed, baselineApplied: Boolean(opts.baseline), gatingIssues: gatingIssues.length, suppressedByBaseline: suppressedCount },
+          }, null, 2));
           if (failed) process.exitCode = 1;
           return;
         }
 
         printDiagnosis(diagnosis, opts.noWrite !== true);
+        if (suppressedCount > 0) {
+          console.log(ui.dim(`  Baseline: ${suppressedCount} accepted finding(s) suppressed from gating (still counted above)`));
+        }
         if (failed) {
-          console.log(ui.fail(`Gate: at least one issue at or above "${failOn}" severity (--fail-on ${failOn})`));
+          console.log(ui.fail(`Gate: at least one ${opts.baseline ? "new (non-baselined) " : ""}issue at or above "${failOn}" severity (--fail-on ${failOn})`));
           console.log();
           process.exitCode = 1;
         }

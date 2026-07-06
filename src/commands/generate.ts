@@ -56,11 +56,15 @@ export function registerGenerateCommand(program: Command, engine: MemoireEngine)
 
       try {
         await engine.init();
+        // Policy can promote skill-compliance findings to blocking severity;
+        // the CLI flag is the per-run override on top of it.
+        const { loadPolicy } = await import("../app-quality/policy.js");
+        const policy = await loadPolicy(engine.config.projectRoot);
         // Apply --no-stories flag — Commander's --no-X flags set opts.X to false
         engine.codegen.setOptions({
           noStories: opts.stories === false,
           framework: (opts.framework as "react" | "vue" | "svelte") || "react",
-          strictSkillCompliance: opts.strictSkillCompliance === true,
+          strictSkillCompliance: opts.strictSkillCompliance === true || policy.skillComplianceSeverity === "critical",
         });
 
         // ── Preview mode — generate in memory, no disk writes ──
