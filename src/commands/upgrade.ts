@@ -132,6 +132,8 @@ export function registerUpgradeCommand(program: Command, _engine: MemoireEngine)
 
       try {
         console.log(`▸ Downloading ${archiveName}`);
+        // Checksum-verified below (verifyArchiveChecksum) against SHA256SUMS.txt
+        // before this archive is ever extracted or executed — see line ~156.
         await download(archiveUrl, archivePath);
 
         let checksumSource: string | null = null;
