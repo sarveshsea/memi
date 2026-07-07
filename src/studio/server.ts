@@ -50,6 +50,7 @@ import {
   restoreDesignChangelogEntry,
   updateDesignChangelogEntry,
 } from "./design-changelog.js";
+import { acceptDesignAuditBaseline, getLatestDesignAudit, runDesignAudit } from "./design-audit-store.js";
 import { captureStudioAttachment, getStudioAttachment } from "./attachment-store.js";
 import { readResolvedAsset } from "./design-system-resolver.js";
 import { shouldCaptureDesignSystemArtifactEvent } from "./design-system-artifacts.js";
@@ -1337,6 +1338,35 @@ export class StudioRuntimeServer {
         return;
       }
       this.sendJSON(res, 200, { artifact });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/design-audit/run") {
+      try {
+        const body = await readJSON<{ maxFiles?: number }>(req);
+        this.sendJSON(res, 200, await runDesignAudit(this.projectRoot, { maxFiles: body.maxFiles }));
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/design-audit/latest") {
+      const result = await getLatestDesignAudit(this.projectRoot);
+      if (!result) {
+        this.sendJSON(res, 404, { error: "No design audit has been run yet." });
+        return;
+      }
+      this.sendJSON(res, 200, result);
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/design-audit/accept-baseline") {
+      try {
+        this.sendJSON(res, 200, { baseline: await acceptDesignAuditBaseline(this.projectRoot) });
+      } catch (error) {
+        this.sendJSON(res, statusCodeFromUnknown(error), { error: error instanceof Error ? error.message : String(error) });
+      }
       return;
     }
 
