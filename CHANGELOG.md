@@ -10,6 +10,16 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 No unreleased changes.
 
+## v2.3.1 — 2026-07-07 — studio design-audit routes
+
+Patch release syncing npm with main: the Studio sidecar server now exposes the design-audit engine over HTTP so memi Studio's native Design Health surface can drive it.
+
+### Studio sidecar
+- New routes: `POST /api/design-audit/run` (full scan, returns diagnosis + baseline-filtered active/suppressed findings + score history in one round trip), `GET /api/design-audit/latest` (cached read, 404 until first run), `POST /api/design-audit/accept-baseline`.
+- New `src/studio/design-audit-store.ts` composing the existing `diagnoseAppQuality`/policy/baseline/history engine — no new audit logic, no LLM in the path.
+- Fixed a double-append to the score-history ledger (`diagnoseAppQuality({write: true})` already appends internally; the route no longer appends a second time).
+- Route-level tests covering the 404-until-run state, the run → latest → accept-baseline → re-run suppression flow, and the no-audit error path (216 → 217 test files).
+
 ## v2.3.0 — 2026-07-06 — the mandate release
 
 memi 2.3 turns the audit you can run into a gate a team can require. The through-line is determinism and honesty: every finding cites file:line and re-runs identically, checkers check, gates gate, and no LLM sits in the enforcement path. Scores are only ever compared under the same committed policy; anything the scanner cannot see is reported "not-assessed", never scored.
