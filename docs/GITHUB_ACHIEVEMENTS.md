@@ -18,7 +18,7 @@ This tracker keeps achievement work tied to real memi distribution. The goal is 
 | memi discussions | Enabled on GitHub | `Q&A` and `Show and tell` are active; add `Registry help` and `MCP setup` in repository settings |
 | npm latest | 2.3.1 | Keep npm, site, GitHub release, and registry surfaces synchronized |
 | GitHub release | `v2.3.1` created | Use release URL in directory follow-ups when traceability matters |
-| MCP Registry | Listed but stale at `1.1.1` | Refresh `mcp-publisher` auth and publish the validated `2.3.1` `server.json` |
+| MCP Registry | Current at `2.3.1` | Use registry proof in directory refreshes |
 | SafeSkill PR | Open with blocked badge | Do not merge until the score improves or findings are addressed |
 | Sandbox repo | `sarveshsea/memoire-achievements-lab` | Use only for harmless workflow checks |
 | GitHub metadata | Updated to v2 interface-understanding copy | Keep npm, README, and directory copy aligned |
@@ -41,11 +41,10 @@ Detailed operating board: [`docs/STARSTRUCK.md`](STARSTRUCK.md).
 
 Immediate sequence:
 
-1. Refresh `mcp-publisher` auth and publish `server.json` so the official MCP Registry reports `2.3.1`.
-2. Submit MCP.Directory, refresh Glama, submit Smithery, confirm PulseMCP and mcp.so.
-3. Refresh `sarveshsea/design-sandbox` proof and make `pnpm verify` the public demo anchor.
-4. Follow up on open directory PRs only with the official registry link or maintainer-requested fixes.
-5. Post the 60-second install/demo with a GitHub star CTA.
+1. Submit MCP.Directory, refresh Glama, submit Smithery, confirm PulseMCP and mcp.so.
+2. Refresh `sarveshsea/design-sandbox` proof and make `pnpm verify` the public demo anchor.
+3. Follow up on open directory PRs only with the official registry link or maintainer-requested fixes.
+4. Post the 60-second install/demo with a GitHub star CTA.
 
 ## Official MCP Registry Readiness
 
@@ -57,7 +56,7 @@ The official MCP Registry verifies npm package ownership through `package.json#m
 - `server.json#packages[0].identifier`: `@memi-design/cli`
 - `server.json#packages[0].packageArguments`: `mcp start --no-figma`
 
-After `mcp-publisher login github` succeeds, run:
+For future registry refreshes, run:
 
 ```bash
 mcp-publisher validate server.json
