@@ -44,10 +44,10 @@ brew install --cask sarveshsea/memi/memi-studio
 
 | Priority | Target | Lane | Status | Next action |
 | --- | --- | --- | --- | --- |
-| P0 | Product Hunt | Launch | Ready after `2.0.0` publish | Submit with Studio-first copy and engine-underneath reply |
-| P0 | Official MCP Registry | MCP directory | Listed for `io.github.sarveshsea/memi` | Republish `server.json` after npm `2.0.0` |
-| P0 | npm | CLI distribution | `@memi-design/cli@2.0.0` release target | Publish and run public release gate |
-| P0 | GitHub Releases | Traceability | Missing `v2.0.0` tag until release | Create tag/release after publish |
+| P0 | Product Hunt | Launch | Ready after current surfaces stay green | Submit with Studio-first copy and engine-underneath reply |
+| P0 | Official MCP Registry | MCP directory | Listed for `io.github.sarveshsea/memi`, stale at `1.1.1` | Refresh `mcp-publisher` auth and publish `server.json` for `2.3.1` |
+| P0 | npm | CLI distribution | `@memi-design/cli@2.3.1` live | Keep public release gate green after web deploys |
+| P0 | GitHub Releases | Traceability | `v2.3.1` tag/release exists | Link release in directory follow-ups |
 | P0 | Codex plugin | Agent distribution | Sparse checkout smoke passes locally | Keep marketplace command in launch replies |
 | P0 | design-sandbox | Public proof repo | Local clone updated for memi v2 | Link as the runnable example for design engineers |
 | P1 | Glama / MCP directories | MCP discovery | Some listings still use Memoire-era copy | Refresh to memi workbench + design-memory engine copy |
@@ -135,10 +135,10 @@ https://github.com/sarveshsea/design-sandbox
 
 ## Submission Checklist
 
-- [ ] Publish npm `2.0.0`.
-- [ ] Verify `npm run check:public-release`.
-- [ ] Republish `server.json` to the Official MCP Registry.
-- [ ] Create GitHub tag/release `v2.0.0`.
+- [x] Publish npm `2.3.1`.
+- [x] Verify `npm run check:public-release`.
+- [ ] Republish `server.json` to the Official MCP Registry after auth refresh.
+- [x] Create GitHub tag/release `v2.3.1`.
 - [ ] Push the updated `sarveshsea/design-sandbox` proof repo.
 - [ ] Submit Product Hunt.
 - [ ] Post X/Twitter launch thread.

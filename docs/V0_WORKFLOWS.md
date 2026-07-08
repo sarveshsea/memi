@@ -1,6 +1,8 @@
 # Shadcn and v0 Workflows
 
-Use these demos for the `0.14.1` launch. The point is simple: Memoire turns a real app into shadcn-native registry context that `shadcn`, v0, AI editors, and npm can consume.
+Historical archive for the `0.14.1` launch. The current v2 distribution path is tracked in `docs/GROWTH_TO_1M_NPM.md`, `docs/METRICS.md`, and `docs/STARSTRUCK.md`.
+
+Use these archived demos to understand the original shadcn/v0 wedge. The point was simple: Memoire turns a real app into shadcn-native registry context that `shadcn`, v0, AI editors, and npm can consume.
 
 ## 60-second terminal demo
 

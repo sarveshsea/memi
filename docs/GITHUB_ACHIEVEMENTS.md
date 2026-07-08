@@ -1,6 +1,6 @@
 # GitHub Achievement Growth Plan
 
-This tracker keeps achievement work tied to real Memoire distribution. The goal is to earn profile credibility without creating spam, fake stars, fake accounts, or low-quality pull requests.
+This tracker keeps achievement work tied to real memi distribution. The goal is to earn profile credibility without creating spam, fake stars, fake accounts, or low-quality pull requests.
 
 ## Rules
 
@@ -8,58 +8,59 @@ This tracker keeps achievement work tied to real Memoire distribution. The goal 
 - Use the sandbox repository only for harmless GitHub workflow achievement tests.
 - Do not ask for fake stars or use alternate accounts to inflate stars.
 - Do not submit low-effort PRs to farm Pull Shark.
-- Keep every accepted PR linked to a real Memoire distribution or ecosystem improvement.
+- Keep every accepted PR linked to a real memi distribution or ecosystem improvement.
 
 ## Current Baseline
 
 | Item | Status | Next action |
 | --- | --- | --- |
-| Memoire repo stars | 7 | Drive Starstruck through launch and directory distribution |
-| Memoire discussions | Enabled on GitHub | `Q&A` and `Show and tell` are active; add `Registry help` and `MCP setup` in repository settings |
-| npm latest | 0.14.3 | Publish the `0.14.4` trust patch, then publish `server.json` to the Official MCP Registry |
+| memi repo stars | 17 | Base Starstruck tier crossed; grow through useful launches and directory distribution |
+| memi discussions | Enabled on GitHub | `Q&A` and `Show and tell` are active; add `Registry help` and `MCP setup` in repository settings |
+| npm latest | 2.3.1 | Keep npm, site, GitHub release, and registry surfaces synchronized |
+| GitHub release | `v2.3.1` created | Use release URL in directory follow-ups when traceability matters |
+| MCP Registry | Listed but stale at `1.1.1` | Refresh `mcp-publisher` auth and publish the validated `2.3.1` `server.json` |
 | SafeSkill PR | Open with blocked badge | Do not merge until the score improves or findings are addressed |
 | Sandbox repo | `sarveshsea/memoire-achievements-lab` | Use only for harmless workflow checks |
-| GitHub metadata | Updated to shadcn-native Design CI | Keep npm, README, and directory copy aligned |
+| GitHub metadata | Updated to v2 interface-understanding copy | Keep npm, README, and directory copy aligned |
 
 ## Achievement Targets
 
 | Achievement | Legit path | Target | Status | Links |
 | --- | --- | --- | --- | --- |
-| Public Sponsor | Sponsor one OSS maintainer whose work supports Memoire | Base badge | Pending | Add sponsor link after completion |
+| Public Sponsor | Sponsor one OSS maintainer whose work supports memi | Base badge | Pending | Add sponsor link after completion |
 | Quickdraw | Open and close a sandbox issue or PR within 5 minutes | Base badge | Completed in sandbox | https://github.com/sarveshsea/memoire-achievements-lab/issues/1 |
 | YOLO | Merge a tiny own PR in the sandbox repo without review | Base badge | Completed in sandbox | https://github.com/sarveshsea/memoire-achievements-lab/pull/2 |
 | Pull Shark | Submit real PRs to MCP, shadcn, docs, and awesome-list directories | x2 first, then x3 | In progress | Merged: https://github.com/punkpeye/awesome-mcp-servers/pull/4373, https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/296, https://github.com/birobirobiro/awesome-shadcn-ui/pull/493; pending: https://github.com/TensorBlock/awesome-mcp-servers/pull/455, https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/208, https://github.com/MobinX/awesome-mcp-list/pull/241, https://github.com/bytefer/awesome-shadcn-ui/pull/18 |
 | Pair Extraordinaire | Merge real coauthored PRs with valid `Co-authored-by:` trailers | Base, then x2 | Pending | Use actual collaborator commits only |
 | Galaxy Brain | Answer real GitHub Discussions questions and have them accepted | Base, then x2 | Pending | Requires Discussions enabled |
-| Starstruck | Earn real stars from distribution, demos, and useful listings | 16 stars, then 128 | Pending | Track weekly in `docs/METRICS.md` |
+| Starstruck | Earn real stars from distribution, demos, and useful listings | 16 stars, then 128 | Base crossed, next pending | Track weekly in `docs/METRICS.md` |
 
 ## Starstruck Sprint
 
 Detailed operating board: [`docs/STARSTRUCK.md`](STARSTRUCK.md).
 
-Current target is `16` stars. Memoire is at `7`, so the sprint needs `9` real stars from useful distribution, not artificial engagement.
-
 Immediate sequence:
 
-1. Publish `0.14.4` with security hardening, `mcpName`, and `server.json`.
-2. Publish `server.json` to the official MCP Registry.
-3. Submit MCP.Directory, refresh Glama, submit Smithery, confirm PulseMCP and mcp.so.
-4. Follow up on open directory PRs with the official registry link.
+1. Refresh `mcp-publisher` auth and publish `server.json` so the official MCP Registry reports `2.3.1`.
+2. Submit MCP.Directory, refresh Glama, submit Smithery, confirm PulseMCP and mcp.so.
+3. Refresh `sarveshsea/design-sandbox` proof and make `pnpm verify` the public demo anchor.
+4. Follow up on open directory PRs only with the official registry link or maintainer-requested fixes.
 5. Post the 60-second install/demo with a GitHub star CTA.
 
 ## Official MCP Registry Readiness
 
-The official MCP Registry verifies npm package ownership through `package.json#mcpName`. The already-published `0.14.3` package includes this field; `0.14.4` adds trust hardening before registry submission.
+The official MCP Registry verifies npm package ownership through `package.json#mcpName`. npm `2.3.1` and `server.json` agree on the MCP name and package identifier.
 
 - `package.json#mcpName`: `io.github.sarveshsea/memi`
 - `server.json#name`: `io.github.sarveshsea/memi`
+- `server.json#version`: `2.3.1`
 - `server.json#packages[0].identifier`: `@memi-design/cli`
-- `server.json#packages[0].packageArguments`: `mcp`
+- `server.json#packages[0].packageArguments`: `mcp start --no-figma`
 
-After that patch is published, run:
+After `mcp-publisher login github` succeeds, run:
 
 ```bash
-mcp-publisher login github
+mcp-publisher validate server.json
 mcp-publisher publish server.json
 ```
 
@@ -76,7 +77,7 @@ GitHub category forms live in `.github/DISCUSSION_TEMPLATE/`, but categories the
 
 ## Weekly Review
 
-Run this review every Friday during the 0.14.1 launch window:
+Run this review every Friday during the v2 growth window:
 
 1. Count accepted directory PRs and update Pull Shark progress.
 2. Count accepted discussion answers and update Galaxy Brain progress.
@@ -95,7 +96,7 @@ npm run growth:status
 ### One-line description
 
 ```text
-Memoire is an MCP server and CLI for shadcn-native Design CI: diagnose UI debt, extract Tailwind tokens, export shadcn registries, and plan safe UI fixes.
+memi gives AI coding agents interface understanding before frontend work: UX audits, Tailwind tokens, shadcn registries, MCP tools, Agent Skills, and design-system memory.
 ```
 
 ### Install block
@@ -103,12 +104,13 @@ Memoire is an MCP server and CLI for shadcn-native Design CI: diagnose UI debt, 
 ```bash
 npm i -g @memi-design/cli
 memi diagnose
+memi ux audit --json
 memi shadcn export --out public/r
-memi mcp config --install
+memi mcp start --no-figma
 ```
 
 ### Directory submission pitch
 
 ```text
-Memoire gives AI coding tools a shadcn-native design-system workflow. It runs as a CLI and MCP server, audits existing Tailwind/shadcn apps, extracts tokens, exports shadcn-compatible registries, and helps teams publish installable design systems from real code.
+memi gives AI coding tools a local interface-understanding workflow. It runs as a CLI and MCP server, audits existing Tailwind/shadcn apps, extracts tokens, exports shadcn-compatible registries, and installs Agent Skills so frontend agents start from real design-system evidence.
 ```

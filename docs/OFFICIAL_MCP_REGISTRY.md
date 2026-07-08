@@ -1,17 +1,17 @@
 # Official MCP Registry Publish Guide
 
-Use this after npm latest matches the local Memoire version.
+Use this after npm latest matches the local memi version.
 
 ## Why This Gate Exists
 
 The Official MCP Registry hosts metadata, not package artifacts. For npm packages, it verifies that `server.json` points to a public npm package and that `package.json#mcpName` matches the registry server name.
 
-Memoire uses:
+memi uses:
 
 - MCP server name: `io.github.sarveshsea/memi`
 - npm package: `@memi-design/cli`
 - transport: `stdio`
-- package argument: `mcp`
+- package arguments: `mcp start --no-figma`
 
 ## Install `mcp-publisher`
 
@@ -33,6 +33,7 @@ npm publish --access public
 npm view @memi-design/cli version mcpName --json
 
 mcp-publisher login github
+mcp-publisher validate server.json
 mcp-publisher publish server.json
 curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.sarveshsea/memi"
 ```
