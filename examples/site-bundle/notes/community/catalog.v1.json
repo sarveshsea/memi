@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-04T01:03:46.614Z",
+  "generatedAt": "2026-07-08T21:58:54.164Z",
   "baseUrl": "https://www.memoire.cv/notes/community",
   "notes": [
     {
@@ -33,7 +33,7 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/design-sandbox-proof",
       "archive": {
         "url": "https://www.memoire.cv/notes/community/design-sandbox-proof/design-sandbox-proof-1.0.0.tgz",
-        "sha256": "b0d8f9cdf50a95508108d653fe3e8dbf38a9ddffe1b2f0743f063222fa1f311b",
+        "sha256": "6022e8a1a1bbfc1e84de41aa24283c6ee8a861270b775cf588538b17a1a1c9a2",
         "size": 1489
       },
       "manifest": {
@@ -108,8 +108,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/interface-craft-gate",
       "archive": {
         "url": "https://www.memoire.cv/notes/community/interface-craft-gate/interface-craft-gate-1.0.0.tgz",
-        "sha256": "97752197688905fa58ef75f40a1ad66591eac2933805232704ec0590550675e1",
-        "size": 1823
+        "sha256": "0cdf7b87981aa7311bf600a8c999e119d4760230080ada3e1dd2b7361b084fa8",
+        "size": 1825
       },
       "manifest": {
         "name": "interface-craft-gate",
@@ -181,8 +181,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/memoire-mcp-agent-skills",
       "archive": {
         "url": "https://www.memoire.cv/notes/community/memoire-mcp-agent-skills/memoire-mcp-agent-skills-1.0.0.tgz",
-        "sha256": "017d50429a6e4b3e78ea20b0bc2d0320b2a52ef34fa6e49bd3731e921cdff81e",
-        "size": 1650
+        "sha256": "65a6bcb95863363451af6f884282df1144a11c7b65a8c4a0db59bed507ccb617",
+        "size": 1647
       },
       "manifest": {
         "name": "memoire-mcp-agent-skills",
@@ -253,8 +253,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/memoire-studio-macos",
       "archive": {
         "url": "https://www.memoire.cv/notes/community/memoire-studio-macos/memoire-studio-macos-1.0.0.tgz",
-        "sha256": "de432a42b27529f748a949b1e9099fd00782742baf92603702cf896084ab4c0d",
-        "size": 1655
+        "sha256": "d5d0418b1c3be51c1b30ab35e1b672b2b06b3f7e0a77c96e50305b38c7bf6cb0",
+        "size": 1647
       },
       "manifest": {
         "name": "memoire-studio-macos",
@@ -329,8 +329,8 @@
       "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/memoire-v2-surface-map",
       "archive": {
         "url": "https://www.memoire.cv/notes/community/memoire-v2-surface-map/memoire-v2-surface-map-1.0.0.tgz",
-        "sha256": "b3bb4846dd9f6684b785aa0038da9cbcb702074cea4f26611d420a9b21b58203",
-        "size": 2031
+        "sha256": "7e9011b6b731280bf4999914a85dec839b0f3e25145321ecae99d821f150b33b",
+        "size": 2030
       },
       "manifest": {
         "name": "memoire-v2-surface-map",

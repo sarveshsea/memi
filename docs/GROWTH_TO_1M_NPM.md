@@ -1,6 +1,6 @@
 # Growth To 1M Weekly NPM Downloads
 
-Updated: 2026-07-03
+Updated: 2026-07-08
 
 ## North Star
 
@@ -10,13 +10,15 @@ The category is **interface understanding for AI coding agents**: design-system 
 
 ## Current truth
 
-- Source package is prepared for `@memi-design/cli@2.0.0`.
-- Public npm latest was verified as `1.1.1` before the v2 publish step.
-- Actual publish is blocked until npm owner auth is active and the intended release worktree is clean.
+- Source package is live at `@memi-design/cli@2.3.1`.
+- Public npm latest was verified as `2.3.1` on 2026-07-08.
+- npm downloads for the latest complete windows: 46 last-day downloads, 783 last-week downloads, and 1,306 last-month downloads.
+- The next 10x checkpoint is 7,830 weekly downloads and 13,060 monthly downloads.
 - MCP name is `io.github.sarveshsea/memi`.
 - Codex plugin install path is `codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire`.
 - Standard Agent Skills install path is `npx skills add sarveshsea/memi --skill memoire-design-tooling`.
 - The v2 package story must lead with code-first proof, not Studio-only positioning.
+- `memoire.cv` must stay synchronized with npm, Studio, MCP, changelog, and community Notes before any distribution push.
 - `sarveshsea/design-sandbox` is the primary public proof repo for memi v2 integration.
 
 Run the live check:
@@ -51,7 +53,7 @@ That is the conversion loop. Everything else should be a follow-on surface:
 
 1. **Release correctness**
 
-Publish `2.0.0`, verify the npm README, run a clean temp install smoke, and keep `server.json` synchronized with package metadata.
+Keep npm, `server.json`, `memoire.cv`, the community Notes catalog, and the changelog synchronized. Run `npm run check:public-release` after each web deploy and before every new distribution push.
 
 2. **Search wedge**
 
@@ -81,7 +83,19 @@ Make every agent stack installable and explainable:
 - OpenCode workspace skill.
 - Generic MCP clients.
 
-4. **Visible outputs**
+4. **Seeded proof repos and directories**
+
+Seed memi only where the reader can run a command and see value:
+
+- `sarveshsea/design-sandbox`: keep `pnpm verify` proving memi agent install, diagnose, UX audit, token extraction, and shadcn registry output.
+- `sarveshsea/memoire-community-notes`: publish the five starter community Notes and keep `/notes/community/catalog.v1.json` non-empty.
+- `sarveshsea/memi-studio`: link Studio releases back to the CLI engine, MCP server, and design-audit route.
+- MCP Registry and MCP directories: list `io.github.sarveshsea/memi` as the local design-system MCP server for coding agents.
+- Agent Skills directories: submit `memoire-design-tooling` with `npx skills add sarveshsea/memi --skill memoire-design-tooling`.
+- shadcn registry surfaces: seed examples that show `memi shadcn export --out public/r` and compatible GitHub registry install paths.
+- AI UI and dashboard templates: add memi as a design-quality gate where the template already uses Tailwind or shadcn.
+
+5. **Visible outputs**
 
 Ship proof that users can see:
 
@@ -94,7 +108,7 @@ Ship proof that users can see:
 - Studio run receipts and artifacts.
 - `design-sandbox` as a runnable public workspace showing MCP, Agent Skills, shadcn, Tailwind, UX audit, and verification together.
 
-5. **Trust and security**
+6. **Trust and security**
 
 Keep the package boring where trust matters:
 
@@ -110,7 +124,8 @@ Keep the package boring where trust matters:
 | Milestone | What must be true |
 | --- | --- |
 | 1,000 weekly downloads | v2 is published; npm README is clear; clean install smoke passes; first-run commands work. |
-| 10,000 weekly downloads | MCP Registry, Codex marketplace, Agent Skills, and shadcn examples all agree on the v2 story. |
+| 7,830 weekly downloads | 10x from the 2026-07-08 weekly baseline; MCP Registry, Codex marketplace, Agent Skills, and shadcn examples all agree on the v2 story. |
+| 10,000 weekly downloads | At least ten external repos or directories include runnable memi proof, and the public release gate passes after every web deploy. |
 | 100,000 weekly downloads | Templates, example registries, agent recipes, and docs are discoverable from npm and GitHub without needing Studio. |
 | 1,000,000 weekly downloads | Downstream agents, templates, registries, and design-system docs install `@memi-design/cli` as infrastructure. |
 
