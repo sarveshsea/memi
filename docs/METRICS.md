@@ -18,7 +18,7 @@ Use this every Friday during the v2 package-growth window. Record the value, sou
 
 ## Targets
 
-- Week 1: npm latest is `2.3.1`, public release gate passes, Agent Skills discovery passes, MCP Registry metadata is refreshed, and `memoire.cv` has no stale 0.14.x docs.
+- Week 1: npm latest is `2.3.1`, public release gate passes, Agent Skills discovery passes, MCP Registry metadata is refreshed, and active `memoire.cv` docs have no stale 0.14.x targets.
 - Week 2: weekly downloads are `1500+`, GitHub metadata matches the v2 phrase, and at least three external agent-stack or template guides link to runnable memi proof.
 - Week 4: weekly downloads are `4000+`, monthly downloads are `8000+`, and example registries or tutorials account for measurable npm traffic.
 - Week 8: weekly downloads are `7830+`, Codex/MCP/Agent Skills discovery routes all point to the same v2 story, and at least ten external repos or directories include runnable memi proof.
@@ -27,8 +27,8 @@ Use this every Friday during the v2 package-growth window. Record the value, sou
 
 | Week | npm latest | Weekly downloads | Monthly downloads | GitHub stars | README phrase | Agent Skills install | MCP Registry | Main action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Baseline | `1.1.1` | TBD | TBD | TBD | v2 draft | local pass | pending v2 | Publish `2.0.0` and run public gates |
-| 2026-07-08 | `2.3.1` | `783` | `1306` | TBD | live v2 | local pass | verify live | Fix web/catalog drift, then seed proof repos |
+| Baseline | `1.1.1` | TBD | TBD | TBD | v2 draft | local pass | pending v2 | Publish v2 and run public gates |
+| 2026-07-08 | `2.3.1` | `783` | `1306` | `17` | live v2 | local pass | listed, stale at `1.1.1` | Refresh MCP Registry auth, then seed proof repos |
 | Week 2 | | | | | | | | |
 | Week 3 | | | | | | | | |
 | Week 4 | | | | | | | | |

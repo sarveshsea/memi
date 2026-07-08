@@ -1,10 +1,10 @@
 # Demo Scripts
 
-These are the demos to keep reusing in README, npm, and launch posts. Lead with the marketplace `0.13.1` demo.
+These are the demos to keep reusing in README, npm, and launch posts. Lead with the current v2 interface-understanding loop.
 
-For the `0.14.1` shadcn/v0 launch, use [`docs/V0_WORKFLOWS.md`](./V0_WORKFLOWS.md). It includes the 60-second terminal script for `memi diagnose`, `memi shadcn export`, `memi shadcn serve`, Open-in-v0 URLs, and `memi registry install`.
+For the historical `0.14.1` shadcn/v0 launch archive, use [`docs/V0_WORKFLOWS.md`](./V0_WORKFLOWS.md). For current v2 distribution, lead with `npm i -g @memi-design/cli`, `memi diagnose`, `memi ux audit --json`, `memi shadcn export --out public/r`, and `memi mcp start --no-figma`.
 
-## 60-second 0.13 code-first demo
+## 60-second v2 code-first demo
 
 Goal: show that Memoire starts from an existing shadcn/Tailwind app, no Figma required.
 
@@ -14,26 +14,27 @@ npm i -g @memi-design/cli
 # 1. Diagnose real UI debt in the current app
 memi diagnose --no-write
 
-# 2. Extract tokens and write an auditable report
+# 2. Audit UX risk and extract tokens with auditable output
+memi ux audit --json
 memi tokens --from ./src --report --no-inferred
 
-# 3. Package the improved system as an installable registry
-memi publish --name @demo/ds
+# 3. Package the improved system as an installable shadcn registry
+memi shadcn export --out public/r
 ```
 
 Talk track:
 
 - start from code instead of a blank canvas
 - show the design debt score and highest-impact issues
-- show token coverage, mode coverage, duplicate values, and recommendations
-- end on a registry package developers can install with `memi add`
+- show UX risks, token coverage, mode coverage, duplicate values, and recommendations
+- end on shadcn registry JSON developers can install or publish
 
 Screen beats:
 
 1. Open a real shadcn/Tailwind app with visible inconsistency.
 2. Run `memi diagnose --no-write` and zoom into score, issues, and next moves.
-3. Run `memi tokens --from ./src --report --no-inferred` and open `generated/tokens/token-extraction.report.md`.
-4. Run `memi publish --name @demo/ds` and end on the install command.
+3. Run `memi ux audit --json` and `memi tokens --from ./src --report --no-inferred`.
+4. Run `memi shadcn export --out public/r` and end on the generated registry output.
 
 ## 60-second terminal demo
 
@@ -42,19 +43,18 @@ Goal: show the whole loop in one screen.
 ```bash
 npm i -g @memi-design/cli
 memi diagnose --no-write
+memi ux audit --json
 memi tokens --from ./src --report
-memi publish --name @demo/ds
-memi add Button --from @demo/ds
-memi view @demo/ds/Button --print
+memi shadcn export --out public/r
+memi mcp start --no-figma
 ```
 
 Talk track:
 
 - diagnose a real app
 - extract the system from code
-- publish the improved system to npm
-- install a real component into a shadcn app
-- open the component source or package surface
+- export the improved system as shadcn registry JSON
+- expose the same evidence to agents through MCP
 
 ## 60-second tweakcn demo
 

@@ -1,5 +1,7 @@
 # Memoire 0.14.1 Launch Campaign
 
+Historical archive. Do not use this as the current launch plan. Current v2 distribution lives in `docs/GROWTH_TO_1M_NPM.md`, `docs/METRICS.md`, `docs/SUBMISSIONS.md`, and `docs/STARSTRUCK.md`.
+
 Link every post to `https://www.npmjs.com/package/@memi-design/cli` until `https://www.memoire.cv/components` is deployed, indexed from `examples/site-bundle`, and verified healthy.
 
 ## Core message

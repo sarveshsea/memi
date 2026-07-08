@@ -52,9 +52,9 @@ For the `2.3.x` line, npm must report the current `package.json` version and `me
 
 ## External Trust Gate
 
-Before the public `2.0.0` announcement, verify every external surface points to the same v2 story:
+Before any public `2.3.x` distribution push, verify every external surface points to the same v2 story:
 
-- npm latest: `2.0.0`
+- npm latest: current `package.json` version, currently `2.3.1`
 - npm README phrase: `Interface understanding for AI coding agents`
 - npm install command: `npm i -g @memi-design/cli`
 - MCP name: `io.github.sarveshsea/memi`
