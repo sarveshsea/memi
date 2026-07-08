@@ -140,3 +140,28 @@ Add memi proof links where they are natural and honest:
 - Agent Skills directories.
 
 Do not spam unrelated repos. Each link should include a runnable command and a reason memi improves the local design workflow.
+
+## 10x seeding queue
+
+Start with surfaces we control, then move outward only when the target accepts installable tools, registries, MCP servers, skills, or templates.
+
+| Priority | Surface | Action | Proof to include |
+| --- | --- | --- | --- |
+| P0 | `memoire.cv` | Keep docs, changelog, footer, downloads, and `/notes/community/catalog.v1.json` synchronized with npm and Studio. | `npm run check:public-release` |
+| P0 | `sarveshsea/design-sandbox` | Refresh the sandbox so it proves the 2.3 mandate loop, not only older diagnose/token commands. | `pnpm memi:agent && pnpm verify` |
+| P0 | `sarveshsea/memoire-community-notes` | Keep the five starter Notes published and linked from the website catalog. | `npm run check:community-notes && npm run build:community-notes-catalog` |
+| P1 | MCP Registry and MCP directories | Submit or refresh `io.github.sarveshsea/memi` as the local design-system MCP server for coding agents. | `memi mcp start --no-figma` |
+| P1 | Agent Skills directories | Submit `memoire-design-tooling` as the design-system memory skill for Codex, Claude Code, Cursor, and OpenCode. | `npx skills add sarveshsea/memi --skill memoire-design-tooling` |
+| P1 | shadcn registry directories | Add memi as a registry-quality and design-audit companion for GitHub registries. | `memi shadcn export --out public/r` |
+| P2 | AI UI templates | Add memi to templates that already ship Tailwind/shadcn agent interfaces. | `memi craft audit --json` |
+| P2 | Dashboard/admin templates | Add memi as a CI design gate where token drift and visual regressions matter. | `memi ci` |
+| P2 | Product-design agent examples | Add memi Studio plus CLI proof for project memory, receipts, and Figma/FigJam handoff. | `memi report --badge` |
+
+Good external candidates are directories and repos already organized around these categories:
+
+- MCP Registry and community MCP server directories.
+- shadcn open registry index and registry-template examples.
+- Agent Skills directories and `npx skills` ecosystem repos.
+- Awesome shadcn, AI UI, dashboard, and agent UI template lists.
+
+Each submission should include one sentence of positioning, one install command, one proof command, and one link to a public artifact. If that cannot be done, skip the target.
