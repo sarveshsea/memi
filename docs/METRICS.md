@@ -28,7 +28,7 @@ Use this every Friday during the v2 package-growth window. Record the value, sou
 | Week | npm latest | Weekly downloads | Monthly downloads | GitHub stars | README phrase | Agent Skills install | MCP Registry | Main action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Baseline | `1.1.1` | TBD | TBD | TBD | v2 draft | local pass | pending v2 | Publish v2 and run public gates |
-| 2026-07-08 | `2.3.1` | `783` | `1306` | `17` | live v2 | local pass | listed, stale at `1.1.1` | Refresh MCP Registry auth, then seed proof repos |
+| 2026-07-08 | `2.3.1` | `783` | `1306` | `17` | live v2 | local pass | current at `2.3.1` | Seed proof repos and MCP directories |
 | Week 2 | | | | | | | | |
 | Week 3 | | | | | | | | |
 | Week 4 | | | | | | | | |

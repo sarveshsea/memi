@@ -11,7 +11,7 @@ Goal: keep GitHub growth tied to useful memi distribution. The base Starstruck t
 | npm latest | `2.3.1` | Live on npm with `mcpName: io.github.sarveshsea/memi` |
 | npm downloads | `783` weekly, `1,306` monthly | Latest complete npm windows on 2026-07-08 |
 | 10x npm checkpoint | `7,830` weekly, `13,060` monthly | First growth target from the 2026-07-08 baseline |
-| Official MCP Registry | Listed but stale | Registry latest is still `1.1.1`; `server.json` validates at `2.3.1`, publish is blocked until registry auth is refreshed |
+| Official MCP Registry | Current | Registry latest is `2.3.1` after the 2026-07-08 OIDC publish workflow |
 | `memoire.cv` | Synced | Public release gate passes against npm, site, changelog, Studio `2.4.0`, and five community Notes |
 | Open shadcn PRs | `1` | `bytefer/awesome-shadcn-ui#18`; `birobirobiro/awesome-shadcn-ui#493` merged |
 | Open MCP PRs | `3` | TensorBlock, YuzeHao2023, and MobinX remain open; toolsdk merged |
@@ -27,26 +27,24 @@ https://github.com/sarveshsea/memi
 
 Do not ask for fake stars, star swaps, or bot engagement. The ask must sit after a demo, install command, or useful directory submission.
 
-## First Move: Refresh MCP Discovery
+## First Move: Seed Proof Repos
 
-The official MCP Registry already lists `io.github.sarveshsea/memi`, but its latest package version is stale at `1.1.1`. The repo `server.json` is valid for `2.3.1`; publishing currently needs a fresh `mcp-publisher login github` device authorization.
+The official MCP Registry now lists `io.github.sarveshsea/memi@2.3.1`. Use that verified registry state as the trust link for directory refreshes and proof repos.
 
-Run after auth is refreshed:
+Recheck before directory follow-up:
 
 ```bash
-mcp-publisher validate server.json
-mcp-publisher publish server.json
 curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.sarveshsea/memi"
 ```
 
-Why this matters: the official registry is a trust anchor for downstream MCP directories and aggregators. Once it shows `2.3.1`, submit or refresh every MCP directory with the same npm/GitHub links.
+Why this matters: the official registry is a trust anchor for downstream MCP directories and aggregators. Submit or refresh every MCP directory with the same npm/GitHub links.
 
 ## Directory Targets
 
 | Priority | Target | Why it matters | Route | Status |
 | --- | --- | --- | --- | --- |
-| P0 | Official MCP Registry | Trust anchor for downstream MCP aggregators | `mcp-publisher publish server.json` | Listed, stale at `1.1.1`; auth refresh needed |
-| P0 | MCP.Directory | Direct MCP discovery surface | `https://mcp.directory/submit` | Refresh after registry shows `2.3.1` |
+| P0 | Official MCP Registry | Trust anchor for downstream MCP aggregators | `mcp-publisher publish server.json` | Current at `2.3.1` |
+| P0 | MCP.Directory | Direct MCP discovery surface | `https://mcp.directory/submit` | Ready to refresh with registry proof |
 | P0 | Glama | Already indexes Memoire | Claim/update listing after registry refresh | Ready |
 | P0 | Smithery | Distribution, analytics, and config UI for MCP servers | `smithery.ai/new` or `smithery mcp publish` | Requires URL/MCPB decision |
 | P0 | PulseMCP | MCP discovery and server popularity tracking | Confirm auto-index after official registry | Ready |
@@ -78,13 +76,12 @@ Why this matters: the official registry is a trust anchor for downstream MCP dir
 
 ## Launch Sequence For 10x Downloads
 
-1. Refresh the official MCP Registry so it reports `2.3.1`.
-2. Submit or refresh MCP.Directory, Glama, Smithery, PulseMCP, and mcp.so with the same v2 copy.
-3. Refresh `sarveshsea/design-sandbox` so `pnpm verify` proves memi agent install, diagnose, UX audit, token extraction, and shadcn registry output.
-4. Follow up on open PRs only with new proof: official registry link, security hardening, demo video, or maintainer-requested fixes.
-5. Ship one 60-second terminal demo: install, `memi diagnose`, `memi ux audit --json`, `memi shadcn export`, `memi mcp start --no-figma`.
-6. Post the demo to X, Show HN, `r/mcp`, and `r/shadcn` with the GitHub star CTA.
-7. Recheck npm downloads and stars weekly in `docs/METRICS.md`.
+1. Submit or refresh MCP.Directory, Glama, Smithery, PulseMCP, and mcp.so with the same v2 copy.
+2. Refresh `sarveshsea/design-sandbox` so `pnpm verify` proves memi agent install, diagnose, UX audit, token extraction, and shadcn registry output.
+3. Follow up on open PRs only with new proof: official registry link, security hardening, demo video, or maintainer-requested fixes.
+4. Ship one 60-second terminal demo: install, `memi diagnose`, `memi ux audit --json`, `memi shadcn export`, `memi mcp start --no-figma`.
+5. Post the demo to X, Show HN, `r/mcp`, and `r/shadcn` with the GitHub star CTA.
+6. Recheck npm downloads and stars weekly in `docs/METRICS.md`.
 
 ## Demo Script
 
