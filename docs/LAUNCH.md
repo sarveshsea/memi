@@ -1,6 +1,6 @@
 # memi Product Hunt Launch Pack
 
-Use one message everywhere for the current `2.3.x` launch:
+Use one message everywhere for the current `2.4.x` launch:
 
 > memi is the AI workbench for product designers. Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
 
@@ -9,7 +9,7 @@ Primary CTA: <https://www.memoire.cv>
 ## Launch Baseline
 
 - Product Hunt story: Studio-first, with the npm CLI/MCP engine underneath.
-- Release target: `@memi-design/cli@2.3.1`.
+- Release target: `@memi-design/cli@2.4.0`.
 - Studio download: `memi-studio v2.4.0` signed macOS app from GitHub Releases.
 - Homebrew: `brew install --cask sarveshsea/memi/memi-studio`.
 - MCP Registry: `io.github.sarveshsea/memi`.
@@ -124,11 +124,11 @@ The handoff remains inspectable.
 
 ## Launch Checklist
 
-- [x] Publish `@memi-design/cli@2.3.1`.
-- [x] Verify npm install smoke with `npm run check:public-release`.
+- [ ] Publish `@memi-design/cli@2.4.0`.
+- [ ] Verify npm install smoke with `npm run check:public-release`.
 - [ ] Republish `server.json` to the MCP Registry after auth refresh.
-- [x] Create GitHub tag/release `v2.3.1`.
-- [ ] Push and verify `sarveshsea/design-sandbox`.
-- [x] Confirm homepage still shows Studio `2.4.0`, npm latest, and the macOS download.
+- [ ] Create GitHub tag/release `v2.4.0`.
+- [x] Push and verify `sarveshsea/design-sandbox`.
+- [ ] Confirm homepage shows npm latest `2.4.0`, Studio `2.4.0`, and the macOS download after publish.
 - [ ] Submit Product Hunt with the exact name, tagline, description, and CTA above.
 - [ ] Post the main launch thread and one engine-underneath reply.

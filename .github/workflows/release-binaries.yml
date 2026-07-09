@@ -6,8 +6,27 @@ on:
       - 'v*'
 
 jobs:
+  release-gate:
+    name: release gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install deps
+        run: npm ci --include=optional --ignore-scripts
+
+      - name: Check release metadata
+        run: npm run check:release
+
   build:
     name: ${{ matrix.target }}
+    needs: release-gate
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: write
@@ -37,9 +56,11 @@ jobs:
           bun-version: latest
 
       - name: Install deps
-        run: npm install --ignore-scripts
+        run: npm ci --include=optional --ignore-scripts
 
       - name: Check release metadata
+        env:
+          SKIP_AUDIT_GATE: "1"
         run: npm run check:release
 
       - name: Typecheck and build tsc output

@@ -14,3 +14,15 @@ describe("runtime release workflow", () => {
     expect(workflow).not.toContain('VERSION=$(node -p "require(\'./package.json\').version")');
   });
 });
+
+describe("release binary workflow", () => {
+  it("keeps platform optional packages available and defers the npm audit gate", async () => {
+    const workflow = await readFile(
+      join(process.cwd(), ".github", "workflows", "release-binaries.yml"),
+      "utf-8",
+    );
+
+    expect(workflow).toContain("npm ci --include=optional --ignore-scripts");
+    expect(workflow).toContain("SKIP_AUDIT_GATE: \"1\"");
+  });
+});

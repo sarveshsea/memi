@@ -4,10 +4,10 @@ Use this every Friday during the v2 package-growth window. Record the value, sou
 
 ## Baseline
 
-- Current release: `@memi-design/cli@2.3.1`
+- Current release candidate: `@memi-design/cli@2.4.0`
 - Public npm latest before v2 publish: `1.1.1`
-- Public npm latest on 2026-07-08: `2.3.1`
-- Latest complete npm download windows on 2026-07-08: 46 last-day downloads, 783 last-week downloads, 1,306 last-month downloads.
+- Public npm latest before the 2.4 publish command: `2.3.1`
+- Latest complete npm download windows: 46 last-day downloads for 2026-07-05, 783 last-week downloads for 2026-06-29 through 2026-07-05, 1,306 last-month downloads for 2026-06-06 through 2026-07-05.
 - 10x target from the 2026-07-08 baseline: 7,830 weekly downloads and 13,060 monthly downloads.
 - Primary CTA: `https://www.npmjs.com/package/@memi-design/cli`
 - Primary phrase: `Interface understanding for AI coding agents`
@@ -18,7 +18,7 @@ Use this every Friday during the v2 package-growth window. Record the value, sou
 
 ## Targets
 
-- Week 1: npm latest is `2.3.1`, public release gate passes, Agent Skills discovery passes, MCP Registry metadata is refreshed, and active `memoire.cv` docs have no stale 0.14.x targets.
+- Week 1: npm latest is `2.4.0`, public release gate passes, Agent Skills discovery passes, MCP Registry metadata is refreshed, and active `memoire.cv` docs have no stale 0.14.x targets.
 - Week 2: weekly downloads are `1500+`, GitHub metadata matches the v2 phrase, and at least three external agent-stack or template guides link to runnable memi proof.
 - Week 4: weekly downloads are `4000+`, monthly downloads are `8000+`, and example registries or tutorials account for measurable npm traffic.
 - Week 8: weekly downloads are `7830+`, Codex/MCP/Agent Skills discovery routes all point to the same v2 story, and at least ten external repos or directories include runnable memi proof.

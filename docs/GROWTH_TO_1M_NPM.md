@@ -1,6 +1,6 @@
 # Growth To 1M Weekly NPM Downloads
 
-Updated: 2026-07-08
+Updated: 2026-07-09
 
 ## North Star
 
@@ -10,9 +10,9 @@ The category is **interface understanding for AI coding agents**: design-system 
 
 ## Current truth
 
-- Source package is live at `@memi-design/cli@2.3.1`.
-- Public npm latest was verified as `2.3.1` on 2026-07-08.
-- npm downloads for the latest complete windows: 46 last-day downloads, 783 last-week downloads, and 1,306 last-month downloads.
+- Source package release candidate is `@memi-design/cli@2.4.0`.
+- Public npm latest remains `2.3.1` until the one-line npm publish command is run.
+- npm downloads for the latest complete windows: 46 last-day downloads for 2026-07-05, 783 last-week downloads for 2026-06-29 through 2026-07-05, and 1,306 last-month downloads for 2026-06-06 through 2026-07-05.
 - The next 10x checkpoint is 7,830 weekly downloads and 13,060 monthly downloads.
 - MCP name is `io.github.sarveshsea/memi`.
 - Codex plugin install path is `codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire`.

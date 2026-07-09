@@ -16,9 +16,9 @@ This tracker keeps achievement work tied to real memi distribution. The goal is 
 | --- | --- | --- |
 | memi repo stars | 17 | Base Starstruck tier crossed; grow through useful launches and directory distribution |
 | memi discussions | Enabled on GitHub | `Q&A` and `Show and tell` are active; add `Registry help` and `MCP setup` in repository settings |
-| npm latest | 2.3.1 | Keep npm, site, GitHub release, and registry surfaces synchronized |
-| GitHub release | `v2.3.1` created | Use release URL in directory follow-ups when traceability matters |
-| MCP Registry | Current at `2.3.1` | Use registry proof in directory refreshes |
+| npm release target | 2.4.0 | Keep npm, site, GitHub release, and registry surfaces synchronized |
+| GitHub release | `v2.4.0` target | Use release URL in directory follow-ups when traceability matters |
+| MCP Registry | Ready for 2.4.0 refresh | Use registry proof in directory refreshes after npm publish |
 | SafeSkill PR | Open with blocked badge | Do not merge until the score improves or findings are addressed |
 | Sandbox repo | `sarveshsea/memoire-achievements-lab` | Use only for harmless workflow checks |
 | GitHub metadata | Updated to v2 interface-understanding copy | Keep npm, README, and directory copy aligned |
@@ -30,7 +30,7 @@ This tracker keeps achievement work tied to real memi distribution. The goal is 
 | Public Sponsor | Sponsor one OSS maintainer whose work supports memi | Base badge | Pending | Add sponsor link after completion |
 | Quickdraw | Open and close a sandbox issue or PR within 5 minutes | Base badge | Completed in sandbox | https://github.com/sarveshsea/memoire-achievements-lab/issues/1 |
 | YOLO | Merge a tiny own PR in the sandbox repo without review | Base badge | Completed in sandbox | https://github.com/sarveshsea/memoire-achievements-lab/pull/2 |
-| Pull Shark | Submit real PRs to MCP, shadcn, docs, and awesome-list directories | x2 first, then x3 | In progress | Merged: https://github.com/punkpeye/awesome-mcp-servers/pull/4373, https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/296, https://github.com/birobirobiro/awesome-shadcn-ui/pull/493; pending: https://github.com/TensorBlock/awesome-mcp-servers/pull/455, https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/208, https://github.com/MobinX/awesome-mcp-list/pull/241, https://github.com/bytefer/awesome-shadcn-ui/pull/18 |
+| Pull Shark | Submit real PRs to MCP, shadcn, docs, and awesome-list directories | x2 first, then x3 | In progress | Merged: https://github.com/punkpeye/awesome-mcp-servers/pull/4373, https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/296, https://github.com/birobirobiro/awesome-shadcn-ui/pull/493; pending: https://github.com/TensorBlock/awesome-mcp-servers/pull/455, https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/208, https://github.com/MobinX/awesome-mcp-list/pull/241, https://github.com/bytefer/awesome-shadcn-ui/pull/18, https://github.com/punkpeye/awesome-mcp-servers/pull/9678, https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/391, https://github.com/birobirobiro/awesome-shadcn-ui/pull/538 |
 | Pair Extraordinaire | Merge real coauthored PRs with valid `Co-authored-by:` trailers | Base, then x2 | Pending | Use actual collaborator commits only |
 | Galaxy Brain | Answer real GitHub Discussions questions and have them accepted | Base, then x2 | Pending | Requires Discussions enabled |
 | Starstruck | Earn real stars from distribution, demos, and useful listings | 16 stars, then 128 | Base crossed, next pending | Track weekly in `docs/METRICS.md` |
@@ -41,18 +41,18 @@ Detailed operating board: [`docs/STARSTRUCK.md`](STARSTRUCK.md).
 
 Immediate sequence:
 
-1. Submit MCP.Directory, refresh Glama, submit Smithery, confirm PulseMCP and mcp.so.
-2. Refresh `sarveshsea/design-sandbox` proof and make `pnpm verify` the public demo anchor.
+1. Publish npm `2.4.0`, refresh the official MCP Registry, then update MCP.Directory, Glama, Smithery, and PulseMCP.
+2. Keep `sarveshsea/design-sandbox` proof current and make `pnpm verify` the public demo anchor.
 3. Follow up on open directory PRs only with the official registry link or maintainer-requested fixes.
 4. Post the 60-second install/demo with a GitHub star CTA.
 
 ## Official MCP Registry Readiness
 
-The official MCP Registry verifies npm package ownership through `package.json#mcpName`. npm `2.3.1` and `server.json` agree on the MCP name and package identifier.
+The official MCP Registry verifies npm package ownership through `package.json#mcpName`. The local 2.4.0 package candidate and `server.json` agree on the MCP name and package identifier; publish the registry entry after npm latest is 2.4.0.
 
 - `package.json#mcpName`: `io.github.sarveshsea/memi`
 - `server.json#name`: `io.github.sarveshsea/memi`
-- `server.json#version`: `2.3.1`
+- `server.json#version`: `2.4.0`
 - `server.json#packages[0].identifier`: `@memi-design/cli`
 - `server.json#packages[0].packageArguments`: `mcp start --no-figma`
 

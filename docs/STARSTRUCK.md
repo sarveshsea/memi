@@ -8,13 +8,13 @@ Goal: keep GitHub growth tied to useful memi distribution. The base Starstruck t
 | --- | --- | --- |
 | GitHub stars | `17` | Starstruck base tier crossed; next visible tier is `128` |
 | GitHub description | Updated | `Interface understanding and design-system memory for AI coding agents.` |
-| npm latest | `2.3.1` | Live on npm with `mcpName: io.github.sarveshsea/memi` |
-| npm downloads | `783` weekly, `1,306` monthly | Latest complete npm windows on 2026-07-08 |
+| npm release target | `2.4.0` | Local release candidate; npm latest remains `2.3.1` until publish |
+| npm downloads | `783` weekly, `1,306` monthly | Latest complete npm windows ending 2026-07-05 |
 | 10x npm checkpoint | `7,830` weekly, `13,060` monthly | First growth target from the 2026-07-08 baseline |
-| Official MCP Registry | Current | Registry latest is `2.3.1` after the 2026-07-08 OIDC publish workflow |
-| `memoire.cv` | Synced | Public release gate passes against npm, site, changelog, Studio `2.4.0`, and five community Notes |
-| Open shadcn PRs | `1` | `bytefer/awesome-shadcn-ui#18`; `birobirobiro/awesome-shadcn-ui#493` merged |
-| Open MCP PRs | `3` | TensorBlock, YuzeHao2023, and MobinX remain open; toolsdk merged |
+| Official MCP Registry | Ready for 2.4.0 refresh | Publish after npm latest is `2.4.0`; current live registry is `2.3.1` |
+| `memoire.cv` | Ready for 2.4.0 sync | Public release gate should pass after npm publish and web deploy |
+| Open shadcn PRs | `2` | `bytefer/awesome-shadcn-ui#18` plus the fresh `birobirobiro/awesome-shadcn-ui#538` refresh |
+| Open MCP PRs | `5` | TensorBlock, YuzeHao2023, MobinX, punkpeye refresh, and toolsdk refresh remain open |
 
 ## Star CTA
 
@@ -29,7 +29,7 @@ Do not ask for fake stars, star swaps, or bot engagement. The ask must sit after
 
 ## First Move: Seed Proof Repos
 
-The official MCP Registry now lists `io.github.sarveshsea/memi@2.3.1`. Use that verified registry state as the trust link for directory refreshes and proof repos.
+After npm publish and MCP Registry refresh, use `io.github.sarveshsea/memi@2.4.0` as the trust link for directory refreshes and proof repos.
 
 Recheck before directory follow-up:
 
@@ -43,14 +43,14 @@ Why this matters: the official registry is a trust anchor for downstream MCP dir
 
 | Priority | Target | Why it matters | Route | Status |
 | --- | --- | --- | --- | --- |
-| P0 | Official MCP Registry | Trust anchor for downstream MCP aggregators | `mcp-publisher publish server.json` | Current at `2.3.1` |
+| P0 | Official MCP Registry | Trust anchor for downstream MCP aggregators | `mcp-publisher publish server.json` | Ready for 2.4.0 after npm publish |
 | P0 | MCP.Directory | Direct MCP discovery surface | `https://mcp.directory/submit` | Ready to refresh with registry proof |
-| P0 | Glama | Already indexes Memoire | Claim/update listing after registry refresh | Ready |
+| P0 | Glama | Already indexes Memoire | Claim/update listing after registry refresh | Ready after npm publish |
 | P0 | Smithery | Distribution, analytics, and config UI for MCP servers | `smithery.ai/new` or `smithery mcp publish` | Requires URL/MCPB decision |
 | P0 | PulseMCP | MCP discovery and server popularity tracking | Confirm auto-index after official registry | Ready |
-| P0 | mcp.so | Large MCP marketplace surface | Submit/refresh after official registry | Ready |
+| P0 | mcp.so | Large MCP marketplace surface | Submit/refresh after official registry | Submitted: https://github.com/chatmcp/mcpso/issues/1#issuecomment-4920418945 |
 | P1 | Agent Skills directories | Agent-native install discovery | `npx skills add sarveshsea/memi --skill memoire-design-tooling` | Ready |
-| P1 | shadcn registry directories | Registry generator audience | PR with `memi shadcn export --out public/r` proof | Needs stable public registry URLs |
+| P1 | shadcn registry directories | Registry generator audience | PR with `memi shadcn export --out public/r` proof | Raw registry proof live in `design-sandbox`; PR refresh opened |
 | P2 | Product Hunt | One-time launch spike | Launch after registry and proof repo are current | Draft only |
 | P2 | Show HN | Developer credibility | Post practical demo, not hype | Draft only |
 | P2 | Reddit `r/mcp` | Direct MCP audience | Practical setup/demo | Draft only |
@@ -60,13 +60,13 @@ Why this matters: the official registry is a trust anchor for downstream MCP dir
 
 | Priority | Repo | Stars at audit | Fit | Status |
 | --- | --- | ---: | --- | --- |
-| P0 | `punkpeye/awesome-mcp-servers` | `85k+` | Largest MCP list | Merged: https://github.com/punkpeye/awesome-mcp-servers/pull/4373 |
+| P0 | `punkpeye/awesome-mcp-servers` | `85k+` | Largest MCP list | Old entry merged; refresh open: https://github.com/punkpeye/awesome-mcp-servers/pull/9678 |
 | P0 | `TensorBlock/awesome-mcp-servers` | `639` | MCP list with developer utility category | Open, requested docs mirror fixed: https://github.com/TensorBlock/awesome-mcp-servers/pull/455 |
 | P0 | `YuzeHao2023/Awesome-MCP-Servers` | `1041` | MCP list with development tools category | Open: https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/208 |
 | P0 | `MobinX/awesome-mcp-list` | `878` | Concise MCP list with developer tools category | Open: https://github.com/MobinX/awesome-mcp-list/pull/241 |
-| P0 | `toolsdk-ai/toolsdk-mcp-registry` | `169` | Structured MCP registry JSON | Merged: https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/296 |
+| P0 | `toolsdk-ai/toolsdk-mcp-registry` | `169` | Structured MCP registry JSON | Old entry merged; refresh open: https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/391 |
 | P1 | `bytefer/awesome-shadcn-ui` | `683` | shadcn ecosystem list | Open: https://github.com/bytefer/awesome-shadcn-ui/pull/18 |
-| P1 | `birobirobiro/awesome-shadcn-ui` | `19k+` | Largest shadcn ecosystem list | Merged: https://github.com/birobirobiro/awesome-shadcn-ui/pull/493 |
+| P1 | `birobirobiro/awesome-shadcn-ui` | `19k+` | Largest shadcn ecosystem list | Old entry merged; refresh open: https://github.com/birobirobiro/awesome-shadcn-ui/pull/538 |
 | P1 | `appcypher/awesome-mcp-servers` | `5492` | MCP list with development tools category | Branch pushed, PR creation blocked by base permissions: https://github.com/appcypher/awesome-mcp-servers/compare/main...sarveshsea:awesome-mcp-servers-2:add-memoire-design-ci |
 | P1 | `wong2/awesome-mcp-servers` | `4005` | MCP list with community servers category | Branch pushed, PR creation blocked by base permissions: https://github.com/wong2/awesome-mcp-servers/compare/main...sarveshsea:awesome-mcp-servers-1:add-memoire-design-ci |
 | P2 | `react-figma/awesome-figma` | `430` | Figma/dev integration list | Wait until Figma positioning is not competing with code-first wedge |
@@ -76,8 +76,8 @@ Why this matters: the official registry is a trust anchor for downstream MCP dir
 
 ## Launch Sequence For 10x Downloads
 
-1. Submit or refresh MCP.Directory, Glama, Smithery, PulseMCP, and mcp.so with the same v2 copy.
-2. Refresh `sarveshsea/design-sandbox` so `pnpm verify` proves memi agent install, diagnose, UX audit, token extraction, and shadcn registry output.
+1. Refresh MCP.Directory, Glama, Smithery, and PulseMCP with the same v2 copy after npm latest and the official MCP Registry both show `2.4.0`.
+2. Keep `sarveshsea/design-sandbox` as the public proof repo; `pnpm verify` proves memi agent install, diagnose, UX audit, token extraction, MCP config, and shadcn registry output.
 3. Follow up on open PRs only with new proof: official registry link, security hardening, demo video, or maintainer-requested fixes.
 4. Ship one 60-second terminal demo: install, `memi diagnose`, `memi ux audit --json`, `memi shadcn export`, `memi mcp start --no-figma`.
 5. Post the demo to X, Show HN, `r/mcp`, and `r/shadcn` with the GitHub star CTA.
