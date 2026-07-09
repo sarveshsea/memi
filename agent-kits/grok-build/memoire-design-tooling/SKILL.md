@@ -77,7 +77,7 @@ memi init --team
 memi ci
 ```
 
-In GitHub Actions: `uses: sarveshsea/memi@v2` (Action tag `v2.4.1`; CLI pin defaults to published `@memi-design/cli@2.4.0`).
+In GitHub Actions: `uses: sarveshsea/memi@v2` with `version: "2.4.1"`.
 
 ## Dependencies and references
 
