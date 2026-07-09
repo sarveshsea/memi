@@ -43,11 +43,6 @@
       "Extract tokens and shadcn registry context.",
       "Create an Atomic Design implementation plan."
     ],
-    "brandColor": "#000000",
-    "composerIcon": "./assets/authentic-logo.png",
-    "logo": "./assets/authentic-logo.png",
-    "screenshots": [
-      "./assets/screenshot-plugin-overview.png"
-    ]
+    "brandColor": "#000000"
   }
 }
