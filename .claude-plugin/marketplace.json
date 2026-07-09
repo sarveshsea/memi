@@ -1,0 +1,25 @@
+{
+  "name": "memi",
+  "owner": {
+    "name": "Sarvesh Chidambaram",
+    "url": "https://github.com/sarveshsea"
+  },
+  "description": "Claude Code plugins for memi design-system memory, MCP tooling, shadcn/ui workflows, and UI quality gates.",
+  "plugins": [
+    {
+      "name": "memi",
+      "source": "./plugins/memi-claude",
+      "description": "Design-system memory and UI quality tools for Claude Code.",
+      "category": "Development",
+      "keywords": [
+        "design-system",
+        "mcp",
+        "figma",
+        "shadcn",
+        "tailwind",
+        "ux",
+        "frontend"
+      ]
+    }
+  ]
+}

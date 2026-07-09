@@ -63,6 +63,17 @@ Before changing UI code, use the Memoire MCP server to diagnose app quality, aud
 
 MCP equivalent: call `prepare_design_agent_brief` first, then run the evidence tools it returns.
 
+### Claude Code plugin marketplace
+
+For plugin-native Claude Code installs, add the public marketplace from this repository:
+
+```text
+/plugin marketplace add sarveshsea/memi
+/plugin install memi@memi
+```
+
+The plugin loads a `/memi:design` skill and the Memoire MCP server config. Use it when a Claude session needs design-system memory before frontend, Tailwind, shadcn/ui, Figma, registry, or UX audit work.
+
 ## Codex
 
 ```bash
