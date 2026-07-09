@@ -159,19 +159,14 @@ describe("packaged agent kits", () => {
         displayName: "memi",
         privacyPolicyURL: "https://www.memoire.cv/privacy",
         termsOfServiceURL: "https://www.memoire.cv/terms",
-        composerIcon: "./assets/authentic-logo.png",
-        logo: "./assets/authentic-logo.png",
       },
     });
     expect(manifest.description).toContain("memi design memory");
     expect(manifest.interface.defaultPrompt.length).toBeLessThanOrEqual(3);
     expect(manifest.interface.defaultPrompt).toContain("Audit this UI with memi before editing.");
-    expect(manifest.interface.screenshots).toEqual(["./assets/screenshot-plugin-overview.png"]);
-    for (const relativePath of [manifest.interface.logo, manifest.interface.composerIcon, ...manifest.interface.screenshots]) {
-      const buffer = await readFile(join(root, "plugins", "memoire", relativePath.replace(/^\.\//, "")));
-      expect(isPng(buffer)).toBe(true);
-      expect(buffer.byteLength).toBeGreaterThan(1000);
-    }
+    expect(manifest.interface.logo).toBeUndefined();
+    expect(manifest.interface.composerIcon).toBeUndefined();
+    expect(manifest.interface.screenshots).toBeUndefined();
     expect(mcpConfig.mcpServers.memoire).toMatchObject({
       command: "memi",
       args: ["mcp", "start", "--no-figma"],
@@ -253,18 +248,6 @@ describe("packaged agent kits", () => {
     expect(paths).toContain("plugins/memoire/.codex-plugin/plugin.json");
     expect(paths).toContain("plugins/memoire/.mcp.json");
     expect(paths).toContain("plugins/memoire/skills/memoire-design-tooling/SKILL.md");
-    expect(paths).toContain("plugins/memoire/assets/authentic-logo.png");
-    expect(paths).toContain("plugins/memoire/assets/screenshot-plugin-overview.png");
+    expect([...paths].filter((path) => /^plugins\/memoire\/.*\.(png|jpe?g|gif|webp|ico)$/i.test(path))).toEqual([]);
   });
 });
-
-function isPng(buffer: Buffer): boolean {
-  return buffer[0] === 0x89
-    && buffer[1] === 0x50
-    && buffer[2] === 0x4e
-    && buffer[3] === 0x47
-    && buffer[4] === 0x0d
-    && buffer[5] === 0x0a
-    && buffer[6] === 0x1a
-    && buffer[7] === 0x0a;
-}

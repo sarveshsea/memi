@@ -28,17 +28,6 @@ function normalizeNewlines(value) {
   return value.replace(/\r\n/g, "\n");
 }
 
-function isPng(buffer) {
-  return buffer[0] === 0x89
-    && buffer[1] === 0x50
-    && buffer[2] === 0x4e
-    && buffer[3] === 0x47
-    && buffer[4] === 0x0d
-    && buffer[5] === 0x0a
-    && buffer[6] === 0x1a
-    && buffer[7] === 0x0a;
-}
-
 const packageJson = await readJson(join(root, "package.json"));
 const version = packageJson.version;
 const expectedMcpName = "io.github.sarveshsea/memi";
@@ -164,17 +153,29 @@ for (const field of ["privacyPolicyURL", "termsOfServiceURL"]) {
     fail(`Codex plugin interface is missing ${field}`);
   }
 }
-for (const assetPath of [
-  codexInterface.logo,
-  codexInterface.composerIcon,
-  ...(codexInterface.screenshots ?? []),
-]) {
-  if (typeof assetPath !== "string" || !assetPath.endsWith(".png")) {
-    fail(`Codex plugin asset must be a PNG path: ${assetPath}`);
-    continue;
+for (const field of ["logo", "composerIcon", "screenshots"]) {
+  if (codexInterface[field] !== undefined) {
+    fail(`Codex plugin interface must omit binary storefront asset field for marketplace auto-review: ${field}`);
   }
-  const buffer = await readFile(join(root, "plugins", "memoire", assetPath.replace(/^\.\//, "")));
-  if (!isPng(buffer)) fail(`Codex plugin asset is not a PNG: ${assetPath}`);
+}
+async function walkFiles(directory, prefix = "") {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const relativePath = join(prefix, entry.name);
+    const fullPath = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...await walkFiles(fullPath, relativePath));
+    } else if (entry.isFile()) {
+      files.push(relativePath);
+    }
+  }
+  return files;
+}
+for (const relativePath of await walkFiles(join(root, "plugins", "memoire"))) {
+  if (/\.(png|jpe?g|gif|webp|ico)$/i.test(relativePath)) {
+    fail(`Codex plugin package must not include binary image assets for marketplace auto-review: ${relativePath}`);
+  }
 }
 
 const codexPagePath = join(root, "examples", "site-bundle", "codex-plugin", "index.html");
