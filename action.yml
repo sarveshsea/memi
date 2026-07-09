@@ -1,9 +1,7 @@
 name: "memi design CI"
 description: >-
-  Run the memi design gate: full-tree scan, PR-scoped gating, baseline filter,
-  SARIF annotations, and a design-health report artifact. Every finding cites
-  file:line and re-runs identically — no LLM in the enforcement path.
-  Requires `security-events: write` permission for SARIF upload.
+  Design CI gate: full-tree scan, PR scope, baseline filter, SARIF, and health
+  report. Deterministic, no LLM in enforcement.
 author: "memi"
 branding:
   icon: "layout"
@@ -13,7 +11,7 @@ inputs:
   version:
     description: "Pinned @memi-design/cli version. Deliberately not 'latest': gate behavior must not change under a team without a reviewed bump."
     required: false
-    default: "2.3.0"
+    default: "2.4.1"
   fail-on:
     description: "Override the policy gate severity (critical|high|medium|low|none). Empty = use memoire.policy.json."
     required: false

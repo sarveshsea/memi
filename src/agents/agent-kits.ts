@@ -12,11 +12,12 @@ export const AGENT_INSTALL_TARGETS = [
   "codex",
   "codex-plugin",
   "opencode",
+  "grok-build",
 ] as const;
 
 export type AgentInstallTarget = typeof AGENT_INSTALL_TARGETS[number];
 export type AgentInstallTargetInput = AgentInstallTarget | "all";
-export type AgentKitKind = "skill" | "mcp-config" | "plugin";
+export type AgentKitKind = "skill" | "mcp-config" | "grok-config" | "plugin";
 
 export interface AgentInstallOptions {
   target: AgentInstallTargetInput;
@@ -147,6 +148,27 @@ const KIT_DEFINITIONS: AgentKitDefinition[] = [
     note: "OpenCode workspace skill-style context pack for Memoire design tooling.",
     destination: ({ projectRoot }) => join(projectRoot, ".opencode", "skills", "memoire", "memoire-design-tooling"),
   },
+  {
+    target: "grok-build",
+    kind: "skill",
+    source: "grok-build/memoire-design-tooling",
+    note: "Native Grok Build skill under .grok/skills (primary discovery path).",
+    destination: ({ projectRoot }) => join(projectRoot, ".grok", "skills", "memoire-design-tooling"),
+  },
+  {
+    target: "grok-build",
+    kind: "skill",
+    source: "grok-build/memoire-design-tooling",
+    note: "Universal Agent Skills mirror under .agents/skills for AGENTS.md stacks.",
+    destination: ({ projectRoot }) => join(projectRoot, ".agents", "skills", "memoire-design-tooling"),
+  },
+  {
+    target: "grok-build",
+    kind: "grok-config",
+    source: "mcp/grok-build/config.toml",
+    note: "Grok Build project MCP config for the Memoire stdio server.",
+    destination: ({ projectRoot }) => join(projectRoot, ".grok", "config.toml"),
+  },
 ];
 
 export function normalizeAgentInstallTarget(target: string | undefined): AgentInstallTargetInput {
@@ -207,6 +229,9 @@ export async function installAgentKits(options: AgentInstallOptions): Promise<Ag
         break;
       case "mcp-config":
         await installMcpConfig(plan, force);
+        break;
+      case "grok-config":
+        await installGrokConfig(plan, force);
         break;
       case "plugin":
         await installCodexPlugin(plan, force);
@@ -287,6 +312,42 @@ async function installMcpConfig(plan: AgentInstallPlan, force: boolean): Promise
 
   await mkdir(dirname(plan.destination), { recursive: true });
   await writeFile(plan.destination, JSON.stringify(existing, null, 2) + "\n", "utf-8");
+}
+
+const GROK_MCP_BLOCK = `[mcp_servers.memoire]
+command = "memi"
+args = ["mcp", "start", "--no-figma"]
+env = { FIGMA_TOKEN = "\${FIGMA_TOKEN}", FIGMA_FILE_KEY = "\${FIGMA_FILE_KEY}" }
+startup_timeout_sec = 60
+tool_timeout_sec = 6000
+`;
+
+async function installGrokConfig(plan: AgentInstallPlan, force: boolean): Promise<void> {
+  let existing = "";
+  try {
+    existing = await readFile(plan.destination, "utf-8");
+  } catch {
+    existing = "";
+  }
+
+  const hasMemoire = /\[mcp_servers\.memoire\]/.test(existing);
+  if (hasMemoire && !force) {
+    throw new Error(`grok-build MCP config already has a memoire server at ${plan.destination}; pass --force to overwrite it.`);
+  }
+
+  let next: string;
+  if (!existing.trim()) {
+    next = `${GROK_MCP_BLOCK.trim()}\n`;
+  } else if (hasMemoire && force) {
+    next = existing
+      .replace(/\[mcp_servers\.memoire\][\s\S]*?(?=\n\[|$)/, GROK_MCP_BLOCK.trim())
+      .trimEnd() + "\n";
+  } else {
+    next = `${existing.trimEnd()}\n\n${GROK_MCP_BLOCK.trim()}\n`;
+  }
+
+  await mkdir(dirname(plan.destination), { recursive: true });
+  await writeFile(plan.destination, next, "utf-8");
 }
 
 async function installCodexPlugin(plan: AgentInstallPlan, force: boolean): Promise<void> {
@@ -401,6 +462,7 @@ function buildSuiteManifest(projectRoot: string): string {
     "  enabled:",
     "    - codex",
     "    - claude-code",
+    "    - grok-build",
     "    - hermes",
     "    - opencode",
     "skills:",
