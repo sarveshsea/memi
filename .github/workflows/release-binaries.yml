@@ -36,12 +36,16 @@ jobs:
         include:
           - target: darwin-arm64
             runner: macos-14
+            esbuildPackage: darwin-arm64
           - target: darwin-x64
             runner: macos-15-intel
+            esbuildPackage: darwin-x64
           - target: linux-x64
             runner: ubuntu-latest
+            esbuildPackage: linux-x64
           - target: win-x64
             runner: windows-latest
+            esbuildPackage: win32-x64
     steps:
       - uses: actions/checkout@v4
 
@@ -57,6 +61,12 @@ jobs:
 
       - name: Install deps
         run: npm ci --include=optional --ignore-scripts
+
+      - name: Ensure platform esbuild binary
+        shell: bash
+        run: |
+          ESBUILD_VERSION="$(node -p "require('./node_modules/vite/node_modules/esbuild/package.json').version")"
+          npm install --no-save --package-lock=false --ignore-scripts "@esbuild/${{ matrix.esbuildPackage }}@${ESBUILD_VERSION}"
 
       - name: Check release metadata
         env:
