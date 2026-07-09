@@ -1,0 +1,12 @@
+{
+  "name": "memi",
+  "description": "Design-system memory, MCP tools, shadcn/ui registry workflows, Tailwind token extraction, and UI quality gates for Claude Code.",
+  "version": "2.4.0",
+  "author": {
+    "name": "Sarvesh Chidambaram",
+    "url": "https://github.com/sarveshsea"
+  },
+  "homepage": "https://www.memoire.cv/docs",
+  "repository": "https://github.com/sarveshsea/memi",
+  "license": "MIT"
+}

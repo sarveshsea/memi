@@ -143,6 +143,13 @@ Public Codex marketplace install:
 codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire
 ```
 
+Public Claude Code marketplace install:
+
+```text
+/plugin marketplace add sarveshsea/memi
+/plugin install memi@memi
+```
+
 More copy-paste workflows: [Agent stack guide](docs/AGENT_STACKS.md) and [Agent recipes](docs/AGENT_RECIPES.md).
 
 ## Design-agent brief
