@@ -367,4 +367,6 @@ docker run --rm -it -v "$PWD:/work" -w /work ghcr.io/sarveshsea/memi --help
 
 ## License
 
-MIT. See [NOTICE](NOTICE) for Studio interface references and attribution.
+Studio interface references and adapted components are documented in [NOTICE](NOTICE). The public reference set includes Hermes WebUI, Hermes Agent, and the MIT Warp UI framework boundary around `warpui_core` and `warpui`; Warp AGPL application/client code is not copied into memi.
+
+MIT. See [NOTICE](NOTICE) for Studio interface references, optional adapters, and attribution notes.
