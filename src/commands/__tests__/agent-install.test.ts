@@ -84,6 +84,9 @@ describe("agent install command", () => {
       "cursor",
       "codex",
       "opencode",
+      "grok-build",
+      "grok-build",
+      "grok-build",
     ]);
     expect(payload.plans.find((plan: { target: string }) => plan.target === "hermes").destination)
       .toContain(".hermes/skills/memoire/memoire-design-tooling");
@@ -204,6 +207,39 @@ describe("agent install command", () => {
     const written = await readFile(join(targetDir, "SKILL.md"), "utf-8");
     expect(written).toContain("name: memoire-design-tooling");
     expect(written).toContain("memi");
+  });
+
+  it("writes Grok Build skill and project MCP config", async () => {
+    const logs = captureLogs();
+    const program = new Command();
+    registerAgentCommand(program, makeAgentEngine(projectRoot) as never);
+
+    await program.parseAsync(["agent", "install", "grok-build", "--project", projectRoot, "--json"], { from: "user" });
+
+    const payload = JSON.parse(lastLog(logs));
+    expect(payload).toMatchObject({
+      action: "install",
+      status: "completed",
+      target: "grok-build",
+    });
+    expect(payload.plans.map((plan: { kind: string }) => plan.kind)).toEqual(["skill", "skill", "grok-config"]);
+    expect(payload.plans.map((plan: { destination: string }) => plan.destination)).toEqual([
+      join(projectRoot, ".grok", "skills", "memoire-design-tooling"),
+      join(projectRoot, ".agents", "skills", "memoire-design-tooling"),
+      join(projectRoot, ".grok", "config.toml"),
+    ]);
+
+    const nativeSkill = await readFile(join(projectRoot, ".grok", "skills", "memoire-design-tooling", "SKILL.md"), "utf-8");
+    expect(nativeSkill).toContain("Grok Build");
+    expect(nativeSkill).toContain("REFERENCES.md");
+
+    const universalSkill = await readFile(join(projectRoot, ".agents", "skills", "memoire-design-tooling", "SKILL.md"), "utf-8");
+    expect(universalSkill).toContain("Grok Build");
+
+    const grokConfig = await readFile(join(projectRoot, ".grok", "config.toml"), "utf-8");
+    expect(grokConfig).toContain("[mcp_servers.memoire]");
+    expect(grokConfig).toContain('command = "memi"');
+    expect(grokConfig).toContain("startup_timeout_sec = 60");
   });
 
   it("writes MCP config kits for Claude Code without changing notes state", async () => {

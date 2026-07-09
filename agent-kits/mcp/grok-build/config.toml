@@ -1,0 +1,8 @@
+# Project-scoped Grok Build MCP config (https://docs.x.ai/build/features/mcp-servers)
+# Loaded from ./.grok/config.toml; overrides same-named user servers.
+[mcp_servers.memoire]
+command = "memi"
+args = ["mcp", "start", "--no-figma"]
+env = { FIGMA_TOKEN = "${FIGMA_TOKEN}", FIGMA_FILE_KEY = "${FIGMA_FILE_KEY}" }
+startup_timeout_sec = 60
+tool_timeout_sec = 6000

@@ -13,6 +13,13 @@ interface AgentKitManifest {
     start: string;
     status: string;
   };
+  references?: {
+    craftSkills?: string;
+    proofRepo?: string;
+    githubAction?: string;
+    skillsEcosystem?: string;
+    grokDocs?: string;
+  };
   targets: Array<{
     id: string;
     kind: string;
@@ -79,7 +86,12 @@ describe("packaged agent kits", () => {
       "cursor",
       "codex",
       "opencode",
+      "grok-build",
+      "grok-build",
+      "grok-build",
     ]);
+    expect(manifest.references?.craftSkills).toBe("emilkowalski/skills");
+    expect(manifest.references?.proofRepo).toBe("sarveshsea/design-sandbox");
 
     for (const target of manifest.targets) {
       const sourcePath = target.sourceBase === "package"

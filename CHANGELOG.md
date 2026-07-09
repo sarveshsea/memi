@@ -10,6 +10,23 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 No unreleased changes.
 
+## v2.4.1 — 2026-07-09 — Marketplace-ready Action + Grok Build kits
+
+Patch release that unblocks GitHub Marketplace listing for the design CI Action and hardens Grok Build (Grok 4.5) agent-kit discovery.
+
+### GitHub Action Marketplace
+- Shortened `action.yml` `description` to ≤125 characters (Marketplace hard limit; `v2.4.0` still carried a 283-char description).
+- Kept branding (`layout` / `purple`) and pinned the default CLI input to `2.4.1`.
+- Documented Marketplace categories (Code quality + Continuous integration) and remaining UI publish steps in `docs/GITHUB_ACTION_MARKETPLACE.md`.
+
+### Grok Build (Grok 4.5)
+- Added `memi agent install grok-build` writing native `.grok/config.toml` (`[mcp_servers.memoire]` per xAI docs), `.grok/skills/`, and an `.agents/skills/` mirror.
+- Raised MCP `startup_timeout_sec` for cold CLI starts; suite manifests enable `grok-build`.
+
+### Skills ecosystem
+- Adapted agent-first packaging patterns from [emilkowalski/skills](https://github.com/emilkowalski/skills): focused skill + REFERENCES companion, skills.sh badge, explicit upstream craft dependency (`npx skills add emilkowalski/skills`) without copying content.
+- Cross-linked memi ↔ MCP ↔ Action ↔ design-sandbox ↔ craft skills in README, `llms.txt`, and agent-kit manifest `references`.
+
 ## v2.4.0 — 2026-07-09 — distribution proof release
 
 The 2.4 line is the distribution-proof release: the npm package, MCP manifest, GitHub release assets, proof repos, and directory submission surfaces now point at the same installable product story.

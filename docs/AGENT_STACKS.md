@@ -28,6 +28,58 @@ Use the brief first when an agent is about to touch UI; it returns evidence comm
 | Codex plugin | `memi agent install codex-plugin` | `~/plugins/memoire` and marketplace entry | Full Codex plugin with MCP wiring. |
 | OpenCode | `memi agent install opencode --project .` | `.opencode/skills/memoire/memoire-design-tooling` | Local workspace skill pack for frontend agents. |
 | Generic MCP client | `memi mcp start --no-figma` | stdio MCP server | Registry-safe design tools without Figma. |
+| Grok Build (Grok 4.5) | `memi agent install grok-build --project .` | `.grok/config.toml` + `.grok/skills/` (+ `.agents/skills/` mirror) | xAI Grok Build CLI with design MCP and skills. |
+
+## Grok Build workflow (Grok 4.5)
+
+```bash
+npm i -g @memi-design/cli
+curl -fsSL https://x.ai/cli/install.sh | bash
+
+cd your-repo
+memi agent install grok-build --project .
+grok inspect
+grok mcp doctor memoire
+memi agent brief . --agent grok-build --intent "Audit this interface" --json
+memi diagnose . --json
+memi ux audit . --json
+memi craft audit . --json
+```
+
+Install writes:
+
+| Path | Purpose |
+| --- | --- |
+| `.grok/config.toml` | Native `[mcp_servers.memoire]` (see [xAI MCP docs](https://docs.x.ai/build/features/mcp-servers)) |
+| `.grok/skills/memoire-design-tooling/` | Native Grok skill discovery |
+| `.agents/skills/memoire-design-tooling/` | Universal Agent Skills mirror |
+| `memoire.agent.yaml` | Suite recipes |
+
+Manual MCP wiring:
+
+```bash
+grok mcp add memoire --scope project -- memi mcp start --no-figma
+```
+
+Headless:
+
+```bash
+grok -p "Run memi agent brief, diagnose, and ux audit. Propose a shadcn-safe UI patch."
+```
+
+Craft dependency (upstream, not bundled):
+
+```bash
+npx skills add emilkowalski/skills
+```
+
+memi owns product-system evidence; [emilkowalski/skills](https://github.com/emilkowalski/skills) owns animation/taste decisions. Pair them rather than reinventing craft rules inside memi.
+
+Recommended AGENTS.md rule:
+
+```text
+Before broad UI edits, run `memi agent brief . --intent "<task>" --agent grok-build --json`, then run the evidence commands from the brief. Use memi MCP tools (diagnose_app_quality, audit_ux_tenets_traps, get_tokens) when connected.
+```
 
 ## ECC workflow
 

@@ -8,6 +8,13 @@
     "status": "memi daemon status --json"
   },
   "mirrorRepository": "sarveshsea/memoire-agent-skills",
+  "references": {
+    "craftSkills": "emilkowalski/skills",
+    "proofRepo": "sarveshsea/design-sandbox",
+    "githubAction": "sarveshsea/memi",
+    "skillsEcosystem": "npx skills add sarveshsea/memi --skill memoire-design-tooling",
+    "grokDocs": "https://docs.x.ai/build/features/mcp-servers"
+  },
   "targets": [
     {
       "id": "universal",
@@ -51,6 +58,24 @@
       "kind": "skill",
       "source": "opencode/memoire-design-tooling",
       "defaultDestination": "<project>/.opencode/skills/memoire/memoire-design-tooling"
+    },
+    {
+      "id": "grok-build",
+      "kind": "skill",
+      "source": "grok-build/memoire-design-tooling",
+      "defaultDestination": "<project>/.grok/skills/memoire-design-tooling"
+    },
+    {
+      "id": "grok-build",
+      "kind": "skill",
+      "source": "grok-build/memoire-design-tooling",
+      "defaultDestination": "<project>/.agents/skills/memoire-design-tooling"
+    },
+    {
+      "id": "grok-build",
+      "kind": "grok-config",
+      "source": "mcp/grok-build/config.toml",
+      "defaultDestination": "<project>/.grok/config.toml"
     }
   ]
 }

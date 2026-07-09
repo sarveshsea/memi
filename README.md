@@ -13,17 +13,52 @@
   <a href="https://www.npmjs.com/package/@memi-design/cli"><img src="https://img.shields.io/npm/v/@memi-design/cli?color=black" alt="npm"></a>
   <a href="https://github.com/sarveshsea/memi/stargazers"><img src="https://img.shields.io/github/stars/sarveshsea/memi?style=social" alt="stars"></a>
   <a href="https://github.com/sarveshsea/memi/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-black.svg" alt="MIT"></a>
+  <a href="https://skills.sh/sarveshsea/memi"><img src="https://skills.sh/b/sarveshsea/memi" alt="skills.sh"></a>
 </p>
 
-memi is a local design intelligence layer for product teams using Codex, Claude Code, Cursor, Hermes, OpenCode, OpenClaw, ECC-style agent stacks, MCP clients, shadcn/ui, Tailwind, Figma, FigJam, interface craft critique, and research-backed UX audits.
+**Package:** [@memi-design/cli](https://www.npmjs.com/package/@memi-design/cli) · **Homepage:** [memoire.cv](https://memoire.cv) · **MCP Registry:** `io.github.sarveshsea/memi`
 
-It turns an app into evidence an agent can use: tokens, components, screenshots, routes, Figma context, UX tenets and traps, interface craft dimensions, user research, Atomic Design specs, shadcn registry items, and repeatable run receipts.
+memi turns a real product codebase into **evidence agents can trust** before they edit UI: tokens, components, routes, screenshots, UX risks, interface craft scores, shadcn registries, research specs, and deterministic CI gates. Works with **Grok Build (Grok 4.5)**, Codex, Claude Code, Cursor, Hermes, OpenCode, OpenClaw, and any MCP client.
 
-Homepage: [memoire.cv](https://memoire.cv)
-Package: [@memi-design/cli on npm](https://www.npmjs.com/package/@memi-design/cli)
-Compatibility: [shadcn registry](https://ui.shadcn.com/docs/registry/getting-started) and [v0 design systems](https://v0.app/docs/design-systems)
+Compatibility: [shadcn registry](https://ui.shadcn.com/docs/registry/getting-started) and [v0 design systems](https://v0.app/docs/design-systems).
 
-## Install and prove it in five minutes
+---
+
+## For agents — start here
+
+```bash
+npm i -g @memi-design/cli
+memi agent brief . --intent "Improve this interface" --json   # preflight contract
+memi diagnose . --json                                          # app-quality graph
+memi ux audit . --json                                          # UX tenets + traps
+memi craft audit . --json                                       # interface craft
+memi tokens --from ./src --report                               # token memory
+memi shadcn export --out public/r                               # registry output
+memi mcp start --no-figma                                       # stdio MCP server
+```
+
+**Policy:** Run memi before broad UI edits. Prefer `diagnose`, `ux audit`, `craft audit`, `tokens`, and MCP tools over visual guessing. Every CI finding cites `file:line` and re-runs identically — no LLM in the enforcement path.
+
+**MCP tools (40+):** `prepare_design_agent_brief`, `diagnose_app_quality`, `audit_ux_tenets_traps`, `audit_interface_craft`, `get_tokens`, `get_shadcn_registry`, `plan_ui_fixes`, `design_doc`, `research_design_package`, `simulation_plan`, `simulation_run`, `check_bridge_health`, and more. Start with `memi mcp start --no-figma`.
+
+**Agent install one-liners:**
+
+| Stack | Command |
+| --- | --- |
+| Grok Build (Grok 4.5) | `memi agent install grok-build --project .` |
+| Cursor | `memi agent install cursor --project .` |
+| Claude Code | `memi agent install claude-code --project .` |
+| Codex | `memi agent install codex && memi agent install codex-plugin` |
+| Universal skills | `memi agent install universal --project .` |
+| skills.sh | `npx skills add sarveshsea/memi --skill memoire-design-tooling` |
+| Craft polish (upstream) | `npx skills add emilkowalski/skills` |
+| All (dry run) | `memi agent install --dry-run --json` |
+
+Machine-readable index: [`llms.txt`](llms.txt)
+
+---
+
+## For humans — five-minute proof
 
 ```bash
 npm i -g @memi-design/cli
@@ -38,82 +73,164 @@ memi agent install universal --project .
 memi mcp start --no-figma
 ```
 
-That loop gives a coding agent enough interface understanding to stop guessing: a design-agent brief, app-quality findings, UX risks, interface craft critique, extracted tokens, registry output, an installable Agent Skills package, and a Figma-independent MCP server.
+That loop gives you a design-agent brief, app-quality findings, UX risks, craft critique, extracted tokens, shadcn registry output, installable Agent Skills, and a Figma-independent MCP server.
 
-## What v2 is
+Public proof repo: [`sarveshsea/design-sandbox`](https://github.com/sarveshsea/design-sandbox) — Next.js 16 + Tailwind 4 + shadcn wired with MCP, skills, and `memoire.agent.yaml`.
 
-Version 2 is the package release that moves memi from a design-system CLI into an agent-native interface-understanding stack.
+---
+
+## Grok Build (Grok 4.5) — recommended setup
+
+Grok Build is xAI's agentic coding CLI powered by Grok 4.5. memi is the design-memory layer that stops Grok from guessing your tokens, components, and UX constraints.
+
+```bash
+npm i -g @memi-design/cli
+curl -fsSL https://x.ai/cli/install.sh | bash   # Grok Build
+
+cd your-repo
+memi agent install grok-build --project .
+grok inspect
+grok mcp doctor memoire
+memi agent brief . --intent "Audit this UI" --agent grok-build --json
+```
+
+What `memi agent install grok-build` writes:
+
+| File | Purpose |
+| --- | --- |
+| `.grok/config.toml` | Native MCP: `memi mcp start --no-figma` |
+| `.grok/skills/memoire-design-tooling/` | Native Grok skill discovery |
+| `.agents/skills/memoire-design-tooling/` | Universal / AGENTS.md skill mirror |
+| `memoire.agent.yaml` | Suite manifest with design-audit recipes |
+
+For animation taste and design-engineering polish, also install Emil Kowalski's craft skills (`npx skills add emilkowalski/skills`) — memi owns system evidence; those skills own motion/taste decisions.
+
+Manual MCP alternative:
+
+```bash
+grok mcp add memoire --scope project -- memi mcp start --no-figma
+```
+
+Headless automation:
+
+```bash
+grok -p "Run memi diagnose and ux audit, then propose a shadcn-safe patch plan."
+```
+
+Grok also loads project `.mcp.json` via compat — `memi agent install claude-code --project .` works as a fallback.
+
+---
+
+## What ships in v2
 
 | Layer | What it does | First command |
 | --- | --- | --- |
-| App quality | Audits real apps for UI debt, state gaps, accessibility risk, Tailwind drift, and UX traps. | `memi diagnose` |
-| Design-agent brief | Creates a cost-aware preflight contract with evidence commands, design rules, compatibility installs, and handoff requirements. | `memi agent brief . --json` |
-| UX audit | Scores UX tenets and trap risks from code, screenshots, routes, or local artifacts. | `memi ux audit --json` |
-| Interface craft | Scores visual design, focusing mechanism, hierarchy, spacing rhythm, conventions, responsive resilience, and user context. | `memi craft audit --json` |
-| Token memory | Extracts CSS variables, Tailwind v4 `@theme`, aliases, modes, repeated literals, and scale issues. | `memi tokens --from ./src --report` |
-| Registry output | Exports shadcn-native registry files that work with shadcn, v0, npm, GitHub, and static hosts. | `memi shadcn export --out public/r` |
-| Agent kits | Installs skills and MCP config for Codex, Claude Code, Cursor, Hermes, OpenCode, OpenClaw, and universal `.agents/skills` stacks. | `memi agent install --dry-run --json` |
-| MCP server | Gives any MCP client Figma-independent design tools over stdio. | `memi mcp start --no-figma` |
-| Research design | Turns research stores and simulation reports into Atomic Design specs and FigJam-ready source. | `memi research design --write-specs --mermaid-jam` |
+| App quality | UI debt, state gaps, a11y risk, Tailwind drift, UX traps | `memi diagnose` |
+| Design-agent brief | Cost-aware preflight with evidence commands and handoff rules | `memi agent brief . --json` |
+| UX audit | UX tenets and trap risks from code, screenshots, or routes | `memi ux audit --json` |
+| Interface craft | Visual hierarchy, spacing rhythm, conventions, responsive resilience | `memi craft audit --json` |
+| Token memory | CSS variables, Tailwind v4 `@theme`, aliases, scale issues | `memi tokens --from ./src --report` |
+| Registry output | shadcn-native registry for shadcn, v0, npm, GitHub | `memi shadcn export --out public/r` |
+| Agent kits | Skills + MCP for Grok Build, Codex, Claude Code, Cursor, Hermes, OpenClaw, OpenCode | `memi agent install --dry-run --json` |
+| MCP server | 40+ design tools over stdio for any MCP client | `memi mcp start --no-figma` |
+| Research design | Research → Atomic Design specs → FigJam-ready source | `memi research design --write-specs --mermaid-jam` |
+| Design CI gate | Deterministic PR gate with SARIF annotations | `memi ci` |
 
-## Why teams install it
+---
 
-Modern UI agents can write code, but they usually do not know the product system. memi gives them the missing context before the patch:
+## Design CI gate (team mandate)
 
-- Which tokens and components already exist.
-- Which routes, states, and screenshots define the current interface.
-- Which UX issues are evidence-backed, not taste.
-- Which interface craft dimensions need stronger hierarchy, rhythm, polish, or conventions.
-- Which shadcn registry items can be exported or installed.
-- Which research evidence should change the spec.
-- Which agent harness should receive which memory.
-- Which artifacts prove the change was safe.
-
-The wedge is simple: run memi before broad frontend work so every agent starts from the product system instead of a blank prompt.
-
-## The mandate loop
-
-v2.3 turns memi from an audit you can run into a gate a team can require. Every finding cites `file:line` and re-runs identically — checkers check, gates gate, and no LLM sits in the enforcement path.
+v2.4 turns memi from an audit you can run into a **gate a team can require**. Every finding cites `file:line` and re-runs identically.
 
 ```bash
-memi init --team     # committed policy + loudly-accepted baseline + gitignore rules + agent kit
-memi ci              # full-tree scan, PR-scoped blame, SARIF annotations, step summary — exit 1 on new debt
+memi init --team     # policy + baseline + gitignore + agent kit
+memi ci              # scan, PR scope, SARIF, step summary — exit 1 on new debt
 memi baseline status # accepted debt stays visible while it burns down
-memi report --badge  # one self-contained design-health.html + SVG badge
+memi report --badge  # design-health.html + SVG badge
 ```
 
-- **Deterministic**: same commit + same `memoire.policy.json` = same result. Scores stamp the policy hash; runs under different rules are reported "not comparable" instead of pretending.
-- **Fair to PRs**: whole-tree stats keep ratio thresholds valid, but a PR is only blamed for files it touched. Aggregate rules gate through score budgets, never per-file blame.
-- **Honest by construction**: baselines suppress loudly (counts in every report), unassessable dimensions say "not-assessed" instead of inventing a score, and every finding carries provenance (`static-scan` today).
+### GitHub Action (Marketplace)
 
-One workflow line wires it into GitHub: `uses: sarveshsea/memi@v2` — SARIF PR annotations, a score summary, and a report artifact. Recipes for every other CI in [docs/CI_RECIPES.md](docs/CI_RECIPES.md); the rollout path for teams in [docs/TEAM_ROLLOUT.md](docs/TEAM_ROLLOUT.md).
+```yaml
+name: design
+on:
+  pull_request:
+    branches: [main]
 
-## Public proof repo
-
-Use [`sarveshsea/design-sandbox`](https://github.com/sarveshsea/design-sandbox) as the reference workspace for memi v2. It is a small Next.js 16 + Tailwind 4 + shadcn repo wired with MCP, Agent Skills, Claude Code subagents, `memoire.agent.yaml`, UX audit commands, token extraction, and no-hex verification.
-
-```bash
-git clone https://github.com/sarveshsea/design-sandbox.git
-cd design-sandbox
-pnpm install
-npm i -g @memi-design/cli
-pnpm memi:agent
-pnpm memi:diagnose
-pnpm memi:ux
-memi craft audit . --json
-pnpm verify
+jobs:
+  design:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: sarveshsea/memi@v2
+        with:
+          version: "2.4.1"
 ```
 
-This is the public "show me how it works in a real repo" path for design engineers, product teams, and agent-stack builders.
+What lands on the PR: **code-scanning annotations** at `file:line`, a **step summary** with score and gate verdict, and a **`memi-design-health` artifact** (HTML + markdown + badge).
+
+Full release checklist: [docs/GITHUB_ACTION_MARKETPLACE.md](docs/GITHUB_ACTION_MARKETPLACE.md) · CI recipes: [docs/CI_RECIPES.md](docs/CI_RECIPES.md) · Team rollout: [docs/TEAM_ROLLOUT.md](docs/TEAM_ROLLOUT.md)
+
+---
+
+## MCP server reference
+
+**Start:** `memi mcp start --no-figma` (Figma-independent; add `memi connect` later for live Figma)
+
+**Registry:** `server.json` → `io.github.sarveshsea/memi` on the [MCP Registry](https://registry.modelcontextprotocol.io)
+
+<details>
+<summary><strong>Core MCP tools</strong></summary>
+
+| Tool | Use when |
+| --- | --- |
+| `prepare_design_agent_brief` | Agent needs a preflight contract before UI edits |
+| `diagnose_app_quality` | App-quality graph, file evidence, issue list |
+| `audit_ux_tenets_traps` | UX tenet scores and trap risks |
+| `audit_interface_craft` | Visual hierarchy, rhythm, conventions, polish |
+| `get_tokens` | Design tokens, modes, aliases, drift |
+| `get_shadcn_registry` | shadcn registry items and install URLs |
+| `plan_ui_fixes` | Prioritized fix plan from diagnosis |
+| `design_doc` | Extract design system from a route or URL |
+| `generate_code` | React + TypeScript + Tailwind from specs |
+| `research_design_package` | Research → design package |
+| `simulation_plan` / `simulation_run` | Product scenario simulations |
+| `check_bridge_health` | Verify Figma bridge before Figma tools |
+
+Figma tools (`pull_design_system`, `capture_screenshot`, `get_selection`, etc.) require `memi connect` or `memi daemon start`.
+
+</details>
+
+**Cursor / Claude Code config** (also Grok compat):
+
+```json
+{
+  "mcpServers": {
+    "memoire": {
+      "command": "memi",
+      "args": ["mcp", "start", "--no-figma"]
+    }
+  }
+}
+```
+
+Install automatically: `memi agent install cursor --project .` or `memi agent install claude-code --project .`
+
+---
 
 ## Agent stack installs
 
 ```bash
 memi suite init --project .
 memi daemon start --project . --port auto
-memi daemon status --json
 memi agent brief . --intent "Improve this interface" --json
 
+memi agent install grok-build --project .   # Grok 4.5 Build CLI
 memi agent install universal --project .
 memi agent install hermes
 memi agent install openclaw --project .
@@ -126,16 +243,16 @@ memi agent install opencode --project .
 npx skills add sarveshsea/memi --skill memoire-design-tooling
 ```
 
-| Stack | Install path | What to use it for |
+| Stack | Install path | Best for |
 | --- | --- | --- |
-| Universal Agent Skills | `.agents/skills/memoire-design-tooling/SKILL.md` | Standard skill package for `.agents/skills` readers and ECC-style AGENTS.md workflows. |
-| Hermes | `~/.hermes/skills/memoire/memoire-design-tooling/SKILL.md` | Transcript-first product design runs with design memory and research context. |
-| OpenClaw | `<workspace>/skills/memoire/memoire-design-tooling/SKILL.md` | Workspace-local design evidence, UI audit, and shadcn registry workflows. |
-| Claude Code | `.mcp.json` | Project MCP config for `memi mcp start --no-figma`. |
-| Cursor | `.cursor/mcp.json` | Cursor MCP config for token, registry, and UX inspection. |
-| Codex skill | `~/.codex/skills/memoire/memoire-design-tooling/SKILL.md` | Skill-only context for design audits and frontend changes. |
-| Codex plugin | `~/plugins/memoire` plus marketplace entry | Full Codex plugin with bundled skill and MCP wiring. |
-| OpenCode | `.opencode/skills/memoire/memoire-design-tooling` | Workspace skill pack for local frontend agents. |
+| **Grok Build** | `.grok/config.toml` + `.grok/skills/` (+ `.agents/skills/` mirror) | Grok 4.5 terminal agent with design MCP |
+| Universal Agent Skills | `.agents/skills/memoire-design-tooling/` | ECC / AGENTS.md workflows |
+| Hermes | `~/.hermes/skills/memoire/` | Transcript-first product design |
+| OpenClaw | `<workspace>/skills/memoire/` | Workspace-local agents |
+| Claude Code | `.mcp.json` | Project MCP approval |
+| Cursor | `.cursor/mcp.json` | Editor-native MCP |
+| Codex plugin | `~/plugins/memoire` | Full Codex plugin + marketplace |
+| OpenCode | `.opencode/skills/memoire/` | Local frontend agents |
 
 Public Codex marketplace install:
 
@@ -143,58 +260,9 @@ Public Codex marketplace install:
 codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire
 ```
 
-Public Claude Code marketplace install:
+Copy-paste workflows: [Agent stack guide](docs/AGENT_STACKS.md) · [Agent recipes](docs/AGENT_RECIPES.md)
 
-```text
-/plugin marketplace add sarveshsea/memi
-/plugin install memi@memi
-```
-
-More copy-paste workflows: [Agent stack guide](docs/AGENT_STACKS.md) and [Agent recipes](docs/AGENT_RECIPES.md).
-
-## Design-agent brief
-
-Use this as the first command when an agent is about to touch UI:
-
-```bash
-memi agent brief . --intent "Polish the onboarding flow" --json
-memi agent brief http://localhost:3000 --intent "Audit the dashboard route" --json
-memi agent brief . --mode research --intent "Design from interview findings" --json
-memi agent brief https://example.com --mode full --agent hermes --intent "Benchmark this interface" --json
-```
-
-The brief is local-first by default. It returns the mission, evidence commands, design rules, cost controls, compatibility installs, MCP command, Agent Skills command, and final handoff checklist. MCP clients can request the same object through `prepare_design_agent_brief`.
-
-## Full interface understanding loop
-
-```bash
-memi agent brief http://localhost:3000 --intent "Improve this route" --json
-memi diagnose http://localhost:3000
-memi ux audit http://localhost:3000 --json
-memi craft audit http://localhost:3000 --json
-memi design-doc http://localhost:3000 --spec
-memi tokens --from ./src --save --report
-memi shadcn doctor
-memi shadcn export --out public/r
-memi suite run design-audit --project . --json
-```
-
-The loop reads code, runtime routes, screenshots, tokens, specs, research memory, and Figma when available. It writes file-backed evidence under `.memoire/`, then agents can use that evidence to plan, implement, and verify UI changes.
-
-Read the full protocol: [Interface Understanding](docs/INTERFACE_UNDERSTANDING.md).
-
-## Research-backed product design
-
-```bash
-memi research synthesize
-memi simulate plan --hypothesis "Evidence-linked acceptance criteria reduce launch risk" --json
-memi simulate run-matrix --adapter local --hypothesis "Faster setup reduces churn" --json
-memi research design --intent "Design an evidence-backed planning board" --json
-memi research design --write-specs --mermaid-jam --json
-memi mermaid-jam export --from research --json
-```
-
-Use this when a product change should be grounded in user research, interviews, survey data, support notes, competitive analysis, or scenario simulations. memi keeps the boundary explicit: research evidence -> design package -> Atomic Design specs -> FigJam-ready source -> codegen only after approval.
+---
 
 ## shadcn registry workflows
 
@@ -203,87 +271,64 @@ memi tokens --from ./src --report
 memi shadcn export --out public/r
 memi publish --name @you/ds
 memi add Button --from @you/ds
-```
-
-Install through shadcn or v0:
-
-```bash
 npx shadcn@latest add https://your-site.com/r/button.json
-memi shadcn serve --port 4014
 ```
 
-Featured example registries live in [examples](examples/README.md), including SaaS, docs, dashboard, auth, AI chat, ecommerce, landing page, and tweakcn-inspired themes.
+Featured examples: [examples/](examples/README.md) — SaaS, dashboard, auth, AI chat, ecommerce, landing pages.
 
-## Figma and FigJam
+---
 
-```bash
-memi connect
-memi pull
-memi tokens
-memi research design --write-specs --mermaid-jam --open --json
-```
+## memi Studio (macOS app)
 
-Figma is optional. Most teams can start with code, screenshots, and routes. When Figma is connected, memi adds token pulls, component inspection, screenshots, and FigJam-ready planning artifacts to the same evidence loop.
-
-## memi Studio
-
-The macOS app lives in [sarveshsea/memi-studio](https://github.com/sarveshsea/memi-studio). This npm package owns the engine/runtime it embeds: MCP tools, agent kits, harness metadata, project memory, the Figma bridge, research workflows, and local Studio web/TUI compatibility.
-
-```bash
-memi studio web --port 1422
-memi studio tui
-memi studio logs --follow
-memi studio run --harness codex --action design-doc --prompt "Audit this UI and generate a design spec"
-```
-
-Install the signed app:
+Native shell in [sarveshsea/memi-studio](https://github.com/sarveshsea/memi-studio). This npm package is the engine it embeds.
 
 ```bash
 brew install --cask sarveshsea/memi/memi-studio
+memi studio web --port 1422
 ```
 
-Studio interface references and adapted components are documented in [NOTICE](NOTICE). The public reference set includes Hermes WebUI, Hermes Agent, and the MIT Warp UI framework boundary around `warpui_core` and `warpui`; Warp AGPL application/client code is not copied into memi.
+---
 
 ## What ships in the package
 
-| Path | Why it is included |
+| Path | Why |
 | --- | --- |
-| `dist/` | CLI and MCP runtime. |
-| `server.json` | Official MCP Registry descriptor for `io.github.sarveshsea/memi`. |
-| `skills/memoire-design-tooling/` | Standard Agent Skills package for `npx skills add`. |
-| `agent-kits/` | Native kit templates for Hermes, OpenClaw, Codex, OpenCode, Claude Code, Cursor, and universal skills. |
-| `plugins/memoire/` | Codex plugin bundle and skill wiring. |
-| `plugin/` | Explicit Figma plugin assets, installed only through user commands. |
-| `notes/` | Built-in research, agent, design, and integration notes. |
-| `docs/` | Package docs for interface understanding, agent stacks, release gates, and growth operations. |
-| `assets/` | Registry catalog and visual proof assets. |
+| `dist/` | CLI + MCP runtime |
+| `server.json` | MCP Registry descriptor |
+| `skills/memoire-design-tooling/` | Standard Agent Skills package |
+| `agent-kits/` | Grok Build, Hermes, Codex, Cursor, Claude Code, OpenCode, OpenClaw kits |
+| `plugins/memoire/` | Codex plugin bundle |
+| `notes/` | Built-in research, agent, and design notes |
+| `docs/` | Interface understanding, CI, growth, release gates |
+| `action.yml` | GitHub Action for design CI (`sarveshsea/memi@v2`) |
+
+---
 
 ## Trust defaults
 
-- No npm install-time lifecycle scripts.
-- Figma plugin installation is explicit with `memi setup plugin`.
-- The default packaged Figma plugin disables raw JavaScript execution.
-- MCP startup has a Figma-independent mode: `memi mcp start --no-figma`.
-- Agent kit installs support `--dry-run --json` before writing files.
-- Public package gates check release metadata, tarball size, production audit, MCP smoke, Codex plugin smoke, skills install discovery, and npm publish dry-run.
+- No npm install-time lifecycle scripts
+- Figma plugin install is explicit: `memi setup plugin`
+- MCP Figma-independent mode: `memi mcp start --no-figma`
+- Agent kit installs support `--dry-run --json` before writing files
+- Publish gates: release metadata, tarball size, MCP smoke, skills discovery, npm audit
+
+---
 
 ## Docs map
 
-| Start here | When you need |
+| Doc | When you need it |
 | --- | --- |
-| [Quickstart](docs/README.md) | The shortest path from install to proof. |
-| [Team Rollout](docs/TEAM_ROLLOUT.md) | Zero to a shared, enforced design gate: policy, baseline, CI, debt burn-down. |
-| [CI Recipes](docs/CI_RECIPES.md) | `memi ci`, the GitHub Action, SARIF annotations, and non-GitHub CI wiring. |
-| [Private Registry](docs/PRIVATE_REGISTRY.md) | Ship your design system on infra you control; DTCG token interop. |
-| [Interface Understanding](docs/INTERFACE_UNDERSTANDING.md) | The full evidence loop for UI agents. |
-| [Agent Stacks](docs/AGENT_STACKS.md) | ECC, Hermes, OpenClaw, Codex, Claude Code, Cursor, OpenCode, MCP, and skills workflows. |
-| [Agent Recipes](docs/AGENT_RECIPES.md) | Copy-paste prompts and setup commands. |
-| [Examples](examples/README.md) | Installable registry examples and preset catalogs. |
-| [Public Repos](docs/PUBLIC_REPOS.md) | Public proof repos, hashtags, GitHub topics, and distribution surfaces. |
-| [v2 Positioning](docs/V2_PACKAGE_POSITIONING.md) | Category, distribution, and package-quality strategy. |
-| [Growth to 1M](docs/GROWTH_TO_1M_NPM.md) | Operating plan for npm growth. |
-| [Release Gates](docs/RELEASE_GATES.md) | Publish and public-release checks. |
-| [Proof](docs/PROOF.md) | No-Figma proof examples. |
+| [Quickstart](docs/README.md) | Shortest install → proof path |
+| [GitHub Action Marketplace](docs/GITHUB_ACTION_MARKETPLACE.md) | Publish `memi design CI` to Marketplace |
+| [Team Rollout](docs/TEAM_ROLLOUT.md) | Policy, baseline, CI, debt burn-down |
+| [CI Recipes](docs/CI_RECIPES.md) | GitHub Action, SARIF, non-GitHub CI |
+| [Agent Stacks](docs/AGENT_STACKS.md) | Grok Build, Codex, Claude Code, Cursor, MCP |
+| [Interface Understanding](docs/INTERFACE_UNDERSTANDING.md) | Full evidence loop |
+| [Growth to 1M](docs/GROWTH_TO_1M_NPM.md) | npm downloads + GitHub stars strategy |
+| [v2 Positioning](docs/V2_PACKAGE_POSITIONING.md) | Category and distribution |
+| [Public Repos](docs/PUBLIC_REPOS.md) | Proof repos, topics, hashtags |
+
+---
 
 ## Full command reference
 
@@ -292,41 +337,34 @@ Studio interface references and adapted components are documented in [NOTICE](NO
 
 | Command | What it does |
 | --- | --- |
-| `memi init --team` | One-command shared design gate: policy, baseline, gitignore, agent kit. |
-| `memi ci` | CI design gate: scan, PR scope, baseline filter, SARIF + step summary. |
-| `memi baseline accept|status` | Accept existing debt loudly; watch it burn down. |
-| `memi report --badge` | Compose one self-contained design-health artifact + SVG badge. |
-| `memi diagnose [target]` | Diagnose UI debt from code, route, or URL. |
-| `memi ux audit [target]` | Audit UX tenet coverage and trap risks. |
-| `memi craft audit [target]` | Audit interface craft across visual design, hierarchy, conventions, and user context. |
-| `memi tokens --from <path-or-url>` | Extract tokens, modes, aliases, repeated literal candidates, and reports. |
-| `memi shadcn export --out public/r` | Export shadcn registry files. |
-| `memi design-doc <url>` | Extract a design system from a route or public URL. |
-| `memi spec <type> <name>` | Create component, page, dataviz, design, or IA specs. |
-| `memi generate [name]` | Generate React + TypeScript + Tailwind from specs. |
-| `memi research synthesize` | Synthesize research data into themes and personas. |
-| `memi research design` | Generate research-backed design packages and specs. |
-| `memi simulate <subcommand>` | Run product scenario simulations. |
-| `memi mermaid-jam export` | Write FigJam-ready Mermaid/markdown source. |
-| `memi agent install [target]` | Install agent kits and MCP config. |
-| `memi mcp start --no-figma` | Start the MCP server for registry-safe clients. |
-| `memi suite init|doctor|run` | Manage `memoire.agent.yaml` and product-team recipes. |
-| `memi daemon start|status|stop` | Warm shared local runtime context. |
-| `memi studio web|tui|logs|run` | Run the local Studio compatibility surfaces. |
+| `memi init --team` | Shared design gate: policy, baseline, gitignore, agent kit |
+| `memi ci` | CI design gate: scan, PR scope, baseline, SARIF + summary |
+| `memi baseline accept\|status` | Accept existing debt; watch burn-down |
+| `memi report --badge` | Design-health artifact + SVG badge |
+| `memi diagnose [target]` | UI debt from code, route, or URL |
+| `memi ux audit [target]` | UX tenets and trap risks |
+| `memi craft audit [target]` | Interface craft dimensions |
+| `memi tokens --from <path>` | Extract tokens, modes, aliases, drift |
+| `memi shadcn export --out public/r` | Export shadcn registry |
+| `memi design-doc <url>` | Design system from route or URL |
+| `memi agent install [target]` | Install agent kits (grok-build, cursor, codex, …) |
+| `memi mcp start --no-figma` | Start MCP server |
+| `memi suite init\|doctor\|run` | `memoire.agent.yaml` and recipes |
+| `memi daemon start\|status\|stop` | Warm local runtime context |
+| `memi studio web\|tui\|logs\|run` | Studio compatibility surfaces |
 
 </details>
+
+---
 
 ## Install without npm
 
 ```bash
 curl -fsSL https://memoire.cv/install.sh | sh
-irm https://memoire.cv/install.ps1 | iex
 brew install sarveshsea/memi/memoire
 docker run --rm -it -v "$PWD:/work" -w /work ghcr.io/sarveshsea/memi --help
 ```
 
-Manual archives are attached to [GitHub Releases](https://github.com/sarveshsea/memi/releases/latest). Keep `skills/`, `notes/`, `plugin/`, and runtime resources next to the binary because memi loads them at runtime.
-
 ## License
 
-MIT. See [NOTICE](NOTICE) for Studio interface references, optional adapters, and attribution notes.
+MIT. See [NOTICE](NOTICE) for Studio interface references and attribution.

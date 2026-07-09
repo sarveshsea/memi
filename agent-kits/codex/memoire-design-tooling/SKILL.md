@@ -61,6 +61,7 @@ memi add Button --from @you/ds
 
 ```bash
 memi agent install universal --project .
+memi agent install grok-build --project .
 memi agent install hermes
 memi agent install openclaw --project .
 memi agent install claude-code --project .
@@ -69,9 +70,22 @@ memi agent install codex
 memi agent install codex-plugin
 memi agent install opencode --project .
 npx skills add sarveshsea/memi --skill memoire-design-tooling
+npx skills add emilkowalski/skills
 ```
 
 Use `memi agent install --dry-run --json` before writing kit files in shared repositories.
+
+**Dependency graph:** memi owns product-system evidence (tokens, audits, CI). For animation taste and design-engineering polish, depend on [emilkowalski/skills](https://github.com/emilkowalski/skills) rather than reinventing craft rules. Proof workspace: [sarveshsea/design-sandbox](https://github.com/sarveshsea/design-sandbox). Design CI Action: `uses: sarveshsea/memi@v2`.
+
+## Review Format (UI diffs)
+
+When reviewing UI against memi evidence, prefer a markdown table:
+
+| Finding | Evidence | Fix |
+| --- | --- | --- |
+| Raw hex in Button | `memi tokens` / diagnose | Map to design token |
+| Missing focus ring | `memi ux audit` | Restore focus styles |
+| Hierarchy collapse | `memi craft audit` | One clear focal element |
 
 ## Output Artifacts To Cite
 
@@ -94,3 +108,4 @@ Use `memi agent install --dry-run --json` before writing kit files in shared rep
 - Skipping interface craft checks, then relying on taste for hierarchy, rhythm, polish, or conventions.
 - Installing agent kits without a dry run in a shared workspace.
 - Skipping the design-agent brief, then guessing which evidence, agent stack, or cost mode applies.
+- Reinventing animation craft rules instead of depending on proven upstream skills (e.g. `emilkowalski/skills`).

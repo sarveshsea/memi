@@ -188,6 +188,7 @@ function buildCompatibilityInstalls(agent: string): string[] {
     "memi agent install cursor --project .",
     "memi agent install codex",
     "memi agent install codex-plugin",
+    "memi agent install grok-build --project .",
     "memi agent install opencode --project .",
     "memi agent install openclaw --project .",
     "memi agent install hermes",
