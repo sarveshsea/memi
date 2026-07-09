@@ -11,7 +11,7 @@ inputs:
   version:
     description: "Pinned @memi-design/cli version. Deliberately not 'latest': gate behavior must not change under a team without a reviewed bump."
     required: false
-    default: "2.4.0"
+    default: "2.4.1"
   fail-on:
     description: "Override the policy gate severity (critical|high|medium|low|none). Empty = use memoire.policy.json."
     required: false

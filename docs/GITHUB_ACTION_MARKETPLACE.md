@@ -84,13 +84,11 @@ jobs:
           fetch-depth: 0
       - uses: sarveshsea/memi@v2.4.1
         with:
-          version: "2.4.0"
+          version: "2.4.1"
           # fail-on: high
           # report: "true"
           # upload-sarif: "false"   # forks without security-events
 ```
-
-> Note: Action tag `v2.4.1` is Marketplace-ready. The Action's default `version` input installs the currently published npm CLI (`2.4.0`) until `@memi-design/cli@2.4.1` is on the registry.
 
 ## Verify locally before release
 
