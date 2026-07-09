@@ -128,7 +128,7 @@ The handoff remains inspectable.
 - [ ] Verify npm install smoke with `npm run check:public-release`.
 - [ ] Republish `server.json` to the MCP Registry after auth refresh.
 - [ ] Create GitHub tag/release `v2.4.0`.
-- [ ] Push and verify `sarveshsea/design-sandbox`.
-- [x] Confirm homepage still shows Studio `2.4.0`, npm latest, and the macOS download.
+- [x] Push and verify `sarveshsea/design-sandbox`.
+- [ ] Confirm homepage shows npm latest `2.4.0`, Studio `2.4.0`, and the macOS download after publish.
 - [ ] Submit Product Hunt with the exact name, tagline, description, and CTA above.
 - [ ] Post the main launch thread and one engine-underneath reply.

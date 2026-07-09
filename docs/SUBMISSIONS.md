@@ -49,10 +49,10 @@ brew install --cask sarveshsea/memi/memi-studio
 | P0 | npm | CLI distribution | `@memi-design/cli@2.4.0` release candidate | Run the one-line npm publish command |
 | P0 | GitHub Releases | Traceability | `v2.4.0` release target | Link release in directory follow-ups |
 | P0 | Codex plugin | Agent distribution | Sparse checkout smoke passes locally | Keep marketplace command in launch replies |
-| P0 | design-sandbox | Public proof repo | Local clone updated for memi v2 | Link as the runnable example for design engineers |
-| P1 | Glama / MCP directories | MCP discovery | Some listings still use Memoire-era copy | Refresh to memi workbench + design-memory engine copy |
-| P1 | Awesome MCP lists | Ecosystem discovery | Several older PRs merged/open | Refresh only where maintainers accept updates |
-| P1 | shadcn / v0 communities | Engine proof | Secondary to Product Hunt | Share CLI workflow after launch spike |
+| P0 | design-sandbox | Public proof repo | Pushed with `pnpm verify` proof loop | Link as the runnable example for design engineers |
+| P1 | Glama / MCP directories | MCP discovery | mcp.so submitted; Glama/Smithery still need owner UI/API action after registry refresh | Refresh to memi workbench + design-memory engine copy |
+| P1 | Awesome MCP lists | Ecosystem discovery | New update PRs opened for largest stale listings | Follow up only for maintainer requests or new 2.4 proof |
+| P1 | shadcn / v0 communities | Engine proof | shadcn list PR opened with raw registry proof | Share CLI workflow after launch spike |
 | P2 | Hacker News | Launch | Draft | Post only after Product Hunt assets are stable |
 | P2 | Reddit `r/mcp` | Community | Draft | Share practical MCP setup, not launch hype |
 | P2 | Dev.to / Hashnode | Tutorial | Draft | Write Studio + CLI walkthrough |
@@ -133,15 +133,31 @@ https://github.com/sarveshsea/memi
 https://github.com/sarveshsea/design-sandbox
 ```
 
+## Live Distribution Links
+
+| Surface | Link | Status |
+| --- | --- | --- |
+| design-sandbox proof repo | https://github.com/sarveshsea/design-sandbox | Pushed; pre-publish verification passes with local `MEMI_BIN` |
+| design-sandbox raw shadcn registry | https://raw.githubusercontent.com/sarveshsea/design-sandbox/main/public/r/registry.json | Public proof artifact |
+| mcp.so submission | https://github.com/chatmcp/mcpso/issues/1#issuecomment-4920418945 | Submitted with npm, MCP Registry, proof repo, and shadcn registry links |
+| `punkpeye/awesome-mcp-servers` refresh | https://github.com/punkpeye/awesome-mcp-servers/pull/9678 | Open update from stale `m-moire` entry to `memi` |
+| `toolsdk-ai/toolsdk-mcp-registry` refresh | https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/391 | Open update from `@sarveshsea/memoire` to `@memi-design/cli` |
+| `birobirobiro/awesome-shadcn-ui` refresh | https://github.com/birobirobiro/awesome-shadcn-ui/pull/538 | Open update from `memoire` to `memi` with registry proof |
+| `YuzeHao2023/Awesome-MCP-Servers` proof comment | https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/208#issuecomment-4920420199 | Refreshed with 2.4 proof links |
+| `MobinX/awesome-mcp-list` proof comment | https://github.com/MobinX/awesome-mcp-list/pull/241#issuecomment-4920420336 | Refreshed with 2.4 proof links |
+| `bytefer/awesome-shadcn-ui` proof comment | https://github.com/bytefer/awesome-shadcn-ui/pull/18#issuecomment-4920420432 | Refreshed with 2.4 proof links |
+
 ## Submission Checklist
 
 - [ ] Publish npm `2.4.0`.
 - [ ] Verify `npm run check:public-release`.
 - [ ] Republish `server.json` to the Official MCP Registry.
 - [ ] Create GitHub tag/release `v2.4.0`.
-- [ ] Push the updated `sarveshsea/design-sandbox` proof repo.
+- [x] Push the updated `sarveshsea/design-sandbox` proof repo.
 - [ ] Submit Product Hunt.
 - [ ] Post X/Twitter launch thread.
-- [ ] Refresh Glama/MCP directory copy where editable.
+- [x] Submit mcp.so with current registry, proof repo, and package links.
+- [x] Refresh stale MCP and shadcn directory PRs where editable.
+- [ ] Refresh Glama/Smithery/MCP directory copy where owner UI/API action is required after registry refresh.
 - [ ] Post practical MCP setup to `r/mcp`.
 - [ ] Publish Studio + CLI tutorial.
