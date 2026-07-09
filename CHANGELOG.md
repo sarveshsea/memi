@@ -16,7 +16,7 @@ Patch release that unblocks GitHub Marketplace listing for the design CI Action 
 
 ### GitHub Action Marketplace
 - Shortened `action.yml` `description` to ≤125 characters (Marketplace hard limit; `v2.4.0` still carried a 283-char description).
-- Kept branding (`layout` / `purple`) and pinned the default CLI input to `2.4.1`.
+- Kept branding (`layout` / `purple`). Default Action input `version` stays on published npm `@memi-design/cli@2.4.0` until the `2.4.1` npm publish lands; consumers should use Action tag `v2.4.1` / `v2`.
 - Documented Marketplace categories (Code quality + Continuous integration) and remaining UI publish steps in `docs/GITHUB_ACTION_MARKETPLACE.md`.
 
 ### Grok Build (Grok 4.5)

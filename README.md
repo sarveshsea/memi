@@ -169,7 +169,7 @@ jobs:
           fetch-depth: 0
       - uses: sarveshsea/memi@v2
         with:
-          version: "2.4.1"
+          version: "2.4.0"
 ```
 
 What lands on the PR: **code-scanning annotations** at `file:line`, a **step summary** with score and gate verdict, and a **`memi-design-health` artifact** (HTML + markdown + badge).
