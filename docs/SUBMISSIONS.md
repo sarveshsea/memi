@@ -45,9 +45,9 @@ brew install --cask sarveshsea/memi/memi-studio
 | Priority | Target | Lane | Status | Next action |
 | --- | --- | --- | --- | --- |
 | P0 | Product Hunt | Launch | Ready after current surfaces stay green | Submit with Studio-first copy and engine-underneath reply |
-| P0 | Official MCP Registry | MCP directory | Listed for `io.github.sarveshsea/memi@2.3.1` | Use as trust proof in MCP directory refreshes |
-| P0 | npm | CLI distribution | `@memi-design/cli@2.3.1` live | Keep public release gate green after web deploys |
-| P0 | GitHub Releases | Traceability | `v2.3.1` tag/release exists | Link release in directory follow-ups |
+| P0 | Official MCP Registry | MCP directory | Ready for `io.github.sarveshsea/memi@2.4.0` after npm publish | Use as trust proof in MCP directory refreshes |
+| P0 | npm | CLI distribution | `@memi-design/cli@2.4.0` release candidate | Run the one-line npm publish command |
+| P0 | GitHub Releases | Traceability | `v2.4.0` release target | Link release in directory follow-ups |
 | P0 | Codex plugin | Agent distribution | Sparse checkout smoke passes locally | Keep marketplace command in launch replies |
 | P0 | design-sandbox | Public proof repo | Local clone updated for memi v2 | Link as the runnable example for design engineers |
 | P1 | Glama / MCP directories | MCP discovery | Some listings still use Memoire-era copy | Refresh to memi workbench + design-memory engine copy |
@@ -135,10 +135,10 @@ https://github.com/sarveshsea/design-sandbox
 
 ## Submission Checklist
 
-- [x] Publish npm `2.3.1`.
-- [x] Verify `npm run check:public-release`.
-- [x] Republish `server.json` to the Official MCP Registry.
-- [x] Create GitHub tag/release `v2.3.1`.
+- [ ] Publish npm `2.4.0`.
+- [ ] Verify `npm run check:public-release`.
+- [ ] Republish `server.json` to the Official MCP Registry.
+- [ ] Create GitHub tag/release `v2.4.0`.
 - [ ] Push the updated `sarveshsea/design-sandbox` proof repo.
 - [ ] Submit Product Hunt.
 - [ ] Post X/Twitter launch thread.

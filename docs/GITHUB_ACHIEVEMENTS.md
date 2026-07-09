@@ -16,9 +16,9 @@ This tracker keeps achievement work tied to real memi distribution. The goal is 
 | --- | --- | --- |
 | memi repo stars | 17 | Base Starstruck tier crossed; grow through useful launches and directory distribution |
 | memi discussions | Enabled on GitHub | `Q&A` and `Show and tell` are active; add `Registry help` and `MCP setup` in repository settings |
-| npm latest | 2.3.1 | Keep npm, site, GitHub release, and registry surfaces synchronized |
-| GitHub release | `v2.3.1` created | Use release URL in directory follow-ups when traceability matters |
-| MCP Registry | Current at `2.3.1` | Use registry proof in directory refreshes |
+| npm release target | 2.4.0 | Keep npm, site, GitHub release, and registry surfaces synchronized |
+| GitHub release | `v2.4.0` target | Use release URL in directory follow-ups when traceability matters |
+| MCP Registry | Ready for 2.4.0 refresh | Use registry proof in directory refreshes after npm publish |
 | SafeSkill PR | Open with blocked badge | Do not merge until the score improves or findings are addressed |
 | Sandbox repo | `sarveshsea/memoire-achievements-lab` | Use only for harmless workflow checks |
 | GitHub metadata | Updated to v2 interface-understanding copy | Keep npm, README, and directory copy aligned |
@@ -48,11 +48,11 @@ Immediate sequence:
 
 ## Official MCP Registry Readiness
 
-The official MCP Registry verifies npm package ownership through `package.json#mcpName`. npm `2.3.1` and `server.json` agree on the MCP name and package identifier.
+The official MCP Registry verifies npm package ownership through `package.json#mcpName`. The local 2.4.0 package candidate and `server.json` agree on the MCP name and package identifier; publish the registry entry after npm latest is 2.4.0.
 
 - `package.json#mcpName`: `io.github.sarveshsea/memi`
 - `server.json#name`: `io.github.sarveshsea/memi`
-- `server.json#version`: `2.3.1`
+- `server.json#version`: `2.4.0`
 - `server.json#packages[0].identifier`: `@memi-design/cli`
 - `server.json#packages[0].packageArguments`: `mcp start --no-figma`
 

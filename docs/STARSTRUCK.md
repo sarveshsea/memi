@@ -8,11 +8,11 @@ Goal: keep GitHub growth tied to useful memi distribution. The base Starstruck t
 | --- | --- | --- |
 | GitHub stars | `17` | Starstruck base tier crossed; next visible tier is `128` |
 | GitHub description | Updated | `Interface understanding and design-system memory for AI coding agents.` |
-| npm latest | `2.3.1` | Live on npm with `mcpName: io.github.sarveshsea/memi` |
-| npm downloads | `783` weekly, `1,306` monthly | Latest complete npm windows on 2026-07-08 |
+| npm release target | `2.4.0` | Local release candidate; npm latest remains `2.3.1` until publish |
+| npm downloads | `783` weekly, `1,306` monthly | Latest complete npm windows ending 2026-07-05 |
 | 10x npm checkpoint | `7,830` weekly, `13,060` monthly | First growth target from the 2026-07-08 baseline |
-| Official MCP Registry | Current | Registry latest is `2.3.1` after the 2026-07-08 OIDC publish workflow |
-| `memoire.cv` | Synced | Public release gate passes against npm, site, changelog, Studio `2.4.0`, and five community Notes |
+| Official MCP Registry | Ready for 2.4.0 refresh | Publish after npm latest is `2.4.0`; current live registry is `2.3.1` |
+| `memoire.cv` | Ready for 2.4.0 sync | Public release gate should pass after npm publish and web deploy |
 | Open shadcn PRs | `1` | `bytefer/awesome-shadcn-ui#18`; `birobirobiro/awesome-shadcn-ui#493` merged |
 | Open MCP PRs | `3` | TensorBlock, YuzeHao2023, and MobinX remain open; toolsdk merged |
 
@@ -29,7 +29,7 @@ Do not ask for fake stars, star swaps, or bot engagement. The ask must sit after
 
 ## First Move: Seed Proof Repos
 
-The official MCP Registry now lists `io.github.sarveshsea/memi@2.3.1`. Use that verified registry state as the trust link for directory refreshes and proof repos.
+After npm publish and MCP Registry refresh, use `io.github.sarveshsea/memi@2.4.0` as the trust link for directory refreshes and proof repos.
 
 Recheck before directory follow-up:
 
@@ -43,7 +43,7 @@ Why this matters: the official registry is a trust anchor for downstream MCP dir
 
 | Priority | Target | Why it matters | Route | Status |
 | --- | --- | --- | --- | --- |
-| P0 | Official MCP Registry | Trust anchor for downstream MCP aggregators | `mcp-publisher publish server.json` | Current at `2.3.1` |
+| P0 | Official MCP Registry | Trust anchor for downstream MCP aggregators | `mcp-publisher publish server.json` | Ready for 2.4.0 after npm publish |
 | P0 | MCP.Directory | Direct MCP discovery surface | `https://mcp.directory/submit` | Ready to refresh with registry proof |
 | P0 | Glama | Already indexes Memoire | Claim/update listing after registry refresh | Ready |
 | P0 | Smithery | Distribution, analytics, and config UI for MCP servers | `smithery.ai/new` or `smithery mcp publish` | Requires URL/MCPB decision |

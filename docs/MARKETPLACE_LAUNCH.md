@@ -1,13 +1,13 @@
 # Marketplace Launch Campaign
 
-Use these posts after `0.13.1` is published and npm latest verifies. Keep every link pointed at npm until `https://www.memoire.cv/components` is deployed and healthy.
+Use these posts after `2.4.0` is published and npm latest verifies. Keep every link pointed at npm until `https://www.memoire.cv/components` is deployed and healthy.
 
 Primary link: `https://www.npmjs.com/package/@memi-design/cli`
 
 ## Master Marketplace Post
 
 ```text
-Memoire 0.13.1 adds a first-party shadcn registry marketplace.
+memi 2.4.0 ships the distribution-proof shadcn registry marketplace.
 
 Install registries for:
 - SaaS app shells

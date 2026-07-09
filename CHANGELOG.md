@@ -10,6 +10,21 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 No unreleased changes.
 
+## v2.4.0 — 2026-07-09 — distribution proof release
+
+The 2.4 line is the distribution-proof release: the npm package, MCP manifest, GitHub release assets, proof repos, and directory submission surfaces now point at the same installable product story.
+
+### Release assets
+- Hardened the tag-triggered release binary workflow with a single full Ubuntu release gate, deterministic `npm ci --include=optional --ignore-scripts` installs on every platform, and duplicated audit-gate skipping only inside platform binary jobs.
+- Added a regression test for the binary workflow so Windows and Intel macOS release jobs keep the optional native package and audit-gate behavior that `v2.3.1` was missing.
+
+### Distribution proof
+- Bumped the public npm/MCP package metadata to `2.4.0` and synchronized generated shadcn registry metadata, widget metadata, and release docs.
+- Made `v2.4.0` the version to use for the design-sandbox proof repo, MCP directory refreshes, Agent Skills seeding, shadcn examples, and AI coding starter-template submissions.
+
+### Growth loop
+- The launch target is no longer "publish and announce"; it is "publish, prove in runnable repos, then seed into package and agent directories." The weekly 10x checkpoint remains 7,830 npm downloads.
+
 ## v2.3.1 — 2026-07-07 — studio design-audit routes
 
 Patch release syncing npm with main: the Studio sidecar server now exposes the design-audit engine over HTTP so memi Studio's native Design Health surface can drive it.
