@@ -23,6 +23,10 @@ describe("release binary workflow", () => {
     );
 
     expect(workflow).toContain("npm ci --include=optional --ignore-scripts");
+    expect(workflow).toContain("esbuildPackage: darwin-x64");
+    expect(workflow).toContain("esbuildPackage: win32-x64");
+    expect(workflow).toContain("ESBUILD_VERSION=\"$(node -p \"require('./node_modules/vite/node_modules/esbuild/package.json').version\")\"");
+    expect(workflow).toContain('npm install --no-save --package-lock=false --ignore-scripts "@esbuild/${{ matrix.esbuildPackage }}@${ESBUILD_VERSION}"');
     expect(workflow).toContain("SKIP_AUDIT_GATE: \"1\"");
   });
 });
