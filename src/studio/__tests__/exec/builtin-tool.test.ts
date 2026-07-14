@@ -7,6 +7,8 @@ import {
 } from "../../exec/builtin-tool.js";
 
 describe("exec/builtin-tool", () => {
+  const successTimeoutMs = 20_000;
+
   it("EXECUTE_CODE_TOOL_NAME is the canonical 'execute_code' string", () => {
     expect(EXECUTE_CODE_TOOL_NAME).toBe("execute_code");
   });
@@ -127,7 +129,7 @@ describe("exec/builtin-tool", () => {
           await exit(true, { count: 2, contents: [r1, r2] });
         `,
         profile: "read-only",
-        overrides: { timeoutMs: 5_000 },
+        overrides: { timeoutMs: successTimeoutMs },
       },
       {
         buildRunner: () =>

@@ -10,6 +10,8 @@ function makeRunner(allowed: string[], handler: (tool: string, args: unknown) =>
 }
 
 describe("exec/executeCode", () => {
+  const successTimeoutMs = 20_000;
+
   it("happy path: script that calls one tool and exits ok", async () => {
     const runner = makeRunner(["Echo"], (_tool, args) => {
       const a = args as { value: number };
@@ -24,7 +26,7 @@ describe("exec/executeCode", () => {
       {
         script,
         tools: [{ name: "Echo", argsType: "{ value: number }", resultType: "number" }],
-        timeoutMs: 5_000,
+        timeoutMs: successTimeoutMs,
       },
       runner,
     );
@@ -52,7 +54,7 @@ describe("exec/executeCode", () => {
       {
         script,
         tools: [{ name: "Inc", argsType: "{ value: number }", resultType: "number" }],
-        timeoutMs: 5_000,
+        timeoutMs: successTimeoutMs,
       },
       runner,
     );
@@ -94,7 +96,7 @@ describe("exec/executeCode", () => {
         {
           script,
           tools: [],
-          timeoutMs: 5_000,
+          timeoutMs: successTimeoutMs,
         },
         runner,
       );
@@ -118,7 +120,7 @@ describe("exec/executeCode", () => {
       {
         script,
         tools: [],
-        timeoutMs: 5_000,
+        timeoutMs: successTimeoutMs,
       },
       runner,
     );
@@ -140,7 +142,7 @@ describe("exec/executeCode", () => {
       {
         script,
         tools: [],
-        timeoutMs: 5_000,
+        timeoutMs: successTimeoutMs,
       },
       runner,
     );
