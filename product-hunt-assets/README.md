@@ -15,5 +15,5 @@ Real Studio captures used for the gallery live in `source-captures-v2/`.
 ## Launch Copy
 
 - Product: memi
-- Tagline: AI workbench for product designers
+- Tagline: Agent design CI for AI coding agents
 - Homepage: https://www.memoire.cv

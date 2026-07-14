@@ -17,17 +17,18 @@ curl -fsSL https://x.ai/cli/install.sh | bash
 memi agent install grok-build --project .
 grok inspect
 grok mcp doctor memoire
-memi agent brief . --intent "Improve this interface" --agent grok-build --json
+memi agent brief . --intent "Improve this interface" --agent grok-build --detail compact --json
 memi diagnose . --json
 memi ux audit . --json
 memi craft audit . --json
 memi tokens --from ./src --report
+memi scaffold component EvidenceCard --level organism --json
 ```
 
 Headless Grok Build with memi evidence:
 
 ```bash
-grok -p "Run memi agent brief . --json, then diagnose and ux audit. Propose a UI patch plan grounded in the evidence."
+grok -p "Run memi agent brief . --detail compact --json, diagnose, ux audit, and a memi scaffold dry run before proposing UI file changes."
 ```
 
 ## What install writes
@@ -54,11 +55,12 @@ Grok also loads project `.mcp.json` and `.cursor/mcp.json` via compat (lower pri
 ## Interface understanding protocol
 
 1. Read local instructions: `AGENTS.md`, README, `.memoire/`, specs, tokens, and `memoire.agent.yaml`.
-2. Run `memi agent brief . --intent "<task>" --agent grok-build --json` as the preflight contract.
+2. Run `memi agent brief . --intent "<task>" --agent grok-build --detail compact --json` as the preflight contract.
 3. Collect evidence with `memi diagnose`, `memi ux audit --json`, `memi craft audit --json`, and `memi tokens --from ./src --report`.
-4. Use MCP tools (`diagnose_app_quality`, `audit_ux_tenets_traps`, `audit_interface_craft`, `prepare_design_agent_brief`, `get_tokens`, `get_shadcn_registry`) when the memi MCP server is connected.
-5. Prefer shadcn/ui primitives and Tailwind tokens over one-off colors.
-6. Map changes to Atomic Design levels and cite verification commands in the handoff.
+4. Preview file creation with `memi scaffold component <Name> --level <level> --json` or the MCP `scaffold_agent_design_files` tool before writes.
+5. Use MCP tools (`diagnose_app_quality`, `audit_ux_tenets_traps`, `audit_interface_craft`, `prepare_design_agent_brief`, `scaffold_agent_design_files`, `get_tokens`, `get_shadcn_registry`) when the memi MCP server is connected.
+6. Prefer shadcn/ui primitives and Tailwind tokens over one-off colors.
+7. Map changes to Atomic Design levels and cite verification commands in the handoff.
 
 ## Review format (required for UI diffs)
 
@@ -77,7 +79,7 @@ memi init --team
 memi ci
 ```
 
-In GitHub Actions: `uses: sarveshsea/memi@v2` with `version: "2.4.1"`.
+In GitHub Actions: `uses: sarveshsea/memi@v2` with `version: "2.5.0"`.
 
 ## Dependencies and references
 

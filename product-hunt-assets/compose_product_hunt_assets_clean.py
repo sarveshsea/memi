@@ -236,7 +236,7 @@ def build_card_preview() -> None:
     shadow(canvas, card, 36)
     draw.rounded_rectangle(card, radius=36, fill=(255, 255, 255, 236), outline=(255, 255, 255, 180), width=2)
     paste_icon(canvas, (500, 350), 74)
-    draw.text((500, 505), "AI workbench for product designers", font=F["h1"], fill=INK)
+    draw.text((500, 505), "Agent design CI for AI coding agents", font=F["h1"], fill=INK)
     draw_wrapped(draw, (500, 608), "Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff.", F["body"], MUTED, 970)
     x = 500
     for item in ("Open source", "Signed macOS app", "Studio 1.0.4", "npm 1.1.1"):
@@ -258,7 +258,7 @@ def main() -> None:
         Slide(
             slug="gallery-01-hero-social-preview",
             title="memi",
-            body="AI workbench for product designers.\nRun Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff.",
+            body="Agent design CI for AI coding agents.\nCompact briefs, UI audits, token checks, MCP tools, and spec-first scaffolds before agents edit UI.",
             labels=("Open source", "Signed macOS app", "npm 1.1.1"),
             shot=full_app,
             window_title="memi Studio",

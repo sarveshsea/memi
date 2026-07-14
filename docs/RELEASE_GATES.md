@@ -48,13 +48,13 @@ SKIP_SITE_SMOKE=1 npm run check:public-release
 EXPECTED_STUDIO_VERSION=2.4.0 EXPECTED_COMMUNITY_NOTES=5 npm run check:public-release
 ```
 
-For the `2.4.x` line, npm must report the current `package.json` version and `memoire.cv` must show the same public story before MCP Registry, Codex marketplace announcements, Product Hunt, or directory follow-up. Use `SKIP_SITE_SMOKE=1` only while a web deploy is intentionally pending.
+For the `2.5.x` line, npm must report the current `package.json` version and `memoire.cv` must show the same agent-design-CI public story before MCP Registry, Codex marketplace announcements, Product Hunt, or directory follow-up. Use `SKIP_SITE_SMOKE=1` only while a web deploy is intentionally pending.
 
 ## External Trust Gate
 
-Before any public `2.4.x` distribution push, verify every external surface points to the same v2 story:
+Before any public `2.5.x` distribution push, verify every external surface points to the same v2.5 story:
 
-- npm latest: current `package.json` version, currently `2.4.0`
+- npm latest: current `package.json` version, currently `2.5.0`
 - npm README phrase: `Interface understanding for AI coding agents`
 - npm install command: `npm i -g @memi-design/cli`
 - MCP name: `io.github.sarveshsea/memi`

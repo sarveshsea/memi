@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0        # memi ci needs the merge-base with the base branch
       - uses: sarveshsea/memi@v2
         with:
-          version: "2.4.0"      # pinned on purpose — gate behavior must not drift under you
+          version: "2.5.0"      # pinned on purpose — gate behavior must not drift under you
           # fail-on: high       # override memoire.policy.json if needed
           # report: "true"      # design-health.html artifact (default on)
           # upload-sarif: "false"  # set false on forks (no security-events permission)
@@ -41,7 +41,7 @@ What lands on the PR:
         with: { fetch-depth: 0 }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - run: npm i -g @memi-design/cli@2.4.0
+      - run: npm i -g @memi-design/cli@2.5.0
       - run: memi ci --report
       - uses: github/codeql-action/upload-sarif@v3
         if: always()
@@ -53,7 +53,7 @@ What lands on the PR:
 ## Any other CI (GitLab, Buildkite, Jenkins, …)
 
 ```bash
-npm i -g @memi-design/cli@2.4.0
+npm i -g @memi-design/cli@2.5.0
 memi ci --base origin/main --json > memi-ci.json   # exit code is the gate
 ```
 

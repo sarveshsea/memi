@@ -6,9 +6,23 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ---
 
-## Unreleased
+## v2.5.0 — 2026-07-14 — Agent design CI recovery release
 
-No unreleased changes.
+Product Hunt recovery release that makes the package story match the shipped product: agent design CI, Codex/MCP distribution, compact design-agent context, and spec-first file creation.
+
+### Agent design CI
+- Added `memi scaffold component|page` for dry-run Atomic Design file plans before any spec write.
+- Added the MCP `scaffold_agent_design_files` tool. It is non-mutating by default and writes only when `approved=true`; generated code still goes through `generate_code` or `memi generate`.
+- Added compact design-agent briefs with `memi agent brief --detail compact` and MCP `prepare_design_agent_brief detail=compact` to reduce first-turn context.
+
+### Codex and package distribution
+- Updated the root Agent Skill, Codex skill kit, and bundled Codex plugin skill with the file-creation contract.
+- Bumped npm, MCP Registry descriptor, MCPB manifest, Codex plugin manifest, Claude plugin manifest, GitHub Action default, widget metadata, and skill registries to `2.5.0`.
+- Refreshed README and `llms.txt` around compact briefs, spec-first scaffolds, and the `scaffold_agent_design_files` MCP tool.
+
+### Public launch recovery
+- Added a public-surface handoff document for npm, MCP, Codex Marketplace, Product Hunt, directory listings, website, and known stale surfaces.
+- Reframed the launch goal around interface understanding for AI coding agents, with Studio as a companion proof surface instead of the headline.
 
 ## v2.4.1 — 2026-07-09 — Marketplace-ready Action + Grok Build kits
 

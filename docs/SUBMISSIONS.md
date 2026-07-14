@@ -44,14 +44,14 @@ brew install --cask sarveshsea/memi/memi-studio
 
 | Priority | Target | Lane | Status | Next action |
 | --- | --- | --- | --- | --- |
-| P0 | Product Hunt | Launch | Ready after current surfaces stay green | Submit with Studio-first copy and engine-underneath reply |
-| P0 | Official MCP Registry | MCP directory | Ready for `io.github.sarveshsea/memi@2.4.0` after npm publish | Use as trust proof in MCP directory refreshes |
-| P0 | npm | CLI distribution | `@memi-design/cli@2.4.0` release candidate | Run the one-line npm publish command |
-| P0 | GitHub Releases | Traceability | `v2.4.0` release target | Link release in directory follow-ups |
+| P0 | Product Hunt | Launch | Ready after agent-design-CI surfaces stay green | Submit with v1 → v2.5 major-update proof and npm/MCP/Codex links |
+| P0 | Official MCP Registry | MCP directory | Ready for `io.github.sarveshsea/memi@2.5.0` after npm publish | Use as trust proof in MCP directory refreshes |
+| P0 | npm | CLI distribution | `@memi-design/cli@2.5.0` release candidate | Run the one-line npm publish command |
+| P0 | GitHub Releases | Traceability | `v2.5.0` release target | Link release in directory follow-ups |
 | P0 | Codex plugin | Agent distribution | Sparse checkout smoke passes locally | Keep marketplace command in launch replies |
 | P0 | design-sandbox | Public proof repo | Pushed with `pnpm verify` proof loop | Link as the runnable example for design engineers |
 | P1 | Glama / MCP directories | MCP discovery | mcp.so submitted; Glama/Smithery still need owner UI/API action after registry refresh | Refresh to memi workbench + design-memory engine copy |
-| P1 | Awesome MCP lists | Ecosystem discovery | New update PRs opened for largest stale listings | Follow up only for maintainer requests or new 2.4 proof |
+| P1 | Awesome MCP lists | Ecosystem discovery | New update PRs opened for largest stale listings | Follow up only for maintainer requests or new v2.5 proof |
 | P1 | shadcn / v0 communities | Engine proof | shadcn list PR opened with raw registry proof | Share CLI workflow after launch spike |
 | P2 | Hacker News | Launch | Draft | Post only after Product Hunt assets are stable |
 | P2 | Reddit `r/mcp` | Community | Draft | Share practical MCP setup, not launch hype |
@@ -68,19 +68,25 @@ memi
 Tagline:
 
 ```text
-AI workbench for product designers
+Agent design CI for AI coding agents
 ```
 
 Description:
 
 ```text
-Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
+Agent design CI for Codex, Claude, Cursor, Grok, and MCP clients: deterministic UI audits, Tailwind token extraction, shadcn registry context, compact design-agent briefs, and spec-first file scaffolds before agents edit UI.
 ```
 
 URL:
 
 ```text
 https://www.memoire.cv
+```
+
+Major update answer:
+
+```text
+The original memi launch was a v1 product-design workbench. v2.5 is now an agent design CI layer for AI coding agents: npm CLI, MCP server, Codex plugin, Claude/Cursor/Grok agent kits, GitHub Action, compact design-agent briefs, and spec-first Atomic Design scaffolds. The macOS Studio is now the companion workbench, not the whole product.
 ```
 
 ## Ready-To-Submit Entries
@@ -111,7 +117,7 @@ design-sandbox is the public proof repo for memi v2: a Next.js, Tailwind, shadcn
 
 ### Show HN Post
 
-Title: `Show HN: memi, an AI workbench for product designers`
+Title: `Show HN: memi, an agent design CI layer for AI coding agents`
 
 ```text
 I built memi, a signed macOS workbench for running Codex or Claude Code on product-design work.
@@ -140,19 +146,19 @@ https://github.com/sarveshsea/design-sandbox
 | design-sandbox proof repo | https://github.com/sarveshsea/design-sandbox | Pushed; pre-publish verification passes with local `MEMI_BIN` |
 | design-sandbox raw shadcn registry | https://raw.githubusercontent.com/sarveshsea/design-sandbox/main/public/r/registry.json | Public proof artifact |
 | mcp.so submission | https://github.com/chatmcp/mcpso/issues/1#issuecomment-4920418945 | Submitted with npm, MCP Registry, proof repo, and shadcn registry links |
-| `punkpeye/awesome-mcp-servers` refresh | https://github.com/punkpeye/awesome-mcp-servers/pull/9678 | Open update from stale `m-moire` entry to `memi` |
-| `toolsdk-ai/toolsdk-mcp-registry` refresh | https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/391 | Open update from `@sarveshsea/memoire` to `@memi-design/cli` |
+| `punkpeye/awesome-mcp-servers` refresh | https://github.com/punkpeye/awesome-mcp-servers/pull/9678 | Open update from old repository naming to `memi` |
+| `toolsdk-ai/toolsdk-mcp-registry` refresh | https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/391 | Open update from legacy npm naming to `@memi-design/cli` |
 | `birobirobiro/awesome-shadcn-ui` refresh | https://github.com/birobirobiro/awesome-shadcn-ui/pull/538 | Open update from `memoire` to `memi` with registry proof |
-| `YuzeHao2023/Awesome-MCP-Servers` proof comment | https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/208#issuecomment-4920420199 | Refreshed with 2.4 proof links |
-| `MobinX/awesome-mcp-list` proof comment | https://github.com/MobinX/awesome-mcp-list/pull/241#issuecomment-4920420336 | Refreshed with 2.4 proof links |
-| `bytefer/awesome-shadcn-ui` proof comment | https://github.com/bytefer/awesome-shadcn-ui/pull/18#issuecomment-4920420432 | Refreshed with 2.4 proof links |
+| `YuzeHao2023/Awesome-MCP-Servers` proof comment | https://github.com/YuzeHao2023/Awesome-MCP-Servers/pull/208#issuecomment-4920420199 | Refresh again after v2.5 publish |
+| `MobinX/awesome-mcp-list` proof comment | https://github.com/MobinX/awesome-mcp-list/pull/241#issuecomment-4920420336 | Refresh again after v2.5 publish |
+| `bytefer/awesome-shadcn-ui` proof comment | https://github.com/bytefer/awesome-shadcn-ui/pull/18#issuecomment-4920420432 | Refresh again after v2.5 publish |
 
 ## Submission Checklist
 
-- [ ] Publish npm `2.4.0`.
+- [ ] Publish npm `2.5.0`.
 - [ ] Verify `npm run check:public-release`.
 - [ ] Republish `server.json` to the Official MCP Registry.
-- [ ] Create GitHub tag/release `v2.4.0`.
+- [ ] Create GitHub tag/release `v2.5.0`.
 - [x] Push the updated `sarveshsea/design-sandbox` proof repo.
 - [ ] Submit Product Hunt.
 - [ ] Post X/Twitter launch thread.

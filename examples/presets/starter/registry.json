@@ -1,9 +1,9 @@
 {
-  "$schema": "https://memoire.cv/schema/registry/v1.json",
+  "$schema": "https:/-design/cli.cv/schema/registry/v1.json",
   "name": "@memoire-examples/starter",
   "version": "0.1.0",
   "description": "Starter Memoire Registry — neutral grayscale + one blue accent. Fork me.",
-  "homepage": "https://memoire.cv",
+  "homepage": "https:/-design/cli.cv",
   "license": "MIT",
   "tokens": {
     "href": "./tokens/tokens.json",
@@ -53,6 +53,6 @@
   ],
   "meta": {
     "extractedAt": "2026-04-15T00:00:00.000Z",
-    "memoireVersion": "2.4.1"
+    "memoireVersion": "2.5.0"
   }
 }

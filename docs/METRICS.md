@@ -4,9 +4,9 @@ Use this every Friday during the v2 package-growth window. Record the value, sou
 
 ## Baseline
 
-- Current release candidate: `@memi-design/cli@2.4.0`
+- Current release candidate: `@memi-design/cli@2.5.0`
 - Public npm latest before v2 publish: `1.1.1`
-- Public npm latest before the 2.4 publish command: `2.3.1`
+- Public npm latest before the 2.5 publish command: `2.4.1`
 - Latest complete npm download windows: 46 last-day downloads for 2026-07-05, 783 last-week downloads for 2026-06-29 through 2026-07-05, 1,306 last-month downloads for 2026-06-06 through 2026-07-05.
 - 10x target from the 2026-07-08 baseline: 7,830 weekly downloads and 13,060 monthly downloads.
 - Primary CTA: `https://www.npmjs.com/package/@memi-design/cli`
@@ -18,7 +18,7 @@ Use this every Friday during the v2 package-growth window. Record the value, sou
 
 ## Targets
 
-- Week 1: npm latest is `2.4.0`, public release gate passes, Agent Skills discovery passes, MCP Registry metadata is refreshed, and active `memoire.cv` docs have no stale 0.14.x targets.
+- Week 1: npm latest is `2.5.0`, public release gate passes, Agent Skills discovery passes, MCP Registry metadata is refreshed, and active `memoire.cv` docs have no stale 0.14.x targets.
 - Week 2: weekly downloads are `1500+`, GitHub metadata matches the v2 phrase, and at least three external agent-stack or template guides link to runnable memi proof.
 - Week 4: weekly downloads are `4000+`, monthly downloads are `8000+`, and example registries or tutorials account for measurable npm traffic.
 - Week 8: weekly downloads are `7830+`, Codex/MCP/Agent Skills discovery routes all point to the same v2 story, and at least ten external repos or directories include runnable memi proof.
@@ -28,7 +28,7 @@ Use this every Friday during the v2 package-growth window. Record the value, sou
 | Week | npm latest | Weekly downloads | Monthly downloads | GitHub stars | README phrase | Agent Skills install | MCP Registry | Main action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Baseline | `1.1.1` | TBD | TBD | TBD | v2 draft | local pass | pending v2 | Publish v2 and run public gates |
-| 2026-07-08 | `2.3.1` | `783` | `1306` | `17` | live v2 | local pass | current at `2.3.1` | Seed proof repos and MCP directories |
+| 2026-07-08 | `2.4.1` | `783` | `1306` | `17` | live v2 | local pass | current at `2.4.1` | Seed proof repos and MCP directories |
 | Week 2 | | | | | | | | |
 | Week 3 | | | | | | | | |
 | Week 4 | | | | | | | | |
