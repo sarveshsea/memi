@@ -9,7 +9,7 @@ Primary link: <https://www.memoire.cv>
 ```text
 Launching memi today.
 
-It is an AI workbench for product designers: run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
+It is an agent design CI layer for AI coding agents: run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
 
 Download:
 https://www.memoire.cv

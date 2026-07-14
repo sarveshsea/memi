@@ -4,10 +4,10 @@
 # Docker pulls from ghcr.io are allowed (common in corporate networks).
 #
 # Run:
-#   docker run --rm -it -v "$PWD:/work" -w /work ghcr.io/sarveshsea/memoire --help
+#   docker run --rm -it -v "$PWD:/work" -w /work ghcr.io/sarveshsea/memi --help
 #
 # For `memi connect` the Figma plugin has to reach the container's WebSocket.
-#   docker run --rm -it -p 9223:9223 ghcr.io/sarveshsea/memoire connect
+#   docker run --rm -it -p 9223:9223 ghcr.io/sarveshsea/memi connect
 
 FROM debian:bookworm-slim
 
@@ -25,15 +25,15 @@ RUN set -eux; \
       *) echo "unsupported arch ${TARGETARCH}" >&2; exit 1 ;; \
     esac; \
     if [ "${VERSION}" = "latest" ]; then \
-      url="https://github.com/sarveshsea/m-moire/releases/latest/download/memi-${target}.tar.gz"; \
+      url="https://github.com/sarveshsea/memi/releases/latest/download/memi-${target}.tar.gz"; \
     else \
-      url="https://github.com/sarveshsea/m-moire/releases/download/${VERSION}/memi-${target}.tar.gz"; \
+      url="https://github.com/sarveshsea/memi/releases/download/${VERSION}/memi-${target}.tar.gz"; \
     fi; \
-    mkdir -p /opt/memoire; \
-    curl -fsSL "${url}" | tar -xz -C /opt/memoire --strip-components=1; \
-    chmod +x /opt/memoire/memi; \
-    ln -s /opt/memoire/memi /usr/local/bin/memi; \
-    ln -s /opt/memoire/memi /usr/local/bin/memoire
+    mkdir -p /opt-design/cli; \
+    curl -fsSL "${url}" | tar -xz -C /opt-design/cli --strip-components=1; \
+    chmod +x /opt-design/cli/memi; \
+    ln -s /opt-design/cli/memi /usr/local/bin/memi; \
+    ln -s /opt-design/cli/memi /usr/local/bin-design/cli
 
 WORKDIR /work
 EXPOSE 9223-9232

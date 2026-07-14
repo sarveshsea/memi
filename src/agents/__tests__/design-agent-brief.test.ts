@@ -2,6 +2,31 @@ import { describe, expect, it } from "vitest";
 import { buildDesignAgentBrief } from "../design-agent-brief.js";
 
 describe("design agent brief", () => {
+  it("can emit a compact brief for token-sensitive agent contexts", () => {
+    const brief = buildDesignAgentBrief({
+      projectRoot: "/tmp/product",
+      target: ".",
+      intent: "Fix dashboard hierarchy",
+      agent: "codex",
+      detail: "compact",
+    });
+
+    expect(brief.detail).toBe("compact");
+    expect(brief.tokenEfficiency).toMatchObject({
+      profile: "compact",
+      intent: "Keep the first agent turn small; expand only after local evidence is needed.",
+    });
+    expect(brief.evidenceCommands.map((command) => command.id)).toEqual([
+      "diagnose",
+      "ux-audit",
+      "craft-audit",
+      "scaffold-preview",
+    ]);
+    expect(brief.compatibility.installs).toEqual([
+      "memi agent install codex",
+    ]);
+  });
+
   it("builds a local-first brief with evidence commands and handoff requirements", () => {
     const brief = buildDesignAgentBrief({
       projectRoot: "/tmp/product",

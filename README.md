@@ -28,18 +28,19 @@ Compatibility: [shadcn registry](https://ui.shadcn.com/docs/registry/getting-sta
 
 ```bash
 npm i -g @memi-design/cli
-memi agent brief . --intent "Improve this interface" --json   # preflight contract
+memi agent brief . --intent "Improve this interface" --detail compact --json
 memi diagnose . --json                                          # app-quality graph
 memi ux audit . --json                                          # UX tenets + traps
 memi craft audit . --json                                       # interface craft
 memi tokens --from ./src --report                               # token memory
+memi scaffold component EvidenceCard --level organism --json     # spec-first file plan
 memi shadcn export --out public/r                               # registry output
 memi mcp start --no-figma                                       # stdio MCP server
 ```
 
 **Policy:** Run memi before broad UI edits. Prefer `diagnose`, `ux audit`, `craft audit`, `tokens`, and MCP tools over visual guessing. Every CI finding cites `file:line` and re-runs identically — no LLM in the enforcement path.
 
-**MCP tools (40+):** `prepare_design_agent_brief`, `diagnose_app_quality`, `audit_ux_tenets_traps`, `audit_interface_craft`, `get_tokens`, `get_shadcn_registry`, `plan_ui_fixes`, `design_doc`, `research_design_package`, `simulation_plan`, `simulation_run`, `check_bridge_health`, and more. Start with `memi mcp start --no-figma`.
+**MCP tools (40+):** `prepare_design_agent_brief`, `scaffold_agent_design_files`, `diagnose_app_quality`, `audit_ux_tenets_traps`, `audit_interface_craft`, `get_tokens`, `get_shadcn_registry`, `plan_ui_fixes`, `design_doc`, `research_design_package`, `simulation_plan`, `simulation_run`, `check_bridge_health`, and more. Start with `memi mcp start --no-figma`.
 
 **Agent install one-liners:**
 
@@ -63,17 +64,18 @@ Machine-readable index: [`llms.txt`](llms.txt)
 ```bash
 npm i -g @memi-design/cli
 
-memi agent brief . --intent "Improve this interface" --json
+memi agent brief . --intent "Improve this interface" --detail compact --json
 memi diagnose
 memi ux audit --json
 memi craft audit --json
 memi tokens --from ./src --report
+memi scaffold component EvidenceCard --level organism --json
 memi shadcn export --out public/r
 memi agent install universal --project .
 memi mcp start --no-figma
 ```
 
-That loop gives you a design-agent brief, app-quality findings, UX risks, craft critique, extracted tokens, shadcn registry output, installable Agent Skills, and a Figma-independent MCP server.
+That loop gives you a compact design-agent brief, app-quality findings, UX risks, craft critique, extracted tokens, a dry-run Atomic Design file scaffold, shadcn registry output, installable Agent Skills, and a Figma-independent MCP server.
 
 Public proof repo: [`sarveshsea/design-sandbox`](https://github.com/sarveshsea/design-sandbox) — Next.js 16 + Tailwind 4 + shadcn wired with MCP, skills, and `memoire.agent.yaml`.
 
@@ -130,6 +132,7 @@ Grok also loads project `.mcp.json` via compat — `memi agent install claude-co
 | UX audit | UX tenets and trap risks from code, screenshots, or routes | `memi ux audit --json` |
 | Interface craft | Visual hierarchy, spacing rhythm, conventions, responsive resilience | `memi craft audit --json` |
 | Token memory | CSS variables, Tailwind v4 `@theme`, aliases, scale issues | `memi tokens --from ./src --report` |
+| Spec-first file creation | Dry-run Atomic Design component/page scaffolds before writes | `memi scaffold component <Name> --json` |
 | Registry output | shadcn-native registry for shadcn, v0, npm, GitHub | `memi shadcn export --out public/r` |
 | Agent kits | Skills + MCP for Grok Build, Codex, Claude Code, Cursor, Hermes, OpenClaw, OpenCode | `memi agent install --dry-run --json` |
 | MCP server | 40+ design tools over stdio for any MCP client | `memi mcp start --no-figma` |
@@ -169,7 +172,7 @@ jobs:
           fetch-depth: 0
       - uses: sarveshsea/memi@v2
         with:
-          version: "2.4.1"
+          version: "2.5.0"
 ```
 
 What lands on the PR: **code-scanning annotations** at `file:line`, a **step summary** with score and gate verdict, and a **`memi-design-health` artifact** (HTML + markdown + badge).
@@ -190,6 +193,7 @@ Full release checklist: [docs/GITHUB_ACTION_MARKETPLACE.md](docs/GITHUB_ACTION_M
 | Tool | Use when |
 | --- | --- |
 | `prepare_design_agent_brief` | Agent needs a preflight contract before UI edits |
+| `scaffold_agent_design_files` | Agent needs an approval-gated spec-first file creation plan |
 | `diagnose_app_quality` | App-quality graph, file evidence, issue list |
 | `audit_ux_tenets_traps` | UX tenet scores and trap risks |
 | `audit_interface_craft` | Visual hierarchy, rhythm, conventions, polish |

@@ -82,6 +82,7 @@ const FAST_COMMANDS: Record<string, () => Promise<RegisterFn>> = {
   "mcp": async () => (await import("./commands/mcp.js")).registerMcpCommand,
   "pull": async () => (await import("./commands/pull.js")).registerPullCommand,
   "generate": async () => (await import("./commands/generate.js")).registerGenerateCommand,
+  "scaffold": async () => (await import("./commands/scaffold.js")).registerScaffoldCommand,
   "add": async () => (await import("./commands/add.js")).registerAddCommand,
   "theme": async () => (await import("./commands/theme.js")).registerThemeCommand,
   "design-doc": async () => (await import("./commands/design-doc.js")).registerDesignDocCommand,
@@ -103,6 +104,7 @@ async function registerAllCommands(program: CliProgram, engine: CliEngine): Prom
     { registerSimulateCommand },
     { registerSpecCommand },
     { registerGenerateCommand },
+    { registerScaffoldCommand },
     { registerPreviewCommand },
     { registerStatusCommand },
     { registerDoctorCommand },
@@ -154,6 +156,7 @@ async function registerAllCommands(program: CliProgram, engine: CliEngine): Prom
     import("./commands/simulate.js"),
     import("./commands/spec.js"),
     import("./commands/generate.js"),
+    import("./commands/scaffold.js"),
     import("./commands/preview.js"),
     import("./commands/status.js"),
     import("./commands/doctor.js"),
@@ -225,6 +228,7 @@ async function registerAllCommands(program: CliProgram, engine: CliEngine): Prom
   registerConnectCommand(program, engine);
   registerPullCommand(program, engine);
   registerSyncCommand(program, engine);
+  registerScaffoldCommand(program, engine);
   registerGenerateCommand(program, engine);
   registerTokensCommand(program, engine);
   registerPreviewCommand(program, engine);

@@ -13,7 +13,7 @@ import type { MemoireEngine } from "../engine/core.js";
 import type { AgentRole } from "../plugin/shared/contracts.js";
 import { AgentWorker } from "../agents/agent-worker.js";
 import { AGENT_INSTALL_TARGETS, installAgentKits, normalizeAgentInstallTarget } from "../agents/agent-kits.js";
-import { buildDesignAgentBrief, normalizeDesignAgentBriefMode } from "../agents/design-agent-brief.js";
+import { buildDesignAgentBrief, normalizeDesignAgentBriefDetail, normalizeDesignAgentBriefMode } from "../agents/design-agent-brief.js";
 import { ui } from "../tui/format.js";
 
 const VALID_ROLES: AgentRole[] = [
@@ -40,12 +40,14 @@ export function registerAgentCommand(program: Command, engine: MemoireEngine): v
     .option("--intent <intent>", "Design intent or product task the agent should perform")
     .option("--agent <agent>", "Agent stack to optimize install guidance for", "design-agent")
     .option("--mode <mode>", "Evidence mode: local, figma, research, or full", "local")
+    .option("--detail <detail>", "Payload detail: compact, standard, or full", "standard")
     .option("--project <path>", "Project/workspace root for the brief")
     .option("--json", "Output the brief as JSON")
     .action((target: string | undefined, opts: {
       intent?: string;
       agent?: string;
       mode?: string;
+      detail?: string;
       project?: string;
       json?: boolean;
     }) => {
@@ -56,6 +58,7 @@ export function registerAgentCommand(program: Command, engine: MemoireEngine): v
           intent: opts.intent,
           agent: opts.agent,
           mode: normalizeDesignAgentBriefMode(opts.mode),
+          detail: normalizeDesignAgentBriefDetail(opts.detail),
         });
 
         if (opts.json) {
@@ -67,6 +70,7 @@ export function registerAgentCommand(program: Command, engine: MemoireEngine): v
         console.log(ui.section("DESIGN AGENT BRIEF"));
         console.log(ui.dots("agent", brief.agent));
         console.log(ui.dots("mode", brief.mode));
+        console.log(ui.dots("detail", brief.detail));
         console.log(ui.dots("target", brief.target));
         console.log(ui.dots("intent", brief.intent));
         console.log();

@@ -29,7 +29,7 @@ memi-ready Next.js, Tailwind, shadcn, MCP, and Agent Skills sandbox for interfac
 `sarveshsea/memi-studio`:
 
 ```text
-AI workbench for product designers running Codex or Claude Code with project memory, receipts, and Figma/FigJam handoff.
+Agent design CI for Codex, Claude, Cursor, Grok, and MCP clients: compact design briefs, UI audits, token checks, and spec-first scaffolds.
 ```
 
 `sarveshsea/memoire-community-notes`:

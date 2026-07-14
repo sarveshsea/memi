@@ -15,12 +15,13 @@ memi suite init --project .
 memi daemon start --project . --port auto
 memi daemon status --json
 memi agent install --dry-run --json
-memi agent brief . --intent "Improve this interface" --json
+memi agent brief . --intent "Improve this interface" --detail compact --json
 memi status
 memi diagnose .
 memi ux audit . --json
 memi craft audit . --json
 memi tokens --from ./src --report
+memi scaffold component EvidenceCard --level organism --json
 memi shadcn export --out public/r
 memi mcp start --no-figma
 ```
@@ -28,7 +29,7 @@ memi mcp start --no-figma
 ## Interface Understanding Protocol
 
 1. Read the local instructions first: `AGENTS.md`, README files, `.memoire/`, specs, tokens, and `memoire.agent.yaml`.
-2. Generate a design-agent preflight with `memi agent brief . --intent "<task>" --json`; use it as the local evidence and cost-control contract.
+2. Generate a compact design-agent preflight with `memi agent brief . --intent "<task>" --detail compact --json`; expand to `--detail standard` or `--detail full` only when the first turn needs more context.
 3. Collect evidence with `memi diagnose .`, `memi ux audit . --json`, `memi craft audit . --json`, and `memi tokens --from ./src --report` before making broad UI edits.
 4. If a runtime route matters, run `memi diagnose http://localhost:<port>` or `memi design-doc <url> --spec`.
 5. If Figma is connected, use memi/Figma context for token pulls, component inspection, screenshot capture, and sync. Figma is optional; do not block code-first audits on it.
@@ -36,7 +37,22 @@ memi mcp start --no-figma
 7. Prefer shadcn/ui primitives and Tailwind. Avoid introducing CSS modules or styled-components for memi-generated UI.
 8. Use UX Tenets and Traps as the review layer: clarity, feedback, control, consistency, accessibility, error recovery, progressive disclosure, workflow fit, trust, and state continuity.
 9. Use Interface Craft as the polish layer: focusing mechanism, visual hierarchy, spacing rhythm, color intentionality, visual weight, component cohesion, responsive resilience, and user context.
-10. For research-backed product work, run the research flow before implementation:
+10. Before creating files, use the spec-first scaffold preview:
+
+```bash
+memi scaffold component EvidenceCard --level organism --base Card Badge --json
+memi scaffold page DesignCiPage --layout dashboard --section Hero:AgentCiHero:full-width --json
+```
+
+Write only after reviewing the dry run:
+
+```bash
+memi scaffold component EvidenceCard --level organism --write --json
+memi generate EvidenceCard --preview --json
+memi generate EvidenceCard
+```
+
+11. For research-backed product work, run the research flow before implementation:
 
 ```bash
 memi research synthesize
@@ -46,7 +62,7 @@ memi research design --write-specs --mermaid-jam --json
 memi mermaid-jam export --from research --json
 ```
 
-11. For registry work, keep the output installable:
+12. For registry work, keep the output installable:
 
 ```bash
 memi shadcn doctor
@@ -55,7 +71,16 @@ memi publish --name @you/ds
 memi add Button --from @you/ds
 ```
 
-12. End with evidence: commands run, artifacts produced, files changed, remaining assumptions, and the next verification command.
+13. End with evidence: commands run, artifacts produced, files changed, remaining assumptions, and the next verification command.
+
+## File Creation Contract
+
+- Use `memi scaffold ... --json` before writing component or page specs.
+- Treat `scaffold_agent_design_files` in MCP as non-mutating unless `approved=true`.
+- Scaffolds write specs only; code file creation still flows through `memi generate` and the quality gate.
+- Atoms cannot compose other specs. Use molecule, organism, or template when composing.
+- Every scaffold must state an Atomic Design level, shadcn base, token policy, and next verification command.
+- Prefer compact JSON first. Expand only when the evidence says the extra tokens will change the edit.
 
 ## Agent Stack Setup
 
@@ -95,6 +120,8 @@ When reviewing UI against memi evidence, prefer a markdown table:
 - `.memoire/app-quality/interface-craft.json`
 - `.memoire/design-system.json`
 - `public/r/registry.json`
+- `specs/components/<Name>.json`
+- `specs/pages/<Name>.json`
 - `.memoire/mermaid-jam/<package-id>/`
 - `memoire.agent.yaml`
 
@@ -108,4 +135,5 @@ When reviewing UI against memi evidence, prefer a markdown table:
 - Skipping interface craft checks, then relying on taste for hierarchy, rhythm, polish, or conventions.
 - Installing agent kits without a dry run in a shared workspace.
 - Skipping the design-agent brief, then guessing which evidence, agent stack, or cost mode applies.
+- Writing generated files before reviewing a spec-first scaffold dry run.
 - Reinventing animation craft rules instead of depending on proven upstream skills (e.g. `emilkowalski/skills`).

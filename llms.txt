@@ -16,11 +16,12 @@ npm i -g @memi-design/cli
 ## Before any UI work
 
 ```bash
-memi agent brief . --intent "<task>" --json
+memi agent brief . --intent "<task>" --detail compact --json
 memi diagnose . --json
 memi ux audit . --json
 memi craft audit . --json
 memi tokens --from ./src --report
+memi scaffold component <Name> --level organism --json
 memi shadcn export --out public/r
 ```
 
@@ -58,7 +59,7 @@ npx skills add emilkowalski/skills
 memi mcp start --no-figma
 ```
 
-Key tools: prepare_design_agent_brief, diagnose_app_quality, audit_ux_tenets_traps, audit_interface_craft, get_tokens, get_shadcn_registry, plan_ui_fixes, design_doc, research_design_package, simulation_plan, simulation_run, check_bridge_health.
+Key tools: prepare_design_agent_brief, scaffold_agent_design_files, diagnose_app_quality, audit_ux_tenets_traps, audit_interface_craft, get_tokens, get_shadcn_registry, plan_ui_fixes, design_doc, research_design_package, simulation_plan, simulation_run, check_bridge_health.
 
 ## Design CI gate
 
@@ -67,7 +68,7 @@ memi init --team
 memi ci
 ```
 
-GitHub Action: `uses: sarveshsea/memi@v2` with `version: "2.4.1"`.
+GitHub Action: `uses: sarveshsea/memi@v2` with `version: "2.5.0"`.
 
 ## Dependency graph
 

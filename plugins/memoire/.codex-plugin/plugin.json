@@ -1,6 +1,6 @@
 {
   "name": "memoire",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "description": "memi design memory and UI quality tools for Codex: MCP tools, design-system context, Figma workflows, shadcn/ui, Tailwind, and Atomic Design.",
   "author": {
     "name": "Sarvesh Chidambaram",
@@ -26,8 +26,8 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "memi",
-    "shortDescription": "Design memory and UI quality tools for Codex.",
-    "longDescription": "memi gives Codex design-system memory, MCP tools, Figma context, Tailwind and shadcn/ui diagnostics, Atomic Design guidance, and research-backed UI audit workflows before frontend edits.",
+    "shortDescription": "Agent design CI, file scaffolds, and UI quality tools for Codex.",
+    "longDescription": "memi gives Codex design-system memory, MCP tools, spec-first file scaffolds, compact design-agent briefs, Figma context, Tailwind and shadcn/ui diagnostics, Atomic Design guidance, and research-backed UI audit workflows before frontend edits.",
     "developerName": "Sarvesh Chidambaram",
     "category": "Productivity",
     "capabilities": [

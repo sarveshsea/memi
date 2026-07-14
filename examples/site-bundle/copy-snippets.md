@@ -1,8 +1,8 @@
 # memi Site Copy Snippets
 
-Hero: memi is the AI workbench for product designers.
-Subhead: Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
-Primary CTA: https://github.com/sarveshsea/memi-studio/releases/latest
+Hero: memi is agent design CI for AI coding agents.
+Subhead: Run Codex, Claude, Cursor, Grok, and MCP clients with compact design briefs, deterministic UI audits, token checks, and spec-first file scaffolds.
+Primary CTA: https://www.npmjs.com/package/@memi-design/cli
 Engine CTA: https://www.npmjs.com/package/@memi-design/cli
 Codex plugin: https://www.memoire.cv/codex-plugin
 Codex marketplace install: codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire

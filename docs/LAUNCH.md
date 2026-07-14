@@ -1,16 +1,16 @@
 # memi Product Hunt Launch Pack
 
-Use one message everywhere for the current `2.4.x` launch:
+Use one message everywhere for the current `2.5.x` launch:
 
-> memi is the AI workbench for product designers. Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
+> memi is agent design CI for AI coding agents. Run Codex, Claude, Cursor, Grok, and MCP clients with compact design briefs, deterministic UI audits, token checks, and spec-first file scaffolds.
 
 Primary CTA: <https://www.memoire.cv>
 
 ## Launch Baseline
 
-- Product Hunt story: Studio-first, with the npm CLI/MCP engine underneath.
-- Release target: `@memi-design/cli@2.4.0`.
-- Studio download: `memi-studio v2.4.0` signed macOS app from GitHub Releases.
+- Product Hunt story: agent design CI first, with Studio as the companion workbench proof.
+- Release target: `@memi-design/cli@2.5.0`.
+- Studio download: `memi-studio v2.4.0` signed macOS companion app from GitHub Releases.
 - Homebrew: `brew install --cask sarveshsea/memi/memi-studio`.
 - MCP Registry: `io.github.sarveshsea/memi`.
 - Codex plugin: `codex plugin marketplace add sarveshsea/memi --ref main --sparse .agents/plugins --sparse plugins/memoire`.
@@ -27,13 +27,13 @@ memi
 Tagline:
 
 ```text
-AI workbench for product designers
+Agent design CI for AI coding agents
 ```
 
 Description:
 
 ```text
-Run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
+Agent design CI for Codex, Claude, Cursor, Grok, and MCP clients: compact design briefs, deterministic UI audits, Tailwind token extraction, shadcn registry context, and spec-first file scaffolds before agents edit UI.
 ```
 
 Maker comment:
@@ -41,7 +41,7 @@ Maker comment:
 ```text
 I built memi because product-design agent runs kept losing the thread: the code agent had one context, Figma had another, project decisions lived in markdown, and useful output disappeared into chat history.
 
-memi Studio is a signed macOS workbench for running Codex or Claude Code with the product system already attached: project memory, design tokens, specs, research, Figma/FigJam handoff, run receipts, logs, and artifacts.
+memi v2.5 is now an agent design CI layer for running Codex, Claude, Cursor, Grok, and MCP clients with the product system already attached: compact design briefs, design tokens, specs, research, audits, scaffold plans, Figma/FigJam handoff, run receipts, logs, and artifacts.
 
 The npm package is still the engine underneath:
 npm i -g @memi-design/cli
@@ -58,7 +58,7 @@ pnpm memi:diagnose
 pnpm memi:ux
 pnpm verify
 
-Today’s launch is the workbench story: a calmer place for product designers to supervise AI work, keep evidence, and turn useful output into durable design memory.
+Today’s launch is the agent design CI story: before an AI coding agent edits UI, it should know the product system, see the risks, and show the file-creation plan.
 ```
 
 ## Social Posts
@@ -68,7 +68,7 @@ Today’s launch is the workbench story: a calmer place for product designers to
 ```text
 Launching memi today.
 
-It is an AI workbench for product designers: run Codex or Claude Code with project memory, design-system context, receipts, and Figma/FigJam handoff in one signed macOS app.
+It is an agent design CI layer for AI coding agents: compact design briefs, deterministic UI audits, token checks, MCP tools, and spec-first scaffolds before Codex, Claude, Cursor, or Grok edits UI.
 
 Download:
 https://www.memoire.cv
@@ -124,11 +124,11 @@ The handoff remains inspectable.
 
 ## Launch Checklist
 
-- [ ] Publish `@memi-design/cli@2.4.0`.
+- [ ] Publish `@memi-design/cli@2.5.0`.
 - [ ] Verify npm install smoke with `npm run check:public-release`.
 - [ ] Republish `server.json` to the MCP Registry after auth refresh.
-- [ ] Create GitHub tag/release `v2.4.0`.
+- [ ] Create GitHub tag/release `v2.5.0`.
 - [x] Push and verify `sarveshsea/design-sandbox`.
-- [ ] Confirm homepage shows npm latest `2.4.0`, Studio `2.4.0`, and the macOS download after publish.
+- [ ] Confirm homepage shows npm latest `2.5.0`, Studio `2.4.0`, and the macOS download after publish.
 - [ ] Submit Product Hunt with the exact name, tagline, description, and CTA above.
 - [ ] Post the main launch thread and one engine-underneath reply.

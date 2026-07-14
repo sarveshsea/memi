@@ -74,6 +74,13 @@ describe("MCP tools registration", () => {
     expect(src).toContain("buildDesignAgentBrief");
   });
 
+  it("registers a spec-first scaffold tool for approval-gated file creation", async () => {
+    const src = await readToolsSrc();
+    expect(src).toContain('"scaffold_agent_design_files"');
+    expect(src).toContain("buildAgentFileScaffoldPlan");
+    expect(src).toContain("approved");
+  });
+
   it("registers an interface craft audit tool", async () => {
     const src = await readToolsSrc();
     expect(src).toContain('"audit_interface_craft"');

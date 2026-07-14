@@ -29,20 +29,20 @@ node -e "const y=require('fs').readFileSync('action.yml','utf8');const m=y.match
 
 ### A. Ship the fix to main (CLI / PR)
 
-1. Merge the Marketplace-ready branch (`action.yml` ≤125 chars, CLI pin, docs).
-2. Tag **`v2.4.1`** (or next semver) on the merge commit — do **not** reuse `v2.4.0` (that tag still has the 283-char description).
+1. Merge the v2.5 agent-design-CI branch (`action.yml` ≤125 chars, CLI pin, docs, scaffold command, MCP tool).
+2. Tag **`v2.5.0`** on the merge commit. Do not reuse old 2.4 tags; the earlier tags represent the pre-scaffold release line.
 
 ```bash
-git tag -a v2.4.1 -m "v2.4.1 — Marketplace-ready design CI Action + Grok Build kits"
-git push origin v2.4.1
-gh release create v2.4.1 --title "v2.4.1 — Marketplace-ready design CI Action" --generate-notes
+git tag -a v2.5.0 -m "v2.5.0 — Agent design CI + scaffolded file creation"
+git push origin v2.5.0
+gh release create v2.5.0 --title "v2.5.0 — Agent design CI + scaffolded file creation" --generate-notes
 ```
 
 `gh release create` cannot set Marketplace categories. Finish in the UI:
 
 ### B. Marketplace UI (required)
 
-1. Open the release: https://github.com/sarveshsea/memi/releases/tag/v2.4.1
+1. Open the release: https://github.com/sarveshsea/memi/releases/tag/v2.5.0
 2. Click **Edit** (or draft from `action.yml` banner on the repo).
 3. Check **Publish this Action to the GitHub Marketplace**.
 4. Confirm validation is green:
@@ -58,7 +58,7 @@ gh release create v2.4.1 --title "v2.4.1 — Marketplace-ready design CI Action"
 ### C. Major version floating tag
 
 ```bash
-git tag -f v2 v2.4.1
+git tag -f v2 v2.5.0
 git push -f origin v2
 ```
 
@@ -82,9 +82,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: sarveshsea/memi@v2.4.1
+      - uses: sarveshsea/memi@v2.5.0
         with:
-          version: "2.4.1"
+          version: "2.5.0"
           # fail-on: high
           # report: "true"
           # upload-sarif: "false"   # forks without security-events

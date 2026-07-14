@@ -16,9 +16,9 @@ This tracker keeps achievement work tied to real memi distribution. The goal is 
 | --- | --- | --- |
 | memi repo stars | 17 | Base Starstruck tier crossed; grow through useful launches and directory distribution |
 | memi discussions | Enabled on GitHub | `Q&A` and `Show and tell` are active; add `Registry help` and `MCP setup` in repository settings |
-| npm release target | 2.4.0 | Keep npm, site, GitHub release, and registry surfaces synchronized |
-| GitHub release | `v2.4.0` target | Use release URL in directory follow-ups when traceability matters |
-| MCP Registry | Ready for 2.4.0 refresh | Use registry proof in directory refreshes after npm publish |
+| npm release target | 2.5.0 | Keep npm, site, GitHub release, and registry surfaces synchronized |
+| GitHub release | `v2.5.0` target | Use release URL in directory follow-ups when traceability matters |
+| MCP Registry | Ready for 2.5.0 refresh | Use registry proof in directory refreshes after npm publish |
 | SafeSkill PR | Open with blocked badge | Do not merge until the score improves or findings are addressed |
 | Sandbox repo | `sarveshsea/memoire-achievements-lab` | Use only for harmless workflow checks |
 | GitHub metadata | Updated to v2 interface-understanding copy | Keep npm, README, and directory copy aligned |
@@ -41,18 +41,18 @@ Detailed operating board: [`docs/STARSTRUCK.md`](STARSTRUCK.md).
 
 Immediate sequence:
 
-1. Publish npm `2.4.0`, refresh the official MCP Registry, then update MCP.Directory, Glama, Smithery, and PulseMCP.
+1. Publish npm `2.5.0`, refresh the official MCP Registry, then update MCP.Directory, Glama, Smithery, and PulseMCP.
 2. Keep `sarveshsea/design-sandbox` proof current and make `pnpm verify` the public demo anchor.
 3. Follow up on open directory PRs only with the official registry link or maintainer-requested fixes.
 4. Post the 60-second install/demo with a GitHub star CTA.
 
 ## Official MCP Registry Readiness
 
-The official MCP Registry verifies npm package ownership through `package.json#mcpName`. The local 2.4.0 package candidate and `server.json` agree on the MCP name and package identifier; publish the registry entry after npm latest is 2.4.0.
+The official MCP Registry verifies npm package ownership through `package.json#mcpName`. The local 2.5.0 package candidate and `server.json` agree on the MCP name and package identifier; publish the registry entry after npm latest is 2.5.0.
 
 - `package.json#mcpName`: `io.github.sarveshsea/memi`
 - `server.json#name`: `io.github.sarveshsea/memi`
-- `server.json#version`: `2.4.0`
+- `server.json#version`: `2.5.0`
 - `server.json#packages[0].identifier`: `@memi-design/cli`
 - `server.json#packages[0].packageArguments`: `mcp start --no-figma`
 

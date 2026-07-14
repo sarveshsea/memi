@@ -62,7 +62,7 @@ memi notes install github:you/my-note
 
 ```bash
 git clone https://github.com/sarveshsea/memi
-cd m-moire
+cd memi
 npm install
 npm test
 npm run build

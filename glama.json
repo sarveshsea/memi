@@ -1,9 +1,9 @@
 {
   "name": "memi",
   "display_name": "memi",
-  "description": "Design-memory MCP server and CLI behind the memi AI workbench for product designers.",
+  "description": "Design-memory MCP server and CLI behind memi agent design CI for AI coding agents.",
   "repository": "https://github.com/sarveshsea/memi",
-  "homepage": "https://memoire.cv",
+  "homepage": "https:/-design/cli.cv",
   "author": "sarveshsea",
   "license": "MIT",
   "categories": ["Design Tools", "Developer Tools"],
