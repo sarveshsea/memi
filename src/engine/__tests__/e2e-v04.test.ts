@@ -36,7 +36,8 @@ afterEach(async () => {
   engine.agentRegistry.stopHealthCheck();
   engine.taskQueue.stop();
   engine.removeAllListeners();
-  await rm(testDir, { recursive: true, force: true });
+  await engine.registry.save().catch(() => {});
+  await rm(testDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 });
 
 const DS_V1: DesignSystem = {
