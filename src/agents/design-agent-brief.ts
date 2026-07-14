@@ -1,6 +1,8 @@
 export const DESIGN_AGENT_BRIEF_MODES = ["local", "figma", "research", "full"] as const;
+export const DESIGN_AGENT_BRIEF_DETAIL_LEVELS = ["compact", "standard", "full"] as const;
 
 export type DesignAgentBriefMode = typeof DESIGN_AGENT_BRIEF_MODES[number];
+export type DesignAgentBriefDetail = typeof DESIGN_AGENT_BRIEF_DETAIL_LEVELS[number];
 
 export interface DesignAgentBriefOptions {
   projectRoot: string;
@@ -8,6 +10,7 @@ export interface DesignAgentBriefOptions {
   intent?: string;
   mode?: DesignAgentBriefMode;
   agent?: string;
+  detail?: DesignAgentBriefDetail;
 }
 
 export interface DesignAgentBriefCommand {
@@ -25,10 +28,16 @@ export interface DesignAgentBrief {
   intent: string;
   agent: string;
   mode: DesignAgentBriefMode;
+  detail: DesignAgentBriefDetail;
   mission: string;
   evidenceCommands: DesignAgentBriefCommand[];
   designRules: string[];
   costControls: string[];
+  tokenEfficiency: {
+    profile: DesignAgentBriefDetail;
+    intent: string;
+    expandWith: string;
+  };
   compatibility: {
     installs: string[];
     mcp: string;
@@ -43,7 +52,8 @@ export function buildDesignAgentBrief(options: DesignAgentBriefOptions): DesignA
   const intent = options.intent?.trim() || "Improve the product interface with Memoire design evidence.";
   const mode = options.mode ?? "local";
   const agent = options.agent?.trim() || "design-agent";
-  const evidenceCommands = buildEvidenceCommands({ target, intent, mode });
+  const detail = options.detail ?? "standard";
+  const evidenceCommands = applyDetailToEvidenceCommands(buildEvidenceCommands({ target, intent, mode }), detail);
 
   return {
     action: "brief",
@@ -53,6 +63,7 @@ export function buildDesignAgentBrief(options: DesignAgentBriefOptions): DesignA
     intent,
     agent,
     mode,
+    detail,
     mission: "Act as a design agent that gathers interface evidence and interface craft critique before editing UI, maps the product surface into Atomic Design, preserves shadcn/Tailwind compatibility, and hands off verifiable design decisions.",
     evidenceCommands,
     designRules: [
@@ -72,8 +83,15 @@ export function buildDesignAgentBrief(options: DesignAgentBriefOptions): DesignA
       "Avoid long-running daemon or MCP processes in CI; use stdio MCP only when the client is launching the server.",
       "Escalate to browser screenshots or live Figma only for visual ambiguity that static code evidence cannot resolve.",
     ],
+    tokenEfficiency: {
+      profile: detail,
+      intent: detail === "compact"
+        ? "Keep the first agent turn small; expand only after local evidence is needed."
+        : "Carry enough command detail for direct execution while still avoiding live Figma, browser, or model work by default.",
+      expandWith: "Call prepare_design_agent_brief again with detail=full or run the listed evidence commands only after the local preflight is useful.",
+    },
     compatibility: {
-      installs: buildCompatibilityInstalls(agent),
+      installs: detail === "compact" ? buildCompatibilityInstalls(agent).slice(0, 1) : buildCompatibilityInstalls(agent),
       mcp: "memi mcp start --no-figma",
       skill: "npx skills add sarveshsea/memi --skill memoire-design-tooling",
       suite: "memi suite run design-audit --project . --json",
@@ -95,6 +113,14 @@ export function normalizeDesignAgentBriefMode(mode: string | undefined): DesignA
     return normalized as DesignAgentBriefMode;
   }
   throw new Error(`Invalid design agent brief mode "${mode}". Use: ${DESIGN_AGENT_BRIEF_MODES.join(", ")}`);
+}
+
+export function normalizeDesignAgentBriefDetail(detail: string | undefined): DesignAgentBriefDetail {
+  const normalized = (detail ?? "standard").trim().toLowerCase();
+  if (DESIGN_AGENT_BRIEF_DETAIL_LEVELS.includes(normalized as DesignAgentBriefDetail)) {
+    return normalized as DesignAgentBriefDetail;
+  }
+  throw new Error(`Invalid design agent brief detail "${detail}". Use: ${DESIGN_AGENT_BRIEF_DETAIL_LEVELS.join(", ")}`);
 }
 
 function buildEvidenceCommands(input: {
@@ -140,6 +166,12 @@ function buildEvidenceCommands(input: {
       why: "Show which Agent Skills and MCP files would be installed without writing anything.",
       cost: "free-local",
     },
+    {
+      id: "scaffold-preview",
+      command: "memi scaffold component <Name> --json",
+      why: "Preview a spec-first Atomic Design file scaffold before any registry write.",
+      cost: "free-local",
+    },
   ];
 
   if (isUrl(input.target)) {
@@ -178,6 +210,15 @@ function buildEvidenceCommands(input: {
   }
 
   return commands;
+}
+
+function applyDetailToEvidenceCommands(
+  commands: DesignAgentBriefCommand[],
+  detail: DesignAgentBriefDetail,
+): DesignAgentBriefCommand[] {
+  if (detail !== "compact") return commands;
+  const compactIds = new Set(["diagnose", "ux-audit", "craft-audit", "scaffold-preview"]);
+  return commands.filter((command) => compactIds.has(command.id));
 }
 
 function buildCompatibilityInstalls(agent: string): string[] {

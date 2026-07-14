@@ -12,7 +12,8 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { MemoireEngine } from "../engine/core.js";
 import { AgentOrchestrator } from "../agents/orchestrator.js";
 import { DesignAnalyzer } from "../agents/design-analyzer.js";
-import { buildDesignAgentBrief, DESIGN_AGENT_BRIEF_MODES } from "../agents/design-agent-brief.js";
+import { buildDesignAgentBrief, DESIGN_AGENT_BRIEF_DETAIL_LEVELS, DESIGN_AGENT_BRIEF_MODES } from "../agents/design-agent-brief.js";
+import { buildAgentFileScaffoldPlan, markAgentFileScaffoldWritten } from "../scaffold/agent-file-scaffold.js";
 import { getAI, getTracker } from "../ai/index.js";
 import { ComponentSpecSchema, PageSpecSchema, DataVizSpecSchema, type ComponentSpec } from "../specs/types.js";
 import { fetchPageAssets, parseCSSTokens } from "../research/css-extractor.js";
@@ -554,16 +555,66 @@ Use this tool: as the first MCP call when a coding agent is asked to design, pol
       intent: z.string().optional().describe("Natural language product/design task to optimize the brief around."),
       mode: z.enum(DESIGN_AGENT_BRIEF_MODES).default("local").describe("Evidence mode: local, figma, research, or full."),
       agent: z.string().default("design-agent").describe("Agent stack to prioritize in compatibility guidance, such as codex, hermes, openclaw, cursor, or claude-code."),
+      detail: z.enum(DESIGN_AGENT_BRIEF_DETAIL_LEVELS).default("standard").describe("Payload detail: compact for token-sensitive first turns, standard for runnable guidance, full for complete context."),
     },
-    async ({ target, intent, mode, agent }) => {
+    async ({ target, intent, mode, agent, detail }) => {
       const brief = buildDesignAgentBrief({
         projectRoot: engine.config.projectRoot,
         target,
         intent,
         mode,
         agent,
+        detail,
       });
       return { content: [{ type: "text" as const, text: JSON.stringify(brief) }] };
+    },
+  );
+
+  // ── scaffold_agent_design_files ────────────────────────
+  server.tool(
+    "scaffold_agent_design_files",
+    `Preview or write a spec-first Atomic Design scaffold for agent-created files.
+
+Default is non-mutating: approved=false returns a dry-run JSON plan with the exact spec path, guardrails, and next generation commands.
+To write the spec, pass approved=true. This writes only the registry spec; generated code still requires generate_code or memi generate, so quality gates stay intact.`,
+    {
+      kind: z.enum(["component", "page"]).describe("Scaffold kind. component writes specs/components/<Name>.json; page writes specs/pages/<Name>.json."),
+      name: z.string().describe("Spec name. Must start with a letter and contain only letters, numbers, hyphens, or underscores."),
+      purpose: z.string().optional().describe("Purpose copied into the generated spec."),
+      intent: z.string().optional().describe("Agent task or product intent behind the scaffold."),
+      level: z.enum(["atom", "molecule", "organism", "template"]).optional().describe("Atomic Design level for component scaffolds. Inferred when omitted."),
+      layout: z.enum(["sidebar-main", "full-width", "centered", "split", "dashboard", "marketing"]).optional().describe("Page layout for page scaffolds."),
+      shadcnBase: z.array(z.string()).default(["Card"]).describe("shadcn/ui base components for component scaffolds."),
+      composesSpecs: z.array(z.string()).default([]).describe("Existing component specs this component composes. Invalid for atom scaffolds."),
+      sections: z.array(z.object({
+        name: z.string(),
+        component: z.string(),
+        layout: z.enum(["full-width", "half", "third", "quarter", "grid-2", "grid-3", "grid-4", "stack", "inline"]).optional(),
+      })).default([]).describe("Page sections for page scaffolds."),
+      approved: z.boolean().default(false).describe("Must be true to write the spec. false returns a dry-run plan."),
+    },
+    async ({ kind, name, purpose, intent, level, layout, shadcnBase, composesSpecs, sections, approved }) => {
+      const plan = buildAgentFileScaffoldPlan({
+        projectRoot: engine.config.projectRoot,
+        kind,
+        name,
+        purpose,
+        intent,
+        level,
+        layout,
+        shadcnBase,
+        composesSpecs,
+        sections,
+        dryRun: !approved,
+        approved,
+      });
+
+      if (!approved) {
+        return { content: [{ type: "text" as const, text: JSON.stringify(plan) }] };
+      }
+
+      await engine.registry.saveSpec(plan.spec);
+      return { content: [{ type: "text" as const, text: JSON.stringify(markAgentFileScaffoldWritten(plan)) }] };
     },
   );
 
