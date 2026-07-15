@@ -6,6 +6,7 @@ const root = process.cwd();
 const manifest = JSON.parse(
   readFileSync(join(root, "mcpb", "manifest.json"), "utf8"),
 ) as {
+  tools: unknown[];
   server: {
     entry_point: string;
     mcp_config: {
@@ -34,5 +35,9 @@ describe("MCPB distribution bundle", () => {
 
     expect(launcher).toContain("@memi-design/cli@2.5.0");
     expect(launcher).toContain('"mcp", "start", "--no-figma"');
+  });
+
+  it("emits an explicit tool list for Smithery runtime discovery", () => {
+    expect(manifest.tools).toEqual([]);
   });
 });
