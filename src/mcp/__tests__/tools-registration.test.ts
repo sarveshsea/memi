@@ -86,4 +86,11 @@ describe("MCP tools registration", () => {
     expect(src).toContain('"audit_interface_craft"');
     expect(src).toContain("buildInterfaceCraftReport");
   });
+
+  it("registers compact read-only design-systems-mcp context normalization", async () => {
+    const src = await readToolsSrc();
+    expect(src).toContain('"design_systems_context"');
+    expect(src).toContain("normalizeDesignSystemsMcpCorpus");
+    expect(src).toContain("normalizeDesignSystemsMcpCategoryManifest");
+  });
 });
