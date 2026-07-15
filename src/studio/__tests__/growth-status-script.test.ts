@@ -6,6 +6,7 @@ import {
   buildGrowthStatus,
   collectStaleReferenceMetrics,
   parseHomebrewStudioCask,
+  WEEKLY_NPM_DOWNLOAD_TARGET,
 } from "../../../scripts/lib/growth-status.mjs";
 
 describe("growth status script contract", () => {
@@ -74,9 +75,9 @@ describe("growth status script contract", () => {
     expect(calls).toContain("https://api.npmjs.org/downloads/point/last-week/%40memi-design%2Fcli");
     expect(status.downloads.actualPackage.weekly.downloads).toBe(128);
     expect(status.growth.weeklyNpmDownloads).toMatchObject({
-      target: 1_000_000,
+      target: 7_830,
       current: 128,
-      gap: 999_872,
+      gap: 7_702,
       achieved: false,
     });
     expect(status.downloads.legacyAliases[0].weekly.downloads).toBe(979);
@@ -182,10 +183,11 @@ describe("growth status script contract", () => {
   });
 
   it("computes the weekly npm download gap without hiding zero-download launches", () => {
-    expect(buildWeeklyNpmDownloadGoal({ ok: true, downloads: 0, start: "2026-05-05", end: "2026-05-11" }, 1_000_000)).toEqual({
-      target: 1_000_000,
+    expect(WEEKLY_NPM_DOWNLOAD_TARGET).toBe(7_830);
+    expect(buildWeeklyNpmDownloadGoal({ ok: true, downloads: 0, start: "2026-05-05", end: "2026-05-11" })).toEqual({
+      target: 7_830,
       current: 0,
-      gap: 1_000_000,
+      gap: 7_830,
       achieved: false,
       percentToTarget: 0,
       multipleToTarget: null,

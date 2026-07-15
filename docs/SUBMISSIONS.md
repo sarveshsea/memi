@@ -155,10 +155,10 @@ https://github.com/sarveshsea/design-sandbox
 
 ## Submission Checklist
 
-- [ ] Publish npm `2.5.0`.
+- [x] Publish npm `2.5.0`.
 - [ ] Verify `npm run check:public-release`.
-- [ ] Republish `server.json` to the Official MCP Registry.
-- [ ] Create GitHub tag/release `v2.5.0`.
+- [x] Republish `server.json` to the Official MCP Registry.
+- [x] Create GitHub tag/release `v2.5.0`.
 - [x] Push the updated `sarveshsea/design-sandbox` proof repo.
 - [ ] Submit Product Hunt.
 - [ ] Post X/Twitter launch thread.

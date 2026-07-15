@@ -29,4 +29,28 @@ describe("release binary workflow", () => {
     expect(workflow).toContain('npm install --no-save --package-lock=false --ignore-scripts "@esbuild/${{ matrix.esbuildPackage }}@${ESBUILD_VERSION}"');
     expect(workflow).toContain("SKIP_AUDIT_GATE: \"1\"");
   });
+
+  it("supports repairing an existing release without moving its tag", async () => {
+    const workflow = await readFile(
+      join(process.cwd(), ".github", "workflows", "release-binaries.yml"),
+      "utf-8",
+    );
+
+    expect(workflow).toContain("workflow_dispatch:");
+    expect(workflow).toContain("release_tag:");
+    expect(workflow).toContain("RELEASE_TAG:");
+    expect(workflow).toContain("VERSION=${{ env.RELEASE_TAG }}");
+    expect(workflow).not.toContain("VERSION=${{ github.ref_name }}");
+  });
+
+  it("installs the container entrypoint on the standard executable path", async () => {
+    const dockerfile = await readFile(
+      join(process.cwd(), "docker", "Dockerfile.binary"),
+      "utf-8",
+    );
+
+    expect(dockerfile).toContain("ln -s /opt-design/cli/memi /usr/local/bin/memi");
+    expect(dockerfile).not.toContain("/usr/local/bin-design/cli");
+    expect(dockerfile).toContain('ENTRYPOINT ["memi"]');
+  });
 });

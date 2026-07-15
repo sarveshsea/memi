@@ -32,8 +32,7 @@ RUN set -eux; \
     mkdir -p /opt-design/cli; \
     curl -fsSL "${url}" | tar -xz -C /opt-design/cli --strip-components=1; \
     chmod +x /opt-design/cli/memi; \
-    ln -s /opt-design/cli/memi /usr/local/bin/memi; \
-    ln -s /opt-design/cli/memi /usr/local/bin-design/cli
+    ln -s /opt-design/cli/memi /usr/local/bin/memi
 
 WORKDIR /work
 EXPOSE 9223-9232

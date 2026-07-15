@@ -39,9 +39,9 @@ memi mcp start --no-figma
 
 ## Release Checklist
 
-- Publish `@memi-design/cli@2.5.0`.
+- Published `@memi-design/cli@2.5.0`.
 - Verify `npm run check:public-release`.
-- Publish `server.json` to the MCP Registry after auth refresh.
-- Create GitHub tag/release `v2.5.0`.
+- Published `server.json` to the MCP Registry as `io.github.sarveshsea/memi@2.5.0`.
+- Created GitHub tag/release `v2.5.0`.
 - Confirm the homepage shows Studio `2.4.0`, Homebrew cask `2.4.0`, and npm `2.5.0`.
 - Confirm no first-fold public install path points to deprecated package or repo names.

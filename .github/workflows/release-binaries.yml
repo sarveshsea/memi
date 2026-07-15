@@ -4,6 +4,15 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing semver release tag to repair
+        required: true
+        type: string
+
+env:
+  RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
 
 jobs:
   release-gate:
@@ -94,6 +103,7 @@ jobs:
       - name: Upload artifact to release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
           files: |
             dist-bin/memi-${{ matrix.target }}.tar.gz
             dist-bin/memi-${{ matrix.target }}.zip
@@ -113,7 +123,7 @@ jobs:
       - name: Download all release assets
         run: |
           mkdir -p sums
-          gh release download "${GITHUB_REF_NAME}" -R "${GITHUB_REPOSITORY}" \
+          gh release download "${RELEASE_TAG}" -R "${GITHUB_REPOSITORY}" \
             --pattern '*.sha256' --dir sums
           cat sums/*.sha256 > SHA256SUMS.txt
           cat SHA256SUMS.txt
@@ -122,6 +132,7 @@ jobs:
       - name: Upload combined SHA256SUMS.txt
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
           files: SHA256SUMS.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -148,10 +159,10 @@ jobs:
           platforms: linux/amd64
           push: true
           build-args: |
-            VERSION=${{ github.ref_name }}
+            VERSION=${{ env.RELEASE_TAG }}
           tags: |
             ghcr.io/sarveshsea/memi:latest
-            ghcr.io/sarveshsea/memi:${{ github.ref_name }}
+            ghcr.io/sarveshsea/memi:${{ env.RELEASE_TAG }}
 
   publish-homebrew:
     needs: publish-checksums
@@ -164,7 +175,7 @@ jobs:
       - name: Download SHA256SUMS
         run: |
           mkdir -p dist-bin
-          gh release download "${GITHUB_REF_NAME}" -R "${GITHUB_REPOSITORY}" \
+          gh release download "${RELEASE_TAG}" -R "${GITHUB_REPOSITORY}" \
             --pattern 'SHA256SUMS.txt' --dir dist-bin
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -185,5 +196,5 @@ jobs:
           git config user.name "sarveshsea-bot"
           git config user.email "bot@memoire.cv"
           git add Formula/memoire.rb
-          git commit -m "memoire ${GITHUB_REF_NAME}" || echo "no changes"
+          git commit -m "memoire ${RELEASE_TAG}" || echo "no changes"
           git push
