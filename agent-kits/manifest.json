@@ -12,7 +12,7 @@
     "craftSkills": "emilkowalski/skills",
     "proofRepo": "sarveshsea/design-sandbox",
     "githubAction": "sarveshsea/memi",
-    "skillsEcosystem": "npx skills add sarveshsea/memi --skill memoire-design-tooling",
+    "skillsEcosystem": "npx skills add sarveshsea/memi --skill audit-frontend-design",
     "grokDocs": "https://docs.x.ai/build/features/mcp-servers"
   },
   "targets": [
@@ -22,6 +22,27 @@
       "source": "skills/memoire-design-tooling",
       "sourceBase": "package",
       "defaultDestination": "<project>/.agents/skills/memoire-design-tooling"
+    },
+    {
+      "id": "universal",
+      "kind": "skill",
+      "source": "skills/audit-frontend-design",
+      "sourceBase": "package",
+      "defaultDestination": "<project>/.agents/skills/audit-frontend-design"
+    },
+    {
+      "id": "universal",
+      "kind": "skill",
+      "source": "skills/remember-design-system",
+      "sourceBase": "package",
+      "defaultDestination": "<project>/.agents/skills/remember-design-system"
+    },
+    {
+      "id": "universal",
+      "kind": "skill",
+      "source": "skills/enforce-design-ci",
+      "sourceBase": "package",
+      "defaultDestination": "<project>/.agents/skills/enforce-design-ci"
     },
     {
       "id": "hermes",
@@ -50,8 +71,30 @@
     {
       "id": "codex",
       "kind": "skill",
-      "source": "codex/memoire-design-tooling",
+      "source": "skills/memoire-design-tooling",
+      "sourceBase": "package",
       "defaultDestination": "~/.codex/skills/memoire/memoire-design-tooling"
+    },
+    {
+      "id": "codex",
+      "kind": "skill",
+      "source": "skills/audit-frontend-design",
+      "sourceBase": "package",
+      "defaultDestination": "~/.codex/skills/memoire/audit-frontend-design"
+    },
+    {
+      "id": "codex",
+      "kind": "skill",
+      "source": "skills/remember-design-system",
+      "sourceBase": "package",
+      "defaultDestination": "~/.codex/skills/memoire/remember-design-system"
+    },
+    {
+      "id": "codex",
+      "kind": "skill",
+      "source": "skills/enforce-design-ci",
+      "sourceBase": "package",
+      "defaultDestination": "~/.codex/skills/memoire/enforce-design-ci"
     },
     {
       "id": "opencode",

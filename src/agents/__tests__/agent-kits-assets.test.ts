@@ -80,10 +80,16 @@ describe("packaged agent kits", () => {
     expect(manifest.daemon.status).toBe("memi daemon status --json");
     expect(manifest.targets.map((target) => target.id)).toEqual([
       "universal",
+      "universal",
+      "universal",
+      "universal",
       "hermes",
       "openclaw",
       "claude-code",
       "cursor",
+      "codex",
+      "codex",
+      "codex",
       "codex",
       "opencode",
       "grok-build",
@@ -115,6 +121,28 @@ describe("packaged agent kits", () => {
     expect(rootSkill).toContain("memi mcp start --no-figma");
   });
 
+  it("ships focused zero-setup skills for the three core design-agent jobs", async () => {
+    const root = process.cwd();
+    const focusedSkills = [
+      "audit-frontend-design",
+      "remember-design-system",
+      "enforce-design-ci",
+    ];
+    const pkg = JSON.parse(await readFile(join(root, "package.json"), "utf-8"));
+
+    for (const name of focusedSkills) {
+      const skill = await readFile(join(root, "skills", name, "SKILL.md"), "utf-8");
+      const lines = skill.split("\n");
+
+      expect(skill).toMatch(new RegExp(`^---\\nname: ${name}\\ndescription: Use when `));
+      expect(skill).toContain(`npx -y @memi-design/cli@${pkg.version}`);
+      expect(skill).not.toContain("npm i -g");
+      expect(skill).not.toContain("daemon start");
+      expect(lines.length).toBeLessThanOrEqual(95);
+      expect(Buffer.byteLength(skill, "utf-8")).toBeLessThanOrEqual(5_500);
+    }
+  });
+
   it("ships valid SKILL.md frontmatter for Hermes and OpenClaw", async () => {
     const root = process.cwd();
     const hermesSkill = await readFile(join(root, "agent-kits", "hermes", "memoire-design-tooling", "SKILL.md"), "utf-8");
@@ -124,11 +152,11 @@ describe("packaged agent kits", () => {
       expect(skill).toMatch(/^---\n/);
       expect(skill).toContain("name: memoire-design-tooling");
       expect(skill).toContain("description: Use when");
-      expect(skill).toMatch(/\n---\n\n# memi Design Tooling/);
-      expect(skill).toContain("npm i -g @memi-design/cli");
+      expect(skill).toMatch(/\n---\n\n# Memi Design Tooling/);
+      expect(skill).toContain("npx -y @memi-design/cli@2.5.0");
       expect(skill).toContain("memoire.agent.yaml");
-      expect(skill).toContain("memi daemon status --json");
-      expect(skill).toContain("memi mcp start --no-figma");
+      expect(skill).not.toContain("npm i -g");
+      expect(skill).not.toContain("daemon start");
       expect(skill).toContain("memi");
     }
     expect(openClawSkill).toContain("metadata:");
@@ -188,6 +216,11 @@ describe("packaged agent kits", () => {
       },
     });
     expect(pluginSkill).toBe(codexSkill);
+    for (const skillName of ["audit-frontend-design", "remember-design-system", "enforce-design-ci"]) {
+      const focusedPluginSkill = await readFile(join(root, "plugins", "memoire", "skills", skillName, "SKILL.md"), "utf-8");
+      const focusedRootSkill = await readFile(join(root, "skills", skillName, "SKILL.md"), "utf-8");
+      expect(focusedPluginSkill).toBe(focusedRootSkill);
+    }
   });
 
   it("documents public Git-backed Codex marketplace installation", async () => {

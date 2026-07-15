@@ -13,6 +13,14 @@ function makeRunner(allowed: string[], handler: (tool: string, args: unknown) =>
   };
 }
 
+async function waitUntil(predicate: () => boolean, timeoutMs = 2_000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (!predicate()) {
+    if (Date.now() >= deadline) throw new Error(`Condition not met within ${timeoutMs}ms`);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+}
+
 async function withClient(socketPath: string, fn: (send: (msg: unknown) => void, received: unknown[]) => Promise<void>) {
   const received: unknown[] = [];
   const decoder = createDecoderState();
@@ -69,7 +77,7 @@ describe("exec/tools-rpc-server", () => {
 
     await withClient(socketPath, async (send, received) => {
       send({ id: 7, op: "tool", tool: "Read", args: { path: "x.ts" } });
-      await new Promise((r) => setTimeout(r, 30));
+      await waitUntil(() => received.length === 1);
       expect(received.length).toBe(1);
       const response = received[0] as { id: number; ok: boolean; result?: { tool: string } };
       expect(response.id).toBe(7);
@@ -87,7 +95,7 @@ describe("exec/tools-rpc-server", () => {
 
     await withClient(socketPath, async (send, received) => {
       send({ id: 1, op: "tool", tool: "Bash", args: { command: "rm -rf /" } });
-      await new Promise((r) => setTimeout(r, 30));
+      await waitUntil(() => received.length === 1);
       const response = received[0] as { ok: boolean; error?: string };
       expect(response.ok).toBe(false);
       expect(response.error).toMatch(/not in allowlist/);
@@ -105,7 +113,7 @@ describe("exec/tools-rpc-server", () => {
 
     await withClient(socketPath, async (send, received) => {
       send({ id: 1, op: "tool", tool: "Read", args: {} });
-      await new Promise((r) => setTimeout(r, 30));
+      await waitUntil(() => received.length === 1);
       const response = received[0] as { ok: boolean; error?: string };
       expect(response.ok).toBe(false);
       expect(response.error).toBe("disk on fire");
@@ -123,7 +131,7 @@ describe("exec/tools-rpc-server", () => {
 
     await withClient(socketPath, async (send) => {
       send({ id: 1, op: "log", level: "info", message: "step 1 done" });
-      await new Promise((r) => setTimeout(r, 30));
+      await waitUntil(() => logs.length === 1);
     });
     expect(logs).toEqual([{ level: "info", message: "step 1 done" }]);
   });
@@ -142,7 +150,7 @@ describe("exec/tools-rpc-server", () => {
 
     await withClient(socketPath, async (send) => {
       send({ id: 1, op: "exit", ok: true, result: { found: 42 } });
-      await new Promise((r) => setTimeout(r, 30));
+      await waitUntil(() => final !== null);
     });
 
     await waitPromise;
@@ -190,7 +198,7 @@ describe("exec/tools-rpc-server", () => {
       for (let i = 1; i <= 5; i += 1) {
         send({ id: i, op: "tool", tool: "Read", args: { i } });
       }
-      await new Promise((r) => setTimeout(r, 50));
+      await waitUntil(() => received.length === 5);
       expect(received.length).toBe(5);
       const ids = (received as Array<{ id: number }>).map((r) => r.id).sort();
       expect(ids).toEqual([1, 2, 3, 4, 5]);

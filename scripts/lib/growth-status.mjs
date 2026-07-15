@@ -7,6 +7,7 @@ const LEGACY_FORK_NAME = ["Miro", "Fish"].join("");
 export const LEGACY_PACKAGE_ALIASES = [LEGACY_PACKAGE_NAME];
 export const STUDIO_REPO = "sarveshsea/memi-studio";
 export const ENGINE_REPO = "sarveshsea/memi";
+export const SKILLS_SH_URL = "https://skills.sh/sarveshsea/memi";
 export const HOMEBREW_STUDIO_CASK_URL = "https://raw.githubusercontent.com/sarveshsea/homebrew-memi/main/Casks/memi-studio.rb";
 export const DEFAULT_STALE_REFERENCE_PATTERNS = [LEGACY_REPO_NAME, LEGACY_PACKAGE_NAME, LEGACY_FORK_NAME];
 export const WEEKLY_NPM_DOWNLOAD_TARGET = 7_830;
@@ -41,6 +42,7 @@ export async function buildGrowthStatus(options = {}) {
     weeklyDownloads,
     monthlyDownloads,
     githubRepo,
+    skillsShPage,
     registrySearch,
     safeSkillPr,
     directoryStatuses,
@@ -53,6 +55,7 @@ export async function buildGrowthStatus(options = {}) {
     fetchJson(actualDownloadPointUrl(packageJson.name, "last-week")),
     fetchJson(actualDownloadPointUrl(packageJson.name, "last-month")),
     fetchJson(`https://api.github.com/repos/${ENGINE_REPO}`),
+    fetchText(SKILLS_SH_URL),
     fetchJson(`https://registry.modelcontextprotocol.io/v0.1/servers?search=${encodeURIComponent(packageJson.mcpName ?? packageJson.name)}`),
     fetchJson(`https://api.github.com/repos/${ENGINE_REPO}/pulls/2`),
     Promise.all(directoryPullRequests.map(async ([repo, number]) => {
@@ -85,6 +88,7 @@ export async function buildGrowthStatus(options = {}) {
   const officialMcpRegistry = normalizeRegistry(registrySearch, packageJson.mcpName);
   const safeSkill = normalizeSafeSkillPr(safeSkillPr);
   const github = normalizeRepo(githubRepo);
+  const skillsSh = parseSkillsShPage(skillsShPage);
   const studio = normalizeStudioRelease(studioLatestRelease);
   const homebrewStudioCask = parseHomebrewStudioCask(homebrewCaskRaw);
   const staleReferences = collectStaleReferenceMetrics(staleReferenceSources);
@@ -111,6 +115,7 @@ export async function buildGrowthStatus(options = {}) {
       weeklyNpmDownloads,
     },
     github,
+    skillsSh,
     studio,
     homebrewStudioCask,
     officialMcpRegistry,
@@ -123,6 +128,7 @@ export async function buildGrowthStatus(options = {}) {
       officialMcpRegistry,
       safeSkill,
       github,
+      skillsSh,
       staleReferences,
       homebrewStudioCask,
       studio,
@@ -145,6 +151,7 @@ export function printHuman(status) {
     console.log(`Legacy alias ${alias.name}: ${formatDownloads(alias.weekly, "weekly")} · ${formatDownloads(alias.monthly, "monthly")}`);
   }
   console.log(`GitHub: ${status.github.ok ? `${status.github.stars} stars · ${status.github.forks} forks · ${status.github.openIssues} open issues` : `error: ${status.github.error}`}`);
+  console.log(`skills.sh: ${status.skillsSh.ok ? `${status.skillsSh.discoveredSkills} skills · ${status.skillsSh.totalInstalls} total installs` : "not measurable"}`);
   console.log(`Studio release: ${status.studio.ok ? `${status.studio.latestRelease.tag} · ${status.studio.latestRelease.totalDownloads} downloads` : `error: ${status.studio.error}`}`);
   console.log(`Homebrew Studio cask: ${status.homebrewStudioCask.version ?? "unknown"}`);
   console.log(`Official MCP Registry: ${status.officialMcpRegistry.listed ? "listed" : "not listed"} (${status.officialMcpRegistry.count} result${status.officialMcpRegistry.count === 1 ? "" : "s"})`);
@@ -167,6 +174,15 @@ export function parseHomebrewStudioCask(raw) {
   const version = raw.match(/version\s+"([^"]+)"/)?.[1] ?? null;
   const releaseUrls = [...raw.matchAll(/url\s+"([^"]+)"/g)].map((match) => match[1]);
   return { name, version, releaseUrls };
+}
+
+export function parseSkillsShPage(raw) {
+  const discoveredSkills = Number(String(raw).match(/content="(\d+) agent skills? from sarveshsea\/memi\b/i)?.[1]);
+  const totalInstalls = Number(String(raw).match(/>([\d,]+)(?:<!-- -->)?\s*total installs\b/i)?.[1]?.replaceAll(",", ""));
+  if (!Number.isFinite(discoveredSkills) || discoveredSkills < 1 || !Number.isFinite(totalInstalls)) {
+    return { ok: false, url: SKILLS_SH_URL, discoveredSkills: 0, totalInstalls: 0 };
+  }
+  return { ok: true, url: SKILLS_SH_URL, discoveredSkills, totalInstalls };
 }
 
 export function collectStaleReferenceMetrics(sources = {}) {
@@ -373,6 +389,9 @@ function buildNextActions(input) {
   }
   if (input.github.ok && input.github.stars < 16) {
     actions.push(`Starstruck needs ${16 - input.github.stars} more real stars.`);
+  }
+  if (input.skillsSh.ok && input.skillsSh.discoveredSkills < 4) {
+    actions.push(`Wait for skills.sh to reindex all 4 public skills; ${input.skillsSh.discoveredSkills} currently discovered.`);
   }
   if (input.staleReferences.total > 0) {
     actions.push(`Clear or intentionally quarantine ${input.staleReferences.total} stale naming/reference hit${input.staleReferences.total === 1 ? "" : "s"}.`);
