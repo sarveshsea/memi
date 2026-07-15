@@ -80,20 +80,38 @@ const MCP_SERVER_CONFIG = {
   },
 };
 
-const KIT_DEFINITIONS: AgentKitDefinition[] = [
-  {
-    target: "universal",
+const PUBLIC_AGENT_SKILLS = [
+  "memoire-design-tooling",
+  "audit-frontend-design",
+  "remember-design-system",
+  "enforce-design-ci",
+] as const;
+
+function publicSkillDefinitions(
+  target: AgentInstallTarget,
+  note: string,
+  destinationRoot: (input: Parameters<AgentKitDefinition["destination"]>[0]) => string,
+): AgentKitDefinition[] {
+  return PUBLIC_AGENT_SKILLS.map((skillName) => ({
+    target,
     kind: "skill",
-    source: "skills/memoire-design-tooling",
+    source: `skills/${skillName}`,
     sourceBase: "package",
-    note: "Standard Agent Skills package for agents that read .agents/skills.",
-    destination: ({ projectRoot, homeDir, global }) => join(
+    note: `${note} (${skillName})`,
+    destination: (input) => join(destinationRoot(input), skillName),
+  }));
+}
+
+const KIT_DEFINITIONS: AgentKitDefinition[] = [
+  ...publicSkillDefinitions(
+    "universal",
+    "Standard Agent Skills package for agents that read .agents/skills.",
+    ({ projectRoot, homeDir, global }) => join(
       global ? homeDir : projectRoot,
       ".agents",
       "skills",
-      "memoire-design-tooling",
     ),
-  },
+  ),
   {
     target: "hermes",
     kind: "skill",
@@ -124,13 +142,11 @@ const KIT_DEFINITIONS: AgentKitDefinition[] = [
     note: "Cursor MCP config for the Memoire server.",
     destination: ({ projectRoot }) => join(projectRoot, ".cursor", "mcp.json"),
   },
-  {
-    target: "codex",
-    kind: "skill",
-    source: "codex/memoire-design-tooling",
-    note: "Codex skill that teaches Memoire design tooling workflows.",
-    destination: ({ homeDir }) => join(homeDir, ".codex", "skills", "memoire", "memoire-design-tooling"),
-  },
+  ...publicSkillDefinitions(
+    "codex",
+    "Codex skill that teaches Memoire design tooling workflows.",
+    ({ homeDir }) => join(homeDir, ".codex", "skills", "memoire"),
+  ),
   {
     target: "codex-plugin",
     kind: "plugin",

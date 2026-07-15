@@ -235,13 +235,13 @@ memi agent install codex
 memi agent install codex-plugin
 memi agent install opencode --project .
 
-npx skills add sarveshsea/memi --skill memoire-design-tooling
+npx skills add sarveshsea/memi --skill audit-frontend-design
 ```
 
 | Stack | Install path | Best for |
 | --- | --- | --- |
 | **Grok Build** | `.grok/config.toml` + `.grok/skills/` (+ `.agents/skills/` mirror) | Grok 4.5 terminal agent with design MCP |
-| Universal Agent Skills | `.agents/skills/memoire-design-tooling/` | ECC / AGENTS.md workflows |
+| Universal Agent Skills | `.agents/skills/{audit-frontend-design,remember-design-system,enforce-design-ci,memoire-design-tooling}/` | ECC / AGENTS.md workflows |
 | Hermes | `~/.hermes/skills/memoire/` | Transcript-first product design |
 | OpenClaw | `<workspace>/skills/memoire/` | Workspace-local agents |
 | Claude Code | `.mcp.json` | Project MCP approval |
@@ -290,7 +290,7 @@ memi studio web --port 1422
 | --- | --- |
 | `dist/` | CLI + MCP runtime |
 | `server.json` | MCP Registry descriptor |
-| `skills/memoire-design-tooling/` | Standard Agent Skills package |
+| `skills/*/SKILL.md` | Focused Agent Skills plus the full workflow router |
 | `agent-kits/` | Grok Build, Hermes, Codex, Cursor, Claude Code, OpenCode, OpenClaw kits |
 | `plugins/memoire/` | Codex plugin bundle |
 | `notes/` | Built-in research, agent, and design notes |

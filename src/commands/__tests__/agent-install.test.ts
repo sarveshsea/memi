@@ -78,10 +78,16 @@ describe("agent install command", () => {
     });
     expect(payload.plans.map((plan: { target: string }) => plan.target)).toEqual([
       "universal",
+      "universal",
+      "universal",
+      "universal",
       "hermes",
       "openclaw",
       "claude-code",
       "cursor",
+      "codex",
+      "codex",
+      "codex",
       "codex",
       "opencode",
       "grok-build",
@@ -108,13 +114,13 @@ describe("agent install command", () => {
       action: "install",
       status: "completed",
       target: "universal",
-      plans: expect.arrayContaining([{
-        target: "universal",
-        kind: "skill",
-        source: expect.stringContaining("skills/memoire-design-tooling"),
-        destination: join(projectRoot, ".agents", "skills", "memoire-design-tooling"),
-      }]),
     });
+    expect(payload.plans).toEqual(expect.arrayContaining([expect.objectContaining({
+      target: "universal",
+      kind: "skill",
+      source: expect.stringContaining("skills/memoire-design-tooling"),
+      destination: join(projectRoot, ".agents", "skills", "memoire-design-tooling"),
+    })]));
 
     const skillNames = ["memoire-design-tooling", "audit-frontend-design", "remember-design-system", "enforce-design-ci"];
     expect(payload.plans).toHaveLength(skillNames.length);

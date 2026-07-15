@@ -139,10 +139,15 @@ for (const term of ["name: memoire-design-tooling", "agent brief", "memi agent i
     fail(`root Agent Skills package is missing required term: ${term}`);
   }
 }
+const pinnedCliCommand = `npx -y @memi-design/cli@${packageJson.version}`;
 for (const skillName of ["audit-frontend-design", "remember-design-system", "enforce-design-ci"]) {
   const focusedSkill = await readFile(join(root, "skills", skillName, "SKILL.md"), "utf-8");
-  if (!focusedSkill.includes(`name: ${skillName}`) || !focusedSkill.includes("npx -y @memi-design/cli@2.5.0")) {
+  const focusedPluginSkill = await readFile(join(root, "plugins", "memoire", "skills", skillName, "SKILL.md"), "utf-8");
+  if (!focusedSkill.includes(`name: ${skillName}`) || !focusedSkill.includes(pinnedCliCommand)) {
     fail(`focused Agent Skill is missing its name or pinned zero-setup CLI path: ${skillName}`);
+  }
+  if (focusedPluginSkill !== focusedSkill) {
+    fail(`Codex plugin focused skill is not synced with the root skill: ${skillName}`);
   }
 }
 if (codexPluginManifest.homepage !== "https://www.memoire.cv/codex-plugin") {
