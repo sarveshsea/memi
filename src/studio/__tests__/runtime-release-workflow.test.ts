@@ -30,6 +30,19 @@ describe("release binary workflow", () => {
     expect(workflow).toContain("SKIP_AUDIT_GATE: \"1\"");
   });
 
+  it("supports repairing an existing release without moving its tag", async () => {
+    const workflow = await readFile(
+      join(process.cwd(), ".github", "workflows", "release-binaries.yml"),
+      "utf-8",
+    );
+
+    expect(workflow).toContain("workflow_dispatch:");
+    expect(workflow).toContain("release_tag:");
+    expect(workflow).toContain("RELEASE_TAG:");
+    expect(workflow).toContain("VERSION=${{ env.RELEASE_TAG }}");
+    expect(workflow).not.toContain("VERSION=${{ github.ref_name }}");
+  });
+
   it("installs the container entrypoint on the standard executable path", async () => {
     const dockerfile = await readFile(
       join(process.cwd(), "docker", "Dockerfile.binary"),
