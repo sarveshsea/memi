@@ -223,6 +223,22 @@ describe("packaged agent kits", () => {
     }
   });
 
+  it("ships the Claude plugin with the same four zero-setup skills", async () => {
+    const root = process.cwd();
+    const pkg = JSON.parse(await readFile(join(root, "package.json"), "utf-8"));
+    const manifest = JSON.parse(await readFile(join(root, "plugins", "memi-claude", ".claude-plugin", "plugin.json"), "utf-8"));
+    const skillNames = ["memoire-design-tooling", "audit-frontend-design", "remember-design-system", "enforce-design-ci"];
+
+    expect(manifest.version).toBe(pkg.version);
+    for (const skillName of skillNames) {
+      const skill = await readFile(join(root, "plugins", "memi-claude", "skills", skillName, "SKILL.md"), "utf-8");
+      expect(skill).toContain(`name: ${skillName}`);
+      expect(skill).toContain(`npx -y @memi-design/cli@${pkg.version}`);
+      expect(skill).not.toContain("npm i -g");
+      expect(skill).not.toContain("daemon start");
+    }
+  });
+
   it("documents public Git-backed Codex marketplace installation", async () => {
     const root = process.cwd();
     const readme = await readFile(join(root, "README.md"), "utf-8");
