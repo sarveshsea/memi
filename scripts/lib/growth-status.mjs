@@ -9,7 +9,7 @@ export const STUDIO_REPO = "sarveshsea/memi-studio";
 export const ENGINE_REPO = "sarveshsea/memi";
 export const HOMEBREW_STUDIO_CASK_URL = "https://raw.githubusercontent.com/sarveshsea/homebrew-memi/main/Casks/memi-studio.rb";
 export const DEFAULT_STALE_REFERENCE_PATTERNS = [LEGACY_REPO_NAME, LEGACY_PACKAGE_NAME, LEGACY_FORK_NAME];
-export const WEEKLY_NPM_DOWNLOAD_TARGET = 1_000_000;
+export const WEEKLY_NPM_DOWNLOAD_TARGET = 7_830;
 
 export const DEFAULT_DIRECTORY_PULL_REQUESTS = [
   ["punkpeye/awesome-mcp-servers", 4373],
@@ -139,7 +139,7 @@ export function printHuman(status) {
   console.log(`Downloads: ${formatDownloads(status.downloads.actualPackage.weekly, "weekly")} · ${formatDownloads(status.downloads.actualPackage.monthly, "monthly")}`);
   if (status.growth?.weeklyNpmDownloads) {
     const goal = status.growth.weeklyNpmDownloads;
-    console.log(`1M/week target: ${formatNumber(goal.current)} / ${formatNumber(goal.target)} (${formatPercent(goal.percentToTarget)} · ${formatNumber(goal.gap)} gap · ${formatMultiple(goal.multipleToTarget)} to target)`);
+    console.log(`10x weekly target: ${formatNumber(goal.current)} / ${formatNumber(goal.target)} (${formatPercent(goal.percentToTarget)} · ${formatNumber(goal.gap)} gap · ${formatMultiple(goal.multipleToTarget)} to target)`);
   }
   for (const alias of status.downloads.legacyAliases) {
     console.log(`Legacy alias ${alias.name}: ${formatDownloads(alias.weekly, "weekly")} · ${formatDownloads(alias.monthly, "monthly")}`);
@@ -381,7 +381,7 @@ function buildNextActions(input) {
     actions.push(`Update the Homebrew Studio cask from ${input.homebrewStudioCask.version} to ${input.studio.latestRelease.tag}.`);
   }
   if (input.weeklyNpmDownloads && !input.weeklyNpmDownloads.achieved) {
-    actions.push(`Close the 1M/week npm gap: ${formatNumber(input.weeklyNpmDownloads.gap)} more weekly downloads needed for ${input.packageJson.name}.`);
+    actions.push(`Close the 10x weekly npm gap: ${formatNumber(input.weeklyNpmDownloads.gap)} more weekly downloads needed for ${input.packageJson.name}.`);
   }
   return actions;
 }
