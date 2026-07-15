@@ -90,7 +90,7 @@ runs:
         done
 
     - name: Set up Node.js 20
-      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
       with:
         node-version: "20"
 
@@ -165,7 +165,7 @@ runs:
 
     - name: Upload SARIF to code scanning
       if: ${{ always() && inputs['upload-sarif'] == 'true' && steps.artifacts.outputs['sarif-ready'] == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
-      uses: github/codeql-action/upload-sarif@02c5e83432fe5497fd85b873b6c9f16a8578e1d9 # v3
+      uses: github/codeql-action/upload-sarif@1ad29ea4a422cce9a242a9fae469541dcd08addc # v4
       with:
         sarif_file: .memoire/app-quality/memi-results.sarif
         category: memi-design
@@ -173,7 +173,7 @@ runs:
     - name: Upload design-health artifact
       id: upload-artifact
       if: ${{ always() && inputs.report == 'true' && steps.artifacts.outputs['artifact-ready'] == 'true' }}
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
       with:
         name: memi-design-health
         path: |
