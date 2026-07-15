@@ -6,6 +6,7 @@ import {
   buildGrowthStatus,
   collectStaleReferenceMetrics,
   parseHomebrewStudioCask,
+  parseSkillsShPage,
   WEEKLY_NPM_DOWNLOAD_TARGET,
 } from "../../../scripts/lib/growth-status.mjs";
 
@@ -31,6 +32,20 @@ describe("growth status script contract", () => {
       name: "memi-studio",
       version: "1.0.0",
       releaseUrls: ["https://github.com/sarveshsea/memi-studio/releases/download/v#{version}/Memoire.Studio_#{version}_aarch64.dmg"],
+    });
+  });
+
+  it("parses skills.sh discovery and install counts", () => {
+    const page = `
+      <meta name="description" content="4 agent skills from sarveshsea/memi — including audit-frontend-design.">
+      <span>27<!-- --> total installs</span>
+    `;
+
+    expect(parseSkillsShPage(page)).toEqual({
+      ok: true,
+      url: "https://skills.sh/sarveshsea/memi",
+      discoveredSkills: 4,
+      totalInstalls: 27,
     });
   });
 
