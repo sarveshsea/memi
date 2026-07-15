@@ -10,7 +10,7 @@ memi v2 needs public proof repos, not only package claims. Use this file to keep
 | [`sarveshsea/design-sandbox`](https://github.com/sarveshsea/design-sandbox) | Proof workspace | memi-ready Next.js, Tailwind, shadcn, MCP, and Agent Skills sandbox for design-to-code exploration. |
 | [`sarveshsea/memi-studio`](https://github.com/sarveshsea/memi-studio) | macOS workbench | Supervised Codex and Claude Code runs with project memory, receipts, artifacts, and Figma/FigJam handoff. |
 | [`sarveshsea/memoire-agent-skills`](https://github.com/sarveshsea/memoire-agent-skills) | Skill mirror | Mirror-ready Hermes/OpenClaw skill packages generated from the npm engine. |
-| [`sarveshsea/memoire-community-notes`](https://github.com/sarveshsea/memoire-community-notes) | Community Notes | Reviewed skill packs for memi v2 surfaces, MCP setup, macOS Studio, design-sandbox proof, and interface craft. |
+| [`sarveshsea/design-skills`](https://github.com/sarveshsea/design-skills) | Design Skills and Community Notes | Mémoire's complete design-skill corpus plus licensed, attributed adaptations for Agent Skills and the Notes marketplace. |
 
 ## GitHub descriptions
 
@@ -32,10 +32,26 @@ memi-ready Next.js, Tailwind, shadcn, MCP, and Agent Skills sandbox for interfac
 Agent design CI for Codex, Claude, Cursor, Grok, and MCP clients: compact design briefs, UI audits, token checks, and spec-first scaffolds.
 ```
 
-`sarveshsea/memoire-community-notes`:
+`sarveshsea/design-skills`:
 
 ```text
-Community Memoire Notes for memi, MCP, Agent Skills, macOS Studio, design-sandbox proof, and interface craft workflows.
+Practical design judgment for AI coding agents: 78 installable skills for craft, research, generation, Figma, and Mémoire workflows.
+```
+
+Use these topics on `sarveshsea/design-skills`:
+
+```text
+agent-skills
+design-engineering
+design-systems
+ui-design
+ux-design
+figma
+animation
+typography
+accessibility
+ai-coding-agents
+memoire
 ```
 
 ## Topics

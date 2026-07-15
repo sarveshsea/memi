@@ -1,14 +1,1404 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-08T21:58:54.164Z",
+  "generatedAt": "2026-07-15T17:54:03.579Z",
   "baseUrl": "https://www.memoire.cv/notes/community",
   "notes": [
+    {
+      "id": "accessibility-audit",
+      "name": "accessibility-audit",
+      "title": "Accessibility Audit",
+      "version": "2.0.0",
+      "description": "WCAG 2.2 compliance auditing — color contrast, keyboard nav, screen reader, focus management, touch targets, cognitive accessibility, motion sensitivity, forms, automated testing integration",
+      "category": "research",
+      "tags": [
+        "accessibility",
+        "wcag",
+        "a11y",
+        "screen-reader",
+        "color-contrast",
+        "keyboard-nav",
+        "aria",
+        "cognitive",
+        "focus-management",
+        "touch-targets",
+        "reduced-motion",
+        "forms"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/accessibility-audit",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/accessibility-audit",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/accessibility-audit/accessibility-audit-2.0.0.tgz",
+        "sha256": "7af18582cfc56cccaf3441af236bc6bccf86bccb77f57aed33b97ce2114e5780",
+        "size": 9120
+      },
+      "manifest": {
+        "name": "accessibility-audit",
+        "version": "2.0.0",
+        "description": "WCAG 2.2 compliance auditing — color contrast, keyboard nav, screen reader, focus management, touch targets, cognitive accessibility, motion sensitivity, forms, automated testing integration",
+        "author": "Sarvesh Chidambaram",
+        "category": "research",
+        "tags": [
+          "accessibility",
+          "wcag",
+          "a11y",
+          "screen-reader",
+          "color-contrast",
+          "keyboard-nav",
+          "aria",
+          "cognitive",
+          "focus-management",
+          "touch-targets",
+          "reduced-motion",
+          "forms"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Accessibility Audit",
+            "activateOn": "design-review",
+            "freedomLevel": "read-only"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "agent-memory-profiles",
+      "name": "agent-memory-profiles",
+      "title": "Agent Memory Profiles",
+      "version": "0.1.0",
+      "description": "Design durable user, project, persona, and task memory profiles for local agents.",
+      "category": "connect",
+      "tags": [
+        "memory",
+        "profiles",
+        "persona",
+        "context",
+        "project"
+      ],
+      "sourceUrls": [
+        "https://github.com/nousresearch/hermes-agent",
+        "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/",
+        "https://docs.openclaw.ai/cli"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/agent-memory-profiles",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/agent-memory-profiles",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/agent-memory-profiles/agent-memory-profiles-0.1.0.tgz",
+        "sha256": "eddd10222d2110225c8e084c3c1d3b1daf536e80d5f9180d51040e9b241bbf90",
+        "size": 952
+      },
+      "manifest": {
+        "name": "agent-memory-profiles",
+        "version": "0.1.0",
+        "description": "Design durable user, project, persona, and task memory profiles for local agents.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "memory",
+          "profiles",
+          "persona",
+          "context",
+          "project"
+        ],
+        "sourceUrls": [
+          "https://github.com/nousresearch/hermes-agent",
+          "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/",
+          "https://docs.openclaw.ai/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Agent Memory Profiles",
+            "activateOn": "agent memory profile, persona file, context file, persistent memory",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "agent-messaging-gateway",
+      "name": "agent-messaging-gateway",
+      "title": "Agent Messaging Gateway",
+      "version": "0.1.0",
+      "description": "Design gateway-backed agent delivery through chat, email, and team messaging channels.",
+      "category": "connect",
+      "tags": [
+        "gateway",
+        "messaging",
+        "telegram",
+        "discord",
+        "slack"
+      ],
+      "sourceUrls": [
+        "https://github.com/nousresearch/hermes-agent",
+        "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+        "https://docs.openclaw.ai/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/agent-messaging-gateway",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/agent-messaging-gateway",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/agent-messaging-gateway/agent-messaging-gateway-0.1.0.tgz",
+        "sha256": "287548a0c80ae594c8bae93b5c2d15e97418f595bde5ec17a786c9d5fb2e7a68",
+        "size": 942
+      },
+      "manifest": {
+        "name": "agent-messaging-gateway",
+        "version": "0.1.0",
+        "description": "Design gateway-backed agent delivery through chat, email, and team messaging channels.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "gateway",
+          "messaging",
+          "telegram",
+          "discord",
+          "slack"
+        ],
+        "sourceUrls": [
+          "https://github.com/nousresearch/hermes-agent",
+          "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+          "https://docs.openclaw.ai/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Agent Messaging Gateway",
+            "activateOn": "agent messaging, gateway setup, platform channel, delivery routing",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "agent-session-checkpoints",
+      "name": "agent-session-checkpoints",
+      "title": "Agent Session Checkpoints",
+      "version": "0.1.0",
+      "description": "Capture restartable agent sessions with checkpoints, rollback notes, and resume metadata.",
+      "category": "connect",
+      "tags": [
+        "sessions",
+        "checkpoints",
+        "rollback",
+        "resume",
+        "history"
+      ],
+      "sourceUrls": [
+        "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://docs.openclaw.ai/cli"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/agent-session-checkpoints",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/agent-session-checkpoints",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/agent-session-checkpoints/agent-session-checkpoints-0.1.0.tgz",
+        "sha256": "e3c51b5eaecd55ca7616defe4719c1d90512870b35181e7db6c5aeb41b168f2c",
+        "size": 983
+      },
+      "manifest": {
+        "name": "agent-session-checkpoints",
+        "version": "0.1.0",
+        "description": "Capture restartable agent sessions with checkpoints, rollback notes, and resume metadata.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "sessions",
+          "checkpoints",
+          "rollback",
+          "resume",
+          "history"
+        ],
+        "sourceUrls": [
+          "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://docs.openclaw.ai/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Agent Session Checkpoints",
+            "activateOn": "checkpoint agent run, rollback session, resume session, session cleanup",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "agent-skill-migration",
+      "name": "agent-skill-migration",
+      "title": "Agent Skill Migration",
+      "version": "0.1.0",
+      "description": "Move skills, memories, context files, and agent rules between Memoire and peer agent ecosystems.",
+      "category": "connect",
+      "tags": [
+        "skills",
+        "migration",
+        "memory",
+        "codex",
+        "claude"
+      ],
+      "sourceUrls": [
+        "https://github.com/nousresearch/hermes-agent",
+        "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/",
+        "https://docs.openclaw.ai/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/agent-skill-migration",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/agent-skill-migration",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/agent-skill-migration/agent-skill-migration-0.1.0.tgz",
+        "sha256": "4f9aa36a70aeb64fa269cb0f4089352fee1a835ed9e009e52fc16730a1e190df",
+        "size": 967
+      },
+      "manifest": {
+        "name": "agent-skill-migration",
+        "version": "0.1.0",
+        "description": "Move skills, memories, context files, and agent rules between Memoire and peer agent ecosystems.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "skills",
+          "migration",
+          "memory",
+          "codex",
+          "claude"
+        ],
+        "sourceUrls": [
+          "https://github.com/nousresearch/hermes-agent",
+          "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/",
+          "https://docs.openclaw.ai/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Agent Skill Migration",
+            "activateOn": "migrate skills, convert agent memory, import OpenClaw, export Hermes skill",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "animation-craft",
+      "name": "animation-craft",
+      "title": "Animation Craft",
+      "version": "1.0.0",
+      "description": "Motion design and micro-interaction craft — timing, easing, UI choreography, and links into the current Remotion/Hyperframes production packs.",
+      "category": "craft",
+      "tags": [
+        "animation",
+        "motion",
+        "framer-motion",
+        "micro-interactions",
+        "transitions",
+        "choreography"
+      ],
+      "sourceUrls": [
+        "https://www.remotion.dev/docs/studio",
+        "https://hyperframes.mintlify.app/packages/cli"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/animation-craft",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/animation-craft",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/animation-craft/animation-craft-1.0.0.tgz",
+        "sha256": "c7941fc3bea52d42a84b5fa9759fff619c08878820b7dfad30ee4d6016cef454",
+        "size": 13803
+      },
+      "manifest": {
+        "name": "animation-craft",
+        "version": "1.0.0",
+        "description": "Motion design and micro-interaction craft — timing, easing, UI choreography, and links into the current Remotion/Hyperframes production packs.",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "animation",
+          "motion",
+          "framer-motion",
+          "micro-interactions",
+          "transitions",
+          "choreography"
+        ],
+        "sourceUrls": [
+          "https://www.remotion.dev/docs/studio",
+          "https://hyperframes.mintlify.app/packages/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Animation Craft",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [
+          "remotion-video",
+          "hyperframes-video",
+          "motion-performance"
+        ],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "animation-vocabulary",
+      "name": "animation-vocabulary",
+      "title": "Animation Vocabulary",
+      "version": "1.0.0",
+      "description": "Reverse-lookup glossary that turns a vague description of a web animation or motion effect into its exact term (\"the bouncy thing when a popover opens\" → Pop in; \"the iOS rubber-band scroll\" → Rubber-banding). Use when the user asks \"what's it called when…\", or describes a motion effect without knowing its name and wants the right word to prompt an AI or designer with. For naming an effect, not designing or building one.",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/emilkowalski/skills"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/animation-vocabulary",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/animation-vocabulary",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/animation-vocabulary/animation-vocabulary-1.0.0.tgz",
+        "sha256": "783091a9d5de488baa0bcb82ae7ea08b764259dc4b227d1d56a2907cd574393d",
+        "size": 6393
+      },
+      "manifest": {
+        "name": "animation-vocabulary",
+        "version": "1.0.0",
+        "description": "Reverse-lookup glossary that turns a vague description of a web animation or motion effect into its exact term (\"the bouncy thing when a popover opens\" → Pop in; \"the iOS rubber-band scroll\" → Rubber-banding). Use when the user asks \"what's it called when…\", or describes a motion effect without knowing its name and wants the right word to prompt an AI or designer with. For naming an effect, not designing or building one.",
+        "author": "Emil Kowalski",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/emilkowalski/skills"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Animation Vocabulary",
+            "activateOn": "Reverse-lookup glossary that turns a vague description of a web animation or motion effect into its exact term (\"the bouncy thing when a popover opens\" → Pop in; \"the iOS rubber-band scroll\" → Rubber-banding). Use when the user asks \"what's it called when…\", or describes a motion effect without knowing its name and wants the right word to prompt an AI or designer with. For naming an effect, not designing or building one.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "apple-design",
+      "name": "apple-design",
+      "title": "Apple Design",
+      "version": "1.0.0",
+      "description": "Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces.",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/emilkowalski/skills"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/apple-design",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/apple-design",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/apple-design/apple-design-1.0.0.tgz",
+        "sha256": "0cd1c281ceaff2aee4cb938f73c27f81affdd3e0a3e150c0ea5d20711136884b",
+        "size": 10919
+      },
+      "manifest": {
+        "name": "apple-design",
+        "version": "1.0.0",
+        "description": "Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces.",
+        "author": "Emil Kowalski",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/emilkowalski/skills"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Apple Design",
+            "activateOn": "Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "apple-desktop-automation",
+      "name": "apple-desktop-automation",
+      "title": "Apple Desktop Automation",
+      "version": "0.1.0",
+      "description": "Prepare macOS agents to work with Apple apps, local files, permissions, and desktop automation.",
+      "category": "connect",
+      "tags": [
+        "macos",
+        "apple",
+        "desktop",
+        "permissions",
+        "automation"
+      ],
+      "sourceUrls": [
+        "https://support.apple.com/guide/shortcuts/welcome/mac",
+        "https://support.apple.com/guide/terminal/welcome/mac",
+        "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/apple-desktop-automation",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/apple-desktop-automation",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/apple-desktop-automation/apple-desktop-automation-0.1.0.tgz",
+        "sha256": "5d3efa946267c3664d45f0cce7c792a41f76530fa15029fb30c81b35f9d4cb8d",
+        "size": 954
+      },
+      "manifest": {
+        "name": "apple-desktop-automation",
+        "version": "0.1.0",
+        "description": "Prepare macOS agents to work with Apple apps, local files, permissions, and desktop automation.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "macos",
+          "apple",
+          "desktop",
+          "permissions",
+          "automation"
+        ],
+        "sourceUrls": [
+          "https://support.apple.com/guide/shortcuts/welcome/mac",
+          "https://support.apple.com/guide/terminal/welcome/mac",
+          "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Apple Desktop Automation",
+            "activateOn": "macOS automation, Apple Notes, Reminders, iMessage, desktop app control",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "approval-sandbox-policies",
+      "name": "approval-sandbox-policies",
+      "title": "Approval Sandbox Policies",
+      "version": "0.1.0",
+      "description": "Define approval, sandbox, filesystem, and command policy for local autonomous agents.",
+      "category": "connect",
+      "tags": [
+        "approvals",
+        "sandbox",
+        "allowlist",
+        "security",
+        "filesystem"
+      ],
+      "sourceUrls": [
+        "https://docs.openclaw.ai/cli",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://developers.openai.com/codex/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/approval-sandbox-policies",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/approval-sandbox-policies",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/approval-sandbox-policies/approval-sandbox-policies-0.1.0.tgz",
+        "sha256": "6a56847302a1c1343daa855ffbbf6dd6cedd5a6c42d2700109e2d1a943948ffc",
+        "size": 989
+      },
+      "manifest": {
+        "name": "approval-sandbox-policies",
+        "version": "0.1.0",
+        "description": "Define approval, sandbox, filesystem, and command policy for local autonomous agents.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "approvals",
+          "sandbox",
+          "allowlist",
+          "security",
+          "filesystem"
+        ],
+        "sourceUrls": [
+          "https://docs.openclaw.ai/cli",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://developers.openai.com/codex/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Approval Sandbox Policies",
+            "activateOn": "agent approvals, sandbox mode, command allowlist, secure agent run",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "atomic-design",
+      "name": "atomic-design",
+      "title": "Atomic Design",
+      "version": "1.0.0",
+      "description": "Atomic Design quick reference — levels, composition rules, tokens, naming",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/atomic-design",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/atomic-design",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/atomic-design/atomic-design-1.0.0.tgz",
+        "sha256": "1a0983b3dde8cce0ec7994d1c032ed8de8d426f662e72dcf4e36518eb9d1bc6d",
+        "size": 1822
+      },
+      "manifest": {
+        "name": "atomic-design",
+        "version": "1.0.0",
+        "description": "Atomic Design quick reference — levels, composition rules, tokens, naming",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Atomic Design",
+            "activateOn": "Atomic Design quick reference — levels, composition rules, tokens, naming",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "better-colors",
+      "name": "better-colors",
+      "title": "Better Colors",
+      "version": "1.0.0",
+      "description": "OKLCH color space for web projects. Convert hex/rgb/hsl to oklch, generate palettes, check contrast, handle gamut boundaries, and theme with Tailwind v4. Triggers on oklch, color conversion, palette generation, contrast ratio, gamut, display p3, design tokens, hue drift, chroma, dark mode colors.",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/jakubkrehel/skills"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/better-colors",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/better-colors",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/better-colors/better-colors-1.0.0.tgz",
+        "sha256": "9041915d98bef46f4745f05815b78577a688b665248ae6632f1ffdb6a8279b16",
+        "size": 7343
+      },
+      "manifest": {
+        "name": "better-colors",
+        "version": "1.0.0",
+        "description": "OKLCH color space for web projects. Convert hex/rgb/hsl to oklch, generate palettes, check contrast, handle gamut boundaries, and theme with Tailwind v4. Triggers on oklch, color conversion, palette generation, contrast ratio, gamut, display p3, design tokens, hue drift, chroma, dark mode colors.",
+        "author": "Jakub Krehel",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/jakubkrehel/skills"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Better Colors",
+            "activateOn": "OKLCH color space for web projects. Convert hex/rgb/hsl to oklch, generate palettes, check contrast, handle gamut boundaries, and theme with Tailwind v4. Triggers on oklch, color conversion, palette generation, contrast ratio, gamut, display p3, design tokens, hue drift, chroma, dark mode colors.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "better-typography",
+      "name": "better-typography",
+      "title": "Better Typography",
+      "version": "1.0.0",
+      "description": "Web typography from choosing fonts to spacing, wrapping and accessibility. Use when picking or pairing typefaces, configuring variable fonts or OpenType features, setting up a type scale, checking heading hierarchy, styling text in components, truncating text, styling underlines, selection, placeholders or carets, or reviewing frontend code for typography. Triggers on typography, fonts, font formats, woff2, variable fonts, font-weight, opentype, font-feature-settings, letter-spacing, line-height, type scale, heading hierarchy, heading levels, tabular numbers, text-wrap, truncation, line clamp, underlines, text-decoration, text selection, iOS input zoom, font smoothing, text contrast, measure, line length, text-box, smart punctuation, drop cap.",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/jakubkrehel/skills"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/better-typography",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/better-typography",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/better-typography/better-typography-1.0.0.tgz",
+        "sha256": "400e242d9fc1dc79506afd513dd0217f10bc19293d47fd0a1414d266fa2c7958",
+        "size": 13824
+      },
+      "manifest": {
+        "name": "better-typography",
+        "version": "1.0.0",
+        "description": "Web typography from choosing fonts to spacing, wrapping and accessibility. Use when picking or pairing typefaces, configuring variable fonts or OpenType features, setting up a type scale, checking heading hierarchy, styling text in components, truncating text, styling underlines, selection, placeholders or carets, or reviewing frontend code for typography. Triggers on typography, fonts, font formats, woff2, variable fonts, font-weight, opentype, font-feature-settings, letter-spacing, line-height, type scale, heading hierarchy, heading levels, tabular numbers, text-wrap, truncation, line clamp, underlines, text-decoration, text selection, iOS input zoom, font smoothing, text contrast, measure, line length, text-box, smart punctuation, drop cap.",
+        "author": "Jakub Krehel",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/jakubkrehel/skills"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Better Typography",
+            "activateOn": "Web typography from choosing fonts to spacing, wrapping and accessibility. Use when picking or pairing typefaces, configuring variable fonts or OpenType features, setting up a type scale, checking heading hierarchy, styling text in components, truncating text, styling underlines, selection, placeholders or carets, or reviewing frontend code for typography. Triggers on typography, fonts, font formats, woff2, variable fonts, font-weight, opentype, font-feature-settings, letter-spacing, line-height, type scale, heading hierarchy, heading levels, tabular numbers, text-wrap, truncation, line clamp, underlines, text-decoration, text selection, iOS input zoom, font smoothing, text contrast, measure, line length, text-box, smart punctuation, drop cap.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "better-ui",
+      "name": "better-ui",
+      "title": "Better UI",
+      "version": "1.0.0",
+      "description": "Design engineering principles for making interfaces feel polished. Use when building UI components, reviewing frontend code, implementing animations, hover states, shadows, borders, micro-interactions, enter/exit animations, or any visual detail work. Triggers on UI polish, design details, \"make it feel better\", \"feels off\", stagger animations, border radius, optical alignment, image outlines, box shadows.",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/jakubkrehel/skills"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/better-ui",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/better-ui",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/better-ui/better-ui-1.0.0.tgz",
+        "sha256": "01abe22454eaa453a1a83fefe995bf0a4b82bd9b7787c6545abacf899d7d564c",
+        "size": 10664
+      },
+      "manifest": {
+        "name": "better-ui",
+        "version": "1.0.0",
+        "description": "Design engineering principles for making interfaces feel polished. Use when building UI components, reviewing frontend code, implementing animations, hover states, shadows, borders, micro-interactions, enter/exit animations, or any visual detail work. Triggers on UI polish, design details, \"make it feel better\", \"feels off\", stagger animations, border radius, optical alignment, image outlines, box shadows.",
+        "author": "Jakub Krehel",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/jakubkrehel/skills"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Better UI",
+            "activateOn": "Design engineering principles for making interfaces feel polished. Use when building UI components, reviewing frontend code, implementing animations, hover states, shadows, borders, micro-interactions, enter/exit animations, or any visual detail work. Triggers on UI polish, design details, \"make it feel better\", \"feels off\", stagger animations, border radius, optical alignment, image outlines, box shadows.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "browser-research-agent",
+      "name": "browser-research-agent",
+      "title": "Browser Research Agent",
+      "version": "0.1.0",
+      "description": "Run browser-backed research agents that capture evidence, citations, and source freshness.",
+      "category": "research",
+      "tags": [
+        "browser",
+        "research",
+        "citations",
+        "evidence",
+        "web"
+      ],
+      "sourceUrls": [
+        "https://developers.openai.com/codex/use-cases",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://docs.openclaw.ai/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/browser-research-agent",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/browser-research-agent",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/browser-research-agent/browser-research-agent-0.1.0.tgz",
+        "sha256": "100130d4b3b6b0bd2ae86648192304140c944d2c0c23a4e09b937f9e9e9072e0",
+        "size": 933
+      },
+      "manifest": {
+        "name": "browser-research-agent",
+        "version": "0.1.0",
+        "description": "Run browser-backed research agents that capture evidence, citations, and source freshness.",
+        "author": "Sarvesh Chidambaram",
+        "category": "research",
+        "tags": [
+          "browser",
+          "research",
+          "citations",
+          "evidence",
+          "web"
+        ],
+        "sourceUrls": [
+          "https://developers.openai.com/codex/use-cases",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://docs.openclaw.ai/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Browser Research Agent",
+            "activateOn": "browser research, web evidence, citation capture, source comparison",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "codex-ops",
+      "name": "codex-ops",
+      "title": "Codex Ops",
+      "version": "1.0.0",
+      "description": "Codex and Claude operating workflow for Memoire - JSON-first commands, commit hygiene, review loops, memory capture, and safe autonomous repo operation",
+      "category": "connect",
+      "tags": [
+        "codex",
+        "claude",
+        "json",
+        "git",
+        "review",
+        "memory"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/codex-ops",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/codex-ops",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/codex-ops/codex-ops-1.0.0.tgz",
+        "sha256": "0dff5e34116b21705c4d9abc876ab40cb34b233dc21908ddbab666aec221f401",
+        "size": 1812
+      },
+      "manifest": {
+        "name": "codex-ops",
+        "version": "1.0.0",
+        "description": "Codex and Claude operating workflow for Memoire - JSON-first commands, commit hygiene, review loops, memory capture, and safe autonomous repo operation",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "codex",
+          "claude",
+          "json",
+          "git",
+          "review",
+          "memory"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Codex Ops",
+            "activateOn": "always",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-27T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "competitive-intel",
+      "name": "competitive-intel",
+      "title": "Competitive Intel",
+      "version": "1.0.0",
+      "description": "Competitive intelligence and market analysis — systematic frameworks for analyzing competitor products, design patterns, feature matrices, positioning maps, and UX benchmarking",
+      "category": "research",
+      "tags": [
+        "competitive-analysis",
+        "market-research",
+        "benchmarking",
+        "ux-audit",
+        "feature-matrix"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/competitive-intel",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/competitive-intel",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/competitive-intel/competitive-intel-1.0.0.tgz",
+        "sha256": "e5030940c1797a64907fb5439382b7b22de61ad0f8182ed40048ea67cc3bdbe7",
+        "size": 13402
+      },
+      "manifest": {
+        "name": "competitive-intel",
+        "version": "1.0.0",
+        "description": "Competitive intelligence and market analysis — systematic frameworks for analyzing competitor products, design patterns, feature matrices, positioning maps, and UX benchmarking",
+        "author": "Sarvesh Chidambaram",
+        "category": "research",
+        "tags": [
+          "competitive-analysis",
+          "market-research",
+          "benchmarking",
+          "ux-audit",
+          "feature-matrix"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Competitive Intel",
+            "activateOn": "research-to-dashboard",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "component-catalog",
+      "name": "component-catalog",
+      "title": "Component Catalog",
+      "version": "1.0.0",
+      "description": "Select and classify interface components when planning a design system, mapping Figma to code, or checking component-library coverage.",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/component-catalog",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/component-catalog",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/component-catalog/component-catalog-1.0.0.tgz",
+        "sha256": "0471ba3cad48de86f11288ee1959ebe816c4cd6cf5edfc7c8fea76298b7adefb",
+        "size": 3174
+      },
+      "manifest": {
+        "name": "component-catalog",
+        "version": "1.0.0",
+        "description": "Select and classify interface components when planning a design system, mapping Figma to code, or checking component-library coverage.",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Component Catalog",
+            "activateOn": "Select and classify interface components when planning a design system, mapping Figma to code, or checking component-library coverage.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "cron-agent-workflows",
+      "name": "cron-agent-workflows",
+      "title": "Cron Agent Workflows",
+      "version": "0.1.0",
+      "description": "Turn repeatable agent work into scheduled jobs with explicit outputs and safe permissions.",
+      "category": "connect",
+      "tags": [
+        "cron",
+        "automation",
+        "scheduler",
+        "reports",
+        "monitoring"
+      ],
+      "sourceUrls": [
+        "https://github.com/nousresearch/hermes-agent",
+        "https://docs.openclaw.ai/cli",
+        "https://developers.openai.com/codex/use-cases"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/cron-agent-workflows",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/cron-agent-workflows",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/cron-agent-workflows/cron-agent-workflows-0.1.0.tgz",
+        "sha256": "d8a87a7860ed9d9fb8c3c2c83cccd086f860d83b615c7eb4b6f2d68b821adba6",
+        "size": 963
+      },
+      "manifest": {
+        "name": "cron-agent-workflows",
+        "version": "0.1.0",
+        "description": "Turn repeatable agent work into scheduled jobs with explicit outputs and safe permissions.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "cron",
+          "automation",
+          "scheduler",
+          "reports",
+          "monitoring"
+        ],
+        "sourceUrls": [
+          "https://github.com/nousresearch/hermes-agent",
+          "https://docs.openclaw.ai/cli",
+          "https://developers.openai.com/codex/use-cases"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Cron Agent Workflows",
+            "activateOn": "scheduled agent, cron workflow, recurring report, automated run",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "dashboard-from-research",
+      "name": "dashboard-from-research",
+      "title": "Dashboard From Research",
+      "version": "1.0.0",
+      "description": "Transform research data (Excel, CSV, stickies) into structured insights and interactive dashboards",
+      "category": "research",
+      "tags": [
+        "research",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/dashboard-from-research",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/dashboard-from-research",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/dashboard-from-research/dashboard-from-research-1.0.0.tgz",
+        "sha256": "8e02500b187b9e27386642c0f0417005630fa357a59d7b9f6583b96357dcaa47",
+        "size": 2422
+      },
+      "manifest": {
+        "name": "dashboard-from-research",
+        "version": "1.0.0",
+        "description": "Transform research data (Excel, CSV, stickies) into structured insights and interactive dashboards",
+        "author": "Sarvesh Chidambaram",
+        "category": "research",
+        "tags": [
+          "research",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Dashboard From Research",
+            "activateOn": "Transform research data (Excel, CSV, stickies) into structured insights and interactive dashboards",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "data-synthesis",
+      "name": "data-synthesis",
+      "title": "Data Synthesis",
+      "version": "1.0.0",
+      "description": "Qualitative and quantitative data synthesis — affinity mapping, thematic analysis, statistical frameworks, insight triangulation, and research-to-spec pipelines",
+      "category": "research",
+      "tags": [
+        "data-synthesis",
+        "qualitative",
+        "quantitative",
+        "thematic-analysis",
+        "affinity-mapping",
+        "insights"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/data-synthesis",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/data-synthesis",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/data-synthesis/data-synthesis-1.0.0.tgz",
+        "sha256": "e2afb0d7a33b74d0e2d55b6340edc554011d65a6ac27390fb7ea7a36b2e8d467",
+        "size": 5168
+      },
+      "manifest": {
+        "name": "data-synthesis",
+        "version": "1.0.0",
+        "description": "Qualitative and quantitative data synthesis — affinity mapping, thematic analysis, statistical frameworks, insight triangulation, and research-to-spec pipelines",
+        "author": "Sarvesh Chidambaram",
+        "category": "research",
+        "tags": [
+          "data-synthesis",
+          "qualitative",
+          "quantitative",
+          "thematic-analysis",
+          "affinity-mapping",
+          "insights"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Data Synthesis",
+            "activateOn": "research-to-dashboard",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "design-extract",
+      "name": "design-extract",
+      "title": "Design Extract",
+      "version": "1.0.0",
+      "description": "Extract a public website's design system when a task needs evidence about its colors, typography, spacing, radii, shadows, components, or Tailwind tokens.",
+      "category": "research",
+      "tags": [
+        "research",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/design-extract",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/design-extract",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/design-extract/design-extract-1.0.0.tgz",
+        "sha256": "186433716778955277b8895193605ecc6dc950a4dce9719bc115c4f56494f921",
+        "size": 1523
+      },
+      "manifest": {
+        "name": "design-extract",
+        "version": "1.0.0",
+        "description": "Extract a public website's design system when a task needs evidence about its colors, typography, spacing, radii, shadows, components, or Tailwind tokens.",
+        "author": "Sarvesh Chidambaram",
+        "category": "research",
+        "tags": [
+          "research",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Design Extract",
+            "activateOn": "Extract a public website's design system when a task needs evidence about its colors, typography, spacing, radii, shadows, components, or Tailwind tokens.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
     {
       "id": "design-sandbox-proof",
       "name": "design-sandbox-proof",
       "title": "Design Sandbox Proof",
-      "version": "1.0.0",
-      "description": "Use the public design-sandbox repo to prove memi, MCP, Agent Skills, Tailwind, shadcn, UX audit, and interface craft together.",
+      "version": "2.0.0",
+      "description": "Use design-sandbox as the public proof repo for memi, MCP, Agent Skills, and interface craft.",
       "category": "craft",
       "tags": [
         "design-sandbox",
@@ -27,19 +1417,20 @@
       ],
       "freshnessDays": 30,
       "sourceKind": "community",
-      "sourceRepo": "https://github.com/sarveshsea/memoire-community-notes",
-      "sourcePath": "notes/design-sandbox-proof",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/design-sandbox-proof",
       "reviewStatus": "approved",
-      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/design-sandbox-proof",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/design-sandbox-proof",
       "archive": {
-        "url": "https://www.memoire.cv/notes/community/design-sandbox-proof/design-sandbox-proof-1.0.0.tgz",
-        "sha256": "6022e8a1a1bbfc1e84de41aa24283c6ee8a861270b775cf588538b17a1a1c9a2",
-        "size": 1489
+        "url": "https://www.memoire.cv/notes/community/design-sandbox-proof/design-sandbox-proof-2.0.0.tgz",
+        "sha256": "e1787fb7fb8d4cd237de5837f5ff84931d735f139af386316c5709b386fe7827",
+        "size": 1052
       },
       "manifest": {
         "name": "design-sandbox-proof",
-        "version": "1.0.0",
-        "description": "Use the public design-sandbox repo to prove memi, MCP, Agent Skills, Tailwind, shadcn, UX audit, and interface craft together.",
+        "version": "2.0.0",
+        "description": "Use design-sandbox as the public proof repo for memi, MCP, Agent Skills, and interface craft.",
+        "author": "Sarvesh Chidambaram",
         "category": "craft",
         "tags": [
           "design-sandbox",
@@ -60,7 +1451,7 @@
         "freshnessDays": 30,
         "skills": [
           {
-            "file": "design-sandbox-proof.md",
+            "file": "SKILL.md",
             "name": "Design Sandbox Proof",
             "activateOn": "design sandbox, proof repo, memi verify, sandbox setup, public demo",
             "freedomLevel": "high"
@@ -74,16 +1465,1555 @@
           "memoire": ">=2.0.0"
         },
         "createdAt": "2026-07-04T00:00:00.000Z",
-        "updatedAt": "2026-07-04T00:00:00.000Z"
+        "updatedAt": "2026-07-15T00:00:00.000Z"
       },
       "lastResearchedAt": "2026-07-04T00:00:00.000Z"
+    },
+    {
+      "id": "design-system-reference",
+      "name": "design-system-reference",
+      "title": "Design System Reference",
+      "version": "1.0.0",
+      "description": "Compare real-world design-system patterns when specifying, auditing, or naming a component and current external references would improve the decision.",
+      "category": "research",
+      "tags": [
+        "research",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/design-system-reference",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/design-system-reference",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/design-system-reference/design-system-reference-1.0.0.tgz",
+        "sha256": "6b4a211669e98912dd2317a548d4d5a32af1992edfdf499d612e10959a80ad0f",
+        "size": 10999
+      },
+      "manifest": {
+        "name": "design-system-reference",
+        "version": "1.0.0",
+        "description": "Compare real-world design-system patterns when specifying, auditing, or naming a component and current external references would improve the decision.",
+        "author": "Sarvesh Chidambaram",
+        "category": "research",
+        "tags": [
+          "research",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Design System Reference",
+            "activateOn": "Compare real-world design-system patterns when specifying, auditing, or naming a component and current external references would improve the decision.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "design-systems",
+      "name": "design-systems",
+      "title": "Design Systems",
+      "version": "1.0.0",
+      "description": "Design system architecture and governance — token taxonomy, component APIs, versioning strategy, adoption metrics, multi-brand theming, and cross-platform consistency",
+      "category": "craft",
+      "tags": [
+        "design-system",
+        "tokens",
+        "governance",
+        "theming",
+        "component-api",
+        "versioning"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/design-systems",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/design-systems",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/design-systems/design-systems-1.0.0.tgz",
+        "sha256": "99497e4ad217fd236f3a46d73a8c318dfdaa4fc39a917801d092a32b794dab0b",
+        "size": 15902
+      },
+      "manifest": {
+        "name": "design-systems",
+        "version": "1.0.0",
+        "description": "Design system architecture and governance — token taxonomy, component APIs, versioning strategy, adoption metrics, multi-brand theming, and cross-platform consistency",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "design-system",
+          "tokens",
+          "governance",
+          "theming",
+          "component-api",
+          "versioning"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Design Systems",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "dialkit",
+      "name": "dialkit",
+      "title": "Dialkit",
+      "version": "1.0.0",
+      "description": "Add or review DialKit controls when a React, Solid, Svelte, or Vue interface needs live tuning of animation, layout, color, typography, or component parameters.",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/joshpuckett/dialkit"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/dialkit",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/dialkit",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/dialkit/dialkit-1.0.0.tgz",
+        "sha256": "63175bd61d0db330c794021d147d839206ce719792629d24a83dc75af992391d",
+        "size": 2140
+      },
+      "manifest": {
+        "name": "dialkit",
+        "version": "1.0.0",
+        "description": "Add or review DialKit controls when a React, Solid, Svelte, or Vue interface needs live tuning of animation, layout, color, typography, or component parameters.",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/joshpuckett/dialkit"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Dialkit",
+            "activateOn": "Add or review DialKit controls when a React, Solid, Svelte, or Vue interface needs live tuning of animation, layout, color, typography, or component parameters.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "docker-environments",
+      "name": "docker-environments",
+      "title": "Docker Environments",
+      "version": "1.0.0",
+      "description": "Docker-aware Mémoire operation — CI/CD headless pipelines, shared MCP server, agent worker containers, and Figma bridge port-forwarding for containerized setups",
+      "category": "connect",
+      "tags": [
+        "docker",
+        "container",
+        "ci-cd",
+        "devcontainer",
+        "mcp",
+        "headless",
+        "multi-agent",
+        "compose"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/docker-environments",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/docker-environments",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/docker-environments/docker-environments-1.0.0.tgz",
+        "sha256": "c6472fe546de3b4f76f89d7dfa577cb9e04eb3a6d0765ea7d0fc5e7fe9510686",
+        "size": 4483
+      },
+      "manifest": {
+        "name": "docker-environments",
+        "version": "1.0.0",
+        "description": "Docker-aware Mémoire operation — CI/CD headless pipelines, shared MCP server, agent worker containers, and Figma bridge port-forwarding for containerized setups",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "docker",
+          "container",
+          "ci-cd",
+          "devcontainer",
+          "mcp",
+          "headless",
+          "multi-agent",
+          "compose"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Docker Environments",
+            "activateOn": "docker-environment",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-04-06T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "emil-design-eng",
+      "name": "emil-design-eng",
+      "title": "Emil Design Eng",
+      "version": "1.0.0",
+      "description": "Apply Emil Kowalski's design-engineering guidance when polishing interface details, choosing motion, or reviewing whether a product feels responsive and intentional.",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/emilkowalski/skills"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/emil-design-eng",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/emil-design-eng",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/emil-design-eng/emil-design-eng-1.0.0.tgz",
+        "sha256": "214abc69efccc18ab64f8a7e2a810dc64025b51dbd05cc0fb73a3cfea50543a6",
+        "size": 11935
+      },
+      "manifest": {
+        "name": "emil-design-eng",
+        "version": "1.0.0",
+        "description": "Apply Emil Kowalski's design-engineering guidance when polishing interface details, choosing motion, or reviewing whether a product feels responsive and intentional.",
+        "author": "Emil Kowalski",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/emilkowalski/skills"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Emil Design Eng",
+            "activateOn": "Apply Emil Kowalski's design-engineering guidance when polishing interface details, choosing motion, or reviewing whether a product feels responsive and intentional.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-audit",
+      "name": "figma-audit",
+      "title": "Figma Audit",
+      "version": "1.0.0",
+      "description": "Audit Figma file for design system consistency, accessibility, token adoption, Code Connect coverage",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-audit",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-audit",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-audit/figma-audit-1.0.0.tgz",
+        "sha256": "b20db504f93a61a45de18cdeb11238e9ab6841fbcf0b3497e21df5d9e1f83c68",
+        "size": 2410
+      },
+      "manifest": {
+        "name": "figma-audit",
+        "version": "1.0.0",
+        "description": "Audit Figma file for design system consistency, accessibility, token adoption, Code Connect coverage",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Audit",
+            "activateOn": "Audit Figma file for design system consistency, accessibility, token adoption, Code Connect coverage",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-code-connect",
+      "name": "figma-code-connect",
+      "title": "Figma Code Connect",
+      "version": "1.0.0",
+      "description": "Code Connect workflow — map Figma components to codebase implementations, batch mappings, keep design-code parity",
+      "category": "connect",
+      "tags": [
+        "figma",
+        "code-connect",
+        "component-mapping",
+        "design-system"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-code-connect",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-code-connect",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-code-connect/figma-code-connect-1.0.0.tgz",
+        "sha256": "faa10a41aa48797936d0fdb2b0427f2c483143583d965b492b78d597d6ab27f0",
+        "size": 2807
+      },
+      "manifest": {
+        "name": "figma-code-connect",
+        "version": "1.0.0",
+        "description": "Code Connect workflow — map Figma components to codebase implementations, batch mappings, keep design-code parity",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "figma",
+          "code-connect",
+          "component-mapping",
+          "design-system"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Code Connect",
+            "activateOn": "figma-canvas-operation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-create-file",
+      "name": "figma-create-file",
+      "title": "Figma Create File",
+      "version": "1.0.0",
+      "description": "Create new Figma design or FigJam files via MCP — resolve plans, scaffold files, prepare for canvas operations",
+      "category": "craft",
+      "tags": [
+        "figma",
+        "file-creation",
+        "figjam",
+        "scaffold"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-create-file",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-create-file",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-create-file/figma-create-file-1.0.0.tgz",
+        "sha256": "545899ecf543bb8d5e51041cb8fad5d4ac01f5c8d6e45ee17c42cf748760d415",
+        "size": 1836
+      },
+      "manifest": {
+        "name": "figma-create-file",
+        "version": "1.0.0",
+        "description": "Create new Figma design or FigJam files via MCP — resolve plans, scaffold files, prepare for canvas operations",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "figma",
+          "file-creation",
+          "figjam",
+          "scaffold"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Create File",
+            "activateOn": "figma-canvas-operation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-design-systems",
+      "name": "figma-design-systems",
+      "title": "Figma Design Systems",
+      "version": "1.0.0",
+      "description": "Working with Design Systems in Figma — components, variables, text styles, effect styles, creation and usage patterns",
+      "category": "craft",
+      "tags": [
+        "figma",
+        "design-systems",
+        "variables",
+        "components",
+        "tokens",
+        "styles"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-design-systems",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-design-systems",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-design-systems/figma-design-systems-1.0.0.tgz",
+        "sha256": "d02183fe1b3ac7d68ac1ed7dc1e6cabb495bcbd277b3f1a0267700c74703e715",
+        "size": 13520
+      },
+      "manifest": {
+        "name": "figma-design-systems",
+        "version": "1.0.0",
+        "description": "Working with Design Systems in Figma — components, variables, text styles, effect styles, creation and usage patterns",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "figma",
+          "design-systems",
+          "variables",
+          "components",
+          "tokens",
+          "styles"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Design Systems",
+            "activateOn": "design-creation",
+            "freedomLevel": "reference"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-ds-rules",
+      "name": "figma-ds-rules",
+      "title": "Figma Ds Rules",
+      "version": "1.0.0",
+      "description": "Generate design system rules for AI agents — encode codebase conventions, token usage, component patterns into CLAUDE.md/AGENTS.md/.cursor rules",
+      "category": "craft",
+      "tags": [
+        "figma",
+        "design-system",
+        "agent-rules",
+        "conventions",
+        "codegen"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-ds-rules",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-ds-rules",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-ds-rules/figma-ds-rules-1.0.0.tgz",
+        "sha256": "1fbf138f8f96c1381a95c47d306cf7e1bd6914e409533081471ab796f45be876",
+        "size": 3541
+      },
+      "manifest": {
+        "name": "figma-ds-rules",
+        "version": "1.0.0",
+        "description": "Generate design system rules for AI agents — encode codebase conventions, token usage, component patterns into CLAUDE.md/AGENTS.md/.cursor rules",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "figma",
+          "design-system",
+          "agent-rules",
+          "conventions",
+          "codegen"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Ds Rules",
+            "activateOn": "design-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-generate-design",
+      "name": "figma-generate-design",
+      "title": "Figma Generate Design",
+      "version": "1.0.0",
+      "description": "Create new Figma screens and pages using existing components, variables, and design system",
+      "category": "generate",
+      "tags": [
+        "generate",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-generate-design",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-generate-design",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-generate-design/figma-generate-design-1.0.0.tgz",
+        "sha256": "713a9edf69ef853c1371f9911ef3851c6f489cc5d2bb14d3461095f83fae9b64",
+        "size": 2632
+      },
+      "manifest": {
+        "name": "figma-generate-design",
+        "version": "1.0.0",
+        "description": "Create new Figma screens and pages using existing components, variables, and design system",
+        "author": "Sarvesh Chidambaram",
+        "category": "generate",
+        "tags": [
+          "generate",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Generate Design",
+            "activateOn": "Create new Figma screens and pages using existing components, variables, and design system",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-generate-library",
+      "name": "figma-generate-library",
+      "title": "Figma Generate Library",
+      "version": "1.0.0",
+      "description": "Generate Figma component library from React/shadcn codebase with Code Connect parity",
+      "category": "generate",
+      "tags": [
+        "generate",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-generate-library",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-generate-library",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-generate-library/figma-generate-library-1.0.0.tgz",
+        "sha256": "ba7f3b0202c631e773c7c9068fdaf074c5113bfe701731718ce8960635f67d7b",
+        "size": 2693
+      },
+      "manifest": {
+        "name": "figma-generate-library",
+        "version": "1.0.0",
+        "description": "Generate Figma component library from React/shadcn codebase with Code Connect parity",
+        "author": "Sarvesh Chidambaram",
+        "category": "generate",
+        "tags": [
+          "generate",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Generate Library",
+            "activateOn": "Generate Figma component library from React/shadcn codebase with Code Connect parity",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-implement-design",
+      "name": "figma-implement-design",
+      "title": "Figma Implement Design",
+      "version": "1.0.0",
+      "description": "Figma-to-code implementation — extract design context, map tokens, generate production-ready components with 1:1 visual parity",
+      "category": "generate",
+      "tags": [
+        "figma",
+        "design-to-code",
+        "implementation",
+        "code-connect",
+        "visual-parity"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-implement-design",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-implement-design",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-implement-design/figma-implement-design-1.0.0.tgz",
+        "sha256": "43344c7e38b7bdc7a3d6c9fe31bab5956636135fe7c0dbc3d45d7509c29f3f92",
+        "size": 3282
+      },
+      "manifest": {
+        "name": "figma-implement-design",
+        "version": "1.0.0",
+        "description": "Figma-to-code implementation — extract design context, map tokens, generate production-ready components with 1:1 visual parity",
+        "author": "Sarvesh Chidambaram",
+        "category": "generate",
+        "tags": [
+          "figma",
+          "design-to-code",
+          "implementation",
+          "code-connect",
+          "visual-parity"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Implement Design",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-library-builder",
+      "name": "figma-library-builder",
+      "title": "Figma Library Builder",
+      "version": "1.0.0",
+      "description": "Figma design system library builder — phased workflow for tokens, components, documentation, with ready-to-use Plugin API scripts",
+      "category": "craft",
+      "tags": [
+        "figma",
+        "library",
+        "design-system",
+        "tokens",
+        "components",
+        "scripts"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-library-builder",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-library-builder",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-library-builder/figma-library-builder-1.0.0.tgz",
+        "sha256": "437efb85c69ff549522523484a1fa2bc60310a8d7a6ad1a9e3c7700c54b95e39",
+        "size": 63552
+      },
+      "manifest": {
+        "name": "figma-library-builder",
+        "version": "1.0.0",
+        "description": "Figma design system library builder — phased workflow for tokens, components, documentation, with ready-to-use Plugin API scripts",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "figma",
+          "library",
+          "design-system",
+          "tokens",
+          "components",
+          "scripts"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Library Builder",
+            "activateOn": "library-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-plugin-api",
+      "name": "figma-plugin-api",
+      "title": "Figma Plugin Api",
+      "version": "1.0.0",
+      "description": "Figma Plugin API reference — gotchas, patterns, variables, components, text/effect styles, validation and error recovery",
+      "category": "craft",
+      "tags": [
+        "figma",
+        "plugin-api",
+        "reference",
+        "patterns",
+        "gotchas"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-plugin-api",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-plugin-api",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-plugin-api/figma-plugin-api-1.0.0.tgz",
+        "sha256": "fff58631705dce933dda634b8d64a940416e38ff13498630f1297f1e9080261e",
+        "size": 34451
+      },
+      "manifest": {
+        "name": "figma-plugin-api",
+        "version": "1.0.0",
+        "description": "Figma Plugin API reference — gotchas, patterns, variables, components, text/effect styles, validation and error recovery",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "figma",
+          "plugin-api",
+          "reference",
+          "patterns",
+          "gotchas"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Plugin Api",
+            "activateOn": "figma-canvas-operation",
+            "freedomLevel": "reference"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=1.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-prototype",
+      "name": "figma-prototype",
+      "title": "Figma Prototype",
+      "version": "1.0.0",
+      "description": "Build interactive Figma prototypes with flows, transitions, and user journey mapping",
+      "category": "generate",
+      "tags": [
+        "generate",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-prototype",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-prototype",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-prototype/figma-prototype-1.0.0.tgz",
+        "sha256": "d766c068e29b86856acaa52c565bcf0cccee1c0fe51fe08345a7af7bf7a1463b",
+        "size": 2090
+      },
+      "manifest": {
+        "name": "figma-prototype",
+        "version": "1.0.0",
+        "description": "Build interactive Figma prototypes with flows, transitions, and user journey mapping",
+        "author": "Sarvesh Chidambaram",
+        "category": "generate",
+        "tags": [
+          "generate",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Prototype",
+            "activateOn": "Build interactive Figma prototypes with flows, transitions, and user journey mapping",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-sync",
+      "name": "figma-sync",
+      "title": "Figma Sync",
+      "version": "1.0.0",
+      "description": "Figma sync workflow patterns — bidirectional design-code sync, conflict resolution, incremental updates, multi-file orchestration",
+      "category": "connect",
+      "tags": [
+        "figma",
+        "sync",
+        "design-system",
+        "bidirectional",
+        "incremental"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-sync",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-sync",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-sync/figma-sync-1.0.0.tgz",
+        "sha256": "6e67979f4538b89d4f0187a3ec2e073237be4732304ba3a5ad2c22c1b29ec5ef",
+        "size": 2733
+      },
+      "manifest": {
+        "name": "figma-sync",
+        "version": "1.0.0",
+        "description": "Figma sync workflow patterns — bidirectional design-code sync, conflict resolution, incremental updates, multi-file orchestration",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "figma",
+          "sync",
+          "design-system",
+          "bidirectional",
+          "incremental"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Sync",
+            "activateOn": "figma-canvas-operation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-use",
+      "name": "figma-use",
+      "title": "Figma Use",
+      "version": "1.0.0",
+      "description": "Foundational Figma canvas skill — structure, Auto Layout, variables, MCP tools, self-healing loop",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-use",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-use",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-use/figma-use-1.0.0.tgz",
+        "sha256": "6e8b8156e9b745768b292c67012b3ac58a19ccf5cf2253466fa348543c7283f8",
+        "size": 3451
+      },
+      "manifest": {
+        "name": "figma-use",
+        "version": "1.0.0",
+        "description": "Foundational Figma canvas skill — structure, Auto Layout, variables, MCP tools, self-healing loop",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Use",
+            "activateOn": "Foundational Figma canvas skill — structure, Auto Layout, variables, MCP tools, self-healing loop",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "figma-web-capture",
+      "name": "figma-web-capture",
+      "title": "Figma Web Capture",
+      "version": "1.0.0",
+      "description": "Figma web capture workflow - import live webpages or DOM elements into editable Figma layers with the public html-to-design capture.js bookmarklet",
+      "category": "connect",
+      "tags": [
+        "figma",
+        "html-to-design",
+        "bookmarklet",
+        "web-capture",
+        "editable-layers"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/figma-web-capture",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/figma-web-capture",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/figma-web-capture/figma-web-capture-1.0.0.tgz",
+        "sha256": "1c7593aeceb788ed41a39671004fc5e657f993704f6b17f352439e7040673e95",
+        "size": 1987
+      },
+      "manifest": {
+        "name": "figma-web-capture",
+        "version": "1.0.0",
+        "description": "Figma web capture workflow - import live webpages or DOM elements into editable Figma layers with the public html-to-design capture.js bookmarklet",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "figma",
+          "html-to-design",
+          "bookmarklet",
+          "web-capture",
+          "editable-layers"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Figma Web Capture",
+            "activateOn": "figma-canvas-operation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-27T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "find-animation-opportunities",
+      "name": "find-animation-opportunities",
+      "title": "Find Animation Opportunities",
+      "version": "1.0.0",
+      "description": "Search a codebase or UI for places that don't animate but should, and reject everything that shouldn't. Read-only; it proposes motion with exact values, it does not implement it. Use when the user asks \"what could be animated here?\" or wants to \"make this feel more alive\". For fixing existing animations, use improve-animations or review-animations instead.",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/emilkowalski/skills"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/find-animation-opportunities",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/find-animation-opportunities",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/find-animation-opportunities/find-animation-opportunities-1.0.0.tgz",
+        "sha256": "c88a81065c06f07944ec6330e93df506454891dce18d48a191f898c9c1982c7f",
+        "size": 5569
+      },
+      "manifest": {
+        "name": "find-animation-opportunities",
+        "version": "1.0.0",
+        "description": "Search a codebase or UI for places that don't animate but should, and reject everything that shouldn't. Read-only; it proposes motion with exact values, it does not implement it. Use when the user asks \"what could be animated here?\" or wants to \"make this feel more alive\". For fixing existing animations, use improve-animations or review-animations instead.",
+        "author": "Emil Kowalski",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/emilkowalski/skills"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Find Animation Opportunities",
+            "activateOn": "Search a codebase or UI for places that don't animate but should, and reject everything that shouldn't. Read-only; it proposes motion with exact values, it does not implement it. Use when the user asks \"what could be animated here?\" or wants to \"make this feel more alive\". For fixing existing animations, use improve-animations or review-animations instead.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "flutter-gen",
+      "name": "flutter-gen",
+      "title": "Flutter Gen",
+      "version": "1.0.0",
+      "description": "Flutter and Dart widget generation — transforms Mémoire component specs into Flutter widgets with Material 3, Riverpod state management, and responsive layouts",
+      "category": "generate",
+      "tags": [
+        "flutter",
+        "dart",
+        "material3",
+        "riverpod",
+        "widgets",
+        "codegen"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/flutter-gen",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/flutter-gen",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/flutter-gen/flutter-gen-1.0.0.tgz",
+        "sha256": "d6a87756018160e75dfc4b73aba0b16f0407befadce4a1f05035223c6875b4d8",
+        "size": 15506
+      },
+      "manifest": {
+        "name": "flutter-gen",
+        "version": "1.0.0",
+        "description": "Flutter and Dart widget generation — transforms Mémoire component specs into Flutter widgets with Material 3, Riverpod state management, and responsive layouts",
+        "author": "Sarvesh Chidambaram",
+        "category": "generate",
+        "tags": [
+          "flutter",
+          "dart",
+          "material3",
+          "riverpod",
+          "widgets",
+          "codegen"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Flutter Gen",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "gateway-ops-observability",
+      "name": "gateway-ops-observability",
+      "title": "Gateway Ops Observability",
+      "version": "0.1.0",
+      "description": "Observe and debug local agent gateways, daemons, health probes, logs, and usage costs.",
+      "category": "connect",
+      "tags": [
+        "gateway",
+        "logs",
+        "health",
+        "observability",
+        "daemon"
+      ],
+      "sourceUrls": [
+        "https://docs.openclaw.ai/cli",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://docs.openclaw.ai/cli/models"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/gateway-ops-observability",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/gateway-ops-observability",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/gateway-ops-observability/gateway-ops-observability-0.1.0.tgz",
+        "sha256": "017d9e52c09ffdac95377af68a8ae05fa0766a6535ea3f918ec9726cc1aa7b3a",
+        "size": 944
+      },
+      "manifest": {
+        "name": "gateway-ops-observability",
+        "version": "0.1.0",
+        "description": "Observe and debug local agent gateways, daemons, health probes, logs, and usage costs.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "gateway",
+          "logs",
+          "health",
+          "observability",
+          "daemon"
+        ],
+        "sourceUrls": [
+          "https://docs.openclaw.ai/cli",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://docs.openclaw.ai/cli/models"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Gateway Ops Observability",
+            "activateOn": "gateway logs, agent health, daemon status, usage cost, ops troubleshooting",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "hermes-agent-bridge",
+      "name": "hermes-agent-bridge",
+      "title": "Hermes Agent Bridge",
+      "version": "0.1.0",
+      "description": "Run Hermes Agent from Memoire with CLI, skills, toolsets, worktree, and session recipes.",
+      "category": "connect",
+      "tags": [
+        "hermes",
+        "cli",
+        "skills",
+        "toolsets",
+        "worktrees"
+      ],
+      "sourceUrls": [
+        "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/hermes-agent-bridge",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/hermes-agent-bridge",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/hermes-agent-bridge/hermes-agent-bridge-0.1.0.tgz",
+        "sha256": "ada5c2ffe1805236d079714d4ba46bf121f60d5b24297a12a3b30bb8e6291e17",
+        "size": 935
+      },
+      "manifest": {
+        "name": "hermes-agent-bridge",
+        "version": "0.1.0",
+        "description": "Run Hermes Agent from Memoire with CLI, skills, toolsets, worktree, and session recipes.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "hermes",
+          "cli",
+          "skills",
+          "toolsets",
+          "worktrees"
+        ],
+        "sourceUrls": [
+          "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://hermes-agent.nousresearch.com/docs/reference/skills-catalog/"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Hermes Agent Bridge",
+            "activateOn": "hermes agent setup, Hermes CLI delegation, skills preload, worktree agent run",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "hyperframes-video",
+      "name": "hyperframes-video",
+      "title": "Hyperframes Video",
+      "version": "0.1.0",
+      "description": "Current Hyperframes pack for HTML-first motion videos, lintable frames, previews, and render command prep.",
+      "category": "generate",
+      "tags": [
+        "video",
+        "hyperframes",
+        "html",
+        "motion",
+        "rendering"
+      ],
+      "sourceUrls": [
+        "https://hyperframes.mintlify.app/packages/cli",
+        "https://hyperframes.mintlify.app/guides/rendering",
+        "https://hyperframes.mintlify.app/packages/producer",
+        "https://hyperframes.mintlify.app/packages/core"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/hyperframes-video",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/hyperframes-video",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/hyperframes-video/hyperframes-video-0.1.0.tgz",
+        "sha256": "14a02892807195dae4cfa210017e800c0a3c5bb0a2b3486f918aef27505f6a93",
+        "size": 1185
+      },
+      "manifest": {
+        "name": "hyperframes-video",
+        "version": "0.1.0",
+        "description": "Current Hyperframes pack for HTML-first motion videos, lintable frames, previews, and render command prep.",
+        "author": "Sarvesh Chidambaram",
+        "category": "generate",
+        "tags": [
+          "video",
+          "hyperframes",
+          "html",
+          "motion",
+          "rendering"
+        ],
+        "sourceUrls": [
+          "https://hyperframes.mintlify.app/packages/cli",
+          "https://hyperframes.mintlify.app/guides/rendering",
+          "https://hyperframes.mintlify.app/packages/producer",
+          "https://hyperframes.mintlify.app/packages/core"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Hyperframes Video",
+            "activateOn": "motion-video",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "improve-animations",
+      "name": "improve-animations",
+      "title": "Improve Animations",
+      "version": "1.0.0",
+      "description": "Survey a codebase's animation and motion code as a senior motion advisor, then produce a prioritized audit and self-contained implementation plans for other agents (or cheaper models) to execute. Read-only on source code — it plans improvements, it does not apply them. Use when the user asks to \"improve the animations\", \"audit the motion\", \"make this app feel better\", or wants a roadmap of animation fixes rather than a review of a single diff.",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/emilkowalski/skills"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/improve-animations",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/improve-animations",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/improve-animations/improve-animations-1.0.0.tgz",
+        "sha256": "bb3e13f6bd1816366422126ff2bec562c4a74b9fa149211f662e48a372d77800",
+        "size": 9240
+      },
+      "manifest": {
+        "name": "improve-animations",
+        "version": "1.0.0",
+        "description": "Survey a codebase's animation and motion code as a senior motion advisor, then produce a prioritized audit and self-contained implementation plans for other agents (or cheaper models) to execute. Read-only on source code — it plans improvements, it does not apply them. Use when the user asks to \"improve the animations\", \"audit the motion\", \"make this app feel better\", or wants a roadmap of animation fixes rather than a review of a single diff.",
+        "author": "Emil Kowalski",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/emilkowalski/skills"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Improve Animations",
+            "activateOn": "Survey a codebase's animation and motion code as a senior motion advisor, then produce a prioritized audit and self-contained implementation plans for other agents (or cheaper models) to execute. Read-only on source code — it plans improvements, it does not apply them. Use when the user asks to \"improve the animations\", \"audit the motion\", \"make this app feel better\", or wants a roadmap of animation fixes rather than a review of a single diff.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
     },
     {
       "id": "interface-craft-gate",
       "name": "interface-craft-gate",
       "title": "Interface Craft Gate",
-      "version": "1.0.0",
-      "description": "Make interface craft a first-class gate for design agents using memi craft audit, UX traps, tokens, and screenshot evidence.",
+      "version": "2.0.0",
+      "description": "Make interface craft a required design-agent gate before and after UI changes.",
       "category": "craft",
       "tags": [
         "interface-craft",
@@ -102,19 +3032,20 @@
       ],
       "freshnessDays": 30,
       "sourceKind": "community",
-      "sourceRepo": "https://github.com/sarveshsea/memoire-community-notes",
-      "sourcePath": "notes/interface-craft-gate",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/interface-craft-gate",
       "reviewStatus": "approved",
-      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/interface-craft-gate",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/interface-craft-gate",
       "archive": {
-        "url": "https://www.memoire.cv/notes/community/interface-craft-gate/interface-craft-gate-1.0.0.tgz",
-        "sha256": "0cdf7b87981aa7311bf600a8c999e119d4760230080ada3e1dd2b7361b084fa8",
-        "size": 1825
+        "url": "https://www.memoire.cv/notes/community/interface-craft-gate/interface-craft-gate-2.0.0.tgz",
+        "sha256": "84d5e4f19c7b5c4479a71f2b1dec01a78ae03c2238d10597b007353e43ef5d30",
+        "size": 1350
       },
       "manifest": {
         "name": "interface-craft-gate",
-        "version": "1.0.0",
-        "description": "Make interface craft a first-class gate for design agents using memi craft audit, UX traps, tokens, and screenshot evidence.",
+        "version": "2.0.0",
+        "description": "Make interface craft a required design-agent gate before and after UI changes.",
+        "author": "Sarvesh Chidambaram",
         "category": "craft",
         "tags": [
           "interface-craft",
@@ -135,7 +3066,7 @@
         "freshnessDays": 30,
         "skills": [
           {
-            "file": "interface-craft-gate.md",
+            "file": "SKILL.md",
             "name": "Interface Craft Gate",
             "activateOn": "interface craft, visual polish, design review, screenshot critique, UI polish, craft audit",
             "freedomLevel": "high"
@@ -148,16 +3079,270 @@
           "memoire": ">=2.0.0"
         },
         "createdAt": "2026-07-04T00:00:00.000Z",
-        "updatedAt": "2026-07-04T00:00:00.000Z"
+        "updatedAt": "2026-07-15T00:00:00.000Z"
       },
       "lastResearchedAt": "2026-07-04T00:00:00.000Z"
     },
     {
+      "id": "interview-research",
+      "name": "interview-research",
+      "title": "Interview Research",
+      "version": "1.0.0",
+      "description": "User interview and transcript analysis — parsing speaker-labeled transcripts, extracting pain points/goals/behaviors, sentiment analysis, and persona generation from qualitative data",
+      "category": "research",
+      "tags": [
+        "interview",
+        "transcript",
+        "qualitative",
+        "user-research",
+        "sentiment",
+        "persona"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/interview-research",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/interview-research",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/interview-research/interview-research-1.0.0.tgz",
+        "sha256": "5182f40880819197dc1fbe94d682c0ca76d2df3f875ee0adc00cf729bf6c3c64",
+        "size": 8955
+      },
+      "manifest": {
+        "name": "interview-research",
+        "version": "1.0.0",
+        "description": "User interview and transcript analysis — parsing speaker-labeled transcripts, extracting pain points/goals/behaviors, sentiment analysis, and persona generation from qualitative data",
+        "author": "Sarvesh Chidambaram",
+        "category": "research",
+        "tags": [
+          "interview",
+          "transcript",
+          "qualitative",
+          "user-research",
+          "sentiment",
+          "persona"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Interview Research",
+            "activateOn": "research-to-dashboard",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "linear-sync",
+      "name": "linear-sync",
+      "title": "Linear Sync",
+      "version": "1.0.0",
+      "description": "Linear integration for Mémoire — sync design issues, component specs, and project tracking between Linear and the Mémoire registry",
+      "category": "connect",
+      "tags": [
+        "linear",
+        "integration",
+        "issues",
+        "tracking",
+        "project-management",
+        "sync"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/linear-sync",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/linear-sync",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/linear-sync/linear-sync-1.0.0.tgz",
+        "sha256": "8fce5d01772f8fe023d6e18dccf031d09e65977cb8464c6a993ec1b5f45b6ef4",
+        "size": 11886
+      },
+      "manifest": {
+        "name": "linear-sync",
+        "version": "1.0.0",
+        "description": "Linear integration for Mémoire — sync design issues, component specs, and project tracking between Linear and the Mémoire registry",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "linear",
+          "integration",
+          "issues",
+          "tracking",
+          "project-management",
+          "sync"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Linear Sync",
+            "activateOn": "always",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "mcp-server-studio",
+      "name": "mcp-server-studio",
+      "title": "MCP Server Studio",
+      "version": "0.1.0",
+      "description": "Expose Memoire Studio context, tools, and artifacts to other agents through MCP.",
+      "category": "connect",
+      "tags": [
+        "mcp",
+        "studio",
+        "tools",
+        "resources",
+        "agent"
+      ],
+      "sourceUrls": [
+        "https://docs.openclaw.ai/cli",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://modelcontextprotocol.io/docs"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/mcp-server-studio",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/mcp-server-studio",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/mcp-server-studio/mcp-server-studio-0.1.0.tgz",
+        "sha256": "3ac8d0aed3a12889839e2eabf1de8b8ce2d81e29fbf5d73d37748fd21c46ff9e",
+        "size": 975
+      },
+      "manifest": {
+        "name": "mcp-server-studio",
+        "version": "0.1.0",
+        "description": "Expose Memoire Studio context, tools, and artifacts to other agents through MCP.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "mcp",
+          "studio",
+          "tools",
+          "resources",
+          "agent"
+        ],
+        "sourceUrls": [
+          "https://docs.openclaw.ai/cli",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://modelcontextprotocol.io/docs"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "MCP Server Studio",
+            "activateOn": "MCP server, expose Studio tools, connect external agent to Memoire",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "memoire-design-tooling",
+      "name": "memoire-design-tooling",
+      "title": "Memoire Design Tooling",
+      "version": "1.0.0",
+      "description": "Use when a task involves UI design, interface understanding, interface craft, Figma, design systems, shadcn/ui, Tailwind, UX audits, user research, Atomic Design, component specs, MCP, or design-to-code generation.",
+      "category": "connect",
+      "tags": [
+        "connect",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/memoire-design-tooling",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/memoire-design-tooling",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/memoire-design-tooling/memoire-design-tooling-1.0.0.tgz",
+        "sha256": "d63e9b7148f7733eb104c7b44f5743283ea6fd08ab43fad853f95739557ac57d",
+        "size": 2287
+      },
+      "manifest": {
+        "name": "memoire-design-tooling",
+        "version": "1.0.0",
+        "description": "Use when a task involves UI design, interface understanding, interface craft, Figma, design systems, shadcn/ui, Tailwind, UX audits, user research, Atomic Design, component specs, MCP, or design-to-code generation.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "connect",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Memoire Design Tooling",
+            "activateOn": "Use when a task involves UI design, interface understanding, interface craft, Figma, design systems, shadcn/ui, Tailwind, UX audits, user research, Atomic Design, component specs, MCP, or design-to-code generation.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
       "id": "memoire-mcp-agent-skills",
       "name": "memoire-mcp-agent-skills",
-      "title": "Memoire MCP And Agent Skills",
-      "version": "1.0.0",
-      "description": "Set up memi MCP and Agent Skills so coding agents start UI work from local design evidence instead of prompts alone.",
+      "title": "Memoire MCP Agent Skills",
+      "version": "2.0.0",
+      "description": "Set up memi MCP and Agent Skills before broad frontend changes.",
       "category": "connect",
       "tags": [
         "mcp",
@@ -175,19 +3360,20 @@
       ],
       "freshnessDays": 30,
       "sourceKind": "community",
-      "sourceRepo": "https://github.com/sarveshsea/memoire-community-notes",
-      "sourcePath": "notes/memoire-mcp-agent-skills",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/memoire-mcp-agent-skills",
       "reviewStatus": "approved",
-      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/memoire-mcp-agent-skills",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/memoire-mcp-agent-skills",
       "archive": {
-        "url": "https://www.memoire.cv/notes/community/memoire-mcp-agent-skills/memoire-mcp-agent-skills-1.0.0.tgz",
-        "sha256": "65a6bcb95863363451af6f884282df1144a11c7b65a8c4a0db59bed507ccb617",
-        "size": 1647
+        "url": "https://www.memoire.cv/notes/community/memoire-mcp-agent-skills/memoire-mcp-agent-skills-2.0.0.tgz",
+        "sha256": "3053a5ded341912231217dd8e65c6e874f582e2f29ad4e26971824e5e1220733",
+        "size": 1198
       },
       "manifest": {
         "name": "memoire-mcp-agent-skills",
-        "version": "1.0.0",
-        "description": "Set up memi MCP and Agent Skills so coding agents start UI work from local design evidence instead of prompts alone.",
+        "version": "2.0.0",
+        "description": "Set up memi MCP and Agent Skills before broad frontend changes.",
+        "author": "Sarvesh Chidambaram",
         "category": "connect",
         "tags": [
           "mcp",
@@ -207,8 +3393,8 @@
         "freshnessDays": 30,
         "skills": [
           {
-            "file": "memoire-mcp-agent-skills.md",
-            "name": "Memoire MCP And Agent Skills",
+            "file": "SKILL.md",
+            "name": "Memoire MCP Agent Skills",
             "activateOn": "mcp setup, agent skills install, codex plugin, claude code mcp, cursor mcp, design agent setup",
             "freedomLevel": "high"
           }
@@ -220,16 +3406,16 @@
           "memoire": ">=2.0.0"
         },
         "createdAt": "2026-07-04T00:00:00.000Z",
-        "updatedAt": "2026-07-04T00:00:00.000Z"
+        "updatedAt": "2026-07-15T00:00:00.000Z"
       },
       "lastResearchedAt": "2026-07-04T00:00:00.000Z"
     },
     {
       "id": "memoire-studio-macos",
       "name": "memoire-studio-macos",
-      "title": "Memoire Studio macOS",
-      "version": "1.0.0",
-      "description": "Connect the Tauri/Rust macOS Memoire Studio app to the memi CLI, MCP server, receipts, artifacts, and design-agent handoffs.",
+      "title": "Memoire Studio Macos",
+      "version": "2.0.0",
+      "description": "Connect the Tauri/Rust macOS Studio app to the CLI, MCP, receipts, and project artifacts.",
       "category": "connect",
       "tags": [
         "macos",
@@ -247,19 +3433,20 @@
       ],
       "freshnessDays": 30,
       "sourceKind": "community",
-      "sourceRepo": "https://github.com/sarveshsea/memoire-community-notes",
-      "sourcePath": "notes/memoire-studio-macos",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/memoire-studio-macos",
       "reviewStatus": "approved",
-      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/memoire-studio-macos",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/memoire-studio-macos",
       "archive": {
-        "url": "https://www.memoire.cv/notes/community/memoire-studio-macos/memoire-studio-macos-1.0.0.tgz",
-        "sha256": "d5d0418b1c3be51c1b30ab35e1b672b2b06b3f7e0a77c96e50305b38c7bf6cb0",
-        "size": 1647
+        "url": "https://www.memoire.cv/notes/community/memoire-studio-macos/memoire-studio-macos-2.0.0.tgz",
+        "sha256": "ecd09ed269c3c86f0afe9771c29e6c20f05c0d68ec6ca62ffd9fb0d984c75c8b",
+        "size": 1218
       },
       "manifest": {
         "name": "memoire-studio-macos",
-        "version": "1.0.0",
-        "description": "Connect the Tauri/Rust macOS Memoire Studio app to the memi CLI, MCP server, receipts, artifacts, and design-agent handoffs.",
+        "version": "2.0.0",
+        "description": "Connect the Tauri/Rust macOS Studio app to the CLI, MCP, receipts, and project artifacts.",
+        "author": "Sarvesh Chidambaram",
         "category": "connect",
         "tags": [
           "macos",
@@ -279,8 +3466,8 @@
         "freshnessDays": 30,
         "skills": [
           {
-            "file": "memoire-studio-macos.md",
-            "name": "Memoire Studio macOS",
+            "file": "SKILL.md",
+            "name": "Memoire Studio Macos",
             "activateOn": "macOS app, memi studio, tauri app, rust app, supervised agent run, product design workbench",
             "freedomLevel": "read-only"
           }
@@ -293,16 +3480,16 @@
           "memoire": ">=2.0.0"
         },
         "createdAt": "2026-07-04T00:00:00.000Z",
-        "updatedAt": "2026-07-04T00:00:00.000Z"
+        "updatedAt": "2026-07-15T00:00:00.000Z"
       },
       "lastResearchedAt": "2026-07-04T00:00:00.000Z"
     },
     {
       "id": "memoire-v2-surface-map",
       "name": "memoire-v2-surface-map",
-      "title": "Memoire v2 Surface Map",
-      "version": "1.0.0",
-      "description": "Connect the memi v2 public surfaces: npm CLI, MCP server, Agent Skills, Codex plugin, macOS Studio, design sandbox, and community Notes.",
+      "title": "Memoire V2 Surface Map",
+      "version": "2.0.0",
+      "description": "Connect the memi v2 public surfaces before publishing, onboarding agents, or writing docs.",
       "category": "connect",
       "tags": [
         "memi",
@@ -319,23 +3506,24 @@
         "https://www.npmjs.com/package/@memi-design/cli",
         "https://github.com/sarveshsea/memi-studio",
         "https://github.com/sarveshsea/design-sandbox",
-        "https://github.com/sarveshsea/memoire-community-notes"
+        "https://github.com/sarveshsea/design-skills"
       ],
       "freshnessDays": 30,
       "sourceKind": "community",
-      "sourceRepo": "https://github.com/sarveshsea/memoire-community-notes",
-      "sourcePath": "notes/memoire-v2-surface-map",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/memoire-v2-surface-map",
       "reviewStatus": "approved",
-      "contributionUrl": "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes/memoire-v2-surface-map",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/memoire-v2-surface-map",
       "archive": {
-        "url": "https://www.memoire.cv/notes/community/memoire-v2-surface-map/memoire-v2-surface-map-1.0.0.tgz",
-        "sha256": "7e9011b6b731280bf4999914a85dec839b0f3e25145321ecae99d821f150b33b",
-        "size": 2030
+        "url": "https://www.memoire.cv/notes/community/memoire-v2-surface-map/memoire-v2-surface-map-2.0.0.tgz",
+        "sha256": "c89cdbf2741472d5ca4f91789715e648b187f4e6ad963c4dd1754633c7556f51",
+        "size": 1588
       },
       "manifest": {
         "name": "memoire-v2-surface-map",
-        "version": "1.0.0",
-        "description": "Connect the memi v2 public surfaces: npm CLI, MCP server, Agent Skills, Codex plugin, macOS Studio, design sandbox, and community Notes.",
+        "version": "2.0.0",
+        "description": "Connect the memi v2 public surfaces before publishing, onboarding agents, or writing docs.",
+        "author": "Sarvesh Chidambaram",
         "category": "connect",
         "tags": [
           "memi",
@@ -352,14 +3540,14 @@
           "https://www.npmjs.com/package/@memi-design/cli",
           "https://github.com/sarveshsea/memi-studio",
           "https://github.com/sarveshsea/design-sandbox",
-          "https://github.com/sarveshsea/memoire-community-notes"
+          "https://github.com/sarveshsea/design-skills"
         ],
         "lastResearchedAt": "2026-07-04T00:00:00.000Z",
         "freshnessDays": 30,
         "skills": [
           {
-            "file": "memoire-v2-surface-map.md",
-            "name": "Memoire v2 Surface Map",
+            "file": "SKILL.md",
+            "name": "Memoire V2 Surface Map",
             "activateOn": "memi setup, memoire surface map, package launch, distribution links, agent ecosystem",
             "freedomLevel": "read-only"
           }
@@ -369,9 +3557,1402 @@
           "memoire": ">=2.0.0"
         },
         "createdAt": "2026-07-04T00:00:00.000Z",
-        "updatedAt": "2026-07-04T00:00:00.000Z"
+        "updatedAt": "2026-07-15T00:00:00.000Z"
       },
       "lastResearchedAt": "2026-07-04T00:00:00.000Z"
+    },
+    {
+      "id": "mermaid-jam",
+      "name": "mermaid-jam",
+      "title": "Mermaid Jam",
+      "version": "1.0.0",
+      "description": "Route Mermaid and markdown diagram source into the Mermaid Jam FigJam plugin for editable native FigJam output",
+      "category": "connect",
+      "tags": [
+        "figjam",
+        "mermaid",
+        "markdown",
+        "diagram",
+        "user-flow"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/mermaid-jam",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/mermaid-jam",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/mermaid-jam/mermaid-jam-1.0.0.tgz",
+        "sha256": "5510084c4251105b8524799e44ae02fad47e2d5f616cb8da0ec4c578e47f01d4",
+        "size": 1819
+      },
+      "manifest": {
+        "name": "mermaid-jam",
+        "version": "1.0.0",
+        "description": "Route Mermaid and markdown diagram source into the Mermaid Jam FigJam plugin for editable native FigJam output",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "figjam",
+          "mermaid",
+          "markdown",
+          "diagram",
+          "user-flow"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Mermaid Jam",
+            "activateOn": "figma-canvas-operation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=0.15.0"
+        },
+        "createdAt": "2026-05-06T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "mobile-craft",
+      "name": "mobile-craft",
+      "title": "Mobile Craft",
+      "version": "1.0.0",
+      "description": "Mobile-first design mastery — touch targets, gesture patterns, responsive breakpoints, native-feel animations, thumb zones, platform conventions (iOS/Android), and progressive enhancement strategies",
+      "category": "craft",
+      "tags": [
+        "mobile",
+        "responsive",
+        "touch",
+        "ios",
+        "android",
+        "gestures",
+        "progressive-enhancement"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/mobile-craft",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/mobile-craft",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/mobile-craft/mobile-craft-1.0.0.tgz",
+        "sha256": "035e71fc05ed49f5acdbf83b60b411a2feccd647cef7ba4a737f660bd9ab260a",
+        "size": 17618
+      },
+      "manifest": {
+        "name": "mobile-craft",
+        "version": "1.0.0",
+        "description": "Mobile-first design mastery — touch targets, gesture patterns, responsive breakpoints, native-feel animations, thumb zones, platform conventions (iOS/Android), and progressive enhancement strategies",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "mobile",
+          "responsive",
+          "touch",
+          "ios",
+          "android",
+          "gestures",
+          "progressive-enhancement"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Mobile Craft",
+            "activateOn": "design-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "model-router-diagnostics",
+      "name": "model-router-diagnostics",
+      "title": "Model Router Diagnostics",
+      "version": "0.1.0",
+      "description": "Diagnose provider auth, model routing, quota windows, and fallback behavior before agent runs.",
+      "category": "connect",
+      "tags": [
+        "models",
+        "providers",
+        "auth",
+        "routing",
+        "diagnostics"
+      ],
+      "sourceUrls": [
+        "https://docs.openclaw.ai/cli/models",
+        "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+        "https://developers.openai.com/codex/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/model-router-diagnostics",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/model-router-diagnostics",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/model-router-diagnostics/model-router-diagnostics-0.1.0.tgz",
+        "sha256": "282fea346a7f795af9f2a865c9b77d54ef1c4abd9606d3bee6b89a71eb111910",
+        "size": 963
+      },
+      "manifest": {
+        "name": "model-router-diagnostics",
+        "version": "0.1.0",
+        "description": "Diagnose provider auth, model routing, quota windows, and fallback behavior before agent runs.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "models",
+          "providers",
+          "auth",
+          "routing",
+          "diagnostics"
+        ],
+        "sourceUrls": [
+          "https://docs.openclaw.ai/cli/models",
+          "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+          "https://developers.openai.com/codex/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Model Router Diagnostics",
+            "activateOn": "model router, provider auth, quota check, fallback model, reasoning setting",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "motion-performance",
+      "name": "motion-performance",
+      "title": "Motion Performance",
+      "version": "0.1.0",
+      "description": "Motion performance pack for 60fps UI animation, reduced-motion fallbacks, render budget checks, and video export QA.",
+      "category": "craft",
+      "tags": [
+        "motion",
+        "performance",
+        "accessibility",
+        "video",
+        "qa"
+      ],
+      "sourceUrls": [
+        "https://www.remotion.dev/docs/renderer",
+        "https://hyperframes.mintlify.app/packages/core"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/motion-performance",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/motion-performance",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/motion-performance/motion-performance-0.1.0.tgz",
+        "sha256": "1f6cc10965960050422b0590b0fbb8c8b940707a68cce7ff3a376d2d91521a8c",
+        "size": 1044
+      },
+      "manifest": {
+        "name": "motion-performance",
+        "version": "0.1.0",
+        "description": "Motion performance pack for 60fps UI animation, reduced-motion fallbacks, render budget checks, and video export QA.",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "motion",
+          "performance",
+          "accessibility",
+          "video",
+          "qa"
+        ],
+        "sourceUrls": [
+          "https://www.remotion.dev/docs/renderer",
+          "https://hyperframes.mintlify.app/packages/core"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Motion Performance",
+            "activateOn": "motion-video",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "motion-video",
+      "name": "motion-video",
+      "title": "Motion Video",
+      "version": "1.0.0",
+      "description": "Product animation, UI motion, portfolio videos — Apple-grade reveals, motion tokens, full production pipelines",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/motion-video",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/motion-video",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/motion-video/motion-video-1.0.0.tgz",
+        "sha256": "a61dfc66d51d0161aaaae6249c2c3afca6e7734724b6247ad407ee21051a2bfb",
+        "size": 6207
+      },
+      "manifest": {
+        "name": "motion-video",
+        "version": "1.0.0",
+        "description": "Product animation, UI motion, portfolio videos — Apple-grade reveals, motion tokens, full production pipelines",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Motion Video",
+            "activateOn": "Product animation, UI motion, portfolio videos — Apple-grade reveals, motion tokens, full production pipelines",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "multi-agent",
+      "name": "multi-agent",
+      "title": "Multi Agent",
+      "version": "1.0.0",
+      "description": "Orchestrate multiple Claude instances on Figma canvas with box widgets, coordinated handoffs, error recovery",
+      "category": "connect",
+      "tags": [
+        "connect",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/multi-agent",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/multi-agent",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/multi-agent/multi-agent-1.0.0.tgz",
+        "sha256": "20aa8fb5b69b2431172d87c7ac98fc834dbb766961c2bdc6a39e1cafe1062ec9",
+        "size": 2618
+      },
+      "manifest": {
+        "name": "multi-agent",
+        "version": "1.0.0",
+        "description": "Orchestrate multiple Claude instances on Figma canvas with box widgets, coordinated handoffs, error recovery",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "connect",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Multi Agent",
+            "activateOn": "Orchestrate multiple Claude instances on Figma canvas with box widgets, coordinated handoffs, error recovery",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "multi-agent-kanban",
+      "name": "multi-agent-kanban",
+      "title": "Multi Agent Kanban",
+      "version": "0.1.0",
+      "description": "Coordinate multiple local agents through a durable board with owner, state, and evidence fields.",
+      "category": "connect",
+      "tags": [
+        "multi-agent",
+        "kanban",
+        "coordination",
+        "sessions",
+        "handoff"
+      ],
+      "sourceUrls": [
+        "https://github.com/nousresearch/hermes-agent",
+        "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+        "https://docs.openclaw.ai/cli"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/multi-agent-kanban",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/multi-agent-kanban",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/multi-agent-kanban/multi-agent-kanban-0.1.0.tgz",
+        "sha256": "fac8fd0a7370e8341c8d9c4ebf232a5b7521ed7a51b07cd31c0b828d46dda106",
+        "size": 991
+      },
+      "manifest": {
+        "name": "multi-agent-kanban",
+        "version": "0.1.0",
+        "description": "Coordinate multiple local agents through a durable board with owner, state, and evidence fields.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "multi-agent",
+          "kanban",
+          "coordination",
+          "sessions",
+          "handoff"
+        ],
+        "sourceUrls": [
+          "https://github.com/nousresearch/hermes-agent",
+          "https://hermes-agent.nousresearch.com/docs/user-guide/cli",
+          "https://docs.openclaw.ai/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Multi Agent Kanban",
+            "activateOn": "multi agent board, kanban swarm, agent coordination, durable task board",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "notion-sync",
+      "name": "notion-sync",
+      "title": "Notion Sync",
+      "version": "1.0.0",
+      "description": "Notion integration for Mémoire — sync research insights, specs, and project context between Notion databases and the Mémoire registry",
+      "category": "connect",
+      "tags": [
+        "notion",
+        "integration",
+        "sync",
+        "research",
+        "specs",
+        "database"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/notion-sync",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/notion-sync",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/notion-sync/notion-sync-1.0.0.tgz",
+        "sha256": "ba92397cf6c25223019201ab99259d9c20e0d241a323c22b3f24138009b94a90",
+        "size": 13319
+      },
+      "manifest": {
+        "name": "notion-sync",
+        "version": "1.0.0",
+        "description": "Notion integration for Mémoire — sync research insights, specs, and project context between Notion databases and the Mémoire registry",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "notion",
+          "integration",
+          "sync",
+          "research",
+          "specs",
+          "database"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Notion Sync",
+            "activateOn": "always",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "openclaw-agent-bridge",
+      "name": "openclaw-agent-bridge",
+      "title": "Openclaw Agent Bridge",
+      "version": "0.1.0",
+      "description": "Connect Memoire to OpenClaw onboarding, agents, gateway health, MCP, and approval flows.",
+      "category": "connect",
+      "tags": [
+        "openclaw",
+        "gateway",
+        "agents",
+        "mcp",
+        "approvals"
+      ],
+      "sourceUrls": [
+        "https://docs.openclaw.ai/cli",
+        "https://docs.openclaw.ai/start/wizard",
+        "https://docs.openclaw.ai/cli/models"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/openclaw-agent-bridge",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/openclaw-agent-bridge",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/openclaw-agent-bridge/openclaw-agent-bridge-0.1.0.tgz",
+        "sha256": "6e385e40679244dc96b37f627330393935c68f3c6f27b1f215ffb92f7b06e973",
+        "size": 904
+      },
+      "manifest": {
+        "name": "openclaw-agent-bridge",
+        "version": "0.1.0",
+        "description": "Connect Memoire to OpenClaw onboarding, agents, gateway health, MCP, and approval flows.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "openclaw",
+          "gateway",
+          "agents",
+          "mcp",
+          "approvals"
+        ],
+        "sourceUrls": [
+          "https://docs.openclaw.ai/cli",
+          "https://docs.openclaw.ai/start/wizard",
+          "https://docs.openclaw.ai/cli/models"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Openclaw Agent Bridge",
+            "activateOn": "OpenClaw setup, gateway agent route, openclaw health, openclaw mcp",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "react-native-gen",
+      "name": "react-native-gen",
+      "title": "React Native Gen",
+      "version": "1.0.0",
+      "description": "React Native code generation from Memoire specs — NativeWind styling, Expo-compatible, platform-specific patterns",
+      "category": "generate",
+      "tags": [
+        "react-native",
+        "nativewind",
+        "expo",
+        "mobile",
+        "ios",
+        "android"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/react-native-gen",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/react-native-gen",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/react-native-gen/react-native-gen-1.0.0.tgz",
+        "sha256": "654992e1658feff715548cf1abf5387eb98f36a068373b66a33132985247f856",
+        "size": 2276
+      },
+      "manifest": {
+        "name": "react-native-gen",
+        "version": "1.0.0",
+        "description": "React Native code generation from Memoire specs — NativeWind styling, Expo-compatible, platform-specific patterns",
+        "author": "Sarvesh Chidambaram",
+        "category": "generate",
+        "tags": [
+          "react-native",
+          "nativewind",
+          "expo",
+          "mobile",
+          "ios",
+          "android"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "React Native Gen",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "remotion-video",
+      "name": "remotion-video",
+      "title": "Remotion Video",
+      "version": "0.1.0",
+      "description": "Current Remotion video production pack for React-based product videos, previews, and renderer handoff.",
+      "category": "generate",
+      "tags": [
+        "video",
+        "remotion",
+        "react",
+        "motion",
+        "renderer"
+      ],
+      "sourceUrls": [
+        "https://www.remotion.dev/docs/studio",
+        "https://www.remotion.dev/docs/renderer"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/remotion-video",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/remotion-video",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/remotion-video/remotion-video-0.1.0.tgz",
+        "sha256": "6290aea4b649f68776f65b06725e588c84c95fee3a8fd88297819eb67bc20a45",
+        "size": 1214
+      },
+      "manifest": {
+        "name": "remotion-video",
+        "version": "0.1.0",
+        "description": "Current Remotion video production pack for React-based product videos, previews, and renderer handoff.",
+        "author": "Sarvesh Chidambaram",
+        "category": "generate",
+        "tags": [
+          "video",
+          "remotion",
+          "react",
+          "motion",
+          "renderer"
+        ],
+        "sourceUrls": [
+          "https://www.remotion.dev/docs/studio",
+          "https://www.remotion.dev/docs/renderer"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Remotion Video",
+            "activateOn": "motion-video",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "review-animations",
+      "name": "review-animations",
+      "title": "Review Animations",
+      "version": "1.0.0",
+      "description": "Reviews animation and motion code against a high craft bar derived from Emil Kowalski's design engineering philosophy. Default to flagging; approval is earned.",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/emilkowalski/skills"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/review-animations",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/review-animations",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/review-animations/review-animations-1.0.0.tgz",
+        "sha256": "6e9af6c2f8aacfd1253f0b0a4012530937e84f395f2d4e1358491e54c1c54f5e",
+        "size": 8450
+      },
+      "manifest": {
+        "name": "review-animations",
+        "version": "1.0.0",
+        "description": "Reviews animation and motion code against a high craft bar derived from Emil Kowalski's design engineering philosophy. Default to flagging; approval is earned.",
+        "author": "Emil Kowalski",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/emilkowalski/skills"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Review Animations",
+            "activateOn": "Reviews animation and motion code against a high craft bar derived from Emil Kowalski's design engineering philosophy. Default to flagging; approval is earned.",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "secure-secrets-for-agents",
+      "name": "secure-secrets-for-agents",
+      "title": "Secure Secrets For Agents",
+      "version": "0.1.0",
+      "description": "Handle agent credentials with env refs, redaction, least privilege, and non-leaking prompts.",
+      "category": "connect",
+      "tags": [
+        "secrets",
+        "redaction",
+        "env",
+        "security",
+        "credentials"
+      ],
+      "sourceUrls": [
+        "https://docs.openclaw.ai/cli",
+        "https://github.com/nousresearch/hermes-agent",
+        "https://developers.openai.com/codex/cli"
+      ],
+      "freshnessDays": 30,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/secure-secrets-for-agents",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/secure-secrets-for-agents",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/secure-secrets-for-agents/secure-secrets-for-agents-0.1.0.tgz",
+        "sha256": "a9037019d66532780351a37a69299639876c03b880bf956a12e07259b7ee00fd",
+        "size": 994
+      },
+      "manifest": {
+        "name": "secure-secrets-for-agents",
+        "version": "0.1.0",
+        "description": "Handle agent credentials with env refs, redaction, least privilege, and non-leaking prompts.",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "secrets",
+          "redaction",
+          "env",
+          "security",
+          "credentials"
+        ],
+        "sourceUrls": [
+          "https://docs.openclaw.ai/cli",
+          "https://github.com/nousresearch/hermes-agent",
+          "https://developers.openai.com/codex/cli"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 30,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Secure Secrets For Agents",
+            "activateOn": "agent secret, env key, credential setup, redaction, api key handling",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
+    },
+    {
+      "id": "self-improving-agent",
+      "name": "self-improving-agent",
+      "title": "Self Improving Agent",
+      "version": "3.0.6",
+      "description": "Closed-loop learning system — captures errors, corrections, and discoveries into structured logs, promotes recurring patterns to project memory, and extracts reusable skills",
+      "category": "connect",
+      "tags": [
+        "learning",
+        "self-improvement",
+        "error-tracking",
+        "knowledge-management"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/self-improving-agent",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/self-improving-agent",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/self-improving-agent/self-improving-agent-3.0.6.tgz",
+        "sha256": "96dd6dd3126010d10561cc621c7c8d82244ee445f35ccd21afe0fcee935cdec5",
+        "size": 8162
+      },
+      "manifest": {
+        "name": "self-improving-agent",
+        "version": "3.0.6",
+        "description": "Closed-loop learning system — captures errors, corrections, and discoveries into structured logs, promotes recurring patterns to project memory, and extracts reusable skills",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "learning",
+          "self-improvement",
+          "error-tracking",
+          "knowledge-management"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Self Improving Agent",
+            "activateOn": "always",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-26T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "superpower",
+      "name": "superpower",
+      "title": "Superpower",
+      "version": "1.0.0",
+      "description": "Default autonomous superagent mode — read designs, drive canvas, orchestrate agents, generate specs and code",
+      "category": "connect",
+      "tags": [
+        "connect",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/superpower",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/superpower",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/superpower/superpower-1.0.0.tgz",
+        "sha256": "732a9dba1fb0d31a8a41e0a0e47a201a63a92a317098bbdc86677b784d140482",
+        "size": 2160
+      },
+      "manifest": {
+        "name": "superpower",
+        "version": "1.0.0",
+        "description": "Default autonomous superagent mode — read designs, drive canvas, orchestrate agents, generate specs and code",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "connect",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Superpower",
+            "activateOn": "Default autonomous superagent mode — read designs, drive canvas, orchestrate agents, generate specs and code",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "survey-connect",
+      "name": "survey-connect",
+      "title": "Survey Connect",
+      "version": "1.0.0",
+      "description": "Survey platform integration — import responses from Typeform, Google Forms, SurveyMonkey, Airtable, and CSV exports into Mémoire's research pipeline",
+      "category": "connect",
+      "tags": [
+        "survey",
+        "typeform",
+        "google-forms",
+        "airtable",
+        "csv",
+        "import"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/survey-connect",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/survey-connect",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/survey-connect/survey-connect-1.0.0.tgz",
+        "sha256": "1e28a4c9ef3c7fa55d3ae5abbabb7cf1df5cc468f386ad39e3e711ef841fb04f",
+        "size": 7638
+      },
+      "manifest": {
+        "name": "survey-connect",
+        "version": "1.0.0",
+        "description": "Survey platform integration — import responses from Typeform, Google Forms, SurveyMonkey, Airtable, and CSV exports into Mémoire's research pipeline",
+        "author": "Sarvesh Chidambaram",
+        "category": "connect",
+        "tags": [
+          "survey",
+          "typeform",
+          "google-forms",
+          "airtable",
+          "csv",
+          "import"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Survey Connect",
+            "activateOn": "research-to-dashboard",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "token-architecture",
+      "name": "token-architecture",
+      "title": "Token Architecture",
+      "version": "1.0.0",
+      "description": "Design token architecture — multi-tier token systems, semantic naming, theme switching, CSS custom properties, Tailwind mapping, and Figma variable sync",
+      "category": "craft",
+      "tags": [
+        "design-tokens",
+        "theming",
+        "css-variables",
+        "tailwind",
+        "figma-variables",
+        "semantic-tokens"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/token-architecture",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/token-architecture",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/token-architecture/token-architecture-1.0.0.tgz",
+        "sha256": "ad42feec9ef8326cd12aa980fd4c3fb45d7d814432677cafa01321d6b2ede919",
+        "size": 3876
+      },
+      "manifest": {
+        "name": "token-architecture",
+        "version": "1.0.0",
+        "description": "Design token architecture — multi-tier token systems, semantic naming, theme switching, CSS custom properties, Tailwind mapping, and Figma variable sync",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "design-tokens",
+          "theming",
+          "css-variables",
+          "tailwind",
+          "figma-variables",
+          "semantic-tokens"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Token Architecture",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "usability-testing",
+      "name": "usability-testing",
+      "title": "Usability Testing",
+      "version": "1.0.0",
+      "description": "Usability testing frameworks — test planning, task scenarios, moderated and unmoderated protocols, analysis frameworks, and insight synthesis for Mémoire research pipeline",
+      "category": "research",
+      "tags": [
+        "usability",
+        "testing",
+        "ux-research",
+        "task-analysis",
+        "think-aloud",
+        "insights"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/usability-testing",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/usability-testing",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/usability-testing/usability-testing-1.0.0.tgz",
+        "sha256": "67e9322fb3721b91dc1282d640d85f6429115c7e25fa5784bf75f8fc32067c29",
+        "size": 5156
+      },
+      "manifest": {
+        "name": "usability-testing",
+        "version": "1.0.0",
+        "description": "Usability testing frameworks — test planning, task scenarios, moderated and unmoderated protocols, analysis frameworks, and insight synthesis for Mémoire research pipeline",
+        "author": "Sarvesh Chidambaram",
+        "category": "research",
+        "tags": [
+          "usability",
+          "testing",
+          "ux-research",
+          "task-analysis",
+          "think-aloud",
+          "insights"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Usability Testing",
+            "activateOn": "research-to-dashboard",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "ux-tenets-traps",
+      "name": "ux-tenets-traps",
+      "title": "UX Tenets Traps",
+      "version": "1.0.0",
+      "description": "UX tenets and traps framework for code, Figma, screenshot, and Studio critique workflows.",
+      "category": "craft",
+      "tags": [
+        "craft",
+        "design-skills"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/ux-tenets-traps",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/ux-tenets-traps",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/ux-tenets-traps/ux-tenets-traps-1.0.0.tgz",
+        "sha256": "9a5a1bd784fb49e6e652c2cf195dd1cbf0620f9851e643809ee29a84eb10bc06",
+        "size": 2263
+      },
+      "manifest": {
+        "name": "ux-tenets-traps",
+        "version": "1.0.0",
+        "description": "UX tenets and traps framework for code, Figma, screenshot, and Studio critique workflows.",
+        "author": "Sarvesh Chidambaram",
+        "category": "craft",
+        "tags": [
+          "craft",
+          "design-skills"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "UX Tenets Traps",
+            "activateOn": "Audit UX tenets and traps across code, screenshots, Figma, and Studio review packets",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-07-15T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "vue-gen",
+      "name": "vue-gen",
+      "title": "Vue Gen",
+      "version": "1.0.0",
+      "description": "Vue 3 Composition API code generation — transforms Mémoire component specs into Vue SFCs with script setup, Tailwind styling, and composable patterns",
+      "category": "generate",
+      "tags": [
+        "vue",
+        "vue3",
+        "composition-api",
+        "sfc",
+        "tailwind",
+        "codegen"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/vue-gen",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/vue-gen",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/vue-gen/vue-gen-1.0.0.tgz",
+        "sha256": "812297e87d5505213a3a59781219641d06494cce651d1e101440e4866a62015e",
+        "size": 3986
+      },
+      "manifest": {
+        "name": "vue-gen",
+        "version": "1.0.0",
+        "description": "Vue 3 Composition API code generation — transforms Mémoire component specs into Vue SFCs with script setup, Tailwind styling, and composable patterns",
+        "author": "Sarvesh Chidambaram",
+        "category": "generate",
+        "tags": [
+          "vue",
+          "vue3",
+          "composition-api",
+          "sfc",
+          "tailwind",
+          "codegen"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Vue Gen",
+            "activateOn": "component-creation",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "web-research",
+      "name": "web-research",
+      "title": "Web Research",
+      "version": "1.0.0",
+      "description": "Structured web research — topic exploration, content fetching, finding extraction, cross-source validation, and gap analysis for design research",
+      "category": "research",
+      "tags": [
+        "web-research",
+        "content-analysis",
+        "competitive",
+        "market-research",
+        "trends"
+      ],
+      "sourceUrls": [
+        "https://github.com/sarveshsea/memi"
+      ],
+      "freshnessDays": 90,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/web-research",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/web-research",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/web-research/web-research-1.0.0.tgz",
+        "sha256": "e747b9003ac1d40b834c67564da6877ce437b19d109333c91f6c1391ea57f127",
+        "size": 9576
+      },
+      "manifest": {
+        "name": "web-research",
+        "version": "1.0.0",
+        "description": "Structured web research — topic exploration, content fetching, finding extraction, cross-source validation, and gap analysis for design research",
+        "author": "Sarvesh Chidambaram",
+        "category": "research",
+        "tags": [
+          "web-research",
+          "content-analysis",
+          "competitive",
+          "market-research",
+          "trends"
+        ],
+        "sourceUrls": [
+          "https://github.com/sarveshsea/memi"
+        ],
+        "lastResearchedAt": "2026-07-15T00:00:00.000Z",
+        "freshnessDays": 90,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Web Research",
+            "activateOn": "research-to-dashboard",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-03-28T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-07-15T00:00:00.000Z"
+    },
+    {
+      "id": "website-to-video",
+      "name": "website-to-video",
+      "title": "Website To Video",
+      "version": "0.1.0",
+      "description": "Website-to-video capture pack for turning product pages, flows, and browser states into structured video scenes.",
+      "category": "generate",
+      "tags": [
+        "video",
+        "website-capture",
+        "browser",
+        "product-demo"
+      ],
+      "sourceUrls": [
+        "https://www.remotion.dev/docs/studio",
+        "https://hyperframes.mintlify.app/guides/rendering"
+      ],
+      "freshnessDays": 60,
+      "sourceKind": "community",
+      "sourceRepo": "https://github.com/sarveshsea/design-skills",
+      "sourcePath": "skills/website-to-video",
+      "reviewStatus": "approved",
+      "contributionUrl": "https://github.com/sarveshsea/design-skills/tree/main/skills/website-to-video",
+      "archive": {
+        "url": "https://www.memoire.cv/notes/community/website-to-video/website-to-video-0.1.0.tgz",
+        "sha256": "db80055b83a26b929df5170444498b34a441cfdcfc695fe44b59ec60052df1ae",
+        "size": 1106
+      },
+      "manifest": {
+        "name": "website-to-video",
+        "version": "0.1.0",
+        "description": "Website-to-video capture pack for turning product pages, flows, and browser states into structured video scenes.",
+        "author": "Sarvesh Chidambaram",
+        "category": "generate",
+        "tags": [
+          "video",
+          "website-capture",
+          "browser",
+          "product-demo"
+        ],
+        "sourceUrls": [
+          "https://www.remotion.dev/docs/studio",
+          "https://hyperframes.mintlify.app/guides/rendering"
+        ],
+        "lastResearchedAt": "2026-05-07T00:00:00.000Z",
+        "freshnessDays": 60,
+        "skills": [
+          {
+            "file": "SKILL.md",
+            "name": "Website To Video",
+            "activateOn": "motion-video",
+            "freedomLevel": "high"
+          }
+        ],
+        "dependencies": [
+          "remotion-video",
+          "hyperframes-video"
+        ],
+        "engines": {
+          "memoire": ">=2.0.0"
+        },
+        "createdAt": "2026-05-07T00:00:00.000Z",
+        "updatedAt": "2026-07-15T00:00:00.000Z"
+      },
+      "lastResearchedAt": "2026-05-07T00:00:00.000Z"
     }
   ]
 }

@@ -97,12 +97,12 @@ describe("community Notes validation and forks", () => {
 
     const handoff = await buildNoteForkPrHandoff(root, "design-systems-fork");
     expect(handoff).toMatchObject({
-      sourceRepo: "https://github.com/sarveshsea/memoire-community-notes",
-      targetPath: "notes/design-systems-fork",
+      sourceRepo: "https://github.com/sarveshsea/design-skills",
+      targetPath: "skills/design-systems-fork",
       commitMessage: "Update design-systems-fork Note",
     });
     expect(handoff.branchName).toMatch(/^notes\/design-systems-fork-/);
-    expect(handoff.commands.join("\n")).toContain("git clone https://github.com/sarveshsea/memoire-community-notes.git");
+    expect(handoff.commands.join("\n")).toContain("git clone https://github.com/sarveshsea/design-skills.git");
     expect(handoff.commands.join("\n")).toContain("git commit -m \"Update design-systems-fork Note\"");
 
     const forks = await listNoteForks(root);

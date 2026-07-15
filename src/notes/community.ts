@@ -2,7 +2,7 @@ import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promi
 import { basename, dirname, join, posix } from "node:path";
 import { NoteManifestSchema, type NoteManifest } from "./types.js";
 
-export const DEFAULT_COMMUNITY_NOTES_REPO = "https://github.com/sarveshsea/memoire-community-notes";
+export const DEFAULT_COMMUNITY_NOTES_REPO = "https://github.com/sarveshsea/design-skills";
 
 export interface CommunityNoteIssue {
   level: "error" | "warning";
@@ -259,7 +259,7 @@ export async function buildNoteForkPrHandoff(projectRoot: string, name: string):
   const forkPath = await requireForkPath(projectRoot, name);
   const manifest = NoteManifestSchema.parse(JSON.parse(await readFile(join(forkPath, "note.json"), "utf-8")));
   const sourceRepo = DEFAULT_COMMUNITY_NOTES_REPO;
-  const targetPath = `notes/${manifest.name}`;
+  const targetPath = `skills/${manifest.name}`;
   const branchName = `notes/${manifest.name}-${new Date().toISOString().slice(0, 10)}`;
   const commitMessage = `Update ${manifest.name} Note`;
   const files = (await getNoteForkFiles(projectRoot, name)).map((file) => file.path);
@@ -272,7 +272,7 @@ export async function buildNoteForkPrHandoff(projectRoot: string, name: string):
     files,
     commands: [
       `git clone ${sourceRepo}.git`,
-      "cd memoire-community-notes",
+      "cd design-skills",
       `git checkout -b ${branchName}`,
       `mkdir -p ${targetPath}`,
       `cp -R "${forkPath}/." "${targetPath}/"`,
@@ -320,6 +320,7 @@ async function listRelativeFiles(root: string): Promise<string[]> {
       const fullPath = join(currentRoot, entry.name);
       if (entry.isDirectory()) await walk(fullPath, rel);
       else if (entry.isFile()) result.push(rel);
+      else throw new Error(`Note contains unsupported link or special file: ${rel}`);
     }
   }
 }

@@ -167,7 +167,7 @@ async function createFixtureCatalog(root: string): Promise<string> {
 
 function tar(args: string[]): Promise<void> {
   return new Promise((resolveTar, rejectTar) => {
-    execFile("tar", args, { encoding: "utf-8" }, (error, _stdout, stderr) => {
+    execFile("tar", args, { encoding: "utf-8", env: { ...process.env, COPYFILE_DISABLE: "1" } }, (error, _stdout, stderr) => {
       if (error) {
         rejectTar(new Error(stderr || error.message));
         return;

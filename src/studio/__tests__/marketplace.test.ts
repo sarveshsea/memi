@@ -120,7 +120,7 @@ describe("studio marketplace", () => {
       const handoffPayload = await fetch(`${runtime.url}/api/marketplace/notes/forks/design-systems-fork/export-pr`, {
         method: "POST",
       }).then((res) => res.json());
-      expect(handoffPayload.handoff.commands.join("\n")).toContain("memoire-community-notes");
+      expect(handoffPayload.handoff.commands.join("\n")).toContain("design-skills");
     } finally {
       await rm(root, { recursive: true, force: true });
     }

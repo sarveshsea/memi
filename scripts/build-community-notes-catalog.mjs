@@ -9,11 +9,13 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const communityRoot = resolve(
   root,
   process.env.MEMOIRE_COMMUNITY_NOTES_ROOT
-    ?? "../memoire-community-notes",
+    ?? "../design-skills",
 );
-const notesRoot = existsSync(join(communityRoot, "notes"))
-  ? join(communityRoot, "notes")
-  : join(root, "examples", "community-notes", "notes");
+const notesRoot = join(communityRoot, "skills");
+if (!existsSync(notesRoot)) {
+  console.error(`Design Skills checkout is required at ${notesRoot}. Set MEMOIRE_COMMUNITY_NOTES_ROOT to its repository root.`);
+  process.exit(1);
+}
 
 const result = spawnSync(process.execPath, [
   join(root, "scripts", "build-notes-catalog.mjs"),
@@ -21,8 +23,8 @@ const result = spawnSync(process.execPath, [
   "--out-root", join(root, "examples", "site-bundle", "notes", "community"),
   "--base-url", process.env.MEMOIRE_COMMUNITY_NOTES_BASE_URL ?? "https://www.memoire.cv/notes/community",
   "--source-kind", "community",
-  "--source-repo", "https://github.com/sarveshsea/memoire-community-notes",
-  "--contribution-base-url", "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes",
+  "--source-repo", "https://github.com/sarveshsea/design-skills",
+  "--contribution-base-url", "https://github.com/sarveshsea/design-skills/tree/main/skills",
   "--review-status", "approved",
   "--page-base-path", "/notes/community",
 ], {

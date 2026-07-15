@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Figma Audit &middot; Memoire Notes</title>
+    <style>
+    :root { color-scheme: light dark; --bg: #181717; --panel: #222020; --line: #3a3434; --ink: #ffffff; --muted: #b8adad; --accent: #f08cab; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    a { color: inherit; text-decoration: none; }
+    main[data-notes-marketplace] { min-height: 100vh; display: grid; grid-template-columns: 260px minmax(0, 1fr); }
+    .filter-rail { border-right: 1px solid var(--line); padding: 20px; background: #171616; display: grid; align-content: start; gap: 16px; position: sticky; top: 0; height: 100vh; }
+    .brand { font-weight: 650; color: var(--accent); }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; }
+    input { width: 100%; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); padding: 10px; }
+    nav { display: grid; gap: 6px; }
+    button { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); padding: 8px 10px; text-align: left; cursor: pointer; }
+    .results { padding: 28px; display: grid; gap: 18px; align-content: start; }
+    header p, header span, .note-row span, .note-row p, .detail-card > p, .detail-card > span, dd, dt { color: var(--muted); }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; letter-spacing: 0; }
+    .note-list { display: grid; gap: 8px; }
+    .note-row { border: 1px solid var(--line); border-radius: 7px; background: var(--panel); padding: 12px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+    .note-row a { display: grid; gap: 5px; min-width: 0; }
+    code { border: 1px solid var(--line); border-radius: 5px; background: #111111; color: var(--accent); padding: 6px 8px; white-space: nowrap; }
+    .detail-page { min-height: 100vh; padding: 28px; display: grid; align-content: start; gap: 16px; }
+    .back-link { color: var(--accent); }
+    .detail-card { max-width: 860px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 24px; display: grid; gap: 14px; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag-row span { border: 1px solid var(--line); border-radius: 999px; padding: 5px 8px; color: var(--muted); }
+    .command-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .command-row a { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; color: var(--accent); }
+    dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; }
+    dl div { border: 1px solid var(--line); border-radius: 6px; padding: 10px; }
+    @media (max-width: 760px) { main[data-notes-marketplace] { grid-template-columns: 1fr; } .filter-rail { position: static; height: auto; } .note-row, dl { grid-template-columns: 1fr; } }
+  </style>
+  </head>
+  <body>
+    <main class="detail-page" data-note-marketplace-detail="figma-audit">
+      <a class="back-link" href="/notes/community/">Back to marketplace</a>
+      <section class="detail-card">
+        <p>craft &middot; 1.0.0</p>
+        <h1>Figma Audit</h1>
+        <span>figma-audit</span>
+        <p>Audit Figma file for design system consistency, accessibility, token adoption, Code Connect coverage</p>
+        <div class="tag-row"><span>craft</span><span>design-skills</span></div>
+        <div class="command-row">
+          <code>memi notes install figma-audit</code>
+          <a href="https://www.memoire.cv/notes/community/figma-audit/figma-audit-1.0.0.tgz">Download archive</a>
+          <a href="https://github.com/sarveshsea/design-skills/tree/main/skills/figma-audit">Improve this Note</a>
+        </div>
+        <dl>
+          <div><dt>Freshness</dt><dd>2026-07-15 &middot; 90 days</dd></div>
+          <div><dt>Archive</dt><dd>b20db504f93a61a4 &middot; 2410 bytes</dd></div>
+        </dl>
+        <h2>Sources</h2>
+        <ul><li><a href="https://github.com/sarveshsea/memi">https://github.com/sarveshsea/memi</a></li></ul>
+      </section>
+    </main>
+  </body>
+</html>
