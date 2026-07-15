@@ -46,7 +46,7 @@ Why this matters: the official registry is a trust anchor for downstream MCP dir
 | P0 | Official MCP Registry | Trust anchor for downstream MCP aggregators | `mcp-publisher publish server.json` | Ready for 2.5.0 after npm publish |
 | P0 | MCP.Directory | Direct MCP discovery surface | `https://mcp.directory/submit` | Ready to refresh with registry proof |
 | P0 | Glama | Already indexes Memoire | Claim/update listing after registry refresh | Ready after npm publish |
-| P0 | Smithery | Distribution, analytics, and config UI for MCP servers | `smithery.ai/new` or `smithery mcp publish` | Requires URL/MCPB decision |
+| P0 | Smithery | Distribution, analytics, and config UI for MCP servers | `https://smithery.ai/servers/sarveshsea/memi` | Public, listed, and successfully deployed; a future URL release requires a real hosted Streamable HTTP MCP endpoint |
 | P0 | PulseMCP | MCP discovery and server popularity tracking | Confirm auto-index after official registry | Ready |
 | P0 | mcp.so | Large MCP marketplace surface | Submit/refresh after official registry | Submitted: https://github.com/chatmcp/mcpso/issues/1#issuecomment-4920418945 |
 | P1 | Agent Skills directories | Agent-native install discovery | `npx skills add sarveshsea/memi --skill memoire-design-tooling` | Ready |
@@ -76,7 +76,7 @@ Why this matters: the official registry is a trust anchor for downstream MCP dir
 
 ## Launch Sequence For 10x Downloads
 
-1. Refresh MCP.Directory, Glama, Smithery, and PulseMCP with the same v2 copy after npm latest and the official MCP Registry both show `2.5.0`.
+1. Refresh MCP.Directory, Glama, and PulseMCP with the same v2 copy after npm latest and the official MCP Registry both show `2.5.0`; Smithery is already live.
 2. Keep `sarveshsea/design-sandbox` as the public proof repo; `pnpm verify` proves memi agent install, diagnose, UX audit, token extraction, MCP config, and shadcn registry output.
 3. Follow up on open PRs only with new proof: official registry link, security hardening, demo video, or maintainer-requested fixes.
 4. Ship one 60-second terminal demo: install, `memi diagnose`, `memi ux audit --json`, `memi shadcn export`, `memi mcp start --no-figma`.
