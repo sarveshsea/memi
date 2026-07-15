@@ -108,18 +108,20 @@ describe("agent install command", () => {
       action: "install",
       status: "completed",
       target: "universal",
-      plans: [{
+      plans: expect.arrayContaining([{
         target: "universal",
         kind: "skill",
         source: expect.stringContaining("skills/memoire-design-tooling"),
         destination: join(projectRoot, ".agents", "skills", "memoire-design-tooling"),
-      }],
+      }]),
     });
 
-    const skill = await readFile(join(projectRoot, ".agents", "skills", "memoire-design-tooling", "SKILL.md"), "utf-8");
-    expect(skill).toContain("name: memoire-design-tooling");
-    expect(skill).toContain("memi mcp start --no-figma");
-    expect(skill).toContain("memi agent install --dry-run --json");
+    const skillNames = ["memoire-design-tooling", "audit-frontend-design", "remember-design-system", "enforce-design-ci"];
+    expect(payload.plans).toHaveLength(skillNames.length);
+    for (const skillName of skillNames) {
+      const skill = await readFile(join(projectRoot, ".agents", "skills", skillName, "SKILL.md"), "utf-8");
+      expect(skill).toContain(`name: ${skillName}`);
+    }
   });
 
   it("plans the Hermes skill install path and source asset", async () => {

@@ -209,6 +209,11 @@ describe("packaged agent kits", () => {
       },
     });
     expect(pluginSkill).toBe(codexSkill);
+    for (const skillName of ["audit-frontend-design", "remember-design-system", "enforce-design-ci"]) {
+      const focusedPluginSkill = await readFile(join(root, "plugins", "memoire", "skills", skillName, "SKILL.md"), "utf-8");
+      const focusedRootSkill = await readFile(join(root, "skills", skillName, "SKILL.md"), "utf-8");
+      expect(focusedPluginSkill).toBe(focusedRootSkill);
+    }
   });
 
   it("documents public Git-backed Codex marketplace installation", async () => {
