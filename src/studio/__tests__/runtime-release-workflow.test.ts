@@ -29,4 +29,15 @@ describe("release binary workflow", () => {
     expect(workflow).toContain('npm install --no-save --package-lock=false --ignore-scripts "@esbuild/${{ matrix.esbuildPackage }}@${ESBUILD_VERSION}"');
     expect(workflow).toContain("SKIP_AUDIT_GATE: \"1\"");
   });
+
+  it("installs the container entrypoint on the standard executable path", async () => {
+    const dockerfile = await readFile(
+      join(process.cwd(), "docker", "Dockerfile.binary"),
+      "utf-8",
+    );
+
+    expect(dockerfile).toContain("ln -s /opt-design/cli/memi /usr/local/bin/memi");
+    expect(dockerfile).not.toContain("/usr/local/bin-design/cli");
+    expect(dockerfile).toContain('ENTRYPOINT ["memi"]');
+  });
 });
