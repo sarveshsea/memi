@@ -11,6 +11,10 @@ memi v2 needs public proof repos, not only package claims. Use this file to keep
 | [`sarveshsea/memi-studio`](https://github.com/sarveshsea/memi-studio) | macOS workbench | Supervised Codex and Claude Code runs with project memory, receipts, artifacts, and Figma/FigJam handoff. |
 | [`sarveshsea/memoire-agent-skills`](https://github.com/sarveshsea/memoire-agent-skills) | Skill mirror | Mirror-ready Hermes/OpenClaw skill packages generated from the npm engine. |
 | [`sarveshsea/design-skills`](https://github.com/sarveshsea/design-skills) | Design Skills and Community Notes | Mémoire's complete design-skill corpus plus licensed, attributed adaptations for Agent Skills and the Notes marketplace. |
+| [`sarveshsea/audit-frontend-design`](https://github.com/sarveshsea/audit-frontend-design) | Focused Agent Skill | One-command, evidence-backed frontend design audits. |
+| [`sarveshsea/remember-design-system`](https://github.com/sarveshsea/remember-design-system) | Focused Agent Skill | Compact repository design-system context before agents edit UI. |
+| [`sarveshsea/enforce-design-ci`](https://github.com/sarveshsea/enforce-design-ci) | Focused Agent Skill | Deterministic design regression gates for pull requests. |
+| [`sarveshsea/chatbot`](https://github.com/sarveshsea/chatbot) | Maintained proof fork | Vercel Chatbot with a committed Memi policy, Agent Skill, GitHub Action, and measured 88/100 baseline. |
 
 ## GitHub descriptions
 
@@ -142,6 +146,18 @@ pnpm verify
 | Hermes/OpenClaw | `agent-kits/mirror` | Mirror-ready skill packages. |
 | Design sandbox | `.agents/skills`, `.mcp.json`, `memoire.agent.yaml` | Public repo that proves integration. |
 | Community Notes | `notes/<note-name>/note.json` | Reviewed downloadable Notes catalog at `/notes/community/catalog.v1.json`. |
+| GitHub Action | `sarveshsea/memi@v2` | Floating v2 action with immutable third-party pins, SARIF, and design-health artifacts. |
+| shadcn registry | `https://memoire.cv/r/design-ci.json` | Installs the workflow and recommended policy with `npx shadcn add`. |
+
+## Live interoperability proposals
+
+These issue-first proposals follow each upstream repository's contribution policy:
+
+- [`southleft/design-systems-mcp#12`](https://github.com/southleft/design-systems-mcp/issues/12): compact category manifest for deterministic MCP clients.
+- [`onlook-dev/onlook#3128`](https://github.com/onlook-dev/onlook/issues/3128): local project design context for external coding agents.
+- [`CopilotKit/CopilotKit#5991`](https://github.com/CopilotKit/CopilotKit/issues/5991): document MCP Apps versus read-only context servers.
+
+Do not open implementation pull requests until maintainers confirm the proposed surface. The Memi-side design-systems adapter and `design_systems_context` MCP tool are already implemented and tested.
 
 ## Next public repo targets
 

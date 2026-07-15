@@ -27,7 +27,7 @@ Compatibility: [shadcn registry](https://ui.shadcn.com/docs/registry/getting-sta
 ## One skill. One useful result.
 
 ```bash
-npx skills add sarveshsea/memi --skill audit-frontend-design
+npx skills add sarveshsea/audit-frontend-design --skill audit-frontend-design
 ```
 
 Then ask your agent: **"Audit this frontend before editing it. Prioritize the five fixes that will matter most to users."**
@@ -38,11 +38,13 @@ No account, API key, Figma file, global install, or daemon is required. The skil
 
 | Job | Install |
 | --- | --- |
-| Find accessibility, token, hierarchy, state, and responsive issues | `npx skills add sarveshsea/memi --skill audit-frontend-design` |
-| Load compact design-system context before UI work | `npx skills add sarveshsea/memi --skill remember-design-system` |
-| Add deterministic design checks to pull requests | `npx skills add sarveshsea/memi --skill enforce-design-ci` |
+| Find accessibility, token, hierarchy, state, and responsive issues | `npx skills add sarveshsea/audit-frontend-design --skill audit-frontend-design` |
+| Load compact design-system context before UI work | `npx skills add sarveshsea/remember-design-system --skill remember-design-system` |
+| Add deterministic design checks to pull requests | `npx skills add sarveshsea/enforce-design-ci --skill enforce-design-ci` |
 
 [Browse the skills on skills.sh](https://skills.sh/sarveshsea/memi) or use the full [`memoire-design-tooling`](skills/memoire-design-tooling/SKILL.md) router for Figma, MCP, research, scaffolding, and registry workflows.
+
+The monorepo remains an equivalent source-of-record install: `npx skills add sarveshsea/memi --skill audit-frontend-design`.
 
 Every CI finding cites `file:line` and re-runs identically. No LLM is used in the enforcement path.
 
@@ -235,7 +237,7 @@ memi agent install codex
 memi agent install codex-plugin
 memi agent install opencode --project .
 
-npx skills add sarveshsea/memi --skill audit-frontend-design
+npx skills add sarveshsea/audit-frontend-design --skill audit-frontend-design
 ```
 
 | Stack | Install path | Best for |
