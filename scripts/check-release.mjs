@@ -75,15 +75,12 @@ for (const file of await collectPackagedFiles(packageJson.files ?? [])) {
 
 const readme = await readFile(join(root, "README.md"), "utf-8");
 const readmeTopFold = readme.slice(0, 3000);
-const skillsPackageInstallCommand = "npx skills add sarveshsea/memi --skill memoire-design-tooling";
+const skillsPackageInstallCommand = "npx skills add sarveshsea/memi --skill audit-frontend-design";
 const requiredReadmeTerms = [
-  "Interface understanding for AI coding agents",
-  "Design-system memory for coding agents",
-  "npm i -g @memi-design/cli",
-  "memi diagnose",
-  "memi ux audit",
-  "memi craft audit",
-  "memi shadcn export",
+  "Design QA skills for coding agents",
+  "remember-design-system",
+  "enforce-design-ci",
+  "No account, API key, Figma file, global install, or daemon is required",
   "memoire.cv",
   "https://ui.shadcn.com/docs/registry/getting-started",
   "https://v0.app/docs/design-systems",
@@ -137,9 +134,15 @@ const pluginAgentSkill = await readFile(join(root, "plugins", "memoire", "skills
 if (rootAgentSkill !== codexAgentSkill || pluginAgentSkill !== codexAgentSkill) {
   fail("root, Codex, and Codex plugin memoire-design-tooling skills must stay in sync");
 }
-for (const term of ["name: memoire-design-tooling", "memi agent brief", "memi craft audit", "memi agent install --dry-run --json", "memi mcp start --no-figma"]) {
+for (const term of ["name: memoire-design-tooling", "agent brief", "memi agent install --dry-run --json", "memi mcp start --no-figma"]) {
   if (!rootAgentSkill.includes(term)) {
     fail(`root Agent Skills package is missing required term: ${term}`);
+  }
+}
+for (const skillName of ["audit-frontend-design", "remember-design-system", "enforce-design-ci"]) {
+  const focusedSkill = await readFile(join(root, "skills", skillName, "SKILL.md"), "utf-8");
+  if (!focusedSkill.includes(`name: ${skillName}`) || !focusedSkill.includes("npx -y @memi-design/cli@2.5.0")) {
+    fail(`focused Agent Skill is missing its name or pinned zero-setup CLI path: ${skillName}`);
   }
 }
 if (codexPluginManifest.homepage !== "https://www.memoire.cv/codex-plugin") {

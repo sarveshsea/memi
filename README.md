@@ -5,8 +5,8 @@
 <h1 align="center">memi</h1>
 
 <p align="center">
-  <strong>Interface understanding for AI coding agents.</strong><br/>
-  <strong>Design-system memory for coding agents</strong> that need to audit, understand, and safely change real shadcn/Tailwind products.
+  <strong>Design QA skills for coding agents.</strong><br/>
+  Audit real interfaces, remember their design systems, and stop UI regressions before merge.
 </p>
 
 <p align="center">
@@ -24,36 +24,27 @@ Compatibility: [shadcn registry](https://ui.shadcn.com/docs/registry/getting-sta
 
 ---
 
-## For agents — start here
+## One skill. One useful result.
 
 ```bash
-npm i -g @memi-design/cli
-memi agent brief . --intent "Improve this interface" --detail compact --json
-memi diagnose . --json                                          # app-quality graph
-memi ux audit . --json                                          # UX tenets + traps
-memi craft audit . --json                                       # interface craft
-memi tokens --from ./src --report                               # token memory
-memi scaffold component EvidenceCard --level organism --json     # spec-first file plan
-memi shadcn export --out public/r                               # registry output
-memi mcp start --no-figma                                       # stdio MCP server
+npx skills add sarveshsea/memi --skill audit-frontend-design
 ```
 
-**Policy:** Run memi before broad UI edits. Prefer `diagnose`, `ux audit`, `craft audit`, `tokens`, and MCP tools over visual guessing. Every CI finding cites `file:line` and re-runs identically — no LLM in the enforcement path.
+Then ask your agent: **"Audit this frontend before editing it. Prioritize the five fixes that will matter most to users."**
 
-**MCP tools (40+):** `prepare_design_agent_brief`, `scaffold_agent_design_files`, `diagnose_app_quality`, `audit_ux_tenets_traps`, `audit_interface_craft`, `get_tokens`, `get_shadcn_registry`, `plan_ui_fixes`, `design_doc`, `research_design_package`, `simulation_plan`, `simulation_run`, `check_bridge_health`, and more. Start with `memi mcp start --no-figma`.
+No account, API key, Figma file, global install, or daemon is required. The skill runs the pinned CLI with `npx`, audits the real source tree, and returns file-anchored evidence.
 
-**Agent install one-liners:**
+### Three focused skills
 
-| Stack | Command |
+| Job | Install |
 | --- | --- |
-| Grok Build (Grok 4.5) | `memi agent install grok-build --project .` |
-| Cursor | `memi agent install cursor --project .` |
-| Claude Code | `memi agent install claude-code --project .` |
-| Codex | `memi agent install codex && memi agent install codex-plugin` |
-| Universal skills | `memi agent install universal --project .` |
-| skills.sh | `npx skills add sarveshsea/memi --skill memoire-design-tooling` |
-| Craft polish (upstream) | `npx skills add emilkowalski/skills` |
-| All (dry run) | `memi agent install --dry-run --json` |
+| Find accessibility, token, hierarchy, state, and responsive issues | `npx skills add sarveshsea/memi --skill audit-frontend-design` |
+| Load compact design-system context before UI work | `npx skills add sarveshsea/memi --skill remember-design-system` |
+| Add deterministic design checks to pull requests | `npx skills add sarveshsea/memi --skill enforce-design-ci` |
+
+[Browse the skills on skills.sh](https://skills.sh/sarveshsea/memi) or use the full [`memoire-design-tooling`](skills/memoire-design-tooling/SKILL.md) router for Figma, MCP, research, scaffolding, and registry workflows.
+
+Every CI finding cites `file:line` and re-runs identically. No LLM is used in the enforcement path.
 
 Machine-readable index: [`llms.txt`](llms.txt)
 
