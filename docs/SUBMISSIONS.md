@@ -45,12 +45,14 @@ brew install --cask sarveshsea/memi/memi-studio
 | Priority | Target | Lane | Status | Next action |
 | --- | --- | --- | --- | --- |
 | P0 | Product Hunt | Launch | Ready after agent-design-CI surfaces stay green | Submit with v1 → v2.5 major-update proof and npm/MCP/Codex links |
-| P0 | Official MCP Registry | MCP directory | Ready for `io.github.sarveshsea/memi@2.5.0` after npm publish | Use as trust proof in MCP directory refreshes |
-| P0 | npm | CLI distribution | `@memi-design/cli@2.5.0` release candidate | Run the one-line npm publish command |
-| P0 | GitHub Releases | Traceability | `v2.5.0` release target | Link release in directory follow-ups |
-| P0 | Codex plugin | Agent distribution | Sparse checkout smoke passes locally | Keep marketplace command in launch replies |
+| P0 | Official MCP Registry | MCP directory | `io.github.sarveshsea/memi@2.5.0` is live | Use as trust proof in MCP directory refreshes |
+| P0 | npm | CLI distribution | `@memi-design/cli@2.5.0` is live | Measure activation and weekly downloads |
+| P0 | GitHub Releases | Traceability | `v2.5.0` is live | Link release in directory follow-ups |
+| P0 | Codex plugin | Agent distribution | Submitted and approved with a clean marketplace scan on 2026-07-15 | Keep marketplace command in launch replies |
+| P0 | Claude plugin | Agent distribution | Submitted to Anthropic's Plugin Directory on 2026-07-15; pending review | Monitor the Claude Platform submissions dashboard for reviewer feedback |
 | P0 | design-sandbox | Public proof repo | Pushed with `pnpm verify` proof loop | Link as the runnable example for design engineers |
-| P1 | Glama / MCP directories | MCP discovery | mcp.so submitted; Glama/Smithery still need owner UI/API action after registry refresh | Refresh to memi workbench + design-memory engine copy |
+| P1 | Smithery | MCP discovery | Public, listed, and deployed successfully as `sarveshsea/memi`; local MCP quality score is 52/100 | Add a real hosted Streamable HTTP endpoint before creating another URL-based release |
+| P1 | Glama / MCP directories | MCP discovery | mcp.so submitted; Glama still needs owner UI/API action after registry refresh | Refresh to memi workbench + design-memory engine copy |
 | P1 | Awesome MCP lists | Ecosystem discovery | New update PRs opened for largest stale listings | Follow up only for maintainer requests or new v2.5 proof |
 | P1 | shadcn / v0 communities | Engine proof | shadcn list PR opened with raw registry proof | Share CLI workflow after launch spike |
 | P2 | Hacker News | Launch | Draft | Post only after Product Hunt assets are stable |
@@ -146,6 +148,9 @@ https://github.com/sarveshsea/design-sandbox
 | design-sandbox proof repo | https://github.com/sarveshsea/design-sandbox | Pushed; pre-publish verification passes with local `MEMI_BIN` |
 | design-sandbox raw shadcn registry | https://raw.githubusercontent.com/sarveshsea/design-sandbox/main/public/r/registry.json | Public proof artifact |
 | mcp.so submission | https://github.com/chatmcp/mcpso/issues/1#issuecomment-4920418945 | Submitted with npm, MCP Registry, proof repo, and shadcn registry links |
+| Smithery | https://smithery.ai/servers/sarveshsea/memi | Public and listed; successful deployed release verified 2026-07-15 |
+| Claude Plugin Directory | https://platform.claude.com/plugins/submissions | Memi submitted for Claude Code and pending Anthropic review as of 2026-07-15 |
+| Codex Plugin Marketplace | https://www.codex-marketplace.com/submit | Submission `B98C9952-B93D-4305-BF9F-342B69EFBC3E` approved with a clean scan on 2026-07-15 |
 | `punkpeye/awesome-mcp-servers` refresh | https://github.com/punkpeye/awesome-mcp-servers/pull/9678 | Open update from old repository naming to `memi` |
 | `toolsdk-ai/toolsdk-mcp-registry` refresh | https://github.com/toolsdk-ai/toolsdk-mcp-registry/pull/391 | Open update from legacy npm naming to `@memi-design/cli` |
 | `birobirobiro/awesome-shadcn-ui` refresh | https://github.com/birobirobiro/awesome-shadcn-ui/pull/538 | Open update from `memoire` to `memi` with registry proof |
@@ -163,7 +168,10 @@ https://github.com/sarveshsea/design-sandbox
 - [ ] Submit Product Hunt.
 - [ ] Post X/Twitter launch thread.
 - [x] Submit mcp.so with current registry, proof repo, and package links.
+- [x] Publish and list Smithery server metadata with a successful release.
+- [x] Submit the Claude Code plugin to Anthropic's Plugin Directory.
+- [x] Submit the Codex plugin and pass the marketplace scan.
 - [x] Refresh stale MCP and shadcn directory PRs where editable.
-- [ ] Refresh Glama/Smithery/MCP directory copy where owner UI/API action is required after registry refresh.
+- [ ] Refresh Glama/MCP directory copy where owner UI/API action is required after registry refresh.
 - [ ] Post practical MCP setup to `r/mcp`.
 - [ ] Publish Studio + CLI tutorial.
