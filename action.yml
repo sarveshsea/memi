@@ -9,64 +9,178 @@ branding:
 
 inputs:
   version:
-    description: "Pinned @memi-design/cli version. Deliberately not 'latest': gate behavior must not change under a team without a reviewed bump."
+    description: "Exact @memi-design/cli version. Defaults to the reviewed 2.5.0 pin; ranges and dist-tags are rejected."
     required: false
     default: "2.5.0"
   fail-on:
-    description: "Override the policy gate severity (critical|high|medium|low|none). Empty = use memoire.policy.json."
+    description: "Override the policy gate severity: critical, high, medium, low, or none. Empty uses memoire.policy.json."
     required: false
     default: ""
   base:
-    description: "Base ref for PR scoping. Empty = origin/$GITHUB_BASE_REF, then origin/main."
+    description: "Base Git ref for PR scoping. Empty uses origin/$GITHUB_BASE_REF, then origin/main."
     required: false
     default: ""
   target:
-    description: "Directory to scan (relative to the workspace). Empty = repo root."
+    description: "Directory to scan, relative to the checked-out workspace. Empty scans the repository root."
     required: false
     default: ""
   report:
-    description: "Also upload the design-health HTML report as a workflow artifact."
+    description: "Generate and upload the design-health report artifact. Accepts true or false."
     required: false
     default: "true"
   upload-sarif:
-    description: "Upload SARIF to GitHub code scanning (needs security-events: write; set to false on forks)."
+    description: "Upload SARIF to GitHub code scanning when permissions allow. Fork pull requests are skipped automatically."
     required: false
     default: "true"
+
+outputs:
+  cli-version:
+    description: "The exact memi CLI version used by this action."
+    value: "${{ steps.install.outputs['cli-version'] }}"
+  gate-outcome:
+    description: "The GitHub step outcome for memi ci: success or failure."
+    value: "${{ steps['design-ci'].outcome }}"
+  sarif-path:
+    description: "Workspace-relative path to the generated SARIF file."
+    value: ".memoire/app-quality/memi-results.sarif"
+  report-path:
+    description: "Workspace-relative path to the generated HTML report."
+    value: ".memoire/app-quality/design-health.html"
+  artifact-id:
+    description: "GitHub artifact ID for memi-design-health, or empty when report upload is disabled or no files were produced."
+    value: "${{ steps['upload-artifact'].outputs['artifact-id'] }}"
+  artifact-url:
+    description: "Authenticated GitHub URL for the uploaded report artifact, or empty when no artifact was uploaded."
+    value: "${{ steps['upload-artifact'].outputs['artifact-url'] }}"
 
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 20
-
-    - name: Install memi (pinned)
+    - name: Validate action inputs
       shell: bash
-      run: npm install -g "@memi-design/cli@${{ inputs.version }}"
+      env:
+        INPUT_VERSION: "${{ inputs.version }}"
+        INPUT_FAIL_ON: "${{ inputs['fail-on'] }}"
+        INPUT_REPORT: "${{ inputs.report }}"
+        INPUT_UPLOAD_SARIF: "${{ inputs['upload-sarif'] }}"
+      run: |
+        set -euo pipefail
 
-    - name: Run memi ci
+        if [[ ! "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+          printf 'version must be an exact semantic version; received %q.\n' "$INPUT_VERSION" >&2
+          exit 2
+        fi
+
+        case "$INPUT_FAIL_ON" in
+          ""|critical|high|medium|low|none) ;;
+          *)
+            printf 'fail-on must be critical, high, medium, low, none, or empty; received %q.\n' "$INPUT_FAIL_ON" >&2
+            exit 2
+            ;;
+        esac
+
+        for value in "$INPUT_REPORT" "$INPUT_UPLOAD_SARIF"; do
+          case "$value" in
+            true|false) ;;
+            *)
+              printf 'report and upload-sarif must be true or false; received %q.\n' "$value" >&2
+              exit 2
+              ;;
+          esac
+        done
+
+    - name: Set up Node.js 20
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      with:
+        node-version: "20"
+
+    - name: Install pinned memi CLI
+      id: install
+      shell: bash
+      env:
+        INPUT_VERSION: "${{ inputs.version }}"
+        DO_NOT_TRACK: "1"
+        MEMI_TELEMETRY_DISABLED: "1"
+        npm_config_audit: "false"
+        npm_config_fund: "false"
+        npm_config_update_notifier: "false"
+      run: |
+        set -euo pipefail
+        npm install --global --ignore-scripts --no-audit --no-fund "@memi-design/cli@$INPUT_VERSION"
+
+        installed_version="$(memi --version)"
+        if [[ "$installed_version" != "$INPUT_VERSION" ]]; then
+          printf 'Expected memi %q, installed %q.\n' "$INPUT_VERSION" "$installed_version" >&2
+          exit 1
+        fi
+        printf 'cli-version=%s\n' "$installed_version" >> "$GITHUB_OUTPUT"
+
+    - name: Run memi design CI
+      id: design-ci
+      shell: bash
+      env:
+        DO_NOT_TRACK: "1"
+        MEMI_TELEMETRY_DISABLED: "1"
+        INPUT_FAIL_ON: "${{ inputs['fail-on'] }}"
+        INPUT_BASE: "${{ inputs.base }}"
+        INPUT_TARGET: "${{ inputs.target }}"
+        INPUT_REPORT: "${{ inputs.report }}"
+      run: |
+        set -euo pipefail
+
+        args=(ci)
+        [[ -n "$INPUT_FAIL_ON" ]] && args+=(--fail-on "$INPUT_FAIL_ON")
+        [[ -n "$INPUT_BASE" ]] && args+=(--base "$INPUT_BASE")
+        [[ "$INPUT_REPORT" == "true" ]] && args+=(--report)
+        [[ -n "$INPUT_TARGET" ]] && args+=(-- "$INPUT_TARGET")
+
+        memi "${args[@]}"
+
+    - name: Inspect generated artifacts
+      id: artifacts
+      if: ${{ always() }}
       shell: bash
       run: |
-        ARGS=()
-        [ -n "${{ inputs['fail-on'] }}" ] && ARGS+=(--fail-on "${{ inputs['fail-on'] }}")
-        [ -n "${{ inputs.base }}" ] && ARGS+=(--base "${{ inputs.base }}")
-        [ "${{ inputs.report }}" = "true" ] && ARGS+=(--report)
-        memi ci ${{ inputs.target }} "${ARGS[@]}"
+        set -euo pipefail
+
+        sarif_ready=false
+        artifact_ready=false
+        [[ -f .memoire/app-quality/memi-results.sarif ]] && sarif_ready=true
+
+        for path in \
+          .memoire/app-quality/diagnosis.json \
+          .memoire/app-quality/diagnosis.md \
+          .memoire/app-quality/memi-results.sarif \
+          .memoire/app-quality/design-health.html \
+          .memoire/app-quality/design-health.md \
+          .memoire/app-quality/design-health-badge.svg; do
+          if [[ -f "$path" ]]; then
+            artifact_ready=true
+            break
+          fi
+        done
+
+        printf 'sarif-ready=%s\n' "$sarif_ready" >> "$GITHUB_OUTPUT"
+        printf 'artifact-ready=%s\n' "$artifact_ready" >> "$GITHUB_OUTPUT"
 
     - name: Upload SARIF to code scanning
-      if: ${{ always() && inputs['upload-sarif'] == 'true' }}
-      uses: github/codeql-action/upload-sarif@v3
+      if: ${{ always() && inputs['upload-sarif'] == 'true' && steps.artifacts.outputs['sarif-ready'] == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+      uses: github/codeql-action/upload-sarif@02c5e83432fe5497fd85b873b6c9f16a8578e1d9 # v3
       with:
         sarif_file: .memoire/app-quality/memi-results.sarif
         category: memi-design
 
-    - name: Upload design-health report artifact
-      if: ${{ always() && inputs.report == 'true' }}
-      uses: actions/upload-artifact@v4
+    - name: Upload design-health artifact
+      id: upload-artifact
+      if: ${{ always() && inputs.report == 'true' && steps.artifacts.outputs['artifact-ready'] == 'true' }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: memi-design-health
         path: |
+          .memoire/app-quality/diagnosis.json
+          .memoire/app-quality/diagnosis.md
+          .memoire/app-quality/memi-results.sarif
           .memoire/app-quality/design-health.html
           .memoire/app-quality/design-health.md
           .memoire/app-quality/design-health-badge.svg
-        if-no-files-found: ignore
+        if-no-files-found: warn

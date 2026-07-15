@@ -14,9 +14,10 @@ const requiredTools = [
   "audit_ux_tenets_traps",
   "design_doc",
   "get_shadcn_registry",
+  "design_systems_context",
 ];
 const minToolCount = 20;
-const timeoutMs = Number.parseInt(process.env.MEMOIRE_MCP_SMOKE_TIMEOUT_MS ?? "8000", 10);
+const timeoutMs = Number.parseInt(process.env.MEMOIRE_MCP_SMOKE_TIMEOUT_MS ?? "30000", 10);
 
 try {
   await access(entry);

@@ -25,6 +25,11 @@ import { buildUxAuditReport } from "../ux/tenets-traps.js";
 import { buildInterfaceCraftReport } from "../ux/interface-craft.js";
 import { resolveMermaidJamIntegration } from "../integrations/mermaid-jam.js";
 import {
+  DESIGN_SYSTEMS_MCP_CATEGORIES,
+  normalizeDesignSystemsMcpCategoryManifest,
+  normalizeDesignSystemsMcpCorpus,
+} from "../integrations/design-systems-mcp.js";
+import {
   buildResearchDesignPackage,
   saveResearchDesignSpecs,
   writeMermaidJamArtifacts,
@@ -93,6 +98,14 @@ function parseResearchStore(raw: string): ResearchStore {
     throw new Error("research.findings must be an array when present");
   }
   return parsed as ResearchStore;
+}
+
+function parseJsonParameter(raw: string, name: string): unknown {
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    throw new Error(`${name} parameter is not valid JSON: ${(err as Error).message}`);
+  }
 }
 
 function requireFigma(engine: MemoireEngine): void {
@@ -801,6 +814,34 @@ vs analyze_design: run_audit = systematic spec/token compliance; analyze_design 
           content: [{ type: "text" as const, text: `run_audit failed: ${(err as Error).message}` }],
         };
       }
+    },
+  );
+
+  // ── design_systems_context ──────────────────────────────
+  server.tool(
+    "design_systems_context",
+    `Normalize design-systems-mcp corpus data into compact, deterministic agent context.
+
+This read-only tool validates caller-supplied JSON and never fetches URLs, reads files, writes files, or executes corpus content. Use mode=corpus with a native manifest plus filename-keyed entries, or mode=category with the proposed category-manifest/v1 envelope. Returns byte-capped context plus inclusion counts.`,
+    {
+      mode: z.enum(["corpus", "category"]).describe("Native corpus manifest plus entries, or category-manifest/v1."),
+      manifest: z.string().min(2).describe("Manifest JSON string."),
+      entries: z.string().optional().describe("Filename-keyed entry JSON object. Required only for mode=corpus."),
+      category: z.enum(DESIGN_SYSTEMS_MCP_CATEGORIES).optional().describe("Optional category filter for mode=corpus."),
+      maxBytes: z.number().int().min(256).max(64_000).optional(),
+      maxEntries: z.number().int().min(1).max(50).optional(),
+      summaryCharacters: z.number().int().min(40).max(1_000).optional(),
+    },
+    async ({ mode, manifest, entries, category, maxBytes, maxEntries, summaryCharacters }) => {
+      const parsedManifest = parseJsonParameter(manifest, "manifest");
+      const limits = { maxBytes, maxEntries, summaryCharacters };
+      const context = mode === "category"
+        ? normalizeDesignSystemsMcpCategoryManifest(parsedManifest, limits)
+        : normalizeDesignSystemsMcpCorpus({
+          manifest: parsedManifest,
+          entries: parseJsonParameter(entries ?? "", "entries"),
+        }, { ...limits, category });
+      return { content: [{ type: "text" as const, text: JSON.stringify(context) }] };
     },
   );
 
