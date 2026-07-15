@@ -31,7 +31,7 @@ for (const note of communityCatalog.notes ?? []) {
   await requireFile(join(baseDir, "notes", "community", note.name, `${note.name}-${note.version}.tgz`));
   if (!note.archive?.sha256) failures.push(`community note ${note.name} is missing archive sha256`);
   if (!note.archive?.url?.includes(`/notes/community/${note.name}/`)) failures.push(`community note ${note.name} archive url is not under /notes/community/${note.name}/`);
-  if (!note.contributionUrl?.includes("memoire-community-notes")) failures.push(`community note ${note.name} is missing community contribution url`);
+  if (!note.contributionUrl?.includes("design-skills")) failures.push(`community note ${note.name} is missing community contribution url`);
 }
 
 if (args.baseUrl) {

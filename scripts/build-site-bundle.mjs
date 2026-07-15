@@ -1,13 +1,20 @@
 #!/usr/bin/env node
 
-import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { basename, dirname, join } from "node:path";
+import { tmpdir } from "node:os";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "examples", "site-bundle");
+const checkedInNotesDir = join(outDir, "notes");
+const checkedInCommunityDir = join(checkedInNotesDir, "community");
+const notesSnapshotRoot = existsSync(join(checkedInNotesDir, "catalog.v1.json"))
+  ? await mkdtemp(join(tmpdir(), "memoire-notes-catalog-"))
+  : null;
+if (notesSnapshotRoot) await cp(checkedInNotesDir, notesSnapshotRoot, { recursive: true });
 const catalog = JSON.parse(await readFile(join(root, "examples", "marketplace-catalog.v1.json"), "utf8"));
 
 await rm(outDir, { recursive: true, force: true });
@@ -146,7 +153,7 @@ for (const entry of catalog.entries) {
 await writeFile(join(outDir, "catalog.json"), `${JSON.stringify(bundleCatalog, null, 2)}\n`);
 await writeFile(join(outDir, "seo.json"), `${JSON.stringify({ pages: seoPages }, null, 2)}\n`);
 await writeFile(join(outDir, "sitemap.xml"), renderSitemap(sitemapUrls));
-await writeFile(join(outDir, "copy-snippets.md"), `${snippets.join("\n")}\n`);
+await writeFile(join(outDir, "copy-snippets.md"), snippets.join("\n"));
 await cp(join(root, "scripts", "install.sh"), join(outDir, "install.sh"));
 await cp(join(root, "scripts", "install.ps1"), join(outDir, "install.ps1"));
 await cp(join(root, "assets", "marketplace-catalog.v1.json"), join(outDir, "assets", "marketplace-catalog.v1.json"));
@@ -170,17 +177,31 @@ await writeFile(join(outDir, "terms", "index.html"), renderPolicyPage({
   ],
 }));
 
-const notesResult = spawnSync(process.execPath, [join(root, "scripts", "build-notes-catalog.mjs")], {
-  cwd: root,
-  stdio: "inherit",
-});
-if (notesResult.status !== 0) process.exit(notesResult.status ?? 1);
+if (notesSnapshotRoot) {
+  await cp(notesSnapshotRoot, checkedInNotesDir, { recursive: true });
+  console.log("preserved checked-in official Notes catalog; run build:notes-catalog to rebuild it from source");
+} else {
+  const notesResult = spawnSync(process.execPath, [join(root, "scripts", "build-notes-catalog.mjs")], {
+    cwd: root,
+    stdio: "inherit",
+  });
+  if (notesResult.status !== 0) process.exit(notesResult.status ?? 1);
+}
 
-const communityNotesResult = spawnSync(process.execPath, [join(root, "scripts", "build-community-notes-catalog.mjs")], {
-  cwd: root,
-  stdio: "inherit",
-});
-if (communityNotesResult.status !== 0) process.exit(communityNotesResult.status ?? 1);
+const communitySourceRoot = resolve(root, process.env.MEMOIRE_COMMUNITY_NOTES_ROOT ?? "../design-skills");
+if (existsSync(join(communitySourceRoot, "skills"))) {
+  const communityNotesResult = spawnSync(process.execPath, [join(root, "scripts", "build-community-notes-catalog.mjs")], {
+    cwd: root,
+    stdio: "inherit",
+  });
+  if (communityNotesResult.status !== 0) process.exit(communityNotesResult.status ?? 1);
+} else if (notesSnapshotRoot) {
+  console.log("preserved checked-in Design Skills catalog; set MEMOIRE_COMMUNITY_NOTES_ROOT to rebuild it from source");
+} else {
+  console.error("No checked-in Design Skills catalog or source checkout is available.");
+  process.exit(1);
+}
+if (notesSnapshotRoot) await rm(notesSnapshotRoot, { recursive: true, force: true });
 
 console.log(`wrote ${outDir}`);
 

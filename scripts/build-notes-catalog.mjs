@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { createHash } from "node:crypto";
-import { execFile } from "node:child_process";
-import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { lstat, mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { create as createTar } from "tar";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const args = parseArgs(process.argv.slice(2));
@@ -13,27 +13,52 @@ const outRoot = resolve(root, args.outRoot ?? "examples/site-bundle/notes");
 const baseUrl = args.baseUrl ?? process.env.MEMOIRE_NOTES_BASE_URL ?? "https://www.memoire.cv/notes";
 const sourceKind = args.sourceKind ?? "official";
 const sourceRepo = args.sourceRepo ?? "https://github.com/sarveshsea/memi";
-const contributionBaseUrl = args.contributionBaseUrl ?? "https://github.com/sarveshsea/memoire-community-notes/tree/main/notes";
+const contributionBaseUrl = args.contributionBaseUrl ?? "https://github.com/sarveshsea/design-skills/tree/main/skills";
 const reviewStatus = args.reviewStatus ?? "approved";
 const pageBasePath = (args.pageBasePath ?? "/notes").replace(/\/+$/, "");
 
+const sourceEntries = existsSync(notesRoot) ? await readdir(notesRoot, { withFileTypes: true }) : [];
+const currentNames = new Set(sourceEntries.filter((entry) => entry.isDirectory() && !entry.name.startsWith(".")).map((entry) => entry.name));
 await mkdir(outRoot, { recursive: true });
-await rm(join(outRoot, "catalog.v1.json"), { force: true });
+const preservedArchives = new Map();
+for (const name of currentNames) {
+  const existingDir = join(outRoot, name);
+  if (!existsSync(existingDir)) continue;
+  for (const entry of await readdir(existingDir, { withFileTypes: true })) {
+    if (entry.isFile() && entry.name.endsWith(".tgz")) {
+      preservedArchives.set(`${name}/${entry.name}`, await readFile(join(existingDir, entry.name)));
+    }
+  }
+}
+for (const existing of await readdir(outRoot, { withFileTypes: true })) {
+  if (sourceKind === "official" && existing.name === "community") continue;
+  await rm(join(outRoot, existing.name), { recursive: true, force: true });
+}
 
 const notes = [];
-const sourceEntries = existsSync(notesRoot) ? await readdir(notesRoot, { withFileTypes: true }) : [];
 for (const entry of sourceEntries) {
   if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
   const noteDir = join(notesRoot, entry.name);
   const manifestPath = join(noteDir, "note.json");
   if (!existsSync(manifestPath)) continue;
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
-  const noteOutDir = join(outRoot, manifest.name);
+  validateManifest(manifest, entry.name);
+  const noteOutDir = requireContainedPath(outRoot, manifest.name);
   await mkdir(noteOutDir, { recursive: true });
   const archiveName = `${manifest.name}-${manifest.version}.tgz`;
-  const archivePath = join(noteOutDir, archiveName);
+  const archivePath = requireContainedPath(noteOutDir, archiveName);
   await rm(archivePath, { force: true });
-  await tar(["-czf", archivePath, "-C", notesRoot, manifest.name]);
+  const archiveEntries = await listArchiveEntries(notesRoot, manifest.name);
+  await createTar({
+    cwd: notesRoot,
+    file: archivePath,
+    gzip: { mtime: 0 },
+    jobs: 1,
+    mtime: new Date(0),
+    noDirRecurse: true,
+    portable: true,
+    strict: true,
+  }, archiveEntries);
   const archiveBytes = await readFile(archivePath);
   const archiveStat = await stat(archivePath);
   const catalogEntry = {
@@ -48,7 +73,7 @@ for (const entry of sourceEntries) {
     freshnessDays: manifest.freshnessDays ?? 90,
     sourceKind,
     sourceRepo,
-    sourcePath: `notes/${manifest.name}`,
+    sourcePath: `${sourceKind === "community" ? "skills" : "notes"}/${manifest.name}`,
     reviewStatus,
     contributionUrl: `${contributionBaseUrl.replace(/\/+$/, "")}/${manifest.name}`,
     archive: {
@@ -61,6 +86,19 @@ for (const entry of sourceEntries) {
   const researchedAt = manifest.lastResearchedAt ?? manifest.updatedAt;
   if (researchedAt) catalogEntry.lastResearchedAt = researchedAt;
   notes.push(catalogEntry);
+}
+
+for (const [relativeArchivePath, previousBytes] of preservedArchives) {
+  const archivePath = requireContainedPath(outRoot, relativeArchivePath);
+  if (existsSync(archivePath)) {
+    const currentBytes = await readFile(archivePath);
+    if (!currentBytes.equals(previousBytes)) {
+      throw new Error(`Refusing to replace published archive ${relativeArchivePath}; bump the Note version`);
+    }
+    continue;
+  }
+  await mkdir(dirname(archivePath), { recursive: true });
+  await writeFile(archivePath, previousBytes);
 }
 
 const catalog = {
@@ -77,16 +115,60 @@ for (const note of catalog.notes) {
 }
 console.log(`wrote ${join(outRoot, "catalog.v1.json")} (${notes.length} notes)`);
 
-function tar(args) {
-  return new Promise((resolveTar, rejectTar) => {
-    execFile("tar", args, { encoding: "utf8" }, (error, _stdout, stderr) => {
-      if (error) {
-        rejectTar(new Error(stderr || error.message));
-        return;
+function validateManifest(manifest, directoryName) {
+  if (!manifest || typeof manifest !== "object") throw new Error(`${directoryName}/note.json must be an object`);
+  if (!/^[a-z][a-z0-9-]*$/.test(manifest.name ?? "") || manifest.name !== directoryName) {
+    throw new Error(`${directoryName}/note.json name must be kebab-case and match its directory`);
+  }
+  if (!/^\d+\.\d+\.\d+$/.test(manifest.version ?? "")) throw new Error(`${directoryName}/note.json version must be semver`);
+  if (typeof manifest.description !== "string" || !manifest.description.trim()) throw new Error(`${directoryName}/note.json description is required`);
+  if (!["craft", "research", "connect", "generate"].includes(manifest.category)) throw new Error(`${directoryName}/note.json category is invalid`);
+  if (!Array.isArray(manifest.skills) || manifest.skills.length === 0) throw new Error(`${directoryName}/note.json skills are required`);
+  if (manifest.sourceUrls !== undefined && (!Array.isArray(manifest.sourceUrls) || manifest.sourceUrls.some((url) => !isHttpsUrl(url)))) {
+    throw new Error(`${directoryName}/note.json sourceUrls must use HTTPS`);
+  }
+}
+
+function isHttpsUrl(value) {
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function requireContainedPath(parent, child) {
+  const candidate = resolve(parent, child);
+  const rel = relative(parent, candidate);
+  if (!rel || rel === ".." || rel.startsWith(`..${sep}`) || resolve(parent, rel) !== candidate) {
+    throw new Error(`Output path escapes its root: ${child}`);
+  }
+  return candidate;
+}
+
+async function listArchiveEntries(parent, directoryName) {
+  const rootPath = requireContainedPath(parent, directoryName);
+  const result = [directoryName];
+  await walk(rootPath, directoryName);
+  return result.sort((left, right) => left.localeCompare(right));
+
+  async function walk(currentPath, relativePath) {
+    const entries = (await readdir(currentPath, { withFileTypes: true })).sort((left, right) => left.name.localeCompare(right.name));
+    for (const entry of entries) {
+      const fullPath = join(currentPath, entry.name);
+      const archivePath = `${relativePath}/${entry.name}`;
+      const fileStat = await lstat(fullPath);
+      if (fileStat.isSymbolicLink()) throw new Error(`Skill payload contains a symbolic link: ${archivePath}`);
+      if (fileStat.isDirectory()) {
+        result.push(archivePath);
+        await walk(fullPath, archivePath);
+      } else if (!fileStat.isFile() || fileStat.nlink > 1 || (fileStat.mode & 0o111) !== 0) {
+        throw new Error(`Skill payload contains an unsupported file: ${archivePath}`);
+      } else {
+        result.push(archivePath);
       }
-      resolveTar();
-    });
-  });
+    }
+  }
 }
 
 function titleize(value) {
@@ -109,6 +191,7 @@ function renderNotesIndex(catalog) {
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Memoire Notes Marketplace</title>
     <style>${marketplaceCss()}</style>
@@ -180,6 +263,7 @@ function renderNoteDetail(catalog, note) {
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${escapeHtml(note.title)} &middot; Memoire Notes</title>
     <style>${marketplaceCss()}</style>

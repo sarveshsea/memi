@@ -1,19 +1,28 @@
 import { createHash, randomUUID } from "node:crypto";
-import { execFile, type ExecFileOptions } from "node:child_process";
-import { mkdir, mkdtemp, readFile, rename, rm, writeFile, cp, readdir, stat } from "node:fs/promises";
+import { createReadStream } from "node:fs";
+import { mkdir, mkdtemp, readFile, rename, rm, writeFile, cp, lstat, readdir, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join, posix, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { extract as extractTar, Parser, type ReadEntry } from "tar";
 import { z } from "zod";
 import { NoteCategorySchema, NoteManifestSchema, type NoteManifest } from "./types.js";
 
 export const DEFAULT_NOTES_CATALOG_URL = "https://www.memoire.cv/notes/catalog.v1.json";
 export const DEFAULT_COMMUNITY_NOTES_CATALOG_URL = "https://www.memoire.cv/notes/community/catalog.v1.json";
 
+const HttpsUrlSchema = z.string().url().refine((value) => new URL(value).protocol === "https:", "URL must use HTTPS");
+const DownloadUrlSchema = z.string().url().refine((value) => ["https:", "file:"].includes(new URL(value).protocol), "Download URL must use HTTPS or file");
+const MAX_CATALOG_BYTES = 5 * 1024 * 1024;
+const MAX_ARCHIVE_BYTES = 10 * 1024 * 1024;
+const MAX_ARCHIVE_ENTRIES = 512;
+const MAX_ARCHIVE_FILE_BYTES = 5 * 1024 * 1024;
+const MAX_ARCHIVE_UNCOMPRESSED_BYTES = 20 * 1024 * 1024;
+
 export const NoteCatalogArchiveSchema = z.object({
-  url: z.string().min(1),
+  url: DownloadUrlSchema,
   sha256: z.string().regex(/^[a-f0-9]{64}$/i),
-  size: z.number().int().nonnegative(),
+  size: z.number().int().nonnegative().max(MAX_ARCHIVE_BYTES),
 });
 
 export const NoteCatalogEntrySchema = z.object({
@@ -24,14 +33,14 @@ export const NoteCatalogEntrySchema = z.object({
   description: z.string().min(1),
   category: NoteCategorySchema,
   tags: z.array(z.string()).default([]),
-  sourceUrls: z.array(z.string().url()).default([]),
+  sourceUrls: z.array(HttpsUrlSchema).default([]),
   lastResearchedAt: z.string().datetime().optional(),
   freshnessDays: z.number().int().positive().optional(),
   sourceKind: z.enum(["official", "community"]).optional(),
-  sourceRepo: z.string().url().optional(),
+  sourceRepo: HttpsUrlSchema.optional(),
   sourcePath: z.string().optional(),
   reviewStatus: z.enum(["draft", "submitted", "approved", "rejected"]).optional(),
-  contributionUrl: z.string().url().optional(),
+  contributionUrl: HttpsUrlSchema.optional(),
   archive: NoteCatalogArchiveSchema,
   manifest: NoteManifestSchema.optional(),
 });
@@ -40,7 +49,7 @@ export type NoteCatalogEntry = z.infer<typeof NoteCatalogEntrySchema>;
 export const NoteCatalogSchema = z.object({
   schemaVersion: z.literal(1),
   generatedAt: z.string().datetime(),
-  baseUrl: z.string().min(1),
+  baseUrl: DownloadUrlSchema,
   notes: z.array(NoteCatalogEntrySchema),
 });
 export type NoteCatalog = z.infer<typeof NoteCatalogSchema>;
@@ -56,7 +65,7 @@ export interface InstallCatalogNoteOptions extends LoadNotesCatalogOptions {
 
 export async function loadNotesCatalog(options: LoadNotesCatalogOptions = {}): Promise<NoteCatalog> {
   const catalogUrl = options.catalogUrl || process.env.MEMOIRE_NOTES_CATALOG_URL || DEFAULT_NOTES_CATALOG_URL;
-  const bytes = await readBytesFromUrl(catalogUrl, options.timeoutMs ?? 2_500);
+  const bytes = await readBytesFromUrl(catalogUrl, options.timeoutMs ?? 2_500, { maxBytes: MAX_CATALOG_BYTES });
   return NoteCatalogSchema.parse(JSON.parse(bytes.toString("utf-8")));
 }
 
@@ -100,7 +109,10 @@ export async function installCatalogNote(
   await mkdir(notesRoot, { recursive: true });
 
   options.onProgress?.({ type: "progress", message: `Downloading ${entry.name}` });
-  const archiveBytes = await readBytesFromUrl(entry.archive.url, options.timeoutMs ?? 30_000);
+  const archiveBytes = await readBytesFromUrl(entry.archive.url, options.timeoutMs ?? 30_000, {
+    maxBytes: MAX_ARCHIVE_BYTES,
+    expectedBytes: entry.archive.size,
+  });
   const sha256 = createHash("sha256").update(archiveBytes).digest("hex");
   if (sha256 !== entry.archive.sha256.toLowerCase()) {
     throw new Error(`Checksum mismatch for ${entry.name}: expected ${entry.archive.sha256}, got ${sha256}`);
@@ -108,14 +120,20 @@ export async function installCatalogNote(
 
   const archivePath = join(downloadsDir, `${entry.name}-${entry.version}.tgz`);
   await writeFile(archivePath, archiveBytes);
-  const archiveEntries = await listTarEntries(archivePath);
-  assertSafeArchiveEntries(archiveEntries);
+  await validateArchiveContents(archivePath);
 
   options.onProgress?.({ type: "progress", message: `Extracting ${entry.name}`, bytes: archiveBytes.byteLength });
   const extractDir = await mkdtemp(join(tmpdir(), `memoire-note-${entry.name}-`));
   const stagingDir = join(notesRoot, `.install-${entry.name}-${Date.now()}-${randomUUID().slice(0, 8)}`);
   try {
-    await execFileChecked("tar", ["-xzf", archivePath, "-C", extractDir], { timeout: 30_000 });
+    await extractTar({
+      cwd: extractDir,
+      file: archivePath,
+      strict: true,
+      preserveOwner: false,
+      noMtime: true,
+    });
+    await assertSafeExtractedTree(extractDir);
     const sourceDir = await findExtractedNoteDir(extractDir, entry.name);
     const raw = await readFile(join(sourceDir, "note.json"), "utf-8");
     const manifest = NoteManifestSchema.parse(JSON.parse(raw));
@@ -135,6 +153,30 @@ export async function installCatalogNote(
   }
 }
 
+export async function assertSafeExtractedTree(root: string): Promise<void> {
+  const entries = await readdir(root, { withFileTypes: true });
+  for (const entry of entries) {
+    const fullPath = join(root, entry.name);
+    const fileStat = await lstat(fullPath);
+    if (fileStat.isSymbolicLink()) {
+      throw new Error(`Note archive contains a symbolic link: ${entry.name}`);
+    }
+    if (fileStat.isDirectory()) {
+      await assertSafeExtractedTree(fullPath);
+      continue;
+    }
+    if (!fileStat.isFile()) {
+      throw new Error(`Note archive contains a non-regular file: ${entry.name}`);
+    }
+    if (fileStat.nlink > 1) {
+      throw new Error(`Note archive contains a hard-linked file: ${entry.name}`);
+    }
+    if ((fileStat.mode & 0o111) !== 0) {
+      throw new Error(`Note archive contains an executable file: ${entry.name}`);
+    }
+  }
+}
+
 async function findExtractedNoteDir(root: string, expectedName: string): Promise<string> {
   const direct = join(root, expectedName);
   if (await isDirectory(direct)) return direct;
@@ -148,38 +190,99 @@ async function findExtractedNoteDir(root: string, expectedName: string): Promise
   throw new Error(`Downloaded note ${expectedName} does not contain note.json`);
 }
 
-async function readBytesFromUrl(url: string, timeoutMs: number): Promise<Buffer> {
-  if (url.startsWith("file:")) return readFile(fileURLToPath(url));
+interface ReadBytesLimits {
+  maxBytes: number;
+  expectedBytes?: number;
+}
+
+async function readBytesFromUrl(url: string, timeoutMs: number, limits: ReadBytesLimits): Promise<Buffer> {
+  if (url.startsWith("file:")) {
+    const path = fileURLToPath(url);
+    const fileSize = (await stat(path)).size;
+    assertDownloadSize(fileSize, limits);
+    return readFile(path);
+  }
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(url, { signal: controller.signal });
     if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`.trim());
-    return Buffer.from(await response.arrayBuffer());
+    const declaredLength = response.headers.get("content-length");
+    if (declaredLength !== null) assertDownloadSize(Number(declaredLength), limits);
+    if (!response.body) throw new Error("Download response did not include a body");
+    const chunks: Buffer[] = [];
+    let total = 0;
+    const reader = response.body.getReader();
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const bytes = Buffer.from(value);
+        total += bytes.byteLength;
+        if (total > limits.maxBytes) {
+          await reader.cancel().catch(() => {});
+          throw new Error(`Download exceeds size limit of ${limits.maxBytes} bytes`);
+        }
+        chunks.push(bytes);
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    assertDownloadSize(total, limits);
+    return Buffer.concat(chunks, total);
   } finally {
     clearTimeout(timeout);
   }
 }
 
-async function listTarEntries(archivePath: string): Promise<string[]> {
-  const output = await execFileOutput("tar", ["-tzf", archivePath], { timeout: 10_000 });
-  return output.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+function assertDownloadSize(actualBytes: number, limits: ReadBytesLimits): void {
+  if (!Number.isSafeInteger(actualBytes) || actualBytes < 0) throw new Error("Download reported an invalid size");
+  if (actualBytes > limits.maxBytes) throw new Error(`Download exceeds size limit of ${limits.maxBytes} bytes`);
+  if (limits.expectedBytes !== undefined && actualBytes !== limits.expectedBytes) {
+    throw new Error(`Download size mismatch: expected ${limits.expectedBytes} bytes, got ${actualBytes}`);
+  }
 }
 
-function execFileOutput(command: string, args: string[], options: ExecFileOptions = {}): Promise<string> {
-  return new Promise((resolveOutput, reject) => {
-    execFile(command, args, { encoding: "utf-8", maxBuffer: 1024 * 1024, ...options }, (error, stdout, stderr) => {
-      if (error) {
-        reject(new Error(String(stderr ?? "").trim() || error.message));
-        return;
+async function validateArchiveContents(archivePath: string): Promise<void> {
+  const entries: string[] = [];
+  let totalBytes = 0;
+  await new Promise<void>((resolveArchive, rejectArchive) => {
+    const parser = new Parser({
+      strict: true,
+      maxDecompressionRatio: 100,
+      onReadEntry: (entry: ReadEntry) => {
+      entries.push(entry.path);
+      let violation: string | null = null;
+      if (entries.length > MAX_ARCHIVE_ENTRIES) {
+        violation = `Note archive exceeds entry limit of ${MAX_ARCHIVE_ENTRIES}`;
       }
-      resolveOutput(String(stdout ?? ""));
+      if (entry.type === "SymbolicLink") violation = `Note archive contains a symbolic link: ${entry.path}`;
+      if (entry.type === "Link") violation = `Note archive contains a hard link: ${entry.path}`;
+      if (!violation && entry.type !== "File" && entry.type !== "Directory") {
+        violation = `Note archive contains unsupported entry type ${entry.type}: ${entry.path}`;
+      }
+      const size = entry.type === "File" ? entry.size : 0;
+      if (size > MAX_ARCHIVE_FILE_BYTES) {
+        violation = `Note archive file exceeds size limit of ${MAX_ARCHIVE_FILE_BYTES} bytes: ${entry.path}`;
+      }
+      totalBytes += size;
+      if (totalBytes > MAX_ARCHIVE_UNCOMPRESSED_BYTES) {
+        violation = `Note archive exceeds uncompressed size limit of ${MAX_ARCHIVE_UNCOMPRESSED_BYTES} bytes`;
+      }
+      if (entry.type === "File" && ((entry.mode ?? 0) & 0o111) !== 0) {
+        violation = `Note archive contains an executable file: ${entry.path}`;
+      }
+      if (violation) parser.abort(new Error(violation));
+        entry.resume();
+      },
     });
+    const source = createReadStream(archivePath);
+    source.on("error", rejectArchive);
+    parser.on("error", rejectArchive);
+    parser.on("end", resolveArchive);
+    source.pipe(parser);
   });
-}
-
-function execFileChecked(command: string, args: string[], options: ExecFileOptions = {}): Promise<void> {
-  return execFileOutput(command, args, options).then(() => undefined);
+  assertSafeArchiveEntries(entries);
 }
 
 async function isDirectory(path: string): Promise<boolean> {

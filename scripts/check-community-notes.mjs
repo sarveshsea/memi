@@ -6,8 +6,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const communityRoot = resolve(root, process.env.MEMOIRE_COMMUNITY_NOTES_ROOT ?? "../memoire-community-notes");
-const notesRoot = resolve(root, process.argv.includes("--local") ? "notes" : join(communityRoot, "notes"));
+const communityRoot = resolve(root, process.env.MEMOIRE_COMMUNITY_NOTES_ROOT ?? "../design-skills");
+const notesRoot = resolve(root, process.argv.includes("--local") ? "notes" : join(communityRoot, "skills"));
 
 if (!existsSync(notesRoot)) {
   console.log(`No community Notes root found at ${notesRoot}.`);
