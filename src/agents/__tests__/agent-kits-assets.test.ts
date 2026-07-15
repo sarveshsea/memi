@@ -115,6 +115,27 @@ describe("packaged agent kits", () => {
     expect(rootSkill).toContain("memi mcp start --no-figma");
   });
 
+  it("ships focused zero-setup skills for the three core design-agent jobs", async () => {
+    const root = process.cwd();
+    const focusedSkills = [
+      "audit-frontend-design",
+      "remember-design-system",
+      "enforce-design-ci",
+    ];
+
+    for (const name of focusedSkills) {
+      const skill = await readFile(join(root, "skills", name, "SKILL.md"), "utf-8");
+      const lines = skill.split("\n");
+
+      expect(skill).toMatch(new RegExp(`^---\\nname: ${name}\\ndescription: Use when `));
+      expect(skill).toContain("npx -y @memi-design/cli@2.5.0");
+      expect(skill).not.toContain("npm i -g");
+      expect(skill).not.toContain("daemon start");
+      expect(lines.length).toBeLessThanOrEqual(95);
+      expect(Buffer.byteLength(skill, "utf-8")).toBeLessThanOrEqual(5_500);
+    }
+  });
+
   it("ships valid SKILL.md frontmatter for Hermes and OpenClaw", async () => {
     const root = process.cwd();
     const hermesSkill = await readFile(join(root, "agent-kits", "hermes", "memoire-design-tooling", "SKILL.md"), "utf-8");
