@@ -150,6 +150,17 @@ for (const skillName of ["audit-frontend-design", "remember-design-system", "enf
     fail(`Codex plugin focused skill is not synced with the root skill: ${skillName}`);
   }
 }
+const claudePluginManifest = await readJson(join(root, "plugins", "memi-claude", ".claude-plugin", "plugin.json"));
+if (claudePluginManifest.version !== packageJson.version) {
+  fail(`Claude plugin version ${claudePluginManifest.version ?? "missing"} does not match package ${packageJson.version}`);
+}
+for (const skillName of ["memoire-design-tooling", "audit-frontend-design", "remember-design-system", "enforce-design-ci"]) {
+  const rootSkill = await readFile(join(root, "skills", skillName, "SKILL.md"), "utf-8");
+  const claudeSkill = await readFile(join(root, "plugins", "memi-claude", "skills", skillName, "SKILL.md"), "utf-8");
+  if (claudeSkill !== rootSkill) {
+    fail(`Claude plugin skill is not synced with the root skill: ${skillName}`);
+  }
+}
 if (codexPluginManifest.homepage !== "https://www.memoire.cv/codex-plugin") {
   fail("Codex plugin manifest homepage must point to https://www.memoire.cv/codex-plugin");
 }
