@@ -18,15 +18,11 @@
   "support": "https://github.com/sarveshsea/memi/issues",
   "server": {
     "type": "node",
-    "entry_point": "npx",
+    "entry_point": "server/index.cjs",
     "mcp_config": {
-      "command": "npx",
+      "command": "node",
       "args": [
-        "-y",
-        "@memi-design/cli@2.5.0",
-        "mcp",
-        "start",
-        "--no-figma"
+        "${__dirname}/server/index.cjs"
       ],
       "env": {}
     }
