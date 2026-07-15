@@ -6,6 +6,16 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 
 ---
 
+## Unreleased
+
+### Design Skills migration — `3009cf63`
+
+- Renamed the community repository to `sarveshsea/design-skills` and expanded the marketplace from 5 Notes to 78 installable Agent Skills with canonical `skills/<slug>/SKILL.md` packaging.
+- Added explicit upstream provenance and retained MIT notices for adapted Jakub Krehel, Emil Kowalski, and Josh Puckett DialKit material. Interface Craft remains a reference boundary and is not redistributed.
+- Made Note archives deterministic and immutable by version, added strict manifest and path validation, and preserved legacy archive URLs during catalog rebuilds.
+- Hardened catalog installs with HTTPS validation, exact signed-size checks, bounded streaming, decompression and uncompressed-size limits, safe tar parsing, and rejection of links, special files, and executables.
+- Kept clean site builds self-contained by preserving checked-in official and community catalogs when companion source checkouts are unavailable.
+
 ## v2.5.0 — 2026-07-14 — Agent design CI recovery release
 
 Product Hunt recovery release that makes the package story match the shipped product: agent design CI, Codex/MCP distribution, compact design-agent context, and spec-first file creation.
@@ -55,7 +65,6 @@ The 2.4 line is the distribution-proof release: the npm package, MCP manifest, G
 
 ### Growth loop
 - The launch target is no longer "publish and announce"; it is "publish, prove in runnable repos, then seed into package and agent directories." The weekly 10x checkpoint remains 7,830 npm downloads.
-
 ## v2.3.1 — 2026-07-07 — studio design-audit routes
 
 Patch release syncing npm with main: the Studio sidecar server now exposes the design-audit engine over HTTP so memi Studio's native Design Health surface can drive it.
