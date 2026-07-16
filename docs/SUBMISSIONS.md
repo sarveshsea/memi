@@ -28,6 +28,12 @@ memi mcp start --no-figma
 npx skills add sarveshsea/memi --skill memoire-design-tooling
 ```
 
+Hosted MCP discovery:
+
+```text
+https://www.memoire.cv/api/mcp
+```
+
 Codex plugin:
 
 ```bash
@@ -51,7 +57,7 @@ brew install --cask sarveshsea/memi/memi-studio
 | P0 | Codex plugin | Agent distribution | Submitted and approved with a clean marketplace scan on 2026-07-15 | Keep marketplace command in launch replies |
 | P0 | Claude plugin | Agent distribution | Submitted to Anthropic's Plugin Directory on 2026-07-15; pending review | Monitor the Claude Platform submissions dashboard for reviewer feedback |
 | P0 | design-sandbox | Public proof repo | Pushed with `pnpm verify` proof loop | Link as the runnable example for design engineers |
-| P1 | Smithery | MCP discovery | Public, listed, and deployed successfully as `sarveshsea/memi`; local MCP quality score is 52/100 | Add a real hosted Streamable HTTP endpoint before creating another URL-based release |
+| P1 | Smithery | MCP discovery | Public remote release is live as `sarveshsea/memi`; Streamable HTTP, five remote-safe tools, typed schemas, and optional `agent` config verified 2026-07-15 | Monitor quality-score recomputation and keep the five-tool remote surface aligned with the local 47-tool engine |
 | P1 | Glama / MCP directories | MCP discovery | mcp.so submitted; Glama still needs owner UI/API action after registry refresh | Refresh to memi workbench + design-memory engine copy |
 | P1 | Awesome MCP lists | Ecosystem discovery | New update PRs opened for largest stale listings | Follow up only for maintainer requests or new v2.5 proof |
 | P1 | shadcn / v0 communities | Engine proof | shadcn list PR opened with raw registry proof | Share CLI workflow after launch spike |
@@ -148,7 +154,7 @@ https://github.com/sarveshsea/design-sandbox
 | design-sandbox proof repo | https://github.com/sarveshsea/design-sandbox | Pushed; pre-publish verification passes with local `MEMI_BIN` |
 | design-sandbox raw shadcn registry | https://raw.githubusercontent.com/sarveshsea/design-sandbox/main/public/r/registry.json | Public proof artifact |
 | mcp.so submission | https://github.com/chatmcp/mcpso/issues/1#issuecomment-4920418945 | Submitted with npm, MCP Registry, proof repo, and shadcn registry links |
-| Smithery | https://smithery.ai/servers/sarveshsea/memi | Public and listed; successful deployed release verified 2026-07-15 |
+| Smithery | https://smithery.ai/servers/sarveshsea/memi | Public URL release succeeded against `https://www.memoire.cv/api/mcp`; five tools and optional `agent` config are visible in the public registry API |
 | Claude Plugin Directory | https://platform.claude.com/plugins/submissions | Memi submitted for Claude Code and pending Anthropic review as of 2026-07-15 |
 | Codex Plugin Marketplace | https://www.codex-marketplace.com/submit | Submission `B98C9952-B93D-4305-BF9F-342B69EFBC3E` approved with a clean scan on 2026-07-15 |
 | `punkpeye/awesome-mcp-servers` refresh | https://github.com/punkpeye/awesome-mcp-servers/pull/9678 | Open update from old repository naming to `memi` |
