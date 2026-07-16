@@ -46,7 +46,7 @@ Why this matters: the official registry is a trust anchor for downstream MCP dir
 | P0 | Official MCP Registry | Trust anchor for downstream MCP aggregators | `mcp-publisher publish server.json` | Ready for 2.5.0 after npm publish |
 | P0 | MCP.Directory | Direct MCP discovery surface | `https://mcp.directory/submit` | Ready to refresh with registry proof |
 | P0 | Glama | Already indexes Memoire | Claim/update listing after registry refresh | Ready after npm publish |
-| P0 | Smithery | Distribution, analytics, and config UI for MCP servers | `https://smithery.ai/servers/sarveshsea/memi` | Public, listed, and successfully deployed; a future URL release requires a real hosted Streamable HTTP MCP endpoint |
+| P0 | Smithery | Distribution, analytics, and config UI for MCP servers | `https://smithery.ai/servers/sarveshsea/memi` | Public URL release is live against `https://www.memoire.cv/api/mcp` with five remote-safe tools, typed schemas, and optional agent configuration |
 | P0 | PulseMCP | MCP discovery and server popularity tracking | Confirm auto-index after official registry | Ready |
 | P0 | mcp.so | Large MCP marketplace surface | Submit/refresh after official registry | Submitted: https://github.com/chatmcp/mcpso/issues/1#issuecomment-4920418945 |
 | P1 | Agent Skills directories | Agent-native install discovery | `npx skills add sarveshsea/memi --skill memoire-design-tooling` | Ready |
