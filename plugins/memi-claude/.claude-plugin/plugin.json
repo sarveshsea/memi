@@ -1,7 +1,7 @@
 {
   "name": "memi",
   "description": "Agent design CI, SwiftUI and web file scaffolds, MCP tools, design-system workflows, and UI quality gates for Claude Code.",
-  "version": "2.6.1",
+  "version": "2.6.2",
   "author": {
     "name": "Sarvesh Chidambaram",
     "url": "https://github.com/sarveshsea"

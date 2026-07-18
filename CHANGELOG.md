@@ -16,6 +16,19 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - Hardened catalog installs with HTTPS validation, exact signed-size checks, bounded streaming, decompression and uncompressed-size limits, safe tar parsing, and rejection of links, special files, and executables.
 - Kept clean site builds self-contained by preserving checked-in official and community catalogs when companion source checkouts are unavailable.
 
+## v2.6.2 - 2026-07-18 - trustworthy first-run trial
+
+Patch release focused on making Memi's first-run design audit non-invasive and making download trends distinguish durable adoption from release-day automation.
+
+### CLI safety
+- Fixed Commander negative-option handling for `diagnose`, `ux audit`, `craft audit`, and `fix plan`, so `--no-write` now prevents every `.memoire/app-quality` report write as documented.
+- Added command-level regression tests that assert the report artifacts do not exist after each zero-write workflow.
+
+### Growth evidence
+- Replaced the README's standalone-skill mirror CTA with a direct, version-pinned package trial and kept the monorepo as the trusted Agent Skills source.
+- Added rolling npm download windows and spike-normalization classification to the growth status report, separating release automation from sustained adoption.
+- Refreshed the public metrics snapshot and proof-repository guidance for the current release.
+
 ## v2.6.1 - 2026-07-18 - clean install maintenance
 
 Maintenance release focused on downstream install quality and faster, safer release gates without changing Memi's public CLI, MCP, or agent-skill contracts.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Command } from "commander";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { registerUxCommand } from "../ux.js";
@@ -29,6 +29,7 @@ export default function Page() {
       expect(payload.tenetCoverage.map((tenet: { tenetId: string }) => tenet.tenetId)).toContain("consistency");
       expect(payload.trapRisks.map((trap: { trapId: string }) => trap.trapId)).toContain("token-drift");
       expect(payload.recommendedTweaks.length).toBeGreaterThan(0);
+      await expect(access(join(root, ".memoire"))).rejects.toThrow();
     } finally {
       await rm(root, { recursive: true, force: true });
     }

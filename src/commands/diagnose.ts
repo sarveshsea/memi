@@ -8,7 +8,7 @@ import { ui } from "../tui/format.js";
 interface DiagnoseOptions {
   json?: boolean;
   maxFiles?: string;
-  noWrite?: boolean;
+  write?: boolean;
   failOn?: string;
   baseline?: boolean;
   changed?: boolean;
@@ -72,7 +72,7 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
           projectRoot: engine.config.projectRoot,
           target,
           maxFiles: Number.isFinite(maxFiles) ? maxFiles : 500,
-          write: opts.noWrite ? false : true,
+          write: opts.write !== false,
           policy,
           scope,
         });
@@ -104,7 +104,7 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
             const lines = renderTrend(history, diagnosis.policy?.hash);
             console.log(ui.section("Score trend (comparable runs)"));
             if (lines.length === 0) {
-              console.log(ui.dim("  No comparable history yet — entries accrue on every non---no-write full scan under the same policy."));
+              console.log(ui.dim("  No comparable history yet — entries accrue on every full scan that writes reports under the same policy."));
             } else {
               for (const line of lines) console.log(ui.dim(`  ${line}`));
             }
@@ -121,7 +121,7 @@ export function registerDiagnoseCommand(program: Command, engine: MemoireEngine)
           return;
         }
 
-        printDiagnosis(diagnosis, opts.noWrite !== true);
+        printDiagnosis(diagnosis, opts.write !== false);
         if (diagnosis.scope) {
           console.log(ui.dim(`  Scope: ${diagnosis.scope.emittedIssues} issue(s) touching ${diagnosis.scope.effectiveFiles} scoped file(s); ${diagnosis.scope.filteredOutIssues} out-of-scope issue(s) hidden (still reflected in scores)`));
         }

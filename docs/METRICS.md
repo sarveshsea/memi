@@ -4,10 +4,11 @@ Use this every Friday during the v2 package-growth window. Record the value, sou
 
 ## Baseline
 
-- Current release candidate: `@memi-design/cli@2.5.0`
+- Current public release: `@memi-design/cli@2.6.2`
 - Public npm latest before v2 publish: `1.1.1`
 - Public npm latest before the 2.5 publish command: `2.4.1`
-- Latest complete npm download windows: 46 last-day downloads for 2026-07-05, 783 last-week downloads for 2026-06-29 through 2026-07-05, 1,306 last-month downloads for 2026-06-06 through 2026-07-05.
+- Latest complete npm window: 354 downloads for 2026-07-10 through 2026-07-16 and 2,151 downloads for 2026-06-17 through 2026-07-16.
+- Trend context: the previous seven-day bucket had 1,524 downloads because release and verification activity produced several one-day spikes; the seven days before that had 152. The current 354 is down from the spike but 133% above the pre-spike bucket.
 - 10x target from the 2026-07-08 baseline: 7,830 weekly downloads and 13,060 monthly downloads.
 - Primary CTA: `https://www.npmjs.com/package/@memi-design/cli`
 - Primary phrase: `Interface understanding for AI coding agents`
@@ -29,7 +30,7 @@ Use this every Friday during the v2 package-growth window. Record the value, sou
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Baseline | `1.1.1` | TBD | TBD | TBD | v2 draft | local pass | pending v2 | Publish v2 and run public gates |
 | 2026-07-08 | `2.4.1` | `783` | `1306` | `17` | live v2 | local pass | current at `2.4.1` | Seed proof repos and MCP directories |
-| Week 2 | | | | | | | | |
+| 2026-07-18 | `2.6.2` | `354` | `2151` | `29` | design QA skills | 4 published / index catching up | current at `2.6.2` | Convert direct trials and reproducible proof dependencies |
 | Week 3 | | | | | | | | |
 | Week 4 | | | | | | | | |
 | Week 8 | | | | | | | | |
@@ -47,6 +48,7 @@ npm run check:public-release
 - npm latest: `https://registry.npmjs.org/%40memi-design%2Fcli`
 - npm weekly downloads: `https://api.npmjs.org/downloads/point/last-week/%40memi-design%2Fcli`
 - npm monthly downloads: `https://api.npmjs.org/downloads/point/last-month/%40memi-design%2Fcli`
+- npm daily range: `https://api.npmjs.org/downloads/range/last-month/%40memi-design%2Fcli`
 - GitHub metadata: `https://api.github.com/repos/sarveshsea/memi`
 - npm package page: `https://www.npmjs.com/package/@memi-design/cli`
 - Components page: `https://www.memoire.cv/components`

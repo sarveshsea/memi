@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { Command } from "commander";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { registerDiagnoseCommand } from "../diagnose.js";
@@ -47,6 +47,7 @@ describe("memi diagnose", () => {
       expect(payload.ux.score).toBeLessThan(100);
       expect(payload.ux.trapRisks.some((trap: { trapId: string }) => trap.trapId === "token-drift")).toBe(true);
       expect(process.exitCode ?? 0).toBe(0);
+      await expect(access(join(root, ".memoire"))).rejects.toThrow();
     } finally {
       await rm(root, { recursive: true, force: true });
     }
