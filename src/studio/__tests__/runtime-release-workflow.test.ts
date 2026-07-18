@@ -43,6 +43,18 @@ describe("release binary workflow", () => {
     expect(workflow).not.toContain("VERSION=${{ github.ref_name }}");
   });
 
+  it("fails when the Homebrew tap cannot be published", async () => {
+    const workflow = await readFile(
+      join(process.cwd(), ".github", "workflows", "release-binaries.yml"),
+      "utf-8",
+    );
+
+    expect(workflow).toContain('node scripts/homebrew/update-formula.mjs --version="${VERSION}" --out=memoire.rb');
+    expect(workflow).toContain('test -s memoire.rb');
+    expect(workflow).toContain('echo "::error::HOMEBREW_TAP_TOKEN secret is required to publish the tap"');
+    expect(workflow).not.toContain("skipping tap push");
+  });
+
   it("installs the container entrypoint on the standard executable path", async () => {
     const dockerfile = await readFile(
       join(process.cwd(), "docker", "Dockerfile.binary"),
