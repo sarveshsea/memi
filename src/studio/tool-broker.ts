@@ -142,8 +142,11 @@ export class StudioToolBroker {
       tool("knowledge.read", "Knowledge read", "knowledge", "Read an indexed knowledge item.", false),
       tool("knowledge.capture", "Knowledge capture", "knowledge", "Persist a research note, design decision, or artifact capture.", false),
       tool("research_design_package", "Research design", "research", "Preview research-backed vibe design specs and Mermaid Jam source.", false),
+      tool("research.design_package", "Research design", "research", "Compatibility alias for Studio design-package workflows.", false),
       tool("research_generate_specs", "Research specs", "research", "Write research-backed Atomic Design specs through the Memoire registry.", true),
+      tool("research.generate_specs", "Research specs", "research", "Compatibility alias for Studio research-spec generation.", true),
       tool("mermaid_jam_export", "FigJam export", "research", "Write Mermaid Jam source artifacts for FigJam from research or simulation output.", false),
+      tool("mermaid_jam.export", "FigJam export", "research", "Compatibility alias for Studio Mermaid Jam exports.", false),
       tool("board.create", "Board create", "board", "Create a local PM/FigJam-ready board from prompt or research context.", false),
       tool("board.add_node", "Board node", "board", "Add a local board card with evidence metadata.", false),
       tool("board.update_node", "Board update", "board", "Update a local board card.", false),
@@ -253,11 +256,14 @@ export class StudioToolBroker {
       case "knowledge.capture":
         return this.captureKnowledge(input, request);
       case "research_design_package":
+      case "research.design_package":
         return this.researchDesignPackage(input);
       case "research_generate_specs":
+      case "research.generate_specs":
         if (!request.approved) throw Object.assign(new Error("Approval required to write generated research specs"), { approvalReason: "Approve research spec generation" });
         return this.generateResearchSpecs(input);
       case "mermaid_jam_export":
+      case "mermaid_jam.export":
         return this.exportMermaidJam(input);
       case "board.create":
         return this.createBoard(input);

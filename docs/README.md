@@ -1,6 +1,6 @@
 # Memoire Docs
 
-Memoire is interface understanding for AI coding agents. It gives agents design-system memory, UX audit evidence, interface craft critique, research context, shadcn registry output, MCP tools, and installable skill packages before they edit a product UI.
+Memoire is interface understanding for AI coding agents. It gives agents design-system memory, UX audit evidence, interface craft critique, SwiftUI planning and scaffolding, research context, shadcn registry output, MCP tools, and installable skill packages before they edit a product UI.
 
 Use this docs map to avoid treating the README as a dumping ground. The root README should convert npm visitors; these docs should carry the deeper workflows.
 
@@ -24,6 +24,7 @@ memi mcp start --no-figma
 | --- | --- |
 | [Interface Understanding](./INTERFACE_UNDERSTANDING.md) | Full evidence loop across code, routes, screenshots, tokens, Figma, research, UX audits, and specs. |
 | [Agent Stacks](./AGENT_STACKS.md) | ECC-style AGENTS.md workflows, Hermes, OpenClaw, Codex, Claude Code, Cursor, OpenCode, MCP, and Agent Skills installs. |
+| [iOS and SwiftUI](./IOS_SWIFT.md) | Apple-platform briefs, safe SwiftUI scaffolds, Liquid Glass availability, and Xcode proof. |
 | [Agent Recipes](./AGENT_RECIPES.md) | Copy-paste setup commands and prompts for each agent surface. |
 | [Public Repos](./PUBLIC_REPOS.md) | design-sandbox, repo topics, hashtags, and distribution surfaces. |
 | [v2 Package Positioning](./V2_PACKAGE_POSITIONING.md) | Category definition, package-quality bar, growth loops, and message hierarchy. |

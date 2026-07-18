@@ -1,5 +1,5 @@
 {
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "Mémoire skill registry — defines available skills, activation contexts, and dependencies",
   "defaultSkill": "SUPERPOWER",
   "skills": [
@@ -101,6 +101,15 @@
       "activateOn": "design-extraction",
       "freedomLevel": "high",
       "prerequisite": null
+    },
+    {
+      "id": "build-swiftui-interface",
+      "name": "Build SwiftUI Interface",
+      "file": "skills/build-swiftui-interface/SKILL.md",
+      "description": "Prepare, scaffold, implement, and verify native SwiftUI features with Apple-platform design and Xcode evidence.",
+      "activateOn": "apple-platform-interface",
+      "freedomLevel": "guarded",
+      "prerequisite": null
     }
   ],
   "activationContexts": {
@@ -114,6 +123,7 @@
     "component-creation": "Creating or modifying component specs",
     "research-to-dashboard": "Transforming research data into visual dashboards",
     "design-extraction": "Extracting design systems from URLs or websites",
+    "apple-platform-interface": "Creating or reviewing SwiftUI, SwiftData, App Intents, or Apple-platform interface code",
     "docker-environment": "Project contains Dockerfile, docker-compose.yml, or .devcontainer/"
   }
 }
