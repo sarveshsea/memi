@@ -16,6 +16,20 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - Hardened catalog installs with HTTPS validation, exact signed-size checks, bounded streaming, decompression and uncompressed-size limits, safe tar parsing, and rejection of links, special files, and executables.
 - Kept clean site builds self-contained by preserving checked-in official and community catalogs when companion source checkouts are unavailable.
 
+## v2.6.1 - 2026-07-18 - clean install maintenance
+
+Maintenance release focused on downstream install quality and faster, safer release gates without changing Memi's public CLI, MCP, or agent-skill contracts.
+
+### Dependency health
+- Replaced `exceljs` with a lazy-loaded `xlsx-populate` adapter that preserves saved formula values and rich text while removing the deprecated archive, glob, UUID, and equality packages previously shown during fresh npm installs.
+- Upgraded `@anthropic-ai/sdk` from `0.39` to `0.112` and removed the obsolete `form-data` override.
+- Added XLSX adapter regression coverage for sheet names, headers, dates, rows, and empty workbooks.
+
+### Release gates
+- Upgraded Vitest to `4.1` and Vite to the patched `6.4` line while retaining the Node 20 runtime contract.
+- Patched TSX's development-only esbuild chain and restored a zero-finding full `npm audit`.
+- Verified all 1,718 tests, TypeScript, lint, and production plugin builds; the full test suite completed in under 14 seconds on the release workstation.
+
 ## v2.6.0 - 2026-07-17 - Apple platform design CI
 
 Native Apple-platform release that extends Memi's evidence-first design workflow from web interfaces into SwiftUI without pretending that source generation alone proves an Xcode build.
