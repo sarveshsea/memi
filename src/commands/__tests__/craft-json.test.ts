@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Command } from "commander";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { registerCraftCommand } from "../craft.js";
@@ -35,6 +35,7 @@ export default function Page() {
         userContext: expect.any(String),
       });
       expect(payload.topOpportunities.length).toBeGreaterThan(0);
+      await expect(access(join(root, ".memoire"))).rejects.toThrow();
     } finally {
       await rm(root, { recursive: true, force: true });
     }

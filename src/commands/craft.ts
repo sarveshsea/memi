@@ -13,7 +13,7 @@ interface CraftAuditOptions {
   json?: boolean;
   maxFiles?: string;
   screenshot?: string;
-  noWrite?: boolean;
+  write?: boolean;
 }
 
 export function registerCraftCommand(program: Command, engine: MemoireEngine): void {
@@ -38,14 +38,14 @@ export function registerCraftCommand(program: Command, engine: MemoireEngine): v
           maxFiles: Number.isFinite(maxFiles) ? maxFiles : 500,
         });
 
-        if (!opts.noWrite) await writeInterfaceCraftReport(engine.config.projectRoot, report);
+        if (opts.write !== false) await writeInterfaceCraftReport(engine.config.projectRoot, report);
 
         if (opts.json) {
           console.log(JSON.stringify(report, null, 2));
           return;
         }
 
-        printInterfaceCraftAudit(report, opts.noWrite !== true);
+        printInterfaceCraftAudit(report, opts.write !== false);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         if (opts.json) {

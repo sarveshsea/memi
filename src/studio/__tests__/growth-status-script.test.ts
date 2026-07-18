@@ -2,11 +2,13 @@
 import { describe, expect, it } from "vitest";
 import {
   actualDownloadPointUrl,
+  actualDownloadRangeUrl,
   buildWeeklyNpmDownloadGoal,
   buildGrowthStatus,
   collectStaleReferenceMetrics,
   parseHomebrewStudioCask,
   parseSkillsShPage,
+  summarizeDownloadRange,
   WEEKLY_NPM_DOWNLOAD_TARGET,
 } from "../../../scripts/lib/growth-status.mjs";
 
@@ -18,6 +20,52 @@ describe("growth status script contract", () => {
   it("tracks downloads for the real public npm package, not the legacy alias", () => {
     expect(actualDownloadPointUrl("@memi-design/cli", "last-week")).toBe("https://api.npmjs.org/downloads/point/last-week/%40memi-design%2Fcli");
     expect(actualDownloadPointUrl(stalePackageName, "last-week")).toBe("https://api.npmjs.org/downloads/point/last-week/%40sarveshsea%2Fmemoire");
+    expect(actualDownloadRangeUrl("@memi-design/cli", "last-month")).toBe("https://api.npmjs.org/downloads/range/last-month/%40memi-design%2Fcli");
+  });
+
+  it("separates a real decline from a release spike rolling out of the window", () => {
+    const downloads = [
+      20, 18, 22, 25, 21, 24, 22,
+      200, 180, 220, 210, 190, 205, 195,
+      42, 48, 45, 50, 46, 43, 44,
+    ].map((count, index) => ({ day: `2026-07-${String(index + 1).padStart(2, "0")}`, downloads: count }));
+
+    expect(summarizeDownloadRange({ downloads })).toMatchObject({
+      latest7: 318,
+      previous7: 1_400,
+      prior7: 152,
+      classification: "normalizing_after_spike",
+      latestVsPrevious: -0.7728571428571429,
+      latestVsPrior: 1.0921052631578947,
+      peakDay: { day: "2026-07-10", downloads: 220 },
+    });
+  });
+
+  it("classifies sustained week-over-week losses as declining", () => {
+    const downloads = [30, 31, 29, 32, 30, 31, 30, 20, 19, 18, 20, 19, 18, 20, 10, 11, 9, 10, 8, 9, 10]
+      .map((count, index) => ({ day: `2026-07-${String(index + 1).padStart(2, "0")}`, downloads: count }));
+
+    expect(summarizeDownloadRange({ downloads })).toMatchObject({
+      latest7: 67,
+      previous7: 134,
+      prior7: 213,
+      classification: "declining",
+    });
+  });
+
+  it("surfaces an npm range API failure instead of calling it insufficient data", () => {
+    expect(summarizeDownloadRange({
+      ok: false,
+      status: 503,
+      error: "Service unavailable",
+      url: "https://api.npmjs.org/downloads/range/last-month/%40memi-design%2Fcli",
+    })).toEqual({
+      ok: false,
+      classification: "unavailable",
+      days: 0,
+      status: 503,
+      error: "Service unavailable",
+    });
   });
 
   it("parses the Studio Homebrew cask version and release URLs", () => {

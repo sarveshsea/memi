@@ -26,6 +26,10 @@ export function actualDownloadPointUrl(packageName, period) {
   return `https://api.npmjs.org/downloads/point/${period}/${encodeURIComponent(packageName).replace(/^%40/, "%40")}`;
 }
 
+export function actualDownloadRangeUrl(packageName, period) {
+  return `https://api.npmjs.org/downloads/range/${period}/${encodeURIComponent(packageName).replace(/^%40/, "%40")}`;
+}
+
 export async function buildGrowthStatus(options = {}) {
   const packageJson = options.packageJson;
   if (!packageJson?.name || !packageJson?.version) {
@@ -41,6 +45,7 @@ export async function buildGrowthStatus(options = {}) {
     npmMetadata,
     weeklyDownloads,
     monthlyDownloads,
+    downloadRange,
     githubRepo,
     skillsShPage,
     registrySearch,
@@ -54,6 +59,7 @@ export async function buildGrowthStatus(options = {}) {
     fetchJson(`https://registry.npmjs.org/${encodeURIComponent(packageJson.name).replace(/^%40/, "%40")}`),
     fetchJson(actualDownloadPointUrl(packageJson.name, "last-week")),
     fetchJson(actualDownloadPointUrl(packageJson.name, "last-month")),
+    fetchJson(actualDownloadRangeUrl(packageJson.name, "last-month")),
     fetchJson(`https://api.github.com/repos/${ENGINE_REPO}`),
     fetchText(SKILLS_SH_URL),
     fetchJson(`https://registry.modelcontextprotocol.io/v0.1/servers?search=${encodeURIComponent(packageJson.mcpName ?? packageJson.name)}`),
@@ -96,6 +102,7 @@ export async function buildGrowthStatus(options = {}) {
     actualPackageDownloads.weekly,
     options.weeklyNpmDownloadTarget ?? WEEKLY_NPM_DOWNLOAD_TARGET,
   );
+  const downloadTrend = summarizeDownloadRange(downloadRange);
 
   return {
     generatedAt: now().toISOString(),
@@ -109,10 +116,12 @@ export async function buildGrowthStatus(options = {}) {
       weekly: actualPackageDownloads.weekly,
       monthly: actualPackageDownloads.monthly,
       actualPackage: actualPackageDownloads,
+      trend: downloadTrend,
       legacyAliases: legacyAliasDownloads,
     },
     growth: {
       weeklyNpmDownloads,
+      downloadTrend,
     },
     github,
     skillsSh,
@@ -133,6 +142,7 @@ export async function buildGrowthStatus(options = {}) {
       homebrewStudioCask,
       studio,
       weeklyNpmDownloads,
+      downloadTrend,
     }),
   };
 }
@@ -143,6 +153,12 @@ export function printHuman(status) {
   console.log(`Package: ${status.package.name}@${status.package.localVersion}`);
   console.log(`npm: ${status.npm.ok ? `${status.npm.latest} · ${status.npm.mcpName ?? "no mcpName"}` : `error: ${status.npm.error}`}`);
   console.log(`Downloads: ${formatDownloads(status.downloads.actualPackage.weekly, "weekly")} · ${formatDownloads(status.downloads.actualPackage.monthly, "monthly")}`);
+  if (status.downloads.trend?.ok) {
+    const trend = status.downloads.trend;
+    console.log(`Trend: ${formatNumber(trend.latest7)} latest 7d · ${formatNumber(trend.previous7)} previous 7d · ${formatNumber(trend.prior7)} prior 7d · ${trend.classification}`);
+  } else if (status.downloads.trend?.classification === "unavailable") {
+    console.log(`Trend: unavailable · ${status.downloads.trend.error}`);
+  }
   if (status.growth?.weeklyNpmDownloads) {
     const goal = status.growth.weeklyNpmDownloads;
     console.log(`10x weekly target: ${formatNumber(goal.current)} / ${formatNumber(goal.target)} (${formatPercent(goal.percentToTarget)} · ${formatNumber(goal.gap)} gap · ${formatMultiple(goal.multipleToTarget)} to target)`);
@@ -218,6 +234,68 @@ export function buildWeeklyNpmDownloadGoal(point, target = WEEKLY_NPM_DOWNLOAD_T
     start: point?.start ?? null,
     end: point?.end ?? null,
   };
+}
+
+export function summarizeDownloadRange(range) {
+  if (range?.ok === false) {
+    return {
+      ok: false,
+      classification: "unavailable",
+      days: 0,
+      status: range.status ?? null,
+      error: range.error ?? "npm download range request failed",
+    };
+  }
+
+  const points = Array.isArray(range?.downloads)
+    ? range.downloads
+      .map((point) => ({ day: point?.day ?? null, downloads: Number(point?.downloads) }))
+      .filter((point) => point.day && Number.isFinite(point.downloads) && point.downloads >= 0)
+    : [];
+
+  if (points.length < 21) {
+    return { ok: false, classification: "insufficient_data", days: points.length };
+  }
+
+  const latest7 = sumDownloads(points.slice(-7));
+  const previous7 = sumDownloads(points.slice(-14, -7));
+  const prior7 = sumDownloads(points.slice(-21, -14));
+  const latestVsPrevious = ratioChange(latest7, previous7);
+  const latestVsPrior = ratioChange(latest7, prior7);
+  const peakDay = points.reduce(
+    (peak, point) => point.downloads > peak.downloads ? point : peak,
+    points[0],
+  );
+
+  let classification = "stable";
+  if (latest7 < previous7 * 0.8 && latest7 < prior7 * 0.8) {
+    classification = "declining";
+  } else if (previous7 > latest7 * 2 && latest7 >= prior7 * 1.25) {
+    classification = "normalizing_after_spike";
+  } else if (latest7 > previous7 * 1.2) {
+    classification = "growing";
+  }
+
+  return {
+    ok: true,
+    days: points.length,
+    latest7,
+    previous7,
+    prior7,
+    latestVsPrevious,
+    latestVsPrior,
+    classification,
+    peakDay,
+  };
+}
+
+function sumDownloads(points) {
+  return points.reduce((total, point) => total + point.downloads, 0);
+}
+
+function ratioChange(current, comparison) {
+  if (comparison === 0) return current === 0 ? 0 : null;
+  return (current - comparison) / comparison;
 }
 
 async function loadDefaultStaleReferenceSources(root) {
@@ -371,6 +449,13 @@ function summarizePullState(pull) {
 
 function buildNextActions(input) {
   const actions = [];
+  if (input.downloadTrend?.classification === "normalizing_after_spike") {
+    actions.push(`Treat the apparent weekly drop as spike normalization: ${formatNumber(input.downloadTrend.latest7)} latest 7d versus ${formatNumber(input.downloadTrend.prior7)} before the spike. Grow durable acquisition instead of chasing release churn.`);
+  } else if (input.downloadTrend?.classification === "declining") {
+    actions.push(`Downloads are declining across three measured weeks (${formatNumber(input.downloadTrend.prior7)} → ${formatNumber(input.downloadTrend.previous7)} → ${formatNumber(input.downloadTrend.latest7)}); audit discovery and activation immediately.`);
+  } else if (input.downloadTrend?.classification === "unavailable") {
+    actions.push(`Retry the npm download trend request; the range API failed: ${input.downloadTrend.error}`);
+  }
   if (input.npm.ok && input.npm.latest !== input.packageJson.version) {
     const versionOrder = compareSemver(input.packageJson.version, input.npm.latest);
     if (versionOrder > 0) {

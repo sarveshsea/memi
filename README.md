@@ -24,28 +24,36 @@ Compatibility: [shadcn registry](https://ui.shadcn.com/docs/registry/getting-sta
 
 ---
 
-## One skill. One useful result.
+## Try it on a real interface
 
 ```bash
-npx skills add sarveshsea/audit-frontend-design --skill audit-frontend-design
+npx -y @memi-design/cli@2.6.2 diagnose . --json --no-write --fail-on none
 ```
 
-Then ask your agent: **"Audit this frontend before editing it. Prioritize the five fixes that will matter most to users."**
+That runs a read-only, deterministic audit against the current repository and returns file-anchored evidence. No account, API key, Figma file, global install, or daemon is required.
 
-No account, API key, Figma file, global install, or daemon is required. The skill runs the pinned CLI with `npx`, audits the real source tree, and returns file-anchored evidence.
+To make the same workflow available whenever an agent edits UI:
+
+```bash
+npx skills add sarveshsea/memi --skill audit-frontend-design
+```
+
+Then ask: **"Audit this frontend before editing it. Prioritize the five fixes that will matter most to users."**
+
+The skill runs the pinned CLI only when repository evidence is needed.
 
 ### Four focused skills
 
 | Job | Install |
 | --- | --- |
-| Find accessibility, token, hierarchy, state, and responsive issues | `npx skills add sarveshsea/audit-frontend-design --skill audit-frontend-design` |
-| Load compact design-system context before UI work | `npx skills add sarveshsea/remember-design-system --skill remember-design-system` |
-| Add deterministic design checks to pull requests | `npx skills add sarveshsea/enforce-design-ci --skill enforce-design-ci` |
+| Find accessibility, token, hierarchy, state, and responsive issues | `npx skills add sarveshsea/memi --skill audit-frontend-design` |
+| Load compact design-system context before UI work | `npx skills add sarveshsea/memi --skill remember-design-system` |
+| Add deterministic design checks to pull requests | `npx skills add sarveshsea/memi --skill enforce-design-ci` |
 | Build and verify native SwiftUI interfaces | `npx skills add sarveshsea/memi --skill build-swiftui-interface` |
 
 [Browse the skills on skills.sh](https://skills.sh/sarveshsea/memi) or use the full [`memoire-design-tooling`](skills/memoire-design-tooling/SKILL.md) router for Figma, MCP, research, scaffolding, and registry workflows.
 
-The monorepo remains an equivalent source-of-record install: `npx skills add sarveshsea/memi --skill audit-frontend-design`.
+Focused mirror repositories remain available for directory discovery, but `sarveshsea/memi` is the source-of-record install.
 
 Every CI finding cites `file:line` and re-runs identically. No LLM is used in the enforcement path.
 
@@ -169,7 +177,7 @@ jobs:
           fetch-depth: 0
       - uses: sarveshsea/memi@v2
         with:
-          version: "2.6.1"
+          version: "2.6.2"
 ```
 
 What lands on the PR: **code-scanning annotations** at `file:line`, a **step summary** with score and gate verdict, and a **`memi-design-health` artifact** (HTML + markdown + badge).
@@ -243,7 +251,7 @@ memi agent install codex
 memi agent install codex-plugin
 memi agent install opencode --project .
 
-npx skills add sarveshsea/audit-frontend-design --skill audit-frontend-design
+npx skills add sarveshsea/memi --skill audit-frontend-design
 ```
 
 | Stack | Install path | Best for |

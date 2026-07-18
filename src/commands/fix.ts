@@ -6,7 +6,7 @@ import { ui } from "../tui/format.js";
 interface FixPlanOptions {
   json?: boolean;
   maxFiles?: string;
-  noWrite?: boolean;
+  write?: boolean;
 }
 
 export function registerFixCommand(program: Command, engine: MemoireEngine): void {
@@ -33,7 +33,7 @@ export function registerFixCommand(program: Command, engine: MemoireEngine): voi
         projectRoot: engine.config.projectRoot,
         target,
         maxFiles: Number.isFinite(maxFiles) ? maxFiles : 500,
-        write: opts.noWrite ? false : true,
+        write: opts.write !== false,
       });
 
       if (opts.json) {
@@ -41,7 +41,7 @@ export function registerFixCommand(program: Command, engine: MemoireEngine): voi
         return;
       }
 
-      printFixPlan(plan, opts.noWrite !== true);
+      printFixPlan(plan, opts.write !== false);
     });
 
   fix

@@ -9,7 +9,7 @@ interface UxAuditOptions {
   json?: boolean;
   maxFiles?: string;
   screenshot?: string;
-  noWrite?: boolean;
+  write?: boolean;
 }
 
 export function registerUxCommand(program: Command, engine: MemoireEngine): void {
@@ -34,14 +34,14 @@ export function registerUxCommand(program: Command, engine: MemoireEngine): void
           maxFiles: Number.isFinite(maxFiles) ? maxFiles : 500,
         });
 
-        if (!opts.noWrite) await writeUxAuditReport(engine.config.projectRoot, report);
+        if (opts.write !== false) await writeUxAuditReport(engine.config.projectRoot, report);
 
         if (opts.json) {
           console.log(JSON.stringify(report, null, 2));
           return;
         }
 
-        printUxAudit(report, opts.noWrite !== true);
+        printUxAudit(report, opts.write !== false);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         if (opts.json) {
