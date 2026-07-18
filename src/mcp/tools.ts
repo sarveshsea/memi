@@ -14,6 +14,8 @@ import { AgentOrchestrator } from "../agents/orchestrator.js";
 import { DesignAnalyzer } from "../agents/design-analyzer.js";
 import { buildDesignAgentBrief, DESIGN_AGENT_BRIEF_DETAIL_LEVELS, DESIGN_AGENT_BRIEF_MODES } from "../agents/design-agent-brief.js";
 import { buildAgentFileScaffoldPlan, markAgentFileScaffoldWritten } from "../scaffold/agent-file-scaffold.js";
+import { APPLE_DESIGN_BRIEF_DETAILS, APPLE_DESIGN_BRIEF_PLATFORMS, buildAppleDesignBrief } from "../ios/apple-design-brief.js";
+import { buildSwiftUiScaffoldPlan, SWIFTUI_ATOMIC_LEVELS, SWIFTUI_SCAFFOLD_KINDS, writeSwiftUiScaffold } from "../ios/swiftui-scaffold.js";
 import { getAI, getTracker } from "../ai/index.js";
 import { ComponentSpecSchema, PageSpecSchema, DataVizSpecSchema, type ComponentSpec } from "../specs/types.js";
 import { fetchPageAssets, parseCSSTokens } from "../research/css-extractor.js";
@@ -580,6 +582,68 @@ Use this tool: as the first MCP call when a coding agent is asked to design, pol
         detail,
       });
       return { content: [{ type: "text" as const, text: JSON.stringify(brief) }] };
+    },
+  );
+
+  // ── prepare_apple_design_brief ─────────────────────────
+  server.tool(
+    "prepare_apple_design_brief",
+    `Prepare a compact, local-first Apple-platform design and verification brief.
+
+Returns: mission, skill triggers, availability policy, Xcode preflight, design checks, build/test commands, and handoff requirements.
+Use before creating or changing SwiftUI, SwiftData, App Intents, Liquid Glass, or concurrency-sensitive UI. This tool does not run Xcode or mutate files.`,
+    {
+      platform: z.enum(APPLE_DESIGN_BRIEF_PLATFORMS).default("ios").describe("Apple platform to target: ios or macos."),
+      intent: z.string().optional().describe("Product, interaction, or implementation intent used to select focused skills."),
+      detail: z.enum(APPLE_DESIGN_BRIEF_DETAILS).default("compact").describe("Response size: compact, standard, or full."),
+    },
+    async ({ platform, intent, detail }) => {
+      const brief = buildAppleDesignBrief({
+        projectRoot: engine.config.projectRoot,
+        platform,
+        intent,
+        detail,
+      });
+      return { content: [{ type: "text" as const, text: JSON.stringify(brief) }] };
+    },
+  );
+
+  // ── scaffold_swiftui_files ─────────────────────────────
+  server.tool(
+    "scaffold_swiftui_files",
+    `Preview or write a deterministic SwiftUI feature scaffold.
+
+Default approved=false is non-mutating and returns every planned path and file body: Memi iOS spec, SwiftUI view, optional screen model, preview, and Swift Testing file.
+Set approved=true only after reviewing the plan. Writes never alter Xcode project files and refuse to overwrite existing files.`,
+    {
+      name: z.string().describe("PascalCase feature or component type name, such as Settings or CommandBar."),
+      kind: z.enum(SWIFTUI_SCAFFOLD_KINDS).default("screen").describe("screen creates model + view + test; component creates view + test."),
+      moduleName: z.string().describe("Swift module imported by the generated @testable test target."),
+      atomicLevel: z.enum(SWIFTUI_ATOMIC_LEVELS).default("molecule").describe("Atomic Design level for component scaffolds; screens are always page."),
+      intent: z.string().optional().describe("Product and design intent recorded in the generated spec."),
+      deploymentTarget: z.string().default("17.0").describe("Minimum iOS deployment target in major.minor form."),
+      outputRoot: z.string().default("Sources").describe("Workspace-relative Swift source root."),
+      testsRoot: z.string().default("Tests").describe("Workspace-relative Swift test root."),
+      liquidGlass: z.boolean().default(false).describe("Add an iOS 26+ glassEffect branch with a native material fallback."),
+      approved: z.boolean().default(false).describe("Must be true to write. false returns a complete dry-run plan."),
+    },
+    async ({ name, kind, moduleName, atomicLevel, intent, deploymentTarget, outputRoot, testsRoot, liquidGlass, approved }) => {
+      const plan = buildSwiftUiScaffoldPlan({
+        projectRoot: engine.config.projectRoot,
+        name,
+        kind,
+        moduleName,
+        atomicLevel,
+        intent,
+        deploymentTarget,
+        outputRoot,
+        testsRoot,
+        liquidGlass,
+        dryRun: !approved,
+        approved,
+      });
+      const result = approved ? await writeSwiftUiScaffold(plan) : plan;
+      return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
     },
   );
 

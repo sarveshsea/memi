@@ -3,7 +3,7 @@ const { spawn } = require("node:child_process");
 const executable = process.platform === "win32" ? "npx.cmd" : "npx";
 const args = [
   "-y",
-  "@memi-design/cli@2.5.0",
+  "@memi-design/cli@2.6.0",
   "mcp", "start", "--no-figma",
 ];
 

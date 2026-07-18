@@ -16,6 +16,25 @@ This changelog tracks Mémoire itself: every version, commit, and architectural 
 - Hardened catalog installs with HTTPS validation, exact signed-size checks, bounded streaming, decompression and uncompressed-size limits, safe tar parsing, and rejection of links, special files, and executables.
 - Kept clean site builds self-contained by preserving checked-in official and community catalogs when companion source checkouts are unavailable.
 
+## v2.6.0 - 2026-07-17 - Apple platform design CI
+
+Native Apple-platform release that extends Memi's evidence-first design workflow from web interfaces into SwiftUI without pretending that source generation alone proves an Xcode build.
+
+### SwiftUI briefs and file creation
+- Added `memi ios brief` and MCP `prepare_apple_design_brief` with compact, standard, and full payloads for SwiftUI state, accessibility, availability, testing, and Xcode proof.
+- Added `memi ios scaffold` and MCP `scaffold_swiftui_files` for approval-gated iOS specs, SwiftUI views, previews, screen models, and Swift Testing files.
+- SwiftUI writes expose every path and byte in dry-run JSON, stay inside the workspace, refuse silent overwrites, and never mutate `.xcodeproj` or `.xcworkspace` files.
+- Added optional iOS 26+ Liquid Glass generation with a native material fallback and explicit availability guidance.
+
+### Agent distribution
+- Added the focused `build-swiftui-interface` skill to the npm package, Codex plugin, and Claude plugin.
+- Added Apple-platform routing to the main Memi skill and updated MCPB, MCP Registry, GitHub Action, widget, preset, and plugin version surfaces to `2.6.0`.
+- Kept current June 2026 Apple API guidance separate from unsupported iOS version claims.
+
+### Design skills and Studio
+- Coordinated with `sarveshsea/design-skills` v1.2.0, which adds eight governed iOS/Swift skills and a dedicated collection.
+- Added a first-class Studio iOS workflow, current package references, and packaged runtime verification for SwiftUI agent runs.
+
 ## v2.5.0 — 2026-07-14 — Agent design CI recovery release
 
 Product Hunt recovery release that makes the package story match the shipped product: agent design CI, Codex/MCP distribution, compact design-agent context, and spec-first file creation.

@@ -2,9 +2,9 @@
   "manifest_version": "0.2",
   "name": "memi",
   "display_name": "memi",
-  "version": "2.5.0",
-  "description": "Design-system memory for coding agents: UI audits, Tailwind token extraction, shadcn registry workflows, Figma context, and interface-quality diagnostics.",
-  "long_description": "memi gives MCP-compatible agents design-system memory and interface-quality tools. It exposes UI audits, Tailwind token extraction, shadcn registry workflows, Figma context, design docs, and implementation diagnostics through the @memi-design/cli npm package.",
+  "version": "2.6.0",
+  "description": "Design-system memory for coding agents: SwiftUI scaffolds, UI audits, tokens, shadcn workflows, Figma context, and interface diagnostics.",
+  "long_description": "memi gives MCP-compatible agents design-system memory and interface-quality tools. It exposes Apple-platform briefs, approval-gated SwiftUI scaffolds, UI audits, Tailwind tokens, shadcn registry workflows, Figma context, design docs, and implementation diagnostics through the @memi-design/cli npm package.",
   "author": {
     "name": "Sarvesh Chidambaram",
     "url": "https://github.com/sarveshsea"
@@ -36,7 +36,9 @@
     "shadcn",
     "figma",
     "mcp",
-    "agents"
+    "agents",
+    "swiftui",
+    "ios"
   ],
   "license": "MIT",
   "compatibility": {

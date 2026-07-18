@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const root = process.cwd();
+const packageVersion = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version as string;
 const manifest = JSON.parse(
   readFileSync(join(root, "mcpb", "manifest.json"), "utf8"),
 ) as {
@@ -33,7 +34,7 @@ describe("MCPB distribution bundle", () => {
       "utf8",
     );
 
-    expect(launcher).toContain("@memi-design/cli@2.5.0");
+    expect(launcher).toContain(`@memi-design/cli@${packageVersion}`);
     expect(launcher).toContain('"mcp", "start", "--no-figma"');
   });
 

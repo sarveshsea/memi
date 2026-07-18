@@ -34,13 +34,14 @@ Then ask your agent: **"Audit this frontend before editing it. Prioritize the fi
 
 No account, API key, Figma file, global install, or daemon is required. The skill runs the pinned CLI with `npx`, audits the real source tree, and returns file-anchored evidence.
 
-### Three focused skills
+### Four focused skills
 
 | Job | Install |
 | --- | --- |
 | Find accessibility, token, hierarchy, state, and responsive issues | `npx skills add sarveshsea/audit-frontend-design --skill audit-frontend-design` |
 | Load compact design-system context before UI work | `npx skills add sarveshsea/remember-design-system --skill remember-design-system` |
 | Add deterministic design checks to pull requests | `npx skills add sarveshsea/enforce-design-ci --skill enforce-design-ci` |
+| Build and verify native SwiftUI interfaces | `npx skills add sarveshsea/memi --skill build-swiftui-interface` |
 
 [Browse the skills on skills.sh](https://skills.sh/sarveshsea/memi) or use the full [`memoire-design-tooling`](skills/memoire-design-tooling/SKILL.md) router for Figma, MCP, research, scaffolding, and registry workflows.
 
@@ -63,12 +64,14 @@ memi ux audit --json
 memi craft audit --json
 memi tokens --from ./src --report
 memi scaffold component EvidenceCard --level organism --json
+memi ios brief --intent "Build an accessible settings screen" --detail compact --json
+memi ios scaffold Settings --kind screen --module AppModule --json
 memi shadcn export --out public/r
 memi agent install universal --project .
 memi mcp start --no-figma
 ```
 
-That loop gives you a compact design-agent brief, app-quality findings, UX risks, craft critique, extracted tokens, a dry-run Atomic Design file scaffold, shadcn registry output, installable Agent Skills, and a Figma-independent MCP server.
+That loop gives you compact web and Apple-platform briefs, app-quality findings, UX risks, craft critique, extracted tokens, dry-run web and SwiftUI file scaffolds, shadcn registry output, installable Agent Skills, and a Figma-independent MCP server.
 
 Public proof repo: [`sarveshsea/design-sandbox`](https://github.com/sarveshsea/design-sandbox) — Next.js 16 + Tailwind 4 + shadcn wired with MCP, skills, and `memoire.agent.yaml`.
 
@@ -126,6 +129,7 @@ Grok also loads project `.mcp.json` via compat — `memi agent install claude-co
 | Interface craft | Visual hierarchy, spacing rhythm, conventions, responsive resilience | `memi craft audit --json` |
 | Token memory | CSS variables, Tailwind v4 `@theme`, aliases, scale issues | `memi tokens --from ./src --report` |
 | Spec-first file creation | Dry-run Atomic Design component/page scaffolds before writes | `memi scaffold component <Name> --json` |
+| Apple platform design | SwiftUI brief plus spec/view/model/preview/test scaffolds | `memi ios brief --json` |
 | Registry output | shadcn-native registry for shadcn, v0, npm, GitHub | `memi shadcn export --out public/r` |
 | Agent kits | Skills + MCP for Grok Build, Codex, Claude Code, Cursor, Hermes, OpenClaw, OpenCode | `memi agent install --dry-run --json` |
 | MCP server | 40+ design tools over stdio for any MCP client | `memi mcp start --no-figma` |
@@ -165,7 +169,7 @@ jobs:
           fetch-depth: 0
       - uses: sarveshsea/memi@v2
         with:
-          version: "2.5.0"
+          version: "2.6.0"
 ```
 
 What lands on the PR: **code-scanning annotations** at `file:line`, a **step summary** with score and gate verdict, and a **`memi-design-health` artifact** (HTML + markdown + badge).
@@ -187,6 +191,8 @@ Full release checklist: [docs/GITHUB_ACTION_MARKETPLACE.md](docs/GITHUB_ACTION_M
 | --- | --- |
 | `prepare_design_agent_brief` | Agent needs a preflight contract before UI edits |
 | `scaffold_agent_design_files` | Agent needs an approval-gated spec-first file creation plan |
+| `prepare_apple_design_brief` | Agent needs compact SwiftUI, availability, accessibility, and Xcode guidance |
+| `scaffold_swiftui_files` | Agent needs a dry-run-first SwiftUI spec, view, model, preview, and test scaffold |
 | `diagnose_app_quality` | App-quality graph, file evidence, issue list |
 | `audit_ux_tenets_traps` | UX tenet scores and trap risks |
 | `audit_interface_craft` | Visual hierarchy, rhythm, conventions, polish |

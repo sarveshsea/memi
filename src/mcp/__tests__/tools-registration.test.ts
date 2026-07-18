@@ -81,6 +81,15 @@ describe("MCP tools registration", () => {
     expect(src).toContain("approved");
   });
 
+  it("registers Apple design brief and approval-gated SwiftUI scaffold tools", async () => {
+    const src = await readToolsSrc();
+    expect(src).toContain('"prepare_apple_design_brief"');
+    expect(src).toContain("buildAppleDesignBrief");
+    expect(src).toContain('"scaffold_swiftui_files"');
+    expect(src).toContain("writeSwiftUiScaffold");
+    expect(src).toContain("approved");
+  });
+
   it("registers an interface craft audit tool", async () => {
     const src = await readToolsSrc();
     expect(src).toContain('"audit_interface_craft"');

@@ -1,7 +1,7 @@
 {
   "name": "memi",
-  "description": "Agent design CI, spec-first file scaffolds, MCP tools, shadcn/ui registry workflows, Tailwind token extraction, and UI quality gates for Claude Code.",
-  "version": "2.5.0",
+  "description": "Agent design CI, SwiftUI and web file scaffolds, MCP tools, design-system workflows, and UI quality gates for Claude Code.",
+  "version": "2.6.0",
   "author": {
     "name": "Sarvesh Chidambaram",
     "url": "https://github.com/sarveshsea"

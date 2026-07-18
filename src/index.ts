@@ -83,6 +83,7 @@ const FAST_COMMANDS: Record<string, () => Promise<RegisterFn>> = {
   "pull": async () => (await import("./commands/pull.js")).registerPullCommand,
   "generate": async () => (await import("./commands/generate.js")).registerGenerateCommand,
   "scaffold": async () => (await import("./commands/scaffold.js")).registerScaffoldCommand,
+  "ios": async () => (await import("./commands/ios.js")).registerIosCommand,
   "add": async () => (await import("./commands/add.js")).registerAddCommand,
   "theme": async () => (await import("./commands/theme.js")).registerThemeCommand,
   "design-doc": async () => (await import("./commands/design-doc.js")).registerDesignDocCommand,
@@ -105,6 +106,7 @@ async function registerAllCommands(program: CliProgram, engine: CliEngine): Prom
     { registerSpecCommand },
     { registerGenerateCommand },
     { registerScaffoldCommand },
+    { registerIosCommand },
     { registerPreviewCommand },
     { registerStatusCommand },
     { registerDoctorCommand },
@@ -157,6 +159,7 @@ async function registerAllCommands(program: CliProgram, engine: CliEngine): Prom
     import("./commands/spec.js"),
     import("./commands/generate.js"),
     import("./commands/scaffold.js"),
+    import("./commands/ios.js"),
     import("./commands/preview.js"),
     import("./commands/status.js"),
     import("./commands/doctor.js"),
@@ -229,6 +232,7 @@ async function registerAllCommands(program: CliProgram, engine: CliEngine): Prom
   registerPullCommand(program, engine);
   registerSyncCommand(program, engine);
   registerScaffoldCommand(program, engine);
+  registerIosCommand(program, engine);
   registerGenerateCommand(program, engine);
   registerTokensCommand(program, engine);
   registerPreviewCommand(program, engine);
@@ -403,6 +407,7 @@ function printFastHelp(version: string): void {
     "  view                    Print or open a registry component URL",
     "  design-doc              Extract a design system from any URL",
     "  generate                Generate shadcn/Tailwind code from specs",
+    "  ios <subcommand>        Brief and scaffold agent-verifiable SwiftUI workflows",
     "  preview                 Start the local preview and registry server",
     "  studio                  Run the desktop/web agent design shell runtime",
     "  daemon                  Start the shared native runtime daemon",

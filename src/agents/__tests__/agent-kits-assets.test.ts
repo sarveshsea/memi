@@ -121,12 +121,13 @@ describe("packaged agent kits", () => {
     expect(rootSkill).toContain("memi mcp start --no-figma");
   });
 
-  it("ships focused zero-setup skills for the three core design-agent jobs", async () => {
+  it("ships focused zero-setup skills for the four core design-agent jobs", async () => {
     const root = process.cwd();
     const focusedSkills = [
       "audit-frontend-design",
       "remember-design-system",
       "enforce-design-ci",
+      "build-swiftui-interface",
     ];
     const pkg = JSON.parse(await readFile(join(root, "package.json"), "utf-8"));
 
@@ -145,6 +146,7 @@ describe("packaged agent kits", () => {
 
   it("ships valid SKILL.md frontmatter for Hermes and OpenClaw", async () => {
     const root = process.cwd();
+    const pkg = JSON.parse(await readFile(join(root, "package.json"), "utf-8"));
     const hermesSkill = await readFile(join(root, "agent-kits", "hermes", "memoire-design-tooling", "SKILL.md"), "utf-8");
     const openClawSkill = await readFile(join(root, "agent-kits", "openclaw", "memoire-design-tooling", "SKILL.md"), "utf-8");
 
@@ -153,7 +155,7 @@ describe("packaged agent kits", () => {
       expect(skill).toContain("name: memoire-design-tooling");
       expect(skill).toContain("description: Use when");
       expect(skill).toMatch(/\n---\n\n# Memi Design Tooling/);
-      expect(skill).toContain("npx -y @memi-design/cli@2.5.0");
+      expect(skill).toContain(`npx -y @memi-design/cli@${pkg.version}`);
       expect(skill).toContain("memoire.agent.yaml");
       expect(skill).not.toContain("npm i -g");
       expect(skill).not.toContain("daemon start");
@@ -202,7 +204,7 @@ describe("packaged agent kits", () => {
       },
     });
     expect(manifest.description).toContain("memi design memory");
-    expect(manifest.interface.defaultPrompt.length).toBeLessThanOrEqual(3);
+    expect(manifest.interface.defaultPrompt.length).toBeLessThanOrEqual(4);
     expect(manifest.interface.defaultPrompt).toContain("Audit this UI with memi before editing.");
     expect(manifest.interface.logo).toBeUndefined();
     expect(manifest.interface.composerIcon).toBeUndefined();
@@ -216,18 +218,18 @@ describe("packaged agent kits", () => {
       },
     });
     expect(pluginSkill).toBe(codexSkill);
-    for (const skillName of ["audit-frontend-design", "remember-design-system", "enforce-design-ci"]) {
+    for (const skillName of ["audit-frontend-design", "remember-design-system", "enforce-design-ci", "build-swiftui-interface"]) {
       const focusedPluginSkill = await readFile(join(root, "plugins", "memoire", "skills", skillName, "SKILL.md"), "utf-8");
       const focusedRootSkill = await readFile(join(root, "skills", skillName, "SKILL.md"), "utf-8");
       expect(focusedPluginSkill).toBe(focusedRootSkill);
     }
   });
 
-  it("ships the Claude plugin with the same four zero-setup skills", async () => {
+  it("ships the Claude plugin with the same five zero-setup skills", async () => {
     const root = process.cwd();
     const pkg = JSON.parse(await readFile(join(root, "package.json"), "utf-8"));
     const manifest = JSON.parse(await readFile(join(root, "plugins", "memi-claude", ".claude-plugin", "plugin.json"), "utf-8"));
-    const skillNames = ["memoire-design-tooling", "audit-frontend-design", "remember-design-system", "enforce-design-ci"];
+    const skillNames = ["memoire-design-tooling", "audit-frontend-design", "remember-design-system", "enforce-design-ci", "build-swiftui-interface"];
 
     expect(manifest.version).toBe(pkg.version);
     for (const skillName of skillNames) {

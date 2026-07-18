@@ -98,9 +98,8 @@ const requiredPackagedDocs = [
   ["docs/INTERFACE_UNDERSTANDING.md", "Interface understanding is the memi v2 core loop"],
   ["docs/AGENT_STACKS.md", "ECC / AGENTS.md stacks"],
   ["docs/V2_PACKAGE_POSITIONING.md", "High-download package bar"],
-  ["docs/GROWTH_TO_1M_NPM.md", "interface understanding for AI coding agents"],
-  ["docs/PUBLIC_REPOS.md", "sarveshsea/design-sandbox"],
   ["docs/RELEASE_GATES.md", "Local Publish-Ready Gate"],
+  ["docs/IOS_SWIFT.md", "Apple-platform design CI"],
   ["docs/PROOF.md", "No-Figma"],
 ];
 for (const [docPath, requiredTerm] of requiredPackagedDocs) {
@@ -108,6 +107,15 @@ for (const [docPath, requiredTerm] of requiredPackagedDocs) {
     fail(`package.json files must include ${docPath}`);
     continue;
   }
+  const doc = await readFile(join(root, docPath), "utf-8");
+  if (!doc.includes(requiredTerm)) {
+    fail(`${docPath} is missing required term: ${requiredTerm}`);
+  }
+}
+for (const [docPath, requiredTerm] of [
+  ["docs/GROWTH_TO_1M_NPM.md", "interface understanding for AI coding agents"],
+  ["docs/PUBLIC_REPOS.md", "sarveshsea/design-sandbox"],
+]) {
   const doc = await readFile(join(root, docPath), "utf-8");
   if (!doc.includes(requiredTerm)) {
     fail(`${docPath} is missing required term: ${requiredTerm}`);
@@ -140,7 +148,7 @@ for (const term of ["name: memoire-design-tooling", "agent brief", "memi agent i
   }
 }
 const pinnedCliCommand = `npx -y @memi-design/cli@${packageJson.version}`;
-for (const skillName of ["audit-frontend-design", "remember-design-system", "enforce-design-ci"]) {
+for (const skillName of ["audit-frontend-design", "remember-design-system", "enforce-design-ci", "build-swiftui-interface"]) {
   const focusedSkill = await readFile(join(root, "skills", skillName, "SKILL.md"), "utf-8");
   const focusedPluginSkill = await readFile(join(root, "plugins", "memoire", "skills", skillName, "SKILL.md"), "utf-8");
   if (!focusedSkill.includes(`name: ${skillName}`) || !focusedSkill.includes(pinnedCliCommand)) {
@@ -154,7 +162,7 @@ const claudePluginManifest = await readJson(join(root, "plugins", "memi-claude",
 if (claudePluginManifest.version !== packageJson.version) {
   fail(`Claude plugin version ${claudePluginManifest.version ?? "missing"} does not match package ${packageJson.version}`);
 }
-for (const skillName of ["memoire-design-tooling", "audit-frontend-design", "remember-design-system", "enforce-design-ci"]) {
+for (const skillName of ["memoire-design-tooling", "audit-frontend-design", "remember-design-system", "enforce-design-ci", "build-swiftui-interface"]) {
   const rootSkill = await readFile(join(root, "skills", skillName, "SKILL.md"), "utf-8");
   const claudeSkill = await readFile(join(root, "plugins", "memi-claude", "skills", skillName, "SKILL.md"), "utf-8");
   if (claudeSkill !== rootSkill) {
@@ -212,7 +220,7 @@ if (!codexTermsPage.includes("Memoire terms of service")) {
 }
 
 const cliEntry = await readFile(join(root, "src", "index.ts"), "utf-8");
-for (const command of ["diagnose [target]", "ux audit [target]", "craft audit [target]", "tokens", "publish", "shadcn <subcommand>", "fix <subcommand>", "add <component>", "registry <subcommand>", "agent brief [target]"]) {
+for (const command of ["diagnose [target]", "ux audit [target]", "craft audit [target]", "tokens", "publish", "shadcn <subcommand>", "fix <subcommand>", "add <component>", "registry <subcommand>", "agent brief [target]", "ios <subcommand>"]) {
   if (!cliEntry.includes(command)) {
     fail(`fast CLI help is missing command: ${command}`);
   }
