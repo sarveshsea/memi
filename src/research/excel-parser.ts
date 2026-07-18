@@ -14,7 +14,7 @@ export interface ParsedSheet {
 }
 
 /**
- * Parse an Excel (.xlsx, .xls) or CSV file into structured data.
+ * Parse an Excel (.xlsx) or CSV file into structured data.
  */
 export async function parseExcel(filePath: string): Promise<ParsedSheet> {
   const ext = filePath.toLowerCase().split(".").pop();
@@ -23,37 +23,36 @@ export async function parseExcel(filePath: string): Promise<ParsedSheet> {
     return parseCsv(filePath);
   }
 
-  // Lazy import — exceljs is a multi-MB dependency used only for .xlsx
-  // parsing; loading it at module import time taxes every CLI startup.
-  const { default: ExcelJS } = await import("exceljs");
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(filePath);
-
-  const sheet = workbook.worksheets[0];
+  // Keep the XLSX parser off the CLI startup path; research imports it on demand.
+  const [{ default: XlsxPopulate }, { is_date: isDateFormat }] = await Promise.all([
+    import("xlsx-populate"),
+    import("ssf"),
+  ]);
+  const workbook = await XlsxPopulate.fromFileAsync(filePath);
+  const sheet = workbook.sheet(0);
   if (!sheet) {
     throw new Error(`No worksheets found in ${filePath}`);
   }
 
-  const headers: string[] = [];
-  const rows: unknown[][] = [];
-
-  sheet.eachRow((row, rowNumber) => {
-    const values = row.values as unknown[];
-    // ExcelJS row.values is 1-indexed, first element is undefined
-    const cleaned = values.slice(1).map(cellToValue);
-
-    if (rowNumber === 1) {
-      // Treat first row as headers
-      for (const val of cleaned) {
-        headers.push(String(val ?? `Column ${headers.length + 1}`));
-      }
-    } else {
-      rows.push(cleaned);
+  const sheetRows = sheet.usedRange()?.value() ?? [];
+  const normalizedRows = sheetRows.map((row, rowIndex) => row.map((cell, columnIndex) => {
+    if (typeof cell !== "number") return cellToValue(cell);
+    const numberFormat = sheet.cell(rowIndex + 1, columnIndex + 1).style("numberFormat");
+    if (typeof numberFormat === "string" && isDateFormat(numberFormat)) {
+      return XlsxPopulate.numberToDate(cell).toISOString();
     }
-  });
+    return cell;
+  }));
+  const [headerRow = [], ...dataRows] = normalizedRows;
+  const headers = headerRow.map((cell, index) =>
+    String(cell ?? `Column ${index + 1}`),
+  );
+  const rows = dataRows.filter((row) =>
+    row.some((cell) => cell !== null && cell !== undefined),
+  );
 
   return {
-    sheetName: sheet.name,
+    sheetName: sheet.name(),
     headers,
     rows,
     rowCount: rows.length,
@@ -121,13 +120,17 @@ function parseCsvLine(line: string): string[] {
 }
 
 /**
- * Convert an ExcelJS cell value to a plain JS value.
+ * Convert a spreadsheet cell value to a deterministic plain JS value.
  */
 function cellToValue(cell: unknown): unknown {
   if (cell === null || cell === undefined) return null;
 
-  // ExcelJS rich text
+  // Preserve compatibility with structured values from older workbook readers.
   const obj = cell as Record<string, unknown>;
+  if (typeof cell === "object" && typeof obj.text === "function") {
+    return (obj.text as () => string)();
+  }
+
   if (typeof cell === "object" && "richText" in obj) {
     return (obj.richText as { text: string }[]).map((rt) => rt.text).join("");
   }

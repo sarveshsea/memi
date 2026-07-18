@@ -1,6 +1,6 @@
 {
   "name": "memoire",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "memi design memory and quality tools for Codex: SwiftUI, MCP, Figma, shadcn/ui, Tailwind, and Atomic Design.",
   "author": {
     "name": "Sarvesh Chidambaram",
